@@ -1,0 +1,27 @@
+<resources>
+
+    <!--
+         Customize dimensions originally defined in res/values/dimens.xml (such as
+         screen margins) for sw600dp devices (e.g. 7" tablets) here.
+    -->
+    
+    <!-- Width of Navigation Drawer -->
+    <dimen name="navigation_drawer_width">320dp</dimen>
+
+    <!-- User Settings -->
+    <dimen name="school_header_size">20sp</dimen>
+    <dimen name="school_post_size">16sp</dimen>
+
+    <!-- School Page posts sizes-->
+    <dimen name="grid_column_width">280dp</dimen>
+    <dimen name="image_width">280dp</dimen>
+    <dimen name="image_height">240dp</dimen>
+
+    <!-- ShowPage sizes-->
+    <dimen name="title_size">26sp</dimen>
+    <dimen name="price_size">28sp</dimen>
+    <dimen name="show_page_text">18sp</dimen>
+    <dimen name="image_size_main">300dp</dimen>
+    <dimen name="image_size_sub">120dp</dimen>
+
+</resources>

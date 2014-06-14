@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.walkntrade"
+    android:versionCode="2"
+    android:versionName="1.01" >
+
+    <uses-sdk
+        android:minSdkVersion="11"
+        android:targetSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/WalkntradeTheme">
+        <activity
+            android:name="com.walkntrade.Walkntrade_Main"
+            android:label="@string/app_name"
+            android:theme="@style/WalkntradeTheme.NoActionBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.walkntrade.LoginActivity"
+            android:label="@string/title_activity_login"
+            android:theme="@style/WalkntradeTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
+        <activity
+            android:name="com.walkntrade.RegistrationActivity"
+            android:label="@string/title_activity_registration">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walkntrade.LoginActivity" />
+        </activity>
+        <activity
+            android:name="com.walkntrade.Selector"
+            android:configChanges="orientation"
+            android:windowSoftInputMode="stateHidden|adjustPan"
+            android:theme="@style/WalkntradeTheme.NoActionBar"
+            android:label="@string/title_activity_selector" >
+            <intent-filter>
+                <action android:name="android.intent.action.SELECTOR" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SchoolPage"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"
+            android:label="@string/tSchoolName" >
+            <intent-filter>
+                <action android:name="android.intent.action.SCHOOLPAGE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ShowPage"
+            android:configChanges="screenSize"
+            android:label="@string/title_activity_show__page">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walkntrade.SchoolPage"/>
+            <intent-filter>
+                <action android:name="android.intent.action.SHOWPAGE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.walkntrade.ImageDialog"
+            android:label="@string/title_activity_image_dialog"
+            android:theme="@style/ImageDialogTheme" >
+        </activity>
+        <activity
+            android:name="com.walkntrade.AddPost"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_activity_add_post">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walkntrade.SchoolPage" />
+        </activity>
+        <activity
+            android:name="com.walkntrade.VerifyKeyActivity"
+            android:label="@string/title_activity_verify_key"
+            android:theme="@style/VerifyKeyDialogTheme" >
+            <intent-filter>
+                <action android:name="android.intent.action.KEYVERIFY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".UserSettings"
+            android:label="@string/title_activity_user_settings"
+            android:configChanges="orientation">
+        </activity>
+    </application>
+
+</manifest>

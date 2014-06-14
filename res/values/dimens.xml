@@ -1,0 +1,26 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!-- Width of Navigation Drawer -->
+    <dimen name="navigation_drawer_width">240dp</dimen>
+
+    <!-- User Settings -->
+    <dimen name="school_header_size">16sp</dimen>
+    <dimen name="school_post_size">14sp</dimen>
+
+    <!-- School Page posts sizes -->
+    <dimen name="grid_column_width">150dp</dimen>
+    <dimen name="image_width">150dp</dimen>
+    <dimen name="image_height">120dp</dimen>
+
+    <!-- ShowPage sizes -->
+    <dimen name="title_size">22sp</dimen>
+    <dimen name="price_size">26sp</dimen>
+    <dimen name="show_page_text">16sp</dimen>
+    <dimen name="image_size_main">200dp</dimen>
+    <dimen name="image_size_sub">80dp</dimen>
+
+</resources>

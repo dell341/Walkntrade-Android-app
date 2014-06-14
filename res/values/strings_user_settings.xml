@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_user_settings">User Account</string>
+
+    <!-- User Settings Options-->
+   <string-array name="user_account">
+       <item>Account Options</item>
+       <item>View Your Posts</item>
+       <item>Change your avatar</item>
+       <item>Account Settings</item>
+       <item>Contact Preferences</item>
+   </string-array>
+
+    <string name="contact_email">Contact me via email (Currently has no effect)</string>
+    <string name="edit_post">Edit</string>
+    <string name="remove_post">Remove</string>
+    <string name="dialog_delete">Delete this post?</string>
+
+</resources>

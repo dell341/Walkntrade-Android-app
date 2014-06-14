@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_registration">RegistrationActivity</string>
+
+    <!-- RegistrationActivity Strings-->
+    <string name="register_username">Username</string>
+    <string name="register_email">Email Address</string>
+    <string name="register_phoneNum">Phone Number (Optional)</string>
+    <string name="register_password">Password</string>
+    <string name="register_password_verf">Password (Confirm)</string>
+
+    <!-- Error Strings-->
+    <string name="error_email_taken">Email Address is already taken</string>
+    <string name="error_username_short">Username is too short</string>
+    <string name="error_username_long">Username is too long</string>
+    <string name="error_username_taken">Username is already taken</string>
+    <string name="error_phoneNum">Enter valid phone number</string>
+    <string name="error_password_short">Password must be at least 8 characters</string>
+    <string name="error_password_no_match">Passwords do not match</string>
+    <string name="error_registration">Registration failed</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Selector Page Strings -->
+    <string name="title_activity_selector">Walkntrade</string>
+    <string name="eSchoolName">Find your school!</string>
+    <string name="search">Search</string>
+    
+        <!-- NavigationDrawer (Side Menu) strings -->
+    <string-array name="selector_user_options">
+        <item>Settings</item>
+        <item>Select School</item>
+        <item>Account</item>
+        <item>Sign out</item>
+    </string-array>
+
+    <!-- Alternate set, used when user not signed in-->
+    <string-array name="selector_alt_user_options">
+        <item>Settings</item>
+        <item>Select School</item>
+    </string-array>
+
+
+</resources>

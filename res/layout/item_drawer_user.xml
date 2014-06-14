@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:background="@color/darker_gray" >
+    
+    <!-- User Image -->
+    <ImageView
+        android:id="@+id/drawer_user"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_alignParentLeft="true" 
+        android:scaleType="fitXY"
+        android:contentDescription="@string/drawer_icon"/>
+    
+    <!-- User Name -->
+    <TextView
+        android:id="@+id/drawer_user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/drawer_user"
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_alignParentTop="true"
+        android:textSize="16sp"/>
+
+    <!-- User Login Button-->
+    <Button
+        android:id="@+id/drawer_login"
+        style="@android:style/Widget.Button"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@id/drawer_user"
+        android:layout_margin="3dp"
+        android:textSize="16sp"
+        android:text="@string/signIn"
+        android:background="@drawable/grid_selector_post"/>
+
+</RelativeLayout>

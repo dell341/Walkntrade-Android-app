@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Error Messages-->
+    <color name="error_red">#FF0000</color>
+
+    <color name="blue">#0000FF</color>
+    <color name="holo_blue">#ff33b5e5</color>
+    <color name="darker_blue">#ff00009f</color>
+
+    <color name="walkntrade_green">#78BE19</color>
+
+    <color name="gray">#ffcacaca</color>
+    <color name="darker_gray">#aaaaaa</color>
+</resources>

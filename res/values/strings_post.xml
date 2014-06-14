@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_add_post">AddPost</string>
+
+    <!-- AddPost Strings -->
+    <string name="post_no_login">Must be logged in!</string>
+    <string name="post_title">Title</string>
+    <string name="post_description">Description</string>
+    <string name="post_price">Price (Optional)</string>
+    <string name="post_tags">Tags</string>
+    <string name="post_submit">Submit Post</string>
+    <string name="add_photo">Upload photo</string>
+
+    <string-array name="add_photo_options">
+        <item>Use camera</item>
+        <item>Upload existing photo</item>
+    </string-array>
+    
+    <!-- Books only -->
+    <string name="post_author">Author</string>
+    <string name="post_isbn">ISBN-10 or ISBN-13 (Optional)</string>
+    
+    <!-- Error Messages -->
+    <string name="post_error">Error submitting post</string>
+    <string name="error_short_title">Title too short</string>
+    <string name="error_long_title">Title too long</string>
+    <string name="error_short_author">Author name too short</string>
+    <string name="error_long_author">Author name too long</string>
+    <string name="error_short_description">Description too short</string>
+    <string name="error_long_description">Description too long</string>
+    <string name="error_isbn">Invalid ISBN</string>
+    <string name="error_short_tags">Add more tags</string>
+
+    <!-- ShowPage Strings -->
+    <string name="contact">Contact User</string>
+    <string name="contact_login">Log-in to inquire</string>
+    <string name="show_title">This is the title of the Post. Plus a lot of extra stuff</string>
+    <string name="show_description">This is the description of this post. In it\'s entirety, this is just filler text.
+        This is taking up the space that a typical post would take. Now this is the end of this "paragraph".</string>
+    <string name="show_price">$0.00</string>
+    <string name="show_date">2014&#8211;2&#8211;6</string>
+    <string name="show_user">Username</string>
+
+    <!-- MessageDialog Strings -->
+    <string name="contact_title">Contact User: <b>%1$s</b> </string>
+    <string name="post_message_content_phone">Hi, I would like to find out more about your post, please call me at %1$s or contact me on Walkntrade. Thanks!</string>
+    <string name="post_message_content_no_phone">Hi, I would like to find out more about your post, please contact me on Walkntrade. Thanks!</string>
+    <string name="send">Send</string>
+    <string name="cancel">Cancel</string>
+    <string name="message_failed">Could not send message</string>
+</resources>

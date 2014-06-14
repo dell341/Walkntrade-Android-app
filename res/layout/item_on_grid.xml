@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@drawable/grid_selector_post">
+    
+    <ImageView
+        android:id="@+id/post_image"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/image_height"
+        android:contentDescription="@string/post_image"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/post_image"/>
+        
+    <TextView 
+	    android:id="@+id/post_title"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center"
+	    android:textStyle="bold"
+	    android:singleLine="true"
+        android:textSize="@dimen/school_post_size"
+	    android:ellipsize="end"/>
+
+    <!--<TextView-->
+	    <!--android:id="@+id/post_details"-->
+	    <!--android:layout_width="match_parent"-->
+	    <!--android:layout_height="wrap_content"-->
+	    <!--android:singleLine="true"-->
+	    <!--android:ellipsize="end"/> &lt;!&ndash; Find a way in the future to ellipsize multiple lines &ndash;&gt;-->
+    <!---->
+    <!--<TextView-->
+	    <!--android:id="@+id/post_price"-->
+	    <!--android:layout_width="match_parent"-->
+	    <!--android:layout_height="wrap_content"-->
+	    <!--android:gravity="center"/>-->
+    
+    <TextView
+	    android:id="@+id/post_author"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center"/>
+
+</LinearLayout>

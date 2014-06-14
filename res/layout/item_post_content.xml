@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:padding="8dp"
+    android:layout_height="48dp"
+    android:background="@drawable/list_selector_post">
+
+    <!-- Title of Post-->
+    <TextView
+        android:id="@+id/view_post_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:clickable="false"
+        android:textSize="@dimen/school_post_size"
+        android:text="@string/message_failed"/>
+
+    <!-- Icon to edit current post -->
+    <ImageView
+        android:id="@+id/view_post_edit"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="8dp"
+        android:contentDescription="@string/edit_post"
+        android:src="@drawable/ic_action_edit"/>
+
+</RelativeLayout>

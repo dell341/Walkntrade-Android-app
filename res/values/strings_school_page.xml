@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- NavigationDrawer (Side Menu) strings -->
+    <string-array name="user_options">
+        <item>Post</item>
+        <item>Post Books</item>
+        <item>Post Tech</item>
+        <item>Post Services</item>
+        <item>Post Misc.</item>
+        <item>Settings</item>
+        <item>Account</item>
+        <item>Change School</item>
+    </string-array>
+
+    <!-- Tab Titles strings -->
+    <string name="category_all">All</string>
+    <string name="category_book">Books</string>
+    <string name="category_tech">Tech</string>
+    <string name="category_service">Services</string>
+    <string name="category_misc">Miscellaneous</string>
+
+    <string name="drawer_open">Navigation Drawer has been opened</string>
+    <string name="drawer_close">Navigation Drawer has been closed</string>
+
+    <!-- School Page Strings -->
+    <string name="tSchoolName">No School Selected</string>
+    <string name="ePostName">Search for posts</string>
+
+</resources>

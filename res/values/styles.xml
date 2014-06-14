@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- All Application & Activity themes used throughout the app. Applied in AndroidManifest.xml-->
+
+    <style name="WalkntradeTheme" parent="android:Theme.Holo.Light" >
+    </style>
+    
+    <style name="WalkntradeTheme.NoActionBar" parent="android:Theme.Holo.Light.NoActionBar">
+    </style>
+
+    <!-- Theme used for Verifying random key -->
+    <style name="VerifyKeyDialogTheme" parent="@android:style/Theme.Holo.Light.Dialog">
+    </style>
+
+    <!-- Theme used for the post image pop-up -->
+    <style name="ImageDialogTheme" parent="@android:style/Theme.Black.NoTitleBar">
+    </style>
+
+</resources>

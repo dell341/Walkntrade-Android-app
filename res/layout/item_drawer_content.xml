@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp" >
+
+    <!-- Icon in Navigation Drawer -->
+    <ImageView
+        android:id="@+id/drawer_icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="@string/drawer_icon"/>
+    
+    <!-- Available option -->
+    <TextView
+        android:id="@+id/drawer_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/drawer_icon"
+        android:layout_marginTop="12dp"
+        android:textSize="16sp"/>
+    
+    <!-- Divider -->
+	 	<View 
+	 	    android:id="@+id/drawer_divider"
+	 	    android:layout_width="match_parent"
+	 	    android:layout_height="1dp"
+	 	    android:layout_marginBottom="1dp"
+	 	    android:layout_alignParentBottom="true"
+	 	    android:background="#dadada"/>
+    
+</RelativeLayout>

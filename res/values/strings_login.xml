@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- LoginActivity Strings -->
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="enterEmail">Email Address</string>
+    <string name="enterPassword">Password</string>
+    <string name="submit">Submit</string>
+    <string name="register">Register</string>
+    <string name="skipLogin">Continue without Log-in</string>
+    <string name="signIn">Sign in</string>
+
+    <!-- Login Errors -->
+    <string name="loginError">Could not Log-in</string>
+    <string name="invalidEmailAddress">Enter a valid email address</string>
+    <string name="invalidPassword">Password field is blank</string>
+    <string name="error_need_verification">verify</string>
+    
+</resources>

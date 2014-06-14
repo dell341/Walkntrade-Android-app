@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Error Message used in login, registration, add post, etc.-->
+    <style name="TextViewError">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/error_red</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="TextViewSkipLogin">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_blue_clickable</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+</resources>

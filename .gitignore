@@ -1,0 +1,27 @@
+# Folders and File extensions to ignore
+
+# Built application files
+*.apk
+*.ap_
+
+# Keystore files
+*.keystore
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+
+# Gradle files
+.gradle/
+build/
+
+# IntelliJ & Eclipse (Migrated from)
+.idea/
+.settings/
+
+# Local configuration file (sdk path, etc)
+local.properties
+

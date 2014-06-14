@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_verify_key">Account Verification</string>
+    <string name="verify_enter_key">Enter key verification code</string>
+
+    <string name="verify_success">Your email address has been verified!</string>
+    <string name="verify_failed">Either the link is no longer valid or you mistyped the key.</string>
+</resources>
