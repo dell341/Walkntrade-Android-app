@@ -120,7 +120,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         Post selectedPost = (Post) parent.getItemAtPosition(position);
 
         Intent showPage = new Intent(getActivity(), ShowPage.class);
-        showPage.putExtra(SchoolPage.SELECTED_POST, selectedPost);
+        showPage.putExtra(SchoolPage.SELECTED_POST, selectedPost.getIdentifier());
         startActivity(showPage);
     }
 }

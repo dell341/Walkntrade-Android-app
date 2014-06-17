@@ -54,24 +54,24 @@ import javax.xml.parsers.SAXParserFactory;
 
 //Handles almost all necessary network communications
 public class DataParser {
-	private static final String url = "http://api.walkntrade.com";
-	private static final String TAG = "DATAPARSER";
-	public static final String LOGIN_SUCCESS = "success";
-	
-	//SharedPreferences Strings
-	public static final String PREFS_COOKIES = "CookiesPreferences";
+    private static final String url = "http://api.walkntrade.com";
+    private static final String TAG = "DATAPARSER";
+    public static final String LOGIN_SUCCESS = "success";
+
+    //SharedPreferences Strings
+    public static final String PREFS_COOKIES = "CookiesPreferences";
     public static final String PREFS_USER = "UserPreferences";
     public static final String PREFS_SCHOOL = "SchoolPreferences";
-	public static final String USER_LOGIN = "user_login"; //Cookie title
-	public static final String SESS_SEED = "sessionSeed"; //Cookie title
-	public static final String SESS_UID = "sessionUid"; //Cookie title
+    public static final String USER_LOGIN = "user_login"; //Cookie title
+    public static final String SESS_SEED = "sessionSeed"; //Cookie title
+    public static final String SESS_UID = "sessionUid"; //Cookie title
     public static final String S_PREF = "sPref"; //Cookie title
     public static final String USER_NAME = "user_name"; //User-Pref title
-    public static final String PHONE_NUM= "phone_number"; //User-Pref title
-	public static final String CURRENTLY_LOGGED_IN = "userLoggedIn"; //User-Pref title
+    public static final String PHONE_NUM = "phone_number"; //User-Pref title
+    public static final String CURRENTLY_LOGGED_IN = "userLoggedIn"; //User-Pref title
     public static final String S_PREF_SHORT = "sPrefShort"; //School Preference title
     public static final String S_PREF_LONG = "sPrefLong"; //School Preference title
-	public static final String BLANK = " ";
+    public static final String BLANK = " ";
 
     private AndroidHttpClient httpClient; //Android Client, Uses User-Agent, and executes request
     private HttpContext httpContext; //Contains CookieStore that is sent along with request
@@ -80,18 +80,20 @@ public class DataParser {
     private final String USER_AGENT = System.getProperty("http.agent"); //Unique User-Agent of current device
 
     //Initialized here to enable usage within Handler classes
-	private ArrayList<String> schools;
-	private ArrayList<Post> schoolPosts;
+    private ArrayList<String> schools;
+    private ArrayList<Post> schoolPosts;
     private ArrayList<PostReference> userPosts;
-	private String schoolID;
-	private String schoolName;
+    private Post post;
+    private String identifier;
+    private String schoolID;
+    private String schoolName;
 
-	private String userLoginCookie, sessionSeedCookie, sessionUidCookie, sPrefCookie;
-	private Context context;
-	
-	public DataParser(Context _context) {
-		context = _context;
-	}
+    private String userLoginCookie, sessionSeedCookie, sessionUidCookie, sPrefCookie;
+    private Context context;
+
+    public DataParser(Context _context) {
+        context = _context;
+    }
 
     //First call whenever connecting across the user's network
     private void establishConnection() {
@@ -107,27 +109,27 @@ public class DataParser {
         httpPost.setHeader("Cookie", sessionSeedCookie + ";" + sessionUidCookie + ";" + userLoginCookie + ";" + sPrefCookie);
     }
 
-	//Called after communication is complete
-	private void disconnectAll() {
-		httpClient.close();
-	}
+    //Called after communication is complete
+    private void disconnectAll() {
+        httpClient.close();
+    }
 
     //Get Cookies already stored on device
-	private void getCookies() {
-		SharedPreferences settings = context.getSharedPreferences(PREFS_COOKIES, 0);
-		userLoginCookie = settings.getString(USER_LOGIN, BLANK);
-		sessionSeedCookie = settings.getString(SESS_SEED, BLANK);
-		sessionUidCookie = settings.getString(SESS_UID, BLANK);
+    private void getCookies() {
+        SharedPreferences settings = context.getSharedPreferences(PREFS_COOKIES, 0);
+        userLoginCookie = settings.getString(USER_LOGIN, BLANK);
+        sessionSeedCookie = settings.getString(SESS_SEED, BLANK);
+        sessionUidCookie = settings.getString(SESS_UID, BLANK);
 
         //Short name of school will be used in the cookies
         settings = context.getSharedPreferences(PREFS_SCHOOL, 0);
-		sPrefCookie = settings.getString(S_PREF_SHORT, "sPref="+BLANK);
-	}
+        sPrefCookie = settings.getString(S_PREF_SHORT, "sPref=" + BLANK);
+    }
 
     //Update all cookies with new values from Cookie Store
-	private void updateCookies() {
-		SharedPreferences settings = context.getSharedPreferences(PREFS_COOKIES, 0);
-		SharedPreferences.Editor editor = settings.edit();
+    private void updateCookies() {
+        SharedPreferences settings = context.getSharedPreferences(PREFS_COOKIES, 0);
+        SharedPreferences.Editor editor = settings.edit();
 
         List<Cookie> cookieList = cookieStore.getCookies();
         for (Cookie cookie : cookieList) {
@@ -141,10 +143,10 @@ public class DataParser {
                 Log.e(TAG, "Found Extra Cookie: " + cookie.getName());
         }
         settings = context.getSharedPreferences(PREFS_SCHOOL, 0);
-		sPrefCookie = settings.getString(S_PREF_SHORT, "sPref="+BLANK);
-		
-		editor.commit(); //Save changes to the SharedPreferences
-	}
+        sPrefCookie = settings.getString(S_PREF_SHORT, "sPref=" + BLANK);
+
+        editor.commit(); //Save changes to the SharedPreferences
+    }
 
     //Clear locally stored cookies
     private void clearCookies() {
@@ -163,7 +165,7 @@ public class DataParser {
         StringBuilder builder = new StringBuilder();
 
         String line;
-        while( (line = reader.readLine()) != null)
+        while ((line = reader.readLine()) != null)
             builder.append(line);
 
         inStream.close();
@@ -172,7 +174,7 @@ public class DataParser {
     }
 
     //Sends out POST request and returns an InputStream
-    private InputStream processRequest(HttpEntity entity) throws IOException{
+    private InputStream processRequest(HttpEntity entity) throws IOException {
         httpPost.setEntity(entity);
         HttpResponse response = httpClient.execute(httpPost, httpContext); //Executes the request along with the cookie store
 
@@ -180,38 +182,38 @@ public class DataParser {
 
         return response.getEntity().getContent();
     }
-	
-	//Checks network availability before performing actions
-	public static boolean isNetworkAvailable(Context _context) {
-		ConnectivityManager connectivityManager = (ConnectivityManager) _context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-		
-		if(activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting()) 
-			return true;
-		
-		Toast toast = Toast.makeText(_context, _context.getString(R.string.no_connection), Toast.LENGTH_SHORT);
-		toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0);
-		toast.show();
-		return false;
-	}
-	
-	//Sets the selected school preference. Used when adding post to server
-	public void setSchoolPref(String school) {
-		SharedPreferences settings = context.getSharedPreferences(PREFS_SCHOOL, 0);
-		SharedPreferences.Editor editor = settings.edit();
-		editor.putString(S_PREF_SHORT, "sPref="+school);
 
-		editor.commit(); //Save changes to the SharedPreferences
-	}
+    //Checks network availability before performing actions
+    public static boolean isNetworkAvailable(Context _context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) _context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if (activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting())
+            return true;
+
+        Toast toast = Toast.makeText(_context, _context.getString(R.string.no_connection), Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0);
+        toast.show();
+        return false;
+    }
+
+    //Sets the selected school preference. Used when adding post to server
+    public void setSchoolPref(String school) {
+        SharedPreferences settings = context.getSharedPreferences(PREFS_SCHOOL, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(S_PREF_SHORT, "sPref=" + school);
+
+        editor.commit(); //Save changes to the SharedPreferences
+    }
 
     //Returns the school preference. The most recently visited school page
     public static String getSchoolPref(Context _context) {
         SharedPreferences settings = _context.getSharedPreferences(PREFS_SCHOOL, 0);
-        return  settings.getString(S_PREF_SHORT, null).split("=")[1]; //sPref=[school] is split and the second index [school] is returned
+        return settings.getString(S_PREF_SHORT, null).split("=")[1]; //sPref=[school] is split and the second index [school] is returned
     }
 
     //Sets the long name for school preference. Used to start app on School Page Activity
-    public void setSchoolLongPref(String school){
+    public void setSchoolLongPref(String school) {
         SharedPreferences settings = context.getSharedPreferences(PREFS_SCHOOL, 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(S_PREF_LONG, school);
@@ -219,7 +221,7 @@ public class DataParser {
         editor.commit();
     }
 
-    public static String getSchoolLongPref(Context _context){
+    public static String getSchoolLongPref(Context _context) {
         SharedPreferences settings = _context.getSharedPreferences(PREFS_SCHOOL, 0);
         return settings.getString(S_PREF_LONG, null);
     }
@@ -240,7 +242,7 @@ public class DataParser {
     }
 
     //Stores phone number in SharedPreferences
-    private void setPhonePref(String phoneNum){
+    private void setPhonePref(String phoneNum) {
         SharedPreferences settings = context.getSharedPreferences(PREFS_USER, 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(PHONE_NUM, phoneNum);
@@ -249,7 +251,7 @@ public class DataParser {
     }
 
     //Gets the stored phone number
-    public static String getPhonePref(Context _context){
+    public static String getPhonePref(Context _context) {
         SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, 0);
         return settings.getString(PHONE_NUM, null);
     }
@@ -261,10 +263,10 @@ public class DataParser {
     }
 
     //Requirement check for registration
-    public boolean isUserNameFree(String username) throws IOException{
+    public boolean isUserNameFree(String username) throws IOException {
         establishConnection();
 
-        String query = "intent=checkUsername&username="+username;
+        String query = "intent=checkUsername&username=" + username;
 
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         InputStream inputStream = processRequest(entity);
@@ -278,7 +280,7 @@ public class DataParser {
     public String registerUser(String username, String email, String password, String phoneNum) throws IOException {
         establishConnection();
 
-        String query = "intent=addUser&username="+username+"&email="+email+"&password="+password+"&phone"+phoneNum;
+        String query = "intent=addUser&username=" + username + "&email=" + email + "&password=" + password + "&phone" + phoneNum;
 
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         InputStream inputStream = processRequest(entity);
@@ -292,7 +294,7 @@ public class DataParser {
     public String verifyUser(String key) throws IOException {
         establishConnection();
 
-        String query = "intent=verifyKey&key="+key;
+        String query = "intent=verifyKey&key=" + key;
 
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         InputStream inputStream = processRequest(entity);
@@ -302,10 +304,10 @@ public class DataParser {
         return serverResponse;
     }
 
-	//Logins User into Walkntrade
-	public String login(String email, String password) throws IOException {
-		establishConnection(); //Instantiate all streams and opens the connection
-		String query= "intent=login&password="+password+"&email="+email+"&rememberMe=true";
+    //Logins User into Walkntrade
+    public String login(String email, String password) throws IOException {
+        establishConnection(); //Instantiate all streams and opens the connection
+        String query = "intent=login&password=" + password + "&email=" + email + "&rememberMe=true";
 
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         InputStream inputStream = processRequest(entity);
@@ -313,25 +315,25 @@ public class DataParser {
 
         disconnectAll();
         return serverResponse;
-	}
-	
-	//Logs user out of Walkntrade
-	public void logout() throws IOException { 
-		establishConnection();
-	
-		String query = "intent=logout";
+    }
+
+    //Logs user out of Walkntrade
+    public void logout() throws IOException {
+        establishConnection();
+
+        String query = "intent=logout";
 
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-		clearCookies(); //Clears locally stored cookies
+        clearCookies(); //Clears locally stored cookies
         clearUserInfo(); //Clears locally stored user information
-		
-		disconnectAll();
-	}
-	
-	public String getUserName() throws IOException{
-		establishConnection();
-		
-		String query = "intent=getUserName";
+
+        disconnectAll();
+    }
+
+    public String getUserName() throws IOException {
+        establishConnection();
+
+        String query = "intent=getUserName";
 
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         InputStream inputStream = processRequest(entity);
@@ -340,21 +342,21 @@ public class DataParser {
         //Stores username locally to device
         setNamePref(serverResponse);
 
-		disconnectAll();
-		return serverResponse;
-	}
-	
-	public String getUserAvatar() throws IOException {
-		establishConnection();
-		
-		String query = "intent=getAvatar";
+        disconnectAll();
+        return serverResponse;
+    }
+
+    public String getUserAvatar() throws IOException {
+        establishConnection();
+
+        String query = "intent=getAvatar";
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         InputStream inputStream = processRequest(entity);
         String serverResponse = readInputAsString(inputStream); //Reads message response from server
 
         disconnectAll();
         return serverResponse;
-	}
+    }
 
     public String getPhoneNumber() throws IOException {
         establishConnection();
@@ -371,10 +373,10 @@ public class DataParser {
         return serverResponse;
     }
 
-    public String messageUser(String userName, String title, String message) throws IOException{
+    public String messageUser(String userName, String title, String message) throws IOException {
         establishConnection();
 
-        String query = "intent=messageUser&uuid=&userName="+userName+"&title="+title+"&message="+message;
+        String query = "intent=messageUser&uuid=&userName=" + userName + "&title=" + title + "&message=" + message;
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         InputStream inputStream = processRequest(entity);
         String serverResponse = readInputAsString(inputStream); //Reads message response from server
@@ -382,36 +384,36 @@ public class DataParser {
         disconnectAll();
         return serverResponse;
     }
-	
-	//Add Post to Walkntrade
-	public String addPostBook(String category, String school, String title, String author, String description, 
-			float price, String tags, int isbn) throws IOException {
-		establishConnection();
-		
-		String query = "intent=addPost&cat="+category+"&school="+school+"&title="+title+
-				"&author="+author+"&details="+description+"&price="+price+"&tags="+tags+"&isbn="+isbn;
+
+    //Add Post to Walkntrade
+    public String addPostBook(String category, String school, String title, String author, String description,
+                              float price, String tags, int isbn) throws IOException {
+        establishConnection();
+
+        String query = "intent=addPost&cat=" + category + "&school=" + school + "&title=" + title +
+                "&author=" + author + "&details=" + description + "&price=" + price + "&tags=" + tags + "&isbn=" + isbn;
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         InputStream inputStream = processRequest(entity);
         String serverResponse = readInputAsString(inputStream); //Reads message response from server
 
         disconnectAll();
         return serverResponse; //Returns post identifier or error message
-	}
-	
-	public String addPostOther(String category, String school, String title, String description, 
-			float price, String tags) throws IOException {
-		establishConnection();
-		String query = "intent=addPost&cat="+category+"&school="+school+"&title="+title+"&details="+description+"&price="+price+"&tags="+tags;
+    }
+
+    public String addPostOther(String category, String school, String title, String description,
+                               float price, String tags) throws IOException {
+        establishConnection();
+        String query = "intent=addPost&cat=" + category + "&school=" + school + "&title=" + title + "&details=" + description + "&price=" + price + "&tags=" + tags;
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         InputStream inputStream = processRequest(entity);
         String serverResponse = readInputAsString(inputStream); //Reads message response from server
 
         disconnectAll();
         return serverResponse; //Returns post identifier or error message
-	}
+    }
 
     //Adds image to post corresponding to the appropriate identifier
-    public String addPostImage(String identifier, String imagePath, int index) throws IOException{
+    public String addPostImage(String identifier, String imagePath, int index) throws IOException {
         establishConnection();
 
         httpPost.removeHeaders("Content-Type");
@@ -419,28 +421,28 @@ public class DataParser {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         builder.addPart("intent", new StringBody("uploadPostImages", ContentType.TEXT_PLAIN));
-        builder.addPart("iteration", new StringBody(index+"", ContentType.TEXT_PLAIN));
+        builder.addPart("iteration", new StringBody(index + "", ContentType.TEXT_PLAIN));
         builder.addPart("identifier", new StringBody(identifier, ContentType.TEXT_PLAIN));
 
         File file = new File(imagePath);
 
-        Log.d(TAG, "Uploading "+imagePath+", Index: "+index+". File exists: "+file.exists());
+        Log.d(TAG, "Uploading " + imagePath + ", Index: " + index + ". File exists: " + file.exists());
         builder.addPart("image", new FileBody(file));
 
         HttpEntity entity = builder.build();
         InputStream inputStream = processRequest(entity);
         String serverResponse = readInputAsString(inputStream);
 
-        Log.v(TAG, "Server Response: "+serverResponse);
+        Log.v(TAG, "Server Response: " + serverResponse);
         disconnectAll();
 
         return serverResponse;
     }
 
-    public String removePost(String obsId) throws IOException{
+    public String removePost(String obsId) throws IOException {
         establishConnection();
 
-        String query = "intent=removePost&"+obsId+"=";
+        String query = "intent=removePost&" + obsId + "=";
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         InputStream inputStream = processRequest(entity);
         String serverResponse = readInputAsString(inputStream); //Reads message response from server
@@ -449,12 +451,12 @@ public class DataParser {
         return serverResponse;
     }
 
-	// Gets keyword from user and returns an ArrayList of school names
-	public ArrayList<String> getSchools(String userInput) throws Exception {
-		establishConnection(); // Instantiate all streams and opens the
-								// connection
+    // Gets keyword from user and returns an ArrayList of school names
+    public ArrayList<String> getSchools(String userInput) throws Exception {
+        establishConnection(); // Instantiate all streams and opens the
+        // connection
 
-		schools = new ArrayList<String>();
+        schools = new ArrayList<String>();
         try {
             String query = "intent=getSchools&query=" + userInput;
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
@@ -474,17 +476,16 @@ public class DataParser {
                 }
             };
             saxParser.parse(inStream, xmlHandler);
-        }
-        finally { //If anything happens above, at least disconnect the HttpClient
+        } finally { //If anything happens above, at least disconnect the HttpClient
             disconnectAll();
         }
 
-		return schools;
-	}
-	
-	public String getSchoolId(String _schoolName) throws Exception{
-		establishConnection();
-		schoolID = "School Not Found";//Will be returned if the school is not found
+        return schools;
+    }
+
+    public String getSchoolId(String _schoolName) throws Exception {
+        establishConnection();
+        schoolID = "School Not Found";//Will be returned if the school is not found
         schoolName = _schoolName;
 
         try {
@@ -504,21 +505,21 @@ public class DataParser {
                 }
             };
             saxParser.parse(inStream, xmlHandler);
-        }
-        finally { //If anything happens above, at least disconnect the HttpClient
+        } finally { //If anything happens above, at least disconnect the HttpClient
             disconnectAll();
         }
-		return schoolID;
-	}
-	
-	//Returns all the posts from the specified school and category
-	public ArrayList<Post> getSchoolPosts(String schoolID, String searchQuery, String category, int offset, int amount) throws Exception{
-		
-		establishConnection();
-		try {
+        return schoolID;
+    }
+
+    //TODO: Get isbn and author for books
+    //Returns all the posts from the specified school and category
+    public ArrayList<Post> getSchoolPosts(String schoolID, String searchQuery, String category, int offset, int amount) throws Exception {
+
+        establishConnection();
+        try {
             schoolPosts = new ArrayList<Post>();
 
-            String query = "intent=getPosts&query=" + searchQuery + "&school=" + schoolID + "&cat=" + category + "&offset=" + offset +"&sort=0"+ "&amount="+ amount;
+            String query = "intent=getPosts&query=" + searchQuery + "&school=" + schoolID + "&cat=" + category + "&offset=" + offset + "&sort=0" + "&amount=" + amount;
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inStream = processRequest(entity);
 
@@ -545,8 +546,7 @@ public class DataParser {
                             String splitID[] = obsID.split(":");
                             identifier = splitID[1]; //Identifier only holds the unique generated number for the post. Used in image url
                             identifier = identifier.toLowerCase(Locale.US);//Some IDs contain capital letters, doesn't meet regex requirement of DiskLruCache
-                        }
-                        else if (attributes.getLocalName(i).equalsIgnoreCase("title"))
+                        } else if (attributes.getLocalName(i).equalsIgnoreCase("title"))
                             title = attributes.getValue(i);
                         else if (attributes.getLocalName(i).equalsIgnoreCase("category"))
                             category = attributes.getValue(i);
@@ -578,19 +578,98 @@ public class DataParser {
                 }
             };
             saxParser.parse(inStream, xmlHandler);
-        }
-        finally { //If anything happens above, at least disconnect the HttpClient
+        } finally { //If anything happens above, at least disconnect the HttpClient
             disconnectAll();
         }
-		return schoolPosts;
-	}
+        return schoolPosts;
+    }
 
-    public ArrayList<PostReference> getUserPosts() throws Exception{
+    public Post getFullPost(String id, String sId) throws Exception {
+        establishConnection();
+        identifier = id;
+        schoolID = sId;
+
+        try {
+            String query = "intent=getPostByIdentifier&" + schoolID+":"+identifier + "==";
+            HttpEntity entity = new StringEntity(query);
+            InputStream inStream = processRequest(entity);
+
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+
+            DefaultHandler xmlHandler = new DefaultHandler() {
+
+                private String currentElement;
+                private boolean parsingPost = false;
+
+                String title = "DNE";
+                String category = "DNE";
+                String details = "DNE";
+                String user = "DNE";
+                String price = "DNE";
+                String imgURL = "DNE";
+                String date = "DNE";
+                String views = "DNE";
+
+                public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+                    currentElement = qName;
+
+                    if(qName.equalsIgnoreCase("POST"))
+                        parsingPost = true;
+                }
+
+                @Override
+                public void characters(char[] ch, int start, int length) throws SAXException {
+
+                    if (currentElement.equalsIgnoreCase("TITLE"))
+                        title = new String(ch, start, length);
+                    else if (currentElement.equalsIgnoreCase("CATEGORY"))
+                        category = new String(ch, start, length);
+                    else if (currentElement.equalsIgnoreCase("DETAILS"))
+                        details = new String(ch, start, length);
+                    else if (currentElement.equalsIgnoreCase("USERNAME"))
+                        user = new String(ch, start, length);
+                    else if (currentElement.equalsIgnoreCase("PRICE"))
+                        price = new String(ch, start, length);
+                    else if (currentElement.equalsIgnoreCase("DATE"))
+                        date = new String(ch, start, length);
+                    else if (currentElement.equalsIgnoreCase("VIEWS"))
+                        views = new String(ch, start, length);
+                }
+
+                @Override
+                public void endElement(String uri, String localName, String qName) throws SAXException {
+
+                    if(qName.equalsIgnoreCase("POST"))
+                        parsingPost = false;
+
+                    if(!parsingPost) { //End of Post has been reached
+                        if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
+                            post = new Post_Book(identifier, title, details, user, imgURL, date, price, views);
+                        else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
+                            post = new Post_Tech(identifier, title, details, user, imgURL, date, price, views);
+                        else if (category.equalsIgnoreCase(context.getString(R.string.server_category_service)))
+                            post = new Post_Service(identifier, title, details, user, imgURL, date, price, views);
+                        else if (category.equalsIgnoreCase(context.getString(R.string.server_category_misc)))
+                            post = new Post_Misc(identifier, title, details, user, imgURL, date, price, views);
+                    }
+                    currentElement = "";
+                }
+            };
+            saxParser.parse(inStream, xmlHandler);
+        } finally { //If anything happens above, at least disconnect the HttpClient
+            disconnectAll();
+        }
+
+        return post;
+    }
+
+    public ArrayList<PostReference> getUserPosts() throws Exception {
         establishConnection();
 
         userPosts = new ArrayList<PostReference>();
 
-        try{
+        try {
             String query = "intent=getPostsCurrentUser";
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inStream = processRequest(entity);
@@ -604,29 +683,29 @@ public class DataParser {
 
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-                    String link= "DNE";
+                    String link = "DNE";
                     String category = "DNE";
                     String title = "DNE";
                     String date = "DNE";
                     String views = "DNE";
 
-                    if(qName.equalsIgnoreCase("SCHOOL"))//At the start of this element are we parsing a new school
+                    if (qName.equalsIgnoreCase("SCHOOL"))//At the start of this element are we parsing a new school
                         parsingSchool = true;
 
-                    for(int i=0; i<attributes.getLength(); i++) {
+                    for (int i = 0; i < attributes.getLength(); i++) {
                         if (attributes.getLocalName(i).equalsIgnoreCase("LONGNAME")) //Gets current school name
                             currentSchool = attributes.getValue(i);
 
-                        if(parsingSchool) {
-                            if(attributes.getLocalName(i).equalsIgnoreCase("link"))
+                        if (parsingSchool) {
+                            if (attributes.getLocalName(i).equalsIgnoreCase("link"))
                                 link = attributes.getValue(i);
-                            else if(attributes.getLocalName(i).equalsIgnoreCase("category"))
+                            else if (attributes.getLocalName(i).equalsIgnoreCase("category"))
                                 category = attributes.getValue(i);
-                            else if(attributes.getLocalName(i).equalsIgnoreCase("title"))
+                            else if (attributes.getLocalName(i).equalsIgnoreCase("title"))
                                 title = attributes.getValue(i);
-                            else if(attributes.getLocalName(i).equalsIgnoreCase("date"))
+                            else if (attributes.getLocalName(i).equalsIgnoreCase("date"))
                                 date = attributes.getValue(i);
-                            else if(attributes.getLocalName(i).equalsIgnoreCase("views"))
+                            else if (attributes.getLocalName(i).equalsIgnoreCase("views"))
                                 views = attributes.getValue(i);
 
                             //The last attribute to be initialized, views, will mark end of first post
@@ -638,29 +717,28 @@ public class DataParser {
 
                 @Override
                 public void endElement(String uri, String localName, String qName) throws SAXException {
-                    if(qName.equalsIgnoreCase("SCHOOL")) { //Reached the end of current school
+                    if (qName.equalsIgnoreCase("SCHOOL")) { //Reached the end of current school
                         parsingSchool = false;
                     }
-            }
+                }
             };
             saxParser.parse(inStream, xmlHandler);
-        }
-        finally {
+        } finally {
             disconnectAll();
         }
 
         return userPosts;
     }
-	
-	//Can be called from anywhere without creating a DataParser object
-	public static Bitmap loadBitmap(String _url) throws IOException {
-		Bitmap bitmap;
-		
-		InputStream in = new java.net.URL("http://walkntrade.com/"+_url).openStream();
-		bitmap = BitmapFactory.decodeStream(in);
-		
-		in.close();
 
-		return bitmap;
-	}
+    //Can be called from anywhere without creating a DataParser object
+    public static Bitmap loadBitmap(String _url) throws IOException {
+        Bitmap bitmap;
+
+        InputStream in = new java.net.URL("http://walkntrade.com/" + _url).openStream();
+        bitmap = BitmapFactory.decodeStream(in);
+
+        in.close();
+
+        return bitmap;
+    }
 }

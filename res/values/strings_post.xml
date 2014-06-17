@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="title_activity_show__page">Walkntrade Post</string>
     <string name="title_activity_add_post">AddPost</string>
 
     <!-- AddPost Strings -->

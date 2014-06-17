@@ -22,6 +22,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +40,10 @@ public class ShowPage extends Activity {
     public static String INDEX = "Image_Index";
 
     private Context context;
-	private Post thisPost;
+    private Post thisPost;
+    private ProgressBar progress;
+    private TextView title, details, user, date, price;
+    private ImageView image, image2, image3, image4;
     private AlertDialog dialog;
     private String message;
     private Button contact, contact_nologin;
@@ -53,31 +57,23 @@ public class ShowPage extends Activity {
 		setContentView(R.layout.activity_show__page);
 
         context = getApplicationContext();
-		thisPost = getIntent().getParcelableExtra(SchoolPage.SELECTED_POST);
-		
-		TextView title = (TextView) findViewById(R.id.show_post_title);
-		TextView details = (TextView) findViewById(R.id.show_post_details);
-		TextView user = (TextView) findViewById(R.id.show_post_user);
-		TextView date = (TextView) findViewById(R.id.show_post_date);
-		TextView price = (TextView) findViewById(R.id.show_post_price);
+		String identifier = getIntent().getStringExtra(SchoolPage.SELECTED_POST);
+
+        progress = (ProgressBar) findViewById(R.id.progressBar);
+		title = (TextView) findViewById(R.id.show_post_title);
+		details = (TextView) findViewById(R.id.show_post_details);
+		user = (TextView) findViewById(R.id.show_post_user);
+		date = (TextView) findViewById(R.id.show_post_date);
+		price = (TextView) findViewById(R.id.show_post_price);
         contact = (Button) findViewById(R.id.show_post_contact);
         contact_nologin = (Button) findViewById(R.id.show_post_contact_login);
 
-        ImageView image = (ImageView) findViewById(R.id.show_post_image);
-        ImageView image2 = (ImageView) findViewById(R.id.show_post_image_2);
-        ImageView image3 = (ImageView) findViewById(R.id.show_post_image_3);
-        ImageView image4 = (ImageView) findViewById(R.id.show_post_image_4);
+        image = (ImageView) findViewById(R.id.show_post_image);
+        image2 = (ImageView) findViewById(R.id.show_post_image_2);
+        image3 = (ImageView) findViewById(R.id.show_post_image_3);
+        image4 = (ImageView) findViewById(R.id.show_post_image_4);
 
-        if(DataParser.isUserLoggedIn(this) && DataParser.isNetworkAvailable(this)) { //if user is already logged in, allow user to contact
-            contact.setVisibility(View.VISIBLE);
-            contact_nologin.setVisibility(View.GONE);
-        }
-		
-		title.setText(thisPost.getTitle());
-		details.setText(thisPost.getDetails());
-		user.setText(thisPost.getAuthor());
-		date.setText(thisPost.getDate());
-		price.setText(thisPost.getPrice());
+        new FullPostTask().execute(identifier); //Retrieves full information for this post
 
         if(DataParser.getPhonePref(context) == null)
             message = getString(R.string.post_message_content_no_phone);
@@ -134,58 +130,7 @@ public class ShowPage extends Activity {
             }
         });
 
-        //Set Title in Action Bar to the name of the post
-        getActionBar().setTitle(title.getText());
         getActionBar().setDisplayHomeAsUpEnabled(true);
-
-		if(DataParser.isNetworkAvailable(this)) {
-            //Calls images to be displayed on show page
-
-            //First Image
-            String imgUrl = generateImgURL(0);
-            Log.v(TAG, "IMAGE URL: "+imgUrl);
-            new SpecialImageRetrievalTask(image, thisPost.getIdentifier(), 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
-
-            //Second Image
-            imgUrl = generateImgURL(1);
-            Log.v(TAG, "IMAGE URL: "+imgUrl);
-            new SpecialImageRetrievalTask(image2, thisPost.getIdentifier(), 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
-
-            //Third Image
-            imgUrl = generateImgURL(2);
-            Log.v(TAG, "IMAGE URL: "+imgUrl);
-            new SpecialImageRetrievalTask(image3, thisPost.getIdentifier(), 2).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
-
-            //Fourth Image
-            imgUrl = generateImgURL(3);
-            Log.v(TAG, "IMAGE URL: "+imgUrl);
-            new SpecialImageRetrievalTask(image4, thisPost.getIdentifier(), 3).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
-
-            //Set OnClick Listeners for each image
-            image.setOnClickListener(new OnClickListener() {
-                public void onClick(View v) {
-                    processClick(0);
-                }
-            });
-
-            image2.setOnClickListener(new OnClickListener() {
-                public void onClick(View v) {
-                    processClick(1);
-                }
-            });
-
-            image3.setOnClickListener(new OnClickListener() {
-                public void onClick(View v) {
-                    processClick(2);
-                }
-            });
-
-            image4.setOnClickListener(new OnClickListener() {
-                public void onClick(View v) {
-                    processClick(3);
-                }
-            });
-        }
 	}
 
 	@Override
@@ -238,6 +183,95 @@ public class ShowPage extends Activity {
         imgURLs[index] = generateImgURL(index);
     }
 
+    //Retrieves full post information
+    private class FullPostTask extends AsyncTask<String, Void, Post> {
+        @Override
+        protected Post doInBackground(String... identifier) {
+            DataParser database = new DataParser(context);
+            Post post = null;
+
+            try {
+                String schoolID = DataParser.getSchoolPref(context);
+                post = database.getFullPost(identifier[0], schoolID);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+
+            return post;
+        }
+
+        @Override
+        protected void onPostExecute(Post post) {
+            thisPost = post;
+            progress.setVisibility(View.GONE);
+
+            title.setVisibility(View.VISIBLE);
+            details.setVisibility(View.VISIBLE);
+            user.setVisibility(View.VISIBLE);
+            date.setVisibility(View.VISIBLE);
+            price.setVisibility(View.VISIBLE);
+
+            if(DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context)) { //if user is already logged in, allow user to contact
+                contact.setVisibility(View.VISIBLE);
+                contact_nologin.setVisibility(View.GONE);
+            }
+
+            title.setText(post.getTitle());
+            details.setText(post.getDetails());
+            user.setText(post.getAuthor());
+            date.setText(post.getDate());
+            price.setText("$"+post.getPrice());
+
+                //Calls images to be displayed on show page
+
+                //First Image
+                String imgUrl = generateImgURL(0);
+                Log.v(TAG, "IMAGE URL: " + imgUrl);
+                new SpecialImageRetrievalTask(image, post.getIdentifier(), 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+
+                //Second Image
+                imgUrl = generateImgURL(1);
+                Log.v(TAG, "IMAGE URL: "+imgUrl);
+                new SpecialImageRetrievalTask(image2, post.getIdentifier(), 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+
+                //Third Image
+                imgUrl = generateImgURL(2);
+                Log.v(TAG, "IMAGE URL: "+imgUrl);
+                new SpecialImageRetrievalTask(image3, post.getIdentifier(), 2).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+
+                //Fourth Image
+                imgUrl = generateImgURL(3);
+                Log.v(TAG, "IMAGE URL: "+imgUrl);
+                new SpecialImageRetrievalTask(image4, post.getIdentifier(), 3).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+
+                //Set OnClick Listeners for each image
+                image.setOnClickListener(new OnClickListener() {
+                    public void onClick(View v) {
+                        processClick(0);
+                    }
+                });
+
+                image2.setOnClickListener(new OnClickListener() {
+                    public void onClick(View v) {
+                        processClick(1);
+                    }
+                });
+
+                image3.setOnClickListener(new OnClickListener() {
+                    public void onClick(View v) {
+                        processClick(2);
+                    }
+                });
+
+                image4.setOnClickListener(new OnClickListener() {
+                    public void onClick(View v) {
+                        processClick(3);
+                    }
+                });
+        }
+    }
+
+    //Sends message to user
     private class SendMessageTask extends AsyncTask<Void, Void, String> {
         private DataParser database;
 
