@@ -487,7 +487,6 @@ public class AddPost extends Activity implements OnClickListener {
 
         @Override
         protected void onPostExecute(String identifier) {
-            Log.i(TAG, "Post Added: " + identifier);
 
             if(identifier == null || identifier.isEmpty()) {
                 Toast.makeText(context, "Could not submit post", Toast.LENGTH_SHORT).show();

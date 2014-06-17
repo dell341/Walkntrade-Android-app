@@ -426,14 +426,12 @@ public class DataParser {
 
         File file = new File(imagePath);
 
-        Log.d(TAG, "Uploading " + imagePath + ", Index: " + index + ". File exists: " + file.exists());
         builder.addPart("image", new FileBody(file));
 
         HttpEntity entity = builder.build();
         InputStream inputStream = processRequest(entity);
         String serverResponse = readInputAsString(inputStream);
 
-        Log.v(TAG, "Server Response: " + serverResponse);
         disconnectAll();
 
         return serverResponse;

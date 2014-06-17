@@ -3,7 +3,6 @@ package com.walkntrade.asynctasks;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.ListView;
 
 import com.walkntrade.DrawerItem;
@@ -38,7 +37,6 @@ public class AvatarRetrievalTask extends AsyncTask<Void, Void, Bitmap> {
         DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.USER_IMAGE);
         try {
             String avatarURL = database.getUserAvatar();
-            Log.d(TAG, "URL: "+avatarURL);
 
             if(avatarURL == null)
                 return null;

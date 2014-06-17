@@ -13,7 +13,6 @@ import android.support.v4.app.NavUtils;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -226,22 +225,18 @@ public class ShowPage extends Activity {
 
                 //First Image
                 String imgUrl = generateImgURL(0);
-                Log.v(TAG, "IMAGE URL: " + imgUrl);
                 new SpecialImageRetrievalTask(image, post.getIdentifier(), 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
 
                 //Second Image
                 imgUrl = generateImgURL(1);
-                Log.v(TAG, "IMAGE URL: "+imgUrl);
                 new SpecialImageRetrievalTask(image2, post.getIdentifier(), 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
 
                 //Third Image
                 imgUrl = generateImgURL(2);
-                Log.v(TAG, "IMAGE URL: "+imgUrl);
                 new SpecialImageRetrievalTask(image3, post.getIdentifier(), 2).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
 
                 //Fourth Image
                 imgUrl = generateImgURL(3);
-                Log.v(TAG, "IMAGE URL: "+imgUrl);
                 new SpecialImageRetrievalTask(image4, post.getIdentifier(), 3).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
 
                 //Set OnClick Listeners for each image

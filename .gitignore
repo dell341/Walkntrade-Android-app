@@ -1,7 +1,6 @@
 # Folders and File extensions to ignore
 
 # Built application files
-*.apk
 *.ap_
 
 # Keystore files
