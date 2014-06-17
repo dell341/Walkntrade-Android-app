@@ -161,7 +161,7 @@ public class AddPost extends Activity implements OnClickListener {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            //Handled automatically on Android API 16 and up
+            //Used to support Android 15 and below
             case android.R.id.home: //If the up button was selected, go back to parent activity
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
                 NavUtils.navigateUpTo(this, upIntent);

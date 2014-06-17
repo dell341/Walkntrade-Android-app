@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="title_activity_user_settings">User Account</string>
+    <string name="title_activity_user_settings">User Settings</string>
+    <string name="title_activity_contact_pref">Contact Preferences</string>
+
 
     <!-- User Settings Options-->
    <string-array name="user_account">
-       <item>Account Options</item>
        <item>View Your Posts</item>
        <item>Change your avatar</item>
        <item>Account Settings</item>

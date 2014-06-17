@@ -32,6 +32,8 @@
     <string name="title_activity_show__page">N/A</string>
     <string name="post_image">Image posted by user</string>
 
-    <!--Auto-generated Strings **Remove All**-->
+    <!-- Auto-generated Strings **Remove All** -->
+
+    <string name="title_activity_view_posts">Current Posts</string>
 
 </resources>

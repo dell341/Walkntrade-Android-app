@@ -25,6 +25,7 @@ public class VerifyKeyActivity extends Activity {
     private String _verifyKey;
     private Context context;
 
+    //TODO: Change this dialog in the LoginActivity class
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

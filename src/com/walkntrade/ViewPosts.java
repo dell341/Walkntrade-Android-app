@@ -1,64 +1,82 @@
-package com.walkntrade.fragments;
+package com.walkntrade;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.walkntrade.R;
-import com.walkntrade.ViewPostItem;
 import com.walkntrade.adapters.ViewPostAdapter;
-import com.walkntrade.asynctasks.RemovePostTask;
 import com.walkntrade.asynctasks.UserPostsTask;
+import com.walkntrade.io.DataParser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
-public class Fragment_View_Post extends Fragment {
 
-    private static final String TAG = "Fragment:ViewPost";
-    public static final String POST_LINK = "Post_Obs_Id";
+public class ViewPosts extends Activity {
 
-    private ActionMode actionMode;
+    private static final String TAG = "ViewPost";
+
+    private Context context;
     private ListView listOfPosts;
-    private String selectedObsId;
 
-    //TODO: Add checkboxes to posts
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
-       View rootView = inflater.inflate(R.layout.fragment_view_posts, container, false);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_view_posts);
 
-        listOfPosts = (ListView) rootView.findViewById(R.id.postsList);
-        TextView noResults = (TextView) rootView.findViewById(R.id.noPosts);
-        ProgressBar pBar = (ProgressBar) rootView.findViewById(R.id.progressBarViewPosts);
+        context = getApplicationContext();
+        listOfPosts = (ListView) findViewById(R.id.postsList);
+        TextView noResults = (TextView) findViewById(R.id.noPosts);
+        ProgressBar pBar = (ProgressBar) findViewById(R.id.progressBarViewPosts);
 
-        new UserPostsTask(getActivity(), pBar, noResults, listOfPosts).execute();
+        new UserPostsTask(this, pBar, noResults, listOfPosts).execute();
 
         listOfPosts.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         listOfPosts.setMultiChoiceModeListener(new MultiChoiceListener());
 
-        return rootView;
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.view_posts, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent upIntent = NavUtils.getParentActivityIntent(this);
+                NavUtils.navigateUpTo(this, upIntent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, view, menuInfo);
-        MenuInflater inflater = getActivity().getMenuInflater();
+        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.context_menu_post, menu);
     }
 
@@ -99,28 +117,34 @@ public class Fragment_View_Post extends Fragment {
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             switch(menuItem.getItemId()){
                 case R.id.action_delete_post:
-                    new RemovePostTask(getActivity()).execute(listOfPostId);
+                    new RemovePostTask().execute(listOfPostId);
                     actionMode.finish(); //Close the Contextual Action Bar
-
-                    //Refresh current Fragment
-                    FragmentManager manager = getActivity().getFragmentManager();
-                    FragmentTransaction ft = manager.beginTransaction();
-                    Fragment newFragment = Fragment_View_Post.this;
-                    Fragment_View_Post.this.onDestroy();
-                    ft.remove(Fragment_View_Post.this);
-                    ft.replace(R.id.frame_layout, newFragment);
-                    ft.addToBackStack(null);
-                    ft.commit();
-
                     return true;
-                default: return false;
+                default:
+                    return false;
             }
         }
 
         @Override
         public void onDestroyActionMode(ActionMode actionMode) {
-            actionMode = null;
             count = 0;
         }
+    }
+
+    private class RemovePostTask extends AsyncTask<ArrayList<String>, Void, Void> {
+        @Override
+        protected Void doInBackground(ArrayList<String>... postToDelete) {
+            DataParser database = new DataParser(context);
+
+            try {
+                for(String s : postToDelete[0])
+                    Log.v(TAG, "Removing " + s + ":" + database.removePost(s));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
     }
 }

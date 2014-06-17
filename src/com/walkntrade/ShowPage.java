@@ -197,7 +197,6 @@ public class ShowPage extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-            //Handled automatically on Android API 16 and up
             case android.R.id.home: //If the up button was selected, go back to parent activity
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
