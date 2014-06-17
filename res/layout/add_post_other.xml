@@ -18,8 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:hint="@string/post_title"
-            android:inputType="text|textCapWords"
-            android:text="Post Test [Iteration]"/>
+            android:inputType="text|textCapWords"/>
 
         <EditText
             android:id="@+id/post_description"
@@ -27,8 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:hint="@string/post_description"
-            android:inputType="textMultiLine|textCapSentences"
-            android:text="Post Description"/>
+            android:inputType="textMultiLine|textCapSentences"/>
 
         <EditText
             android:id="@+id/post_price"
@@ -44,8 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:hint="@string/post_tags"
-            android:inputType="textMultiLine|textCapWords"
-            android:text="Tags, Tags, Tags"/>
+            android:inputType="textMultiLine|textCapWords"/>
 
         <LinearLayout
             android:layout_width="match_parent"
