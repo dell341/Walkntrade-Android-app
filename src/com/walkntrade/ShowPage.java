@@ -38,11 +38,18 @@ public class ShowPage extends Activity {
 	public static String IDENTIFIER = "Unique_Post_Id";
     public static String INDEX = "Image_Index";
 
+    private static final String SAVED_TITLE = "Saved_Instance_Title";
+    private static final String SAVED_DETAILS = "Saved_Instance_Details";
+    private static final String SAVED_USER = "Saved_Instance_User";
+    private static final String SAVED_DATE = "Saved_Instance_Date";
+    private static final String SAVED_PRICE = "Saved_Instance_Price";
+    private static final String SAVED_FIELD_ERROR = "Error retrieving field";
+
     private Context context;
+    private String identifier;
     private Post thisPost;
     private ProgressBar progress;
     private TextView title, details, user, date, price;
-    private ImageView image, image2, image3, image4;
     private AlertDialog dialog;
     private String message;
     private Button contact, contact_nologin;
@@ -56,7 +63,7 @@ public class ShowPage extends Activity {
 		setContentView(R.layout.activity_show__page);
 
         context = getApplicationContext();
-		String identifier = getIntent().getStringExtra(SchoolPage.SELECTED_POST);
+		identifier = getIntent().getStringExtra(SchoolPage.SELECTED_POST);
 
         progress = (ProgressBar) findViewById(R.id.progressBar);
 		title = (TextView) findViewById(R.id.show_post_title);
@@ -67,12 +74,71 @@ public class ShowPage extends Activity {
         contact = (Button) findViewById(R.id.show_post_contact);
         contact_nologin = (Button) findViewById(R.id.show_post_contact_login);
 
-        image = (ImageView) findViewById(R.id.show_post_image);
-        image2 = (ImageView) findViewById(R.id.show_post_image_2);
-        image3 = (ImageView) findViewById(R.id.show_post_image_3);
-        image4 = (ImageView) findViewById(R.id.show_post_image_4);
+        ImageView image = (ImageView) findViewById(R.id.show_post_image);
+        ImageView image2 = (ImageView) findViewById(R.id.show_post_image_2);
+        ImageView image3 = (ImageView) findViewById(R.id.show_post_image_3);
+        ImageView image4 = (ImageView) findViewById(R.id.show_post_image_4);
 
+        //If orientation has been changed, retrieve previously saved data instead of another network connection.
+        if(savedInstanceState != null){
+
+            title.setText(savedInstanceState.getString(SAVED_TITLE));
+            details.setText(savedInstanceState.getString(SAVED_DETAILS));
+            user.setText(savedInstanceState.getString(SAVED_USER));
+            date.setText(savedInstanceState.getString(SAVED_DATE));
+            price.setText(savedInstanceState.getString(SAVED_PRICE));
+
+            title.setVisibility(View.VISIBLE);
+            details.setVisibility(View.VISIBLE);
+            user.setVisibility(View.VISIBLE);
+            date.setVisibility(View.VISIBLE);
+            price.setVisibility(View.VISIBLE);
+        }
+        else
         new FullPostTask().execute(identifier); //Retrieves full information for this post
+
+        //Calls images to be displayed on show page
+
+        //First Image
+        String imgUrl = generateImgURL(0);
+        new SpecialImageRetrievalTask(image, identifier, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+
+        //Second Image
+        imgUrl = generateImgURL(1);
+        new SpecialImageRetrievalTask(image2, identifier, 1).execute(imgUrl);
+
+        //Third Image
+        imgUrl = generateImgURL(2);
+        new SpecialImageRetrievalTask(image3, identifier, 2).execute(imgUrl);
+
+        //Fourth Image
+        imgUrl = generateImgURL(3);
+        new SpecialImageRetrievalTask(image4, identifier, 3).execute(imgUrl);
+
+        //Set OnClick Listeners for each image
+        image.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                processClick(0);
+            }
+        });
+
+        image2.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                processClick(1);
+            }
+        });
+
+        image3.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                processClick(2);
+            }
+        });
+
+        image4.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                processClick(3);
+            }
+        });
 
         if(DataParser.getPhonePref(context) == null)
             message = getString(R.string.post_message_content_no_phone);
@@ -148,6 +214,17 @@ public class ShowPage extends Activity {
         }
     }
 
+    @Override //Saves data to be used upon recreation of activity. Prevents additional network connections.
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(SAVED_TITLE, title.getText().toString());
+        outState.putString(SAVED_DETAILS, details.getText().toString());
+        outState.putString(SAVED_USER, user.getText().toString());
+        outState.putString(SAVED_DATE, date.getText().toString());
+        outState.putString(SAVED_PRICE, price.getText().toString());
+
+        super.onSaveInstanceState(outState);
+    }
+
     @Override
     protected void onResume() {
         if(DataParser.isUserLoggedIn(this) && DataParser.isNetworkAvailable(this)) { //if user is already logged in, allow user to contact
@@ -173,7 +250,7 @@ public class ShowPage extends Activity {
     private String generateImgURL(int index){
         String schoolID = DataParser.getSchoolPref(this);
         String imgUrl = "post_images/"+schoolID+"/";
-        imgUrl = imgUrl+thisPost.getIdentifier()+"-"+index+".jpeg";
+        imgUrl = imgUrl+identifier+"-"+index+".jpeg";
 
         return imgUrl;
     }
@@ -184,6 +261,12 @@ public class ShowPage extends Activity {
 
     //Retrieves full post information
     private class FullPostTask extends AsyncTask<String, Void, Post> {
+
+        @Override
+        protected void onPreExecute() {
+            progress.setVisibility(View.VISIBLE);
+        }
+
         @Override
         protected Post doInBackground(String... identifier) {
             DataParser database = new DataParser(context);
@@ -220,49 +303,6 @@ public class ShowPage extends Activity {
             user.setText(post.getAuthor());
             date.setText(post.getDate());
             price.setText("$"+post.getPrice());
-
-                //Calls images to be displayed on show page
-
-                //First Image
-                String imgUrl = generateImgURL(0);
-                new SpecialImageRetrievalTask(image, post.getIdentifier(), 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
-
-                //Second Image
-                imgUrl = generateImgURL(1);
-                new SpecialImageRetrievalTask(image2, post.getIdentifier(), 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
-
-                //Third Image
-                imgUrl = generateImgURL(2);
-                new SpecialImageRetrievalTask(image3, post.getIdentifier(), 2).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
-
-                //Fourth Image
-                imgUrl = generateImgURL(3);
-                new SpecialImageRetrievalTask(image4, post.getIdentifier(), 3).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
-
-                //Set OnClick Listeners for each image
-                image.setOnClickListener(new OnClickListener() {
-                    public void onClick(View v) {
-                        processClick(0);
-                    }
-                });
-
-                image2.setOnClickListener(new OnClickListener() {
-                    public void onClick(View v) {
-                        processClick(1);
-                    }
-                });
-
-                image3.setOnClickListener(new OnClickListener() {
-                    public void onClick(View v) {
-                        processClick(2);
-                    }
-                });
-
-                image4.setOnClickListener(new OnClickListener() {
-                    public void onClick(View v) {
-                        processClick(3);
-                    }
-                });
         }
     }
 
