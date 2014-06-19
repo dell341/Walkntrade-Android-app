@@ -368,7 +368,7 @@ public class DataParser {
 
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         builder.addPart("intent", new StringBody("uploadAvatar", ContentType.TEXT_PLAIN));
-        builder.addPart("avatar", new FileBody(file));
+        builder.addPart("avatar", new FileBody(file, ContentType.create("image/jpeg"), "avatar_image"));
 
         HttpEntity entity = builder.build();
         InputStream inputStream = processRequest(entity);

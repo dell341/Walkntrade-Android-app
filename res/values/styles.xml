@@ -4,6 +4,10 @@
 
     <style name="WalkntradeTheme" parent="android:Theme.Holo.Light" >
     </style>
+
+    <style name="WalkntradeTheme.Overlay" parent="WalkntradeTheme">
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
     
     <style name="WalkntradeTheme.NoActionBar" parent="android:Theme.Holo.Light.NoActionBar">
     </style>

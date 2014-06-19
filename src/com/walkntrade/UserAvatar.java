@@ -253,7 +253,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
         @Override
         protected void onPostExecute(String response) {
-            progress.setVisibility(View.GONE);
+            progress.setVisibility(View.INVISIBLE);
 
             Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
         }

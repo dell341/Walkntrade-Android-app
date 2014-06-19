@@ -131,7 +131,7 @@ public class LoginActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(String response) {
-            progressBar.setVisibility(View.GONE);
+            progressBar.setVisibility(View.INVISIBLE);
 
 			if(response.equals(DataParser.LOGIN_SUCCESS)) {
 				loginError.setVisibility(View.GONE);
