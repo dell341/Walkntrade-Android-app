@@ -358,6 +358,27 @@ public class DataParser {
         return serverResponse;
     }
 
+    public String uploadUserAvatar(String imagePath) throws IOException{
+        establishConnection();
+
+        httpPost.removeHeaders("Content-Type"); //Handled by MultipartEntityBuilder, cause conflictions
+
+        File file = new File(imagePath);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        builder.addPart("intent", new StringBody("uploadAvatar", ContentType.TEXT_PLAIN));
+        builder.addPart("avatar", new FileBody(file));
+
+        HttpEntity entity = builder.build();
+        InputStream inputStream = processRequest(entity);
+        String serverResponse = readInputAsString(inputStream);
+
+        disconnectAll();
+
+        return serverResponse;
+    }
+
     public String getPhoneNumber() throws IOException {
         establishConnection();
 
@@ -413,19 +434,18 @@ public class DataParser {
     }
 
     //Adds image to post corresponding to the appropriate identifier
-    public String addPostImage(String identifier, String imagePath, int index) throws IOException {
+    public String uploadPostImage(String identifier, String imagePath, int index) throws IOException {
         establishConnection();
 
-        httpPost.removeHeaders("Content-Type");
+        httpPost.removeHeaders("Content-Type"); //Handled by MultipartEntityBuilder, cause conflictions
 
+        File file = new File(imagePath);
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         builder.addPart("intent", new StringBody("uploadPostImages", ContentType.TEXT_PLAIN));
         builder.addPart("iteration", new StringBody(index + "", ContentType.TEXT_PLAIN));
         builder.addPart("identifier", new StringBody(identifier, ContentType.TEXT_PLAIN));
-
-        File file = new File(imagePath);
-
         builder.addPart("image", new FileBody(file));
 
         HttpEntity entity = builder.build();

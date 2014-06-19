@@ -5,9 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.ImageTool;
 
 import java.io.File;
 import java.io.IOException;
@@ -245,14 +243,11 @@ public class AddPost extends Activity implements OnClickListener {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-//            Bundle extras = data.getExtras();
-//            Bitmap imageBitmap = (Bitmap) extras.get("data"); //Get thumbnail of image
-
             ImageView imageView;
 
             if (requestCode > 400) {
                     Uri returnUri = data.getData();
-                    mCurrentPhotoPath = getPath(returnUri);
+                    mCurrentPhotoPath = ImageTool.getPath(context, returnUri);
                     switch (requestCode) {
                         case GALLERY_IMAGE_ONE:
                             photoPaths[0] = mCurrentPhotoPath;
@@ -297,19 +292,18 @@ public class AddPost extends Activity implements OnClickListener {
                 }
                 addPicToGallery();
             }
-
-            imageView.setImageBitmap(getImageFromDevice(mCurrentPhotoPath, imageView));
+            imageView.setImageBitmap(ImageTool.getImageFromDevice(mCurrentPhotoPath, imageView));
         }
     }
 
     //Creates image file to be saved
-    private File createImageFile() throws IOException {
+    public File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd").format(new Date());
         Random generator = new Random();
         int num = generator.nextInt(89999) + 10000; //Generate a five-digit number
-        String imageFileName = "post_" + timeStamp + num;
+        String imageFileName = "wnt_" + timeStamp + num;
 
-        File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), getString(R.string.app_name));
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), context.getString(R.string.app_name));
 
         //If the directory doesn't exist, create it
         if (!storageDir.exists())
@@ -329,45 +323,7 @@ public class AddPost extends Activity implements OnClickListener {
         File f = new File(mCurrentPhotoPath);
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
-        this.sendBroadcast(mediaScanIntent);
-    }
-
-    //Get existing photo path from the URI
-    public String getPath(Uri uri){
-        String[] projection = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
-        if(cursor != null){
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-            String filePath = cursor.getString(columnIndex);
-            cursor.close();
-            return filePath;
-        }
-        else
-            return uri.getPath();
-    }
-
-    //Returns a scaled image for specified image view
-    private Bitmap getImageFromDevice(String path, ImageView imageView) {
-        //Scale bitmap to ImageView, minimizing memory usage
-        int targetWidth = imageView.getWidth();
-        int targetHeight = imageView.getHeight();
-
-        //Get dimensions of actual image
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(path, bmOptions);
-        int photoWidth = bmOptions.outWidth;
-        int photoHeight = bmOptions.outHeight;
-
-        //Scale image
-        int scaleFactor = Math.min(photoWidth / targetWidth, photoHeight / targetHeight);
-
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        return BitmapFactory.decodeFile(path, bmOptions);
+        context.sendBroadcast(mediaScanIntent);
     }
 
     //Verifies that post credentials are valid
@@ -510,7 +466,7 @@ public class AddPost extends Activity implements OnClickListener {
             try {
                 for(int i=0; i<photoPaths.length; i++)
                     if(photoPaths[i] != null && !photoPaths[i].isEmpty()) //Photopath is not null and it is not empty
-                    response = database.addPostImage(identifier[0], photoPaths[i], i);
+                    response = database.uploadPostImage(identifier[0], photoPaths[i], i);
             } catch (IOException e){
                 e.printStackTrace();
             }

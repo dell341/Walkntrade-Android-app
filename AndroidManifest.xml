@@ -104,7 +104,7 @@
         </activity>
         <activity
             android:name=".ViewPosts"
-            android:label="@string/title_activity_view_posts">
+            android:label="@string/title_activity_view_posts" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.UserSettings" />
@@ -112,6 +112,13 @@
         <activity
             android:name=".ContactPref"
             android:label="@string/title_activity_contact_pref" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walkntrade.UserSettings" />
+        </activity>
+        <activity
+            android:name=".UserAvatar"
+            android:label="@string/title_activity_user_avatar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.UserSettings" />

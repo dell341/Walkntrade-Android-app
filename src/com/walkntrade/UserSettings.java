@@ -59,6 +59,11 @@ public class UserSettings extends Activity implements AdapterView.OnItemClickLis
             case 0: //View Posts
                 settingsIntent = new Intent(this, ViewPosts.class);
                 startActivity(settingsIntent); break;
+            case 1: //Change Avatar
+                settingsIntent = new Intent(this, UserAvatar.class);
+                startActivity(settingsIntent); break;
+            case 2: //Account Settings
+                break;
             case 3: //Contact Preferences
                 settingsIntent = new Intent(this, ContactPref.class);
                 startActivity(settingsIntent); break;

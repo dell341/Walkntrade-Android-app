@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_activity_user_settings">User Settings</string>
+    <string name="title_activity_view_posts">Current Posts</string>
+    <string name="title_activity_user_avatar">Change your avatar</string>
     <string name="title_activity_contact_pref">Contact Preferences</string>
-
 
     <!-- User Settings Options-->
    <string-array name="user_account">
@@ -16,5 +17,8 @@
     <string name="edit_post">Edit</string>
     <string name="remove_post">Remove</string>
     <string name="dialog_delete">Delete this post?</string>
+
+    <string name="avatar_upload">Upload Current Image</string>
+    <string name="null_avatar_upload">Please select a new image</string>
 
 </resources>

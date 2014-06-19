@@ -15,7 +15,8 @@ gen/
 
 # Gradle files
 .gradle/
-build/
+build/generated
+build/intermediates
 
 # IntelliJ & Eclipse (Migrated from)
 .idea/
