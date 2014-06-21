@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -21,7 +22,8 @@ import com.walkntrade.io.DataParser;
 public class LoginActivity extends Activity {
 
     private String TAG = "LoginActivity";
-	
+
+    private LinearLayout loginHeader;
 	private TextView loginError;
     private ProgressBar progressBar;
     private EditText emailAddress, password;
@@ -33,8 +35,9 @@ public class LoginActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		
+
 		settings = getSharedPreferences(DataParser.PREFS_USER, 0);
+        loginHeader = (LinearLayout) findViewById(R.id.login_header);
 		loginError = (TextView) findViewById(R.id.loginErrorMessage);
         progressBar = (ProgressBar) findViewById(R.id.progressBarLogin);
         TextView skipLogin = (TextView) findViewById(R.id.skipLogin);
@@ -131,7 +134,7 @@ public class LoginActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(String response) {
-            progressBar.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.GONE);
 
 			if(response.equals(DataParser.LOGIN_SUCCESS)) {
 				loginError.setVisibility(View.GONE);

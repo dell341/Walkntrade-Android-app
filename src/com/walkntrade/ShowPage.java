@@ -38,12 +38,7 @@ public class ShowPage extends Activity {
 	public static String IDENTIFIER = "Unique_Post_Id";
     public static String INDEX = "Image_Index";
 
-    private static final String SAVED_TITLE = "Saved_Instance_Title";
-    private static final String SAVED_DETAILS = "Saved_Instance_Details";
-    private static final String SAVED_USER = "Saved_Instance_User";
-    private static final String SAVED_DATE = "Saved_Instance_Date";
-    private static final String SAVED_PRICE = "Saved_Instance_Price";
-    private static final String SAVED_FIELD_ERROR = "Error retrieving field";
+    private static final String SAVED_POST = "saved_instance_post";
 
     private Context context;
     private String identifier;
@@ -82,11 +77,12 @@ public class ShowPage extends Activity {
         //If orientation has been changed, retrieve previously saved data instead of another network connection.
         if(savedInstanceState != null){
 
-            title.setText(savedInstanceState.getString(SAVED_TITLE));
-            details.setText(savedInstanceState.getString(SAVED_DETAILS));
-            user.setText(savedInstanceState.getString(SAVED_USER));
-            date.setText(savedInstanceState.getString(SAVED_DATE));
-            price.setText(savedInstanceState.getString(SAVED_PRICE));
+            thisPost = savedInstanceState.getParcelable(SAVED_POST);
+            title.setText(thisPost.getTitle());
+            details.setText(thisPost.getDetails());
+            user.setText(thisPost.getAuthor());
+            date.setText(thisPost.getDate());
+            price.setText("$"+thisPost.getPrice());
 
             title.setVisibility(View.VISIBLE);
             details.setVisibility(View.VISIBLE);
@@ -216,12 +212,7 @@ public class ShowPage extends Activity {
 
     @Override //Saves data to be used upon recreation of activity. Prevents additional network connections.
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString(SAVED_TITLE, title.getText().toString());
-        outState.putString(SAVED_DETAILS, details.getText().toString());
-        outState.putString(SAVED_USER, user.getText().toString());
-        outState.putString(SAVED_DATE, date.getText().toString());
-        outState.putString(SAVED_PRICE, price.getText().toString());
-
+        outState.putParcelable(SAVED_POST, thisPost);
         super.onSaveInstanceState(outState);
     }
 
@@ -242,7 +233,7 @@ public class ShowPage extends Activity {
             Intent imgDialog = new Intent(ShowPage.this, ImageDialog.class);
             imgDialog.putExtra(IMGSRC, imgURLs);
             imgDialog.putExtra(INDEX, index);
-            imgDialog.putExtra(IDENTIFIER, thisPost.getIdentifier());
+            imgDialog.putExtra(IDENTIFIER, identifier);
             startActivity(imgDialog);
         }
     }
@@ -285,7 +276,7 @@ public class ShowPage extends Activity {
         @Override
         protected void onPostExecute(Post post) {
             thisPost = post;
-            progress.setVisibility(View.GONE);
+            progress.setVisibility(View.INVISIBLE);
 
             title.setVisibility(View.VISIBLE);
             details.setVisibility(View.VISIBLE);

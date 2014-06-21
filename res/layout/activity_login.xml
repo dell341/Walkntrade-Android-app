@@ -6,6 +6,7 @@
     tools:context=".LoginActivity" >
 
     <LinearLayout
+        android:id="@+id/login_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -14,14 +15,17 @@
             android:id="@+id/progressBarLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="-6dp"
             android:indeterminate="true"
             style="?android:attr/progressBarStyleHorizontal"
-            android:visibility="invisible"/>
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/loginErrorMessage"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             style="@style/TextViewError"
-            android:hint="@string/loginError" />
+            android:text="@string/loginError"/>
     </LinearLayout>
 
     <LinearLayout

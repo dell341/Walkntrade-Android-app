@@ -124,7 +124,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                             case 1: //Upload existing photo
 
                                 Intent galleryPhotoIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                                galleryPhotoIntent.setType("image/jpg");
+                                galleryPhotoIntent.setType("image/jpeg");
 
                                 if (galleryPhotoIntent.resolveActivity(getPackageManager()) != null)
                                     startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE);
@@ -231,6 +231,8 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
     private class UploadAvatarTask extends AsyncTask<String, Void, String> {
 
+        private DiskLruImageCache imageCache;
+
         @Override
         protected void onPreExecute() {
             progress.setVisibility(View.VISIBLE);
@@ -244,8 +246,12 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
             try {
                 response = database.uploadUserAvatar(imagePath[0]);
+                imageCache = new DiskLruImageCache(context, DiskLruImageCache.USER_IMAGE);
             } catch(IOException e){
                 e.printStackTrace();
+            } finally {
+                imageCache.clearCache(); //Clears avatar user image from cache. So new one will be uploaded.
+                imageCache.close();
             }
 
             return response;
