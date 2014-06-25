@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.walkntrade"
     android:versionCode="5"
-    android:versionName="1.1.4" >
+    android:versionName="1.1.5" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -118,6 +118,7 @@
         </activity>
         <activity
             android:name=".UserAvatar"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_user_avatar"
             android:theme="@style/WalkntradeTheme.Overlay">
             <meta-data

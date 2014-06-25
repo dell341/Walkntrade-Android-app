@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -94,7 +95,6 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        final View currentView = view;
         //Creates dialog popup to take a new picture or upload existing photo
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.add_photo))
@@ -120,6 +120,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                                         startActivityForResult(cameraIntent, CAPTURE_IMAGE);
                                     }
                                 }
+                                dialogInterface.dismiss();
                                 break;
                             case 1: //Upload existing photo
 
@@ -143,8 +144,10 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 Uri returnUri = data.getData();
                 mCurrentPhotoPath = ImageTool.getPath(context, returnUri); //Gets image path of Gallery image
             }
-            else
+            else {
+                Log.v(TAG, "PATH: "+mCurrentPhotoPath);
                 addPicToGallery();
+            }
 
             avatar.setImageBitmap(ImageTool.getImageFromDevice(mCurrentPhotoPath, avatar));
         }
@@ -162,6 +165,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         //If the directory doesn't exist, create it
         if (!storageDir.exists())
             if (!storageDir.mkdirs()) {
+                Log.e(TAG, "Could not create Media directory");
                 return null;
             }
 

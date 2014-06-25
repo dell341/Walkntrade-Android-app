@@ -211,6 +211,7 @@ public class AddPost extends Activity implements OnClickListener {
                                         }
                                     }
                                 }
+                                dialogInterface.dismiss();
                                 break;
                             case 1: //Upload existing photo
 

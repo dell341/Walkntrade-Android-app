@@ -44,7 +44,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_school_page, container, false);
 
-        ProgressBar bigProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBarSchoolPage);
+        ProgressBar bigProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         progressBar = (ProgressBar) rootView.findViewById(R.id.progressBarGrid);
         noResults = (TextView) rootView.findViewById(R.id.noResults);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
