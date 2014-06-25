@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ import java.io.IOException;
 public class RegistrationActivity extends Activity {
 
     private String TAG = "Registration";
+    private ScrollView scrollView;
     private TextView registerError;
     private EditText userName, email, phoneNumber, password, passwordVerf;
     private String _userName, _email, _phoneNumber, _password, _passwordVerf;
@@ -35,6 +37,7 @@ public class RegistrationActivity extends Activity {
         setContentView(R.layout.activity_registration);
 
         context = getApplicationContext();
+        scrollView = (ScrollView) findViewById(R.id.scrollView);
         registerError = (TextView) findViewById(R.id.register_error);
         userName = (EditText) findViewById(R.id.register_username);
         email = (EditText) findViewById(R.id.register_email);
@@ -100,7 +103,8 @@ public class RegistrationActivity extends Activity {
         }
 
         if(_userName.contains(" ")) {
-
+            userName.setError(getString(R.string.error_username_spaces));
+            canRegister = false;
         }
 
         if(TextUtils.isEmpty(_email) || !_email.contains("@")) {
@@ -126,6 +130,7 @@ public class RegistrationActivity extends Activity {
         if(!canRegister){
             registerError.setText(getString(R.string.error_registration));
             registerError.setVisibility(View.VISIBLE);
+            scrollView.fullScroll(View.FOCUS_UP);
         }
 
         return canRegister;
@@ -173,11 +178,13 @@ public class RegistrationActivity extends Activity {
             if(userNameTaken) { //If username is taken set error as so in the RegistrationActivity
                 error.setText(context.getString(R.string.error_username_taken));
                 error.setVisibility(View.VISIBLE);
+                scrollView.fullScroll(View.FOCUS_UP);
             }
             else {
                 if(response.equals("3")) { //If email is already taken set error as so
                     error.setText(context.getString(R.string.error_email_taken));
                     error.setVisibility(View.VISIBLE);
+                    scrollView.fullScroll(View.FOCUS_UP);
                 }
                 else { //Close Registration Activity
                     Toast.makeText(context, "Successfully Registered", Toast.LENGTH_SHORT).show();

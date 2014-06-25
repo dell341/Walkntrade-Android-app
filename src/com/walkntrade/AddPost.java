@@ -21,6 +21,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,8 +36,8 @@ import java.util.Random;
 
 public class AddPost extends Activity implements OnClickListener {
 
-    private String TAG = "AddPost";
-    public static final String CATEGORY_POSITION = "Category Position";
+    private static final String TAG = "AddPost";
+    public static final String CATEGORY_POSITION = "category_position";
 
     private static final int CAPTURE_IMAGE_ONE = 100;
     private static final int CAPTURE_IMAGE_TWO = 200;
@@ -47,6 +48,7 @@ public class AddPost extends Activity implements OnClickListener {
     private static final int GALLERY_IMAGE_THREE = 700;
     private static final int GALLERY_IMAGE_FOUR = 800;
 
+    private ScrollView scrollView;
     private TextView postError;
     private EditText title, author, description, price, isbn, tags;
     private ImageView image1, image2, image3, image4;
@@ -93,6 +95,7 @@ public class AddPost extends Activity implements OnClickListener {
         if (!DataParser.isUserLoggedIn(context))
             startLoginActivity();
 
+        scrollView = (ScrollView) findViewById(R.id.scrollView);
         postError = (TextView) findViewById(R.id.post_error);
         title = (EditText) findViewById(R.id.post_title);
         description = (EditText) findViewById(R.id.post_description);
@@ -355,6 +358,7 @@ public class AddPost extends Activity implements OnClickListener {
         if (!canPost) {
             postError.setText(getString(R.string.post_error));
             postError.setVisibility(View.VISIBLE);
+            scrollView.fullScroll(View.FOCUS_UP);
         }
 
         return canPost;
@@ -381,6 +385,7 @@ public class AddPost extends Activity implements OnClickListener {
         if (!canPost) {
             postError.setText(getString(R.string.post_error));
             postError.setVisibility(View.VISIBLE);
+            scrollView.fullScroll(View.FOCUS_UP);
         }
 
         return canPost;
@@ -447,6 +452,7 @@ public class AddPost extends Activity implements OnClickListener {
 
             if(identifier == null || identifier.isEmpty()) {
                 Toast.makeText(context, "Could not submit post", Toast.LENGTH_SHORT).show();
+                scrollView.fullScroll(View.FOCUS_UP);
             }
             else {
                 Toast.makeText(context, "Post Added", Toast.LENGTH_SHORT).show();

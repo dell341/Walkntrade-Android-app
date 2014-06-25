@@ -19,13 +19,13 @@ import java.io.IOException;
 
 public class VerifyKeyActivity extends Activity {
 
-    private String TAG = "VerifyKey";
+    private static final String TAG = "VerifyKey";
+
     private TextView verifyError;
     private EditText verifyKey;
     private String _verifyKey;
     private Context context;
 
-    //TODO: Change this dialog in the LoginActivity class
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +53,8 @@ public class VerifyKeyActivity extends Activity {
         return true;
     }
 
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
@@ -77,8 +79,10 @@ public class VerifyKeyActivity extends Activity {
 
         @Override
         protected void onPostExecute(String response) {
-            if(response.equals(getString(R.string.verify_success)))
+            if(response.equals(getString(R.string.verify_success))) {
+                setResult(Activity.RESULT_OK); //Successfully registered
                 finish();
+            }
 
             verifyError.setVisibility(View.VISIBLE);
             verifyError.setText(getString(R.string.verify_failed));

@@ -3,6 +3,7 @@
     <!-- All Application & Activity themes used throughout the app. Applied in AndroidManifest.xml-->
 
     <style name="WalkntradeTheme" parent="android:Theme.Holo.Light" >
+        <item name="android:imeOptions">flagNoFullscreen</item>
     </style>
 
     <style name="WalkntradeTheme.Overlay" parent="WalkntradeTheme">
@@ -10,10 +11,12 @@
     </style>
     
     <style name="WalkntradeTheme.NoActionBar" parent="android:Theme.Holo.Light.NoActionBar">
+        <item name="android:imeOptions">flagNoFullscreen</item>
     </style>
 
     <!-- Theme used for Verifying random key -->
     <style name="VerifyKeyDialogTheme" parent="@android:style/Theme.Holo.Light.Dialog">
+        <item name="android:imeOptions">flagNoFullscreen</item>
     </style>
 
     <!-- Theme used for the post image pop-up -->

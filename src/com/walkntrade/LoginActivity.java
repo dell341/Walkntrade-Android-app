@@ -21,7 +21,8 @@ import com.walkntrade.io.DataParser;
 
 public class LoginActivity extends Activity {
 
-    private String TAG = "LoginActivity";
+    private static final String TAG = "LoginActivity";
+    private static final int VERIFY_REQUEST = 100;
 
     private LinearLayout loginHeader;
 	private TextView loginError;
@@ -39,7 +40,7 @@ public class LoginActivity extends Activity {
 		settings = getSharedPreferences(DataParser.PREFS_USER, 0);
         loginHeader = (LinearLayout) findViewById(R.id.login_header);
 		loginError = (TextView) findViewById(R.id.loginErrorMessage);
-        progressBar = (ProgressBar) findViewById(R.id.progressBarLogin);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
         TextView skipLogin = (TextView) findViewById(R.id.skipLogin);
 		emailAddress = (EditText) findViewById(R.id.email);
 		password = (EditText) findViewById(R.id.password);
@@ -86,8 +87,24 @@ public class LoginActivity extends Activity {
 		getMenuInflater().inflate(R.menu.login, menu);
 		return true;
 	}
-	
-	//Verifies that login credentials are valid
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == VERIFY_REQUEST){
+            if(resultCode == RESULT_OK) //If user has successfully verified their account, just log them in
+                if (canLogin() && DataParser.isNetworkAvailable(context)) {
+                    loginError.setVisibility(View.GONE);
+                    _emailAddress = emailAddress.getText().toString();
+                    _password = password.getText().toString();
+                    String[] userCredentials = {_emailAddress, _password};
+
+                    new LoginTask().execute(userCredentials);
+                }
+
+        }
+    }
+
+    //Verifies that login credentials are valid
 	private boolean canLogin() {
 		if(TextUtils.isEmpty(_emailAddress) || !_emailAddress.contains("@")) {
 			emailAddress.setError(getString(R.string.invalidEmailAddress));
@@ -146,7 +163,7 @@ public class LoginActivity extends Activity {
 			}
             else if(response.equals(getString(R.string.error_need_verification))) {
                 Intent verifyIntent = new Intent(LoginActivity.this, VerifyKeyActivity.class);
-                startActivity(verifyIntent); //Starts Verify activity
+                startActivityForResult(verifyIntent, VERIFY_REQUEST); //Starts Verify activity
             }
 			else {
 				loginError.setText(response);

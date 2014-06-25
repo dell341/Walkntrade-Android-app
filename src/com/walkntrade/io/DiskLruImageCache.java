@@ -75,6 +75,7 @@ public class DiskLruImageCache {
 				diskCache = DiskLruCache.open(cachingDir, APP_VERSION, VALUE_COUNT, MAX_LIMIT);
 				} catch (IOException e) {
 					Log.e(TAG, "initDiskCache: "+e);
+                    clearCache(); //Just clear the cache if there apparent errors
 				}
 				mDiskCacheStarting = false; //Finish initializing
 				mDiskCacheLock.notifyAll(); //Wake any waiting threads
@@ -104,8 +105,10 @@ public class DiskLruImageCache {
 					}
 				} catch (IOException e) {
 					Log.e(TAG, "AddBitmapToCache: "+e);
+                    clearCache(); //Just clear the cache if there apparent errors
 				} catch(Exception e) {
 					Log.e(TAG, "AddBitmapToCache: "+e);
+                    clearCache(); //Just clear the cache if there apparent errors
 				} finally {
 					try {
 						if(out != null)

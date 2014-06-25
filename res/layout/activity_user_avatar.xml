@@ -1,43 +1,45 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="?android:attr/actionBarSize"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:orientation="vertical"
-    tools:context="com.walkntrade.UserAvatar">
-
-    <ProgressBar
-        android:id="@+id/progressBar"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="-6dp"
-        android:indeterminate="true"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:visibility="invisible"/>
+        android:layout_height="match_parent"
+        tools:context="com.walkntrade.UserAvatar">
 
-    <TextView
-        android:id="@+id/error_message"
-        style="@style/TextViewError"
-        android:textSize="18sp"/>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:visibility="invisible"/>
 
-    <ImageView
-        android:id="@+id/avatar"
-        android:layout_width="@dimen/image_size_main"
-        android:layout_height="@dimen/image_size_main"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_gravity="center_horizontal"
-        android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
-        android:contentDescription="@string/post_image"
-        android:src="@drawable/post_image"/>
+        <TextView
+            android:id="@+id/error_message"
+            style="@style/TextViewError"
+            android:layout_alignParentTop="true"
+            android:textSize="18sp"/>
 
-    <Button
-        android:id="@+id/uploadButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="50dp"
-        android:text="@string/avatar_upload"/>
+        <ImageView
+            android:id="@+id/avatar"
+            android:layout_width="@dimen/image_size_main"
+            android:layout_height="@dimen/image_size_main"
+            android:layout_marginTop="20dp"
+            android:layout_centerHorizontal="true"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/post_image"
+            android:src="@drawable/post_image"/>
 
-</LinearLayout>
+        <Button
+            android:id="@+id/uploadButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_below="@id/avatar"
+            android:layout_centerHorizontal="true"
+            android:text="@string/avatar_upload"/>
+
+    </RelativeLayout>
+</ScrollView>

@@ -40,7 +40,7 @@ public class Selector extends Activity implements OnItemClickListener {
         noResults = (TextView) findViewById(R.id.noResults);
         listOfSchools = (ListView) findViewById(R.id.schoolList);
         schoolSearch = (EditText) findViewById(R.id.schoolSearch);
-        pBar = (ProgressBar) findViewById(R.id.progressBarSelector);
+        pBar = (ProgressBar) findViewById(R.id.progressBar);
 
         listOfSchools.setOnItemClickListener(this);
 

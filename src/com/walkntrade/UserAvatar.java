@@ -228,6 +228,8 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
             if (bitmap != null)
                 avatar.setImageBitmap(bitmap);
+            else
+                avatar.setImageDrawable(getResources().getDrawable(R.drawable.no_avatar));
 
             avatar.setOnClickListener(UserAvatar.this);
         }
