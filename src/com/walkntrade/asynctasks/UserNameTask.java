@@ -2,6 +2,7 @@ package com.walkntrade.asynctasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.ListView;
 
 import com.walkntrade.DrawerItem;
@@ -34,7 +35,7 @@ public class UserNameTask extends AsyncTask<Void, Void, String> {
             try {
                 userName = database.getUserName();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Get username", e);
             }
         }
 

@@ -2,6 +2,7 @@ package com.walkntrade.asynctasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -50,7 +51,7 @@ public class SchoolNameTask extends AsyncTask<String, Void, ArrayList<String>> {
             schoolsList = database.getSchools(name);
         }
         catch(Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Retrieving school name", e);
         }
         return schoolsList;
     }

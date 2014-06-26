@@ -66,6 +66,7 @@ public class AddPost extends Activity implements OnClickListener {
         int position = getIntent().getIntExtra(AddPost.CATEGORY_POSITION, 2);
         context = getApplicationContext();
 
+        //TODO:  Adjust, so only one layout is used. Not two.
         switch (position) {
             case 2:
                 setContentView(R.layout.add_post_book);
@@ -191,7 +192,7 @@ public class AddPost extends Activity implements OnClickListener {
                                 try {
                                     image = createImageFile();
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    Log.e(TAG, "Creating image file", e);
                                 }
 
                                 if (image != null) {
@@ -441,7 +442,7 @@ public class AddPost extends Activity implements OnClickListener {
                 } else
                     identifier = database.addPostOther(selectedCategory, schoolCode, title, description, priceValue, tags);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Adding post", e);
             }
 
             return identifier;
@@ -475,7 +476,7 @@ public class AddPost extends Activity implements OnClickListener {
                     if(photoPaths[i] != null && !photoPaths[i].isEmpty()) //Photopath is not null and it is not empty
                     response = database.uploadPostImage(identifier[0], photoPaths[i], i);
             } catch (IOException e){
-                e.printStackTrace();
+                Log.e(TAG, "Uploading images", e);
             }
             return response;
         }

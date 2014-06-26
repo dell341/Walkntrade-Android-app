@@ -3,6 +3,7 @@ package com.walkntrade.asynctasks;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.walkntrade.io.DataParser;
 
@@ -35,7 +36,7 @@ public class LogoutTask extends AsyncTask<Void, Void, Void> {
 
             database.logout();
         } catch(IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Logging out", e);
         }
         return null;
     }

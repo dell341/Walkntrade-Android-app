@@ -379,6 +379,30 @@ public class DataParser {
         return serverResponse;
     }
 
+    public String getEmailPref() throws IOException {
+        establishConnection();
+
+        String query = "intent=getEmailPref";
+        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+        InputStream inputStream = processRequest(entity);
+        String serverResponse = readInputAsString(inputStream);
+
+        disconnectAll();
+        return serverResponse;
+    }
+
+    public String setEmailPref(int preference) throws IOException {
+        establishConnection();
+
+        String query = "intent=setEmailPref&pref="+preference;
+        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+        InputStream inputStream = processRequest(entity);
+        String serverResponse = readInputAsString(inputStream);
+
+        disconnectAll();
+        return serverResponse;
+    }
+
     public String getPhoneNumber() throws IOException {
         establishConnection();
 

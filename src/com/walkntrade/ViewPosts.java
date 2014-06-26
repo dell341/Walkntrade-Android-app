@@ -138,9 +138,9 @@ public class ViewPosts extends Activity {
 
             try {
                 for(String s : postToDelete[0])
-                    Log.v(TAG, "Removing " + s + ":" + database.removePost(s));
+                    database.removePost(s);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Deleting post(s)", e);
             }
 
             return null;

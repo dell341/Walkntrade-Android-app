@@ -13,6 +13,7 @@ import android.support.v4.app.NavUtils;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -267,7 +268,7 @@ public class ShowPage extends Activity {
                 String schoolID = DataParser.getSchoolPref(context);
                 post = database.getFullPost(identifier[0], schoolID);
             } catch (Exception e){
-                e.printStackTrace();
+                Log.e(TAG, "Retrieving full post", e);
             }
 
             return post;
@@ -309,7 +310,7 @@ public class ShowPage extends Activity {
             try {
                 response = database.messageUser(thisPost.getAuthor(), thisPost.getTitle(), message);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Messaging user", e);
             }
             return response;
         }
@@ -349,7 +350,7 @@ public class ShowPage extends Activity {
 
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Retrieving post image", e);
             }
             finally{
                 imageCache.close();

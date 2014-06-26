@@ -2,6 +2,7 @@ package com.walkntrade.asynctasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -19,6 +20,9 @@ import java.util.ArrayList;
  * http://walkntrade.com
  */
 public class UserPostsTask extends AsyncTask<Void, Void, ArrayList<PostReference>> {
+
+    private static final String TAG = "AsyncTask:UserPosts";
+
     private Context context;
     private ProgressBar progressBar;
     private TextView noResults;
@@ -45,7 +49,7 @@ public class UserPostsTask extends AsyncTask<Void, Void, ArrayList<PostReference
             userPosts = database.getUserPosts();
         }
         catch(Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Get user posts", e);
         }
         return userPosts;
     }

@@ -3,6 +3,7 @@ package com.walkntrade.asynctasks;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.ListView;
 
 import com.walkntrade.DrawerItem;
@@ -52,10 +53,10 @@ public class AvatarRetrievalTask extends AsyncTask<Void, Void, Bitmap> {
             imageCache.addBitmapToCache(key.substring(0, 1), bm); //Finally cache bitmap. Will override cache if already exists or write new cache
         }
         catch(IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Retrieving user avatar", e);
         }
         catch(ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Image does not exist", e);
             //If user has not uploaded an image, leave Bitmap as null
         }
         finally {

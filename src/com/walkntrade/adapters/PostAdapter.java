@@ -3,6 +3,7 @@ package com.walkntrade.adapters;
 //Copyright (c), All Rights Reserved, http://walkntrade.com
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,7 +85,7 @@ public class PostAdapter extends BaseAdapter {
             holder.image.setImageBitmap(post.getBitmapImage());
         }
         catch(NullPointerException e){
-            e.printStackTrace();
+            Log.e(TAG, "Getting post image", e);
         }
 		holder.title.setText(post.getTitle());
 //		holder.details.setText(post.getDetails());

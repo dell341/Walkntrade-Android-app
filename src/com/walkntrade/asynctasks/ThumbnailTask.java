@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.walkntrade.R;
 import com.walkntrade.adapters.PostAdapter;
@@ -17,7 +18,11 @@ import java.io.IOException;
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
+
+//Retrieves the thumbnail images for posts
 public class ThumbnailTask extends AsyncTask<String, Void, Bitmap> {
+
+    private static final String TAG = "AsycnTask:Thumbnail";
 
     private Context context;
     private PostAdapter postAdapter;
@@ -49,7 +54,7 @@ public class ThumbnailTask extends AsyncTask<String, Void, Bitmap> {
 
             imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Retrieving image", e);
         }
         finally{
             imageCache.close();

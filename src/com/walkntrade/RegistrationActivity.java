@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -168,7 +169,7 @@ public class RegistrationActivity extends Activity {
                 }
                 response = database.registerUser(userName, email, password, phoneNumber); //Sends request to register user
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Registering user", e);
             }
             return response;
         }

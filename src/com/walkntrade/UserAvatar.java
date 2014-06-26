@@ -55,7 +55,8 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         avatar = (ImageView) findViewById(R.id.avatar);
         Button button = (Button) findViewById(R.id.uploadButton);
 
-        new GetAvatarTask().execute();
+        if(DataParser.isNetworkAvailable(this))
+         new GetAvatarTask().execute();
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,7 +112,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                                 try {
                                     image = createImageFile();
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    Log.e(TAG, "Creating image file", e);
                                 }
 
                                 if (image != null) {
@@ -212,9 +213,9 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
                 imageCache.addBitmapToCache(key.substring(0, 1), bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Retrieving user avatar", e);
             } catch (ArrayIndexOutOfBoundsException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Image does not exist", e);
                 //If user has not uploaded an image, leave Bitmap as null
             } finally {
                 imageCache.close();
@@ -254,7 +255,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 response = database.uploadUserAvatar(imagePath[0]);
                 imageCache = new DiskLruImageCache(context, DiskLruImageCache.USER_IMAGE);
             } catch(IOException e){
-                e.printStackTrace();
+                Log.e(TAG, "Uploading user avatar", e);
             } finally {
                 imageCache.clearCache(); //Clears avatar user image from cache. So new one will be uploaded.
                 imageCache.close();

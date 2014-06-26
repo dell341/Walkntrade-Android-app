@@ -3,6 +3,7 @@ package com.walkntrade.asynctasks;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -48,7 +49,7 @@ public class ImageRetrievalTask extends AsyncTask<String, Void, Bitmap> {
 
             imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Retrieving image", e);
         }
         finally{
             imageCache.close();

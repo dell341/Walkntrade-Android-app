@@ -74,7 +74,7 @@ public class DiskLruImageCache {
 				try {
 				diskCache = DiskLruCache.open(cachingDir, APP_VERSION, VALUE_COUNT, MAX_LIMIT);
 				} catch (IOException e) {
-					Log.e(TAG, "initDiskCache: "+e);
+					Log.e(TAG, "initDiskCache", e);
                     clearCache(); //Just clear the cache if there apparent errors
 				}
 				mDiskCacheStarting = false; //Finish initializing
@@ -104,10 +104,10 @@ public class DiskLruImageCache {
 						snapshot.getInputStream(DISK_CACHE_INDEX).close();
 					}
 				} catch (IOException e) {
-					Log.e(TAG, "AddBitmapToCache: "+e);
+					Log.e(TAG, "AddBitmapToCache", e);
                     clearCache(); //Just clear the cache if there apparent errors
 				} catch(Exception e) {
-					Log.e(TAG, "AddBitmapToCache: "+e);
+					Log.e(TAG, "AddBitmapToCache", e);
                     clearCache(); //Just clear the cache if there apparent errors
 				} finally {
 					try {
@@ -115,7 +115,7 @@ public class DiskLruImageCache {
 							out.close();
 					}
 					catch(IOException e){
-                        e.printStackTrace();
+                        Log.e(TAG, "AddBitmapToCache", e);
                     }
 				}
 			}
@@ -130,7 +130,7 @@ public class DiskLruImageCache {
 				try {
 					mDiskCacheLock.wait();
 				} catch(InterruptedException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "GetBitmapFromCache", e);
                 }
 			}
 			
@@ -146,13 +146,13 @@ public class DiskLruImageCache {
 						}
 					}
 				} catch (IOException e) {
-					Log.e(TAG, "GetBitmapFromCache: "+e);
+					Log.e(TAG, "GetBitmapFromCache", e);
 				} finally {
 					try {
 						if (inputStream != null)
 							inputStream.close();
 					} catch (IOException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "GetBitmapFromCache", e);
                     }
 				}
 			}
@@ -171,7 +171,7 @@ public class DiskLruImageCache {
 						diskCache = null;
 					}
 				} catch (IOException e) {
-					Log.e(TAG, "Closing Disk Cache: "+e);
+					Log.e(TAG, "Closing Disk Cache", e);
 				}
 			}
 		}
@@ -184,7 +184,7 @@ public class DiskLruImageCache {
 				try {
 					diskCache.delete();
 				} catch (IOException e) {
-					Log.e(TAG, "Clearing Cache: "+e);
+					Log.e(TAG, "Clearing Cache", e);
 				}
 			}
 			

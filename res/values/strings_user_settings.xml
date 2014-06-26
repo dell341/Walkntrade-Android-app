@@ -13,7 +13,7 @@
        <item>Contact Preferences</item>
    </string-array>
 
-    <string name="contact_email">Contact me via email (Currently has no effect)</string>
+    <string name="contact_email">Contact me via email </string>
     <string name="edit_post">Edit</string>
     <string name="remove_post">Remove</string>
     <string name="dialog_delete">Delete this post?</string>

@@ -2,6 +2,7 @@ package com.walkntrade.asynctasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -58,7 +59,7 @@ public class SchoolPostsTask extends AsyncTask<String, Void, ArrayList<Post>> {
 
 
         }catch(Exception e) {
-            e.printStackTrace();
+           Log.e(TAG, "Retrieving school post(s)", e);
         }
 
         return schoolPosts;
