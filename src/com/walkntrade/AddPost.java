@@ -156,7 +156,7 @@ public class AddPost extends Activity implements OnClickListener {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.add_post, menu);
+        getMenuInflater().inflate(R.menu.feedback, menu);
         return true;
     }
 

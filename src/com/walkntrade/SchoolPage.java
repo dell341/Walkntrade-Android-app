@@ -150,7 +150,6 @@ public class SchoolPage extends Activity {
         return true;
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
