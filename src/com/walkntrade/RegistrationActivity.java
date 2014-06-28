@@ -134,7 +134,7 @@ public class RegistrationActivity extends Activity {
         private String userName, email, phoneNumber, password;
         private DataParser database;
 
-        private boolean userNameTaken, emailTaken;
+        private boolean userNameTaken;
 
         public RegistrationTask(Context _context,TextView _error, String _userName, String _email, String _phoneNumber, String _password){
             context = _context;
@@ -148,7 +148,6 @@ public class RegistrationActivity extends Activity {
         @Override
         protected String doInBackground(Void... voids) {
             userNameTaken = false;
-            emailTaken = false;
             database = new DataParser(context);
 
             String response = null;

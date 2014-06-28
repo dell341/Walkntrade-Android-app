@@ -3,6 +3,7 @@
     <string name="title_activity_user_settings">User Settings</string>
     <string name="title_activity_view_posts">Current Posts</string>
     <string name="title_activity_user_avatar">Change your avatar</string>
+    <string name="title_activity_user_account">Account Settings</string>
     <string name="title_activity_contact_pref">Contact Preferences</string>
 
     <!-- User Settings Options-->
@@ -16,9 +17,21 @@
     <string name="contact_email">Contact me via email </string>
     <string name="edit_post">Edit</string>
     <string name="remove_post">Remove</string>
-    <string name="dialog_delete">Delete this post?</string>
 
     <string name="avatar_upload">Upload Current Image</string>
     <string name="null_avatar_upload">Please select a new image</string>
+
+    <string name="add_phone">Add phone number</string>
+    <string name="change_password">Change password</string>
+    <string name="new_email">New email</string>
+    <string name="new_email_confirm">New email (confirm)</string>
+    <string name="new_phone">New phone number</string>
+    <string name="new_phone_confirm">New phone number (confirm)</string>
+    <string name="new_password">New password</string>
+    <string name="new_password_confirm">New password (confirm)</string>
+    <string name="confirm_changes">Confirm changes</string>
+    <string name="old_password">Enter current password</string>
+    <string name="save_changes">Save changes</string>
+    <string name="save_change_failed">Could not save changes</string>
 
 </resources>

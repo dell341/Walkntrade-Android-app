@@ -74,7 +74,7 @@ public class ContactPref extends Activity {
             String serverResponse = null;
 
             try{
-                serverResponse = database.getEmailPref();
+                serverResponse = database.getContactPref();
             } catch (IOException e){
                 Log.e(TAG, "Get User Contact", e);
             }
@@ -98,7 +98,7 @@ public class ContactPref extends Activity {
             String serverResponse = null;
 
             try {
-                serverResponse = database.setEmailPref(Integer.parseInt(pref[0]));
+                serverResponse = database.setContactPref(Integer.parseInt(pref[0]));
             }catch (IOException e){
                 Log.e(TAG, "Setting user contact", e);
             }

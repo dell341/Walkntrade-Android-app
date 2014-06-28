@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
+import com.walkntrade.AccountSettingsChange;
 import com.walkntrade.R;
 import com.walkntrade.posts.Post;
 import com.walkntrade.posts.PostReference;
@@ -67,7 +68,8 @@ public class DataParser {
     public static final String SESS_UID = "sessionUid"; //Cookie title
     public static final String S_PREF = "sPref"; //Cookie title
     public static final String USER_NAME = "user_name"; //User-Pref title
-    public static final String PHONE_NUM = "phone_number"; //User-Pref title
+    public static final String USER_PHONE = "phone_number"; //User-Pref title
+    public static final String USER_EMAIL = "user_email"; //User-Pref title
     public static final String CURRENTLY_LOGGED_IN = "userLoggedIn"; //User-Pref title
     public static final String S_PREF_SHORT = "sPrefShort"; //School Preference title
     public static final String S_PREF_LONG = "sPrefLong"; //School Preference title
@@ -197,6 +199,8 @@ public class DataParser {
         return false;
     }
 
+    //TODO: Combine all set & get pref methods
+
     //Sets the selected school preference. Used when adding post to server
     public void setSchoolPref(String school) {
         SharedPreferences settings = context.getSharedPreferences(PREFS_SCHOOL, 0);
@@ -241,11 +245,25 @@ public class DataParser {
         return settings.getString(USER_NAME, null);
     }
 
+    //Stores email in SharedPreferences for later use
+    public void setEmailPref(String email) {
+       SharedPreferences settings = context.getSharedPreferences(PREFS_USER, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(USER_EMAIL, email);
+
+        editor.commit();
+    }
+
+    public static String getEmailPref(Context _context){
+        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, 0);
+        return settings.getString(USER_EMAIL, null);
+    }
+
     //Stores phone number in SharedPreferences
     private void setPhonePref(String phoneNum) {
         SharedPreferences settings = context.getSharedPreferences(PREFS_USER, 0);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PHONE_NUM, phoneNum);
+        editor.putString(USER_PHONE, phoneNum);
 
         editor.commit();
     }
@@ -253,7 +271,7 @@ public class DataParser {
     //Gets the stored phone number
     public static String getPhonePref(Context _context) {
         SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, 0);
-        return settings.getString(PHONE_NUM, null);
+        return settings.getString(USER_PHONE, null);
     }
 
     //Returns user login status
@@ -379,7 +397,7 @@ public class DataParser {
         return serverResponse;
     }
 
-    public String getEmailPref() throws IOException {
+    public String getContactPref() throws IOException {
         establishConnection();
 
         String query = "intent=getEmailPref";
@@ -391,7 +409,7 @@ public class DataParser {
         return serverResponse;
     }
 
-    public String setEmailPref(int preference) throws IOException {
+    public String setContactPref(int preference) throws IOException {
         establishConnection();
 
         String query = "intent=setEmailPref&pref="+preference;
@@ -413,6 +431,38 @@ public class DataParser {
 
         //Stores phone number locally to device
         setPhonePref(serverResponse);
+
+        disconnectAll();
+        return serverResponse;
+    }
+
+    public String changeSetting(String password, String settingValue, int setting) throws IOException{
+        establishConnection();
+
+        String query;
+
+        switch (setting){
+            case AccountSettingsChange.SETTING_EMAIL:
+                query = "intent=controlPanel&oldPw="+password+"&email="+settingValue;
+                setEmailPref(settingValue);
+                break;
+            case AccountSettingsChange.SETTING_PHONE:
+                query = "intent=controlPanel&oldPw="+password+"&phone="+settingValue;
+                setPhonePref(settingValue);
+                break;
+            case AccountSettingsChange.SETTING_PASSWORD:
+                query = "intent=controlPanel&oldPw="+password+"&newPw="+settingValue;
+                clearUserInfo();
+                clearCookies();
+                break;
+            default:
+                disconnectAll();
+                return "Setting not selected";
+        }
+
+        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+        InputStream inputStream = processRequest(entity);
+        String serverResponse = readInputAsString(inputStream);
 
         disconnectAll();
         return serverResponse;

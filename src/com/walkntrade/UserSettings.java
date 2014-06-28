@@ -63,11 +63,11 @@ public class UserSettings extends Activity implements AdapterView.OnItemClickLis
                 settingsIntent = new Intent(this, UserAvatar.class);
                 startActivity(settingsIntent); break;
             case 2: //Account Settings
-                break;
+                settingsIntent = new Intent(this, AccountSettings.class);
+                startActivity(settingsIntent); break;
             case 3: //Contact Preferences
                 settingsIntent = new Intent(this, ContactPref.class);
                 startActivity(settingsIntent); break;
-
         }
 
 

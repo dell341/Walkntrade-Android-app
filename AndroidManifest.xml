@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.walkntrade"
     android:versionCode="6"
-    android:versionName="1.1.5" >
+    android:versionName="1.1.6" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -123,6 +123,20 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.UserSettings" />
+        </activity>
+        <activity
+            android:name=".AccountSettings"
+            android:label="@string/title_activity_user_account">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walkntrade.UserSettings" />
+        </activity>
+        <activity
+            android:name=".AccountSettingsChange"
+            android:label="@string/title_activity_user_account">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walkntrade.AccountSettings" />
         </activity>
     </application>
 

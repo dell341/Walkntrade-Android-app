@@ -34,6 +34,7 @@ public class LoginActivity extends Activity {
     private Context context;
 	private SharedPreferences settings;
 
+    //TODO: Handle password or email changes with auto-login
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -142,6 +143,7 @@ public class LoginActivity extends Activity {
 			try {
 				response = database.login(_emailAddress, _password);
                 database.getUserName();
+                database.setEmailPref(_emailAddress);
                 database.getPhoneNumber();
 			}
 			catch(Exception e) {
@@ -153,7 +155,7 @@ public class LoginActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(String response) {
-            progressBar.setVisibility(View.GONE);
+            progressBar.setVisibility(View.INVISIBLE);
 
 			if(response.equals(DataParser.LOGIN_SUCCESS)) {
 				loginError.setVisibility(View.GONE);

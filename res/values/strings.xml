@@ -21,6 +21,7 @@
     <string name="default_avatar_url">colorful/Anonymous_User.jpg</string>
     <string name="default_image_url">/colorful/tfe_no_thumb.png</string>
     <string name="feedback">Send Feedback</string>
+    <string name="confirm">Confirm</string>
 
     <!-- Actual Category names -->
     <string name="server_category_all">all</string>
