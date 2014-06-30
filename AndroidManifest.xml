@@ -87,7 +87,7 @@
         <activity
             android:name=".VerifyKeyActivity"
             android:label="@string/title_activity_verify_key"
-            android:theme="@style/VerifyKeyDialogTheme" >
+            android:theme="@style/DialogTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.KEYVERIFY" />
 
@@ -119,24 +119,29 @@
         <activity
             android:name=".UserAvatar"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_user_avatar">
+            android:label="@string/title_activity_user_avatar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.UserSettings" />
         </activity>
         <activity
             android:name=".AccountSettings"
-            android:label="@string/title_activity_user_account">
+            android:label="@string/title_activity_user_account" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.UserSettings" />
         </activity>
         <activity
             android:name=".AccountSettingsChange"
-            android:label="@string/title_activity_user_account">
+            android:label="@string/title_activity_user_account" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.AccountSettings" />
+        </activity>
+        <activity
+            android:name=".FeedbackActivity"
+            android:label="@string/title_activity_feedback"
+            android:theme="@style/DialogTheme">
         </activity>
     </application>
 

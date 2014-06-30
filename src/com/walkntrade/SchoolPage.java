@@ -166,6 +166,9 @@ public class SchoolPage extends Activity {
             case R.id.action_sign_out:
                 signOut();
                 return true;
+            case R.id.feedback:
+                startActivity(new Intent(this, FeedbackActivity.class));
+                return true;
             default: return super.onOptionsItemSelected(item);
         }
     }

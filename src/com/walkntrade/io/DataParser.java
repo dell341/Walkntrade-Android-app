@@ -543,6 +543,20 @@ public class DataParser {
         return serverResponse;
     }
 
+    //TODO: Shorten intents that only send and receive Strings
+    //Send feedback to feedback@walkntrade.com
+    public String sendFeedback(String email, String message) throws IOException{
+        establishConnection();
+
+        String query = "intent=sendFeedback&email="+email+"&message="+message;
+        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+        InputStream inputStream = processRequest(entity);
+        String serverResponse = readInputAsString(inputStream); //Reads message response from server
+
+        disconnectAll();
+        return serverResponse;
+    }
+
     // Gets keyword from user and returns an ArrayList of school names
     public ArrayList<String> getSchools(String userInput) throws Exception {
         establishConnection(); // Instantiate all streams and opens the

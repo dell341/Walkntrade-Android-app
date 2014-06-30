@@ -20,7 +20,7 @@
     <string name="user_name_no_login">Please Login</string>
     <string name="default_avatar_url">colorful/Anonymous_User.jpg</string>
     <string name="default_image_url">/colorful/tfe_no_thumb.png</string>
-    <string name="feedback">Send Feedback</string>
+    <string name="send_feedback">Send Feedback</string>
     <string name="confirm">Confirm</string>
 
     <!-- Actual Category names -->
@@ -34,5 +34,11 @@
     <string name="post_image">Image posted by user</string>
 
     <!-- Auto-generated Strings **Remove All** -->
+
+    <string name="title_activity_feedback">Send Feedback</string>
+    <string name="email_optional">Email (Optional)</string>
+    <string name="feedback">Feedback</string>
+    <string name="feedback_fail">Could not send feedback</string>
+    <string name="invalid_message">Message cannot be blank</string>
 
 </resources>

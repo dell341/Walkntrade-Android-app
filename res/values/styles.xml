@@ -14,8 +14,8 @@
         <item name="android:imeOptions">flagNoFullscreen</item>
     </style>
 
-    <!-- Theme used for Verifying random key -->
-    <style name="VerifyKeyDialogTheme" parent="@android:style/Theme.Holo.Light.Dialog">
+    <!-- Dialog Theme-->
+    <style name="DialogTheme" parent="@android:style/Theme.Holo.Light.Dialog">
         <item name="android:imeOptions">flagNoFullscreen</item>
     </style>
 

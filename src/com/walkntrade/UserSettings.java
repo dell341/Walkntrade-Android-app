@@ -46,6 +46,9 @@ public class UserSettings extends Activity implements AdapterView.OnItemClickLis
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
                 NavUtils.navigateUpTo(this, upIntent);
                 return true;
+            case R.id.feedback:
+                startActivity(new Intent(this, FeedbackActivity.class));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

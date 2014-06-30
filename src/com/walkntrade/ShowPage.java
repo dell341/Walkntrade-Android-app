@@ -15,6 +15,7 @@ import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -195,10 +196,19 @@ public class ShowPage extends Activity {
 	}
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.feedback, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case android.R.id.home: //If the up button was selected, go back to parent activity
                 NavUtils.navigateUpFromSameTask(this);
+                return true;
+            case R.id.feedback:
+                startActivity(new Intent(this, FeedbackActivity.class));
                 return true;
             default: return super.onOptionsItemSelected(item);
         }
