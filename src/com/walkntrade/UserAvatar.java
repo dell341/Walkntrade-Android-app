@@ -137,10 +137,8 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 Uri returnUri = data.getData();
                 mCurrentPhotoPath = ImageTool.getPath(context, returnUri); //Gets image path of Gallery image
             }
-            else {
-                Log.v(TAG, "PATH: "+mCurrentPhotoPath);
+            else
                 addPicToGallery();
-            }
 
             avatar.setImageBitmap(ImageTool.getImageFromDevice(mCurrentPhotoPath, avatar));
         }

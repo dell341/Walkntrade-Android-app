@@ -95,10 +95,11 @@ public class SchoolPage extends Activity {
 
     @Override
     protected void onResume() {
+        super.onResume();
+
         //Refreshes the ActionBar menu when activity is resumed
         invalidateOptionsMenu();
         updateDrawer();
-        super.onResume();
     }
 
     //Must be called at this state for the ActionBarDrawerToggle

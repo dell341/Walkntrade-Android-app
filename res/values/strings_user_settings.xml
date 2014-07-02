@@ -31,7 +31,9 @@
     <string name="new_password_confirm">New password (confirm)</string>
     <string name="confirm_changes">Confirm changes</string>
     <string name="old_password">Enter current password</string>
+
     <string name="save_changes">Save changes</string>
     <string name="save_change_failed">Could not save changes</string>
+    <string name="error_empty_password">Could not save changes - please enter password</string>
 
 </resources>

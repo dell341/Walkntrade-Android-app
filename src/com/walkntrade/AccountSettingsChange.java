@@ -10,12 +10,14 @@ import android.support.v4.app.NavUtils;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.walkntrade.io.DataParser;
 
@@ -82,13 +84,11 @@ public class AccountSettingsChange extends Activity {
                 if(canContinue() && DataParser.isNetworkAvailable(AccountSettingsChange.this)) {
                     View layout = getLayoutInflater().inflate(R.layout.activity_veryify_key, null);
 
-                    final TextView errorMessage = (TextView) layout.findViewById(R.id.verify_error);
                     final EditText editText = (EditText) layout.findViewById(R.id.verify_key);
                     Button button = (Button) layout.findViewById(R.id.verify_submit);
                     editText.setHint(getString(R.string.old_password));
-                    editText.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                     button.setVisibility(View.GONE);
-                    errorMessage.setVisibility(View.GONE);
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(AccountSettingsChange.this);
                     builder.setTitle(getString(R.string.confirm_changes))
@@ -97,7 +97,7 @@ public class AccountSettingsChange extends Activity {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     if(TextUtils.isEmpty(editText.getText().toString())) {
-                                        errorMessage.setText(getString(R.string.invalidPassword));
+                                        errorMessage.setText(getString(R.string.error_empty_password));
                                         errorMessage.setVisibility(View.VISIBLE);
                                     }
                                     else
@@ -136,6 +136,7 @@ public class AccountSettingsChange extends Activity {
 
         if(!t1.equals(t2)){
             canContinue = false;
+            newSettingConfirm.setError(getString(R.string.error_fields_mismatch));
         }
 
         switch (setting) {
@@ -189,8 +190,14 @@ public class AccountSettingsChange extends Activity {
         }
 
         @Override
-        protected void onPostExecute(String s) {
+        protected void onPostExecute(String serverResponse) {
             progressBar.setVisibility(View.INVISIBLE);
+
+            Toast toast = Toast.makeText(AccountSettingsChange.this, serverResponse, Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0);
+            toast.show();
+
+            finish(); //Close this activity
         }
     }
 }

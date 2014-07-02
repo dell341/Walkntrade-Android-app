@@ -35,6 +35,8 @@ public class ViewPosts extends Activity {
     private static final String TAG = "ViewPost";
 
     private Context context;
+    private ProgressBar pBar;
+    private TextView noResults;
     private ListView listOfPosts;
 
     @Override
@@ -44,8 +46,8 @@ public class ViewPosts extends Activity {
 
         context = getApplicationContext();
         listOfPosts = (ListView) findViewById(R.id.postsList);
-        TextView noResults = (TextView) findViewById(R.id.noPosts);
-        ProgressBar pBar = (ProgressBar) findViewById(R.id.progressBarViewPosts);
+        noResults = (TextView) findViewById(R.id.noPosts);
+        pBar = (ProgressBar) findViewById(R.id.progressBarViewPosts);
 
         new UserPostsTask(this, pBar, noResults, listOfPosts).execute();
 
@@ -140,5 +142,10 @@ public class ViewPosts extends Activity {
             return null;
         }
 
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            //Repopulate list
+            new UserPostsTask(context, pBar, noResults, listOfPosts).execute();
+        }
     }
 }

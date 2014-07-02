@@ -11,6 +11,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.walkntrade.io.DataParser;
+
 //Copyright (c), All Rights Reserved, http://walkntrade.com
 
 public class UserSettings extends Activity implements AdapterView.OnItemClickListener{
@@ -29,6 +31,9 @@ public class UserSettings extends Activity implements AdapterView.OnItemClickLis
         settingsList.setOnItemClickListener(this);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if(!DataParser.isUserLoggedIn(this))
+            finish(); //If user not logged in, close this activity
     }
 
     @Override
@@ -74,5 +79,13 @@ public class UserSettings extends Activity implements AdapterView.OnItemClickLis
         }
 
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(!DataParser.isUserLoggedIn(this))
+            finish(); //If user not logged in, close this activity
     }
 }

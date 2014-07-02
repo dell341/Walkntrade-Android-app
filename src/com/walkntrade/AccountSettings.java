@@ -30,7 +30,7 @@ public class AccountSettings extends Activity {
         String phone = DataParser.getPhonePref(this);
         String password = getString(R.string.change_password);
 
-        if(phone == null)
+        if(phone == null || phone.equals("0"))
             phone = getString(R.string.add_phone);
 
         ArrayList<String> settings = new ArrayList<String>(3);
@@ -60,6 +60,9 @@ public class AccountSettings extends Activity {
         });
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if(!DataParser.isUserLoggedIn(this))
+            finish(); //If user not logged in, close this activity
     }
 
     @Override
@@ -72,5 +75,13 @@ public class AccountSettings extends Activity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(!DataParser.isUserLoggedIn(this))
+            finish(); //If user not logged in, close this activity
     }
 }
