@@ -14,6 +14,8 @@ import android.view.Gravity;
 import android.widget.Toast;
 
 import com.walkntrade.AccountSettingsChange;
+import com.walkntrade.MessageObject;
+import com.walkntrade.Messages;
 import com.walkntrade.R;
 import com.walkntrade.posts.Post;
 import com.walkntrade.posts.PostReference;
@@ -70,6 +72,7 @@ public class DataParser {
     public static final String USER_NAME = "user_name"; //User-Pref title
     public static final String USER_PHONE = "phone_number"; //User-Pref title
     public static final String USER_EMAIL = "user_email"; //User-Pref title
+    public static final String USER_MESSAGES = "user_messages"; //User-Pref title
     public static final String CURRENTLY_LOGGED_IN = "userLoggedIn"; //User-Pref title
     public static final String S_PREF_SHORT = "sPrefShort"; //School Preference title
     public static final String S_PREF_LONG = "sPrefLong"; //School Preference title
@@ -85,6 +88,7 @@ public class DataParser {
     private ArrayList<String> schools;
     private ArrayList<Post> schoolPosts;
     private ArrayList<PostReference> userPosts;
+    private ArrayList<MessageObject> messages;
     private Post post;
     private String identifier;
     private String schoolID;
@@ -207,7 +211,7 @@ public class DataParser {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(S_PREF_SHORT, "sPref=" + school);
 
-        editor.commit(); //Save changes to the SharedPreferences
+        editor.apply(); //Save changes to the SharedPreferences
     }
 
     //Returns the school preference. The most recently visited school page
@@ -222,7 +226,7 @@ public class DataParser {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(S_PREF_LONG, school);
 
-        editor.commit();
+        editor.apply();
     }
 
     public static String getSchoolLongPref(Context _context) {
@@ -236,7 +240,7 @@ public class DataParser {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(USER_NAME, userName);
 
-        editor.commit();
+        editor.apply();
     }
 
     //Gets the stored username to avoid network connection every time
@@ -251,7 +255,7 @@ public class DataParser {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(USER_EMAIL, email);
 
-        editor.commit();
+        editor.apply();
     }
 
     public static String getEmailPref(Context _context){
@@ -265,13 +269,27 @@ public class DataParser {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(USER_PHONE, phoneNum);
 
-        editor.commit();
+        editor.apply();
     }
 
     //Gets the stored phone number
     public static String getPhonePref(Context _context) {
         SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, 0);
         return settings.getString(USER_PHONE, null);
+    }
+
+    //Stores amount of unread messages
+    private void setMessagePref(int amount) {
+        SharedPreferences settings = context.getSharedPreferences(PREFS_USER, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt(USER_MESSAGES, amount);
+
+        editor.apply();
+    }
+
+    public static int getMessagesAmount(Context _context) {
+        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, 0);
+        return settings.getInt(USER_MESSAGES, 0);
     }
 
     //Returns user login status
@@ -478,6 +496,85 @@ public class DataParser {
 
         disconnectAll();
         return serverResponse;
+    }
+
+    //Returns amount of unread messages
+    public String getUnreadMessages() throws IOException{
+        establishConnection();
+
+        String query = "intent=pollNewWebmail";
+        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+        InputStream inputStream = processRequest(entity);
+        String serverResponse = readInputAsString(inputStream); //Reads message response from server
+
+        setMessagePref(Integer.parseInt(serverResponse)); //Stores amount of unread messages here
+
+        disconnectAll();
+        return serverResponse;
+    }
+
+    public ArrayList<MessageObject> getMessages(int _messageType, int id) throws Exception{
+        establishConnection();
+
+        try {
+            messages = new ArrayList<MessageObject>();
+            final int messageType = _messageType;
+            String query;
+
+            if(messageType == Messages.RECEIVED_MESSAGES && id == -1)
+                query = "intent=getWebmail";
+            else if(messageType == Messages.SENT_MESSAGES && id == -1)
+                query = "intent=getSentWebmail";
+            else
+                query = "intent=getMessage&message_id="+id;
+
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inStream = processRequest(entity);
+
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+
+            DefaultHandler xmlHandler = new DefaultHandler(){
+                @Override
+                public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+                    String id = "DNE";
+                    String user = "DNE";
+                    String subject = "DNE";
+                    String contents = "DNE";
+                    String date = "DNE";
+                    String read = "DNE";
+
+                    for(int i=0; i<attributes.getLength(); i++){
+                        if (attributes.getLocalName(i).equalsIgnoreCase("id"))
+                            id = attributes.getValue(i);
+                        else if (attributes.getLocalName(i).equalsIgnoreCase("to") && messageType == Messages.SENT_MESSAGES)
+                            user = attributes.getValue(i);
+                        else if (attributes.getLocalName(i).equalsIgnoreCase("from") && messageType == Messages.RECEIVED_MESSAGES)
+                            user = attributes.getValue(i);
+                        else if (attributes.getLocalName(i).equalsIgnoreCase("subject"))
+                            subject = attributes.getValue(i);
+                        else if (attributes.getLocalName(i).equalsIgnoreCase("message"))
+                            contents = attributes.getValue(i);
+                        else if (attributes.getLocalName(i).equalsIgnoreCase("datetime"))
+                            date = attributes.getValue(i);
+                        else if (attributes.getLocalName(i).equalsIgnoreCase("read"))
+                            read = attributes.getValue(i);
+                    }
+
+                    //The last attribute to be initialized is the date, end of message
+                    if(messageType == Messages.RECEIVED_MESSAGES) //Received messages need the read attribute
+                        if(!read.equals("DNE"))
+                            messages.add(new MessageObject(id, user, subject, contents, date, read));
+                    else if(!date.equals("DNE")) //Sent messages do not have the read attribute
+                        messages.add(new MessageObject(id, user, subject, contents, date, read));
+                }
+            };
+            saxParser.parse(inStream, xmlHandler);
+        } finally {
+            disconnectAll();
+        }
+
+        return messages;
     }
 
     //Add Post to Walkntrade

@@ -15,6 +15,7 @@
         android:gravity="center"
         android:textStyle="bold"
         android:singleLine="true"
+        android:textColor="@android:color/black"
         android:textSize="@dimen/school_header_size"/>
 
 </RelativeLayout>

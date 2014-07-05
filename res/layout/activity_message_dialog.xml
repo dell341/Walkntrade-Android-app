@@ -18,6 +18,7 @@
         android:textSize="14sp"
         android:editable="true"
         android:inputType="textMultiLine"
+        android:hint="@string/enter_message"
         android:text="@string/post_message_content_no_phone"/>
 
 </LinearLayout>

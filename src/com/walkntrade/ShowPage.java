@@ -40,12 +40,17 @@ public class ShowPage extends Activity {
     public static String INDEX = "Image_Index";
 
     private static final String SAVED_POST = "saved_instance_post";
+    private static final String SAVED_IMAGE_1 = "saved_instance_image_1";
+    private static final String SAVED_IMAGE_2 = "saved_instance_image_2";
+    private static final String SAVED_IMAGE_3 = "saved_instance_image_3";
+    private static final String SAVED_IMAGE_4 = "saved_instance_image_4";
 
     private Context context;
     private String identifier;
     private Post thisPost;
     private ProgressBar progress;
     private TextView title, details, user, date, price;
+    private ImageView image, image2, image3, image4;
     private AlertDialog dialog;
     private String message;
     private Button contact, contact_nologin;
@@ -70,10 +75,10 @@ public class ShowPage extends Activity {
         contact = (Button) findViewById(R.id.show_post_contact);
         contact_nologin = (Button) findViewById(R.id.show_post_contact_login);
 
-        ImageView image = (ImageView) findViewById(R.id.show_post_image);
-        ImageView image2 = (ImageView) findViewById(R.id.show_post_image_2);
-        ImageView image3 = (ImageView) findViewById(R.id.show_post_image_3);
-        ImageView image4 = (ImageView) findViewById(R.id.show_post_image_4);
+        image = (ImageView) findViewById(R.id.show_post_image);
+        image2 = (ImageView) findViewById(R.id.show_post_image_2);
+        image3 = (ImageView) findViewById(R.id.show_post_image_3);
+        image4 = (ImageView) findViewById(R.id.show_post_image_4);
 
         //If orientation has been changed, retrieve previously saved data instead of another network connection.
         if(savedInstanceState != null){
@@ -90,24 +95,29 @@ public class ShowPage extends Activity {
             user.setVisibility(View.VISIBLE);
             date.setVisibility(View.VISIBLE);
             price.setVisibility(View.VISIBLE);
+
+//            image.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_1));
+//            image2.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_2));
+//            image3.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_3));
+//            image4.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_4));
+
+            createMessageDialog();
         }
-        else
-        new FullPostTask().execute(identifier); //Retrieves full information for this post
+        else {
+            new FullPostTask().execute(identifier); //Retrieves full information for this post
+        }
 
         //Calls images to be displayed on show page
 
         //First Image
         String imgUrl = generateImgURL(0);
         new SpecialImageRetrievalTask(image, identifier, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
-
         //Second Image
         imgUrl = generateImgURL(1);
         new SpecialImageRetrievalTask(image2, identifier, 1).execute(imgUrl);
-
         //Third Image
         imgUrl = generateImgURL(2);
         new SpecialImageRetrievalTask(image3, identifier, 2).execute(imgUrl);
-
         //Fourth Image
         imgUrl = generateImgURL(3);
         new SpecialImageRetrievalTask(image4, identifier, 3).execute(imgUrl);
@@ -137,53 +147,10 @@ public class ShowPage extends Activity {
             }
         });
 
-        if(DataParser.getPhonePref(context) == null)
+        if(DataParser.getPhonePref(context) == null || DataParser.getPhonePref(context).equals("0"))
             message = getString(R.string.post_message_content_no_phone);
         else
             message = String.format(getString(R.string.post_message_content_phone), DataParser.getPhonePref(context));
-
-        //Custom Message View
-        LayoutInflater inflater = this.getLayoutInflater();
-        View messageView = inflater.inflate(R.layout.activity_message_dialog, null);
-        ((EditText)messageView.findViewById(R.id.post_message)).setText(message);
-
-        //Adds color to Contact title
-        SpannableStringBuilder stringBuilder = new SpannableStringBuilder();
-        String t = getString(R.string.contact)+": ";
-        String u = user.getText().toString();
-
-        SpannableString string = new SpannableString(t);
-        stringBuilder.append(string);
-        string = new SpannableString(u);
-        string.setSpan(new ForegroundColorSpan(Color.BLACK), 0, u.length(), 0);
-        stringBuilder.append(string);
-
-        //Creates dialog popup to contact user
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(stringBuilder)
-                .setView(messageView)
-                .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        new SendMessageTask().execute();
-                        dialogInterface.dismiss();
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-
-        dialog = builder.create();
-
-        contact.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.show();
-            }
-        });
 
         contact_nologin.setOnClickListener(new OnClickListener() {
             @Override
@@ -217,8 +184,13 @@ public class ShowPage extends Activity {
     @Override //Saves data to be used upon recreation of activity. Prevents additional network connections.
     protected void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(SAVED_POST, thisPost);
+//        outState.putParcelable(SAVED_IMAGE_1, ((BitmapDrawable)image.getDrawable()).getBitmap());
+//        outState.putParcelable(SAVED_IMAGE_2, ((BitmapDrawable)image.getDrawable()).getBitmap());
+//        outState.putParcelable(SAVED_IMAGE_3, ((BitmapDrawable)image.getDrawable()).getBitmap());
+//        outState.putParcelable(SAVED_IMAGE_4, ((BitmapDrawable)image.getDrawable()).getBitmap());
         super.onSaveInstanceState(outState);
     }
+
 
     @Override
     protected void onResume() {
@@ -252,6 +224,53 @@ public class ShowPage extends Activity {
 
     private void generateValidImgURL(int index){
         imgURLs[index] = generateImgURL(index);
+    }
+
+    private void createMessageDialog() {
+        //Custom Message View
+        LayoutInflater inflater = this.getLayoutInflater();
+        View messageView = inflater.inflate(R.layout.activity_message_dialog, null);
+        final EditText editText = ((EditText)messageView.findViewById(R.id.post_message));
+        editText.setText(message);
+
+        //Adds color to Contact title
+        SpannableStringBuilder stringBuilder = new SpannableStringBuilder();
+        String t = getString(R.string.contact)+": ";
+        String u = user.getText().toString();
+
+        SpannableString string = new SpannableString(t);
+        stringBuilder.append(string);
+        string = new SpannableString(u);
+        string.setSpan(new ForegroundColorSpan(Color.BLACK), 0, u.length(), 0);
+        stringBuilder.append(string);
+
+        //Creates dialog popup to contact user
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(stringBuilder)
+                .setView(messageView)
+                .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        new SendMessageTask().execute(editText.getText().toString());
+                        dialogInterface.dismiss();
+
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+
+        dialog = builder.create();
+
+        contact.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.show();
+            }
+        });
     }
 
     //Retrieves full post information
@@ -298,20 +317,22 @@ public class ShowPage extends Activity {
             user.setText(post.getAuthor());
             date.setText(post.getDate());
             price.setText("$"+post.getPrice());
+
+            createMessageDialog();
         }
     }
 
     //Sends message to user
-    private class SendMessageTask extends AsyncTask<Void, Void, String> {
+    private class SendMessageTask extends AsyncTask<String, Void, String> {
         private DataParser database;
 
         @Override
-        protected String doInBackground(Void... voids) {
+        protected String doInBackground(String... message) {
             database = new DataParser(context);
             String response = context.getString(R.string.message_failed);
 
             try {
-                response = database.messageUser(thisPost.getAuthor(), thisPost.getTitle(), message);
+                response = database.messageUser(thisPost.getAuthor(), thisPost.getTitle(), message[0]);
             } catch (IOException e) {
                 Log.e(TAG, "Messaging user", e);
             }

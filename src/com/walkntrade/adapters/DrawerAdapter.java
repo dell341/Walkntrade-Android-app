@@ -79,6 +79,21 @@ public class DrawerAdapter extends ArrayAdapter<DrawerItem>{
 			
 			ImageView icon = (ImageView) drawerItemView.findViewById(R.id.drawer_icon);
 			TextView content = (TextView) drawerItemView.findViewById(R.id.drawer_content);
+            TextView counter = (TextView) drawerItemView.findViewById(R.id.counter);
+
+            if(item.hasCounter()) {
+                int amount = item.getCount();
+
+                if(amount > 0) {
+                    counter.setVisibility(View.VISIBLE);
+                    if(amount > 99)
+                        counter.setText("99+");
+                    else
+                    counter.setText(Integer.toString(amount));
+                }
+                else
+                    counter.setVisibility(View.GONE);
+            }
 			
 			icon.setImageResource(item.getIconResource());
 			content.setText(item.getTitle());

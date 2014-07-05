@@ -7,9 +7,12 @@
         <item>Post Tech</item>
         <item>Post Services</item>
         <item>Post Misc.</item>
+        <item>Messages</item>
+        <item>Inbox</item>
+        <item>Sent</item>
         <item>Settings</item>
         <item>Account</item>
-        <item>Change School</item>
+        <item>Change School</item>1
     </string-array>
 
     <!-- Tab Titles strings -->

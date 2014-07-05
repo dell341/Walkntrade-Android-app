@@ -24,6 +24,7 @@ import com.walkntrade.adapters.DrawerAdapter;
 import com.walkntrade.adapters.TabsPagerAdapter;
 import com.walkntrade.asynctasks.AvatarRetrievalTask;
 import com.walkntrade.asynctasks.LogoutTask;
+import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.asynctasks.UserNameTask;
 import com.walkntrade.io.DataParser;
 
@@ -98,6 +99,7 @@ public class SchoolPage extends Activity {
         super.onResume();
 
         //Refreshes the ActionBar menu when activity is resumed
+        new PollMessagesTask(this).execute(); //Check for new messages
         invalidateOptionsMenu();
         updateDrawer();
     }
@@ -193,15 +195,18 @@ public class SchoolPage extends Activity {
             items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[2])); //Tech
             items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[3])); //Services
             items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[4])); //Misc.
-            items.add(new DrawerItem(drawerOptions[5])); //Settings [SECTION]
-            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[6])); //Account
-            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[7])); //Select School
+            items.add(new DrawerItem(drawerOptions[5])); //Messages [SECTION]
+            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[6], DataParser.getMessagesAmount(context))); //Inbox
+            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[7])); //Sent
+            items.add(new DrawerItem(drawerOptions[8])); //Settings [SECTION]
+            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[9])); //Account
+            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[10])); //Select School
         }
         else {
             //User is signed out
             items.add(new DrawerItem(R.drawable.avatar, getString(R.string.user_name_no_login), true));
-            items.add(new DrawerItem(drawerOptions[5])); //Settings [SECTION]
-            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[7])); //Select School
+            items.add(new DrawerItem(drawerOptions[8])); //Settings [SECTION]
+            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[10])); //Select School
         }
 
         navigationDrawerList.setAdapter(new DrawerAdapter(this, items));
@@ -209,7 +214,7 @@ public class SchoolPage extends Activity {
 
     private void selectItem(int position, long id) {
 
-        //Special case scenario. Revise later
+        //TODO: Special case scenario. Revise later: Assign ids to items on drawer
         if(id == 1994) {
             startActivity(new Intent(SchoolPage.this, Selector.class));//Change School
             finish();
@@ -218,16 +223,26 @@ public class SchoolPage extends Activity {
 
 		//Perform action based on selected item
 		switch(position) {
-        case 7:
-             startActivity(new Intent(this, UserSettings.class)); break; //Account
-		case 8: startActivity(new Intent(SchoolPage.this, Selector.class));//Change School
-			finish(); break;
-		default: Intent addPostIntent = new Intent(this, AddPost.class);
-		addPostIntent.putExtra(AddPost.CATEGORY_POSITION, position);
-		//Highlight the selected item, update the title, close the drawer
-		navigationDrawerList.setItemChecked(position, true);
-		mDrawerLayout.closeDrawer(navigationDrawerList);
-		startActivity(addPostIntent); return;
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                Intent addPostIntent = new Intent(this, AddPost.class);
+                addPostIntent.putExtra(AddPost.CATEGORY_POSITION, position);
+                startActivity(addPostIntent);  break;
+            case 7:
+                Intent getMessageIntent = new Intent(this, Messages.class);
+                getMessageIntent.putExtra(Messages.MESSAGE_TYPE, Messages.RECEIVED_MESSAGES);
+                startActivity(getMessageIntent); break;
+            case 8:
+                getMessageIntent = new Intent(this, Messages.class);
+                getMessageIntent.putExtra(Messages.MESSAGE_TYPE, Messages.SENT_MESSAGES);
+                startActivity(getMessageIntent); break;
+            case 10:
+                 startActivity(new Intent(this, UserSettings.class)); break; //Account
+            case 11: startActivity(new Intent(SchoolPage.this, Selector.class));//Change School
+                finish(); break;
+            default: return;
 		}
 
 		//Highlight the selected item, update the title, close the drawer
@@ -239,7 +254,7 @@ public class SchoolPage extends Activity {
         SharedPreferences settings = getSharedPreferences(DataParser.PREFS_USER, 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(DataParser.CURRENTLY_LOGGED_IN, false);
-        editor.commit();
+        editor.apply();
 
         if(DataParser.isNetworkAvailable(this))
             new LogoutTask(this).execute(); //Starts asynchronous sign out

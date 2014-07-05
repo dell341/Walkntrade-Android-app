@@ -23,6 +23,13 @@
     <string name="send_feedback">Send Feedback</string>
     <string name="confirm">Confirm</string>
 
+
+    <string name="reply">Reply</string>
+    <string name="received_messages">Received Messages</string>
+    <string name="sent_messages">Sent Messages</string>
+    <string name="received_message">Received Message</string>
+    <string name="sent_message">Sent Message</string>
+
     <!-- Actual Category names -->
     <string name="server_category_all">all</string>
     <string name="server_category_book">book</string>
@@ -40,5 +47,7 @@
     <string name="feedback">Feedback</string>
     <string name="feedback_fail">Could not send feedback</string>
     <string name="invalid_message">Message cannot be blank</string>
+    <string name="title_activity_messages">Messages</string>
+    <string name="title_activity_show_message">Walkntrade Message</string>
 
 </resources>

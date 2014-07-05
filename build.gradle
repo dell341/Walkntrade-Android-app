@@ -3,21 +3,21 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.11.+'
+        classpath 'com.android.tools.build:gradle:0.12.+'
     }
 }
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
+    // You must install or update the Support Repository through the SDK manager to use this dependency.
     compile 'com.android.support:appcompat-v7:19.1.0'
+    // You must install or update the Support Repository through the SDK manager to use this dependency.
     compile 'com.android.support:support-v13:19.0.+'
 }
 
 android {
-    signingConfigs {
-    }
-    compileSdkVersion 19
+    compileSdkVersion 20
     buildToolsVersion '19.1.0'
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
@@ -48,8 +48,6 @@ android {
         release.setRoot('build-types/release')
     }
     defaultConfig {}
-    productFlavors {
-    }
     buildTypes {
     }
 }
