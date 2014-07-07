@@ -360,6 +360,7 @@ public class DataParser {
         String query = "intent=logout";
 
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+        processRequest(entity);
         clearCookies(); //Clears locally stored cookies
         clearUserInfo(); //Clears locally stored user information
 
@@ -519,14 +520,15 @@ public class DataParser {
         try {
             messages = new ArrayList<MessageObject>();
             final int messageType = _messageType;
+            final int queryId = id;
             String query;
 
-            if(messageType == Messages.RECEIVED_MESSAGES && id == -1)
+            if(messageType == Messages.RECEIVED_MESSAGES && queryId == -1)
                 query = "intent=getWebmail";
-            else if(messageType == Messages.SENT_MESSAGES && id == -1)
+            else if(messageType == Messages.SENT_MESSAGES && queryId == -1)
                 query = "intent=getSentWebmail";
             else
-                query = "intent=getMessage&message_id="+id;
+                query = "intent=getMessage&message_id="+queryId;
 
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inStream = processRequest(entity);
@@ -562,9 +564,10 @@ public class DataParser {
                     }
 
                     //The last attribute to be initialized is the date, end of message
-                    if(messageType == Messages.RECEIVED_MESSAGES) //Received messages need the read attribute
-                        if(!read.equals("DNE"))
+                    if(messageType == Messages.RECEIVED_MESSAGES && queryId == -1) { //Received messages need the read attribute
+                        if (!read.equals("DNE"))
                             messages.add(new MessageObject(id, user, subject, contents, date, read));
+                    }
                     else if(!date.equals("DNE")) //Sent messages do not have the read attribute
                         messages.add(new MessageObject(id, user, subject, contents, date, read));
                 }
@@ -575,6 +578,18 @@ public class DataParser {
         }
 
         return messages;
+    }
+
+    public String removeMessage(String id) throws IOException{
+        establishConnection();
+
+        String query = "intent=removeMessage&message_id="+id;
+        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+        InputStream inputStream = processRequest(entity);
+        String serverResponse = readInputAsString(inputStream); //Reads message response from server
+
+        disconnectAll();
+        return serverResponse;
     }
 
     //Add Post to Walkntrade
@@ -628,6 +643,7 @@ public class DataParser {
         return serverResponse;
     }
 
+    //TODO: Shorten intents that only send and receive Strings
     public String removePost(String obsId) throws IOException {
         establishConnection();
 
@@ -640,7 +656,6 @@ public class DataParser {
         return serverResponse;
     }
 
-    //TODO: Shorten intents that only send and receive Strings
     //Send feedback to feedback@walkntrade.com
     public String sendFeedback(String email, String message) throws IOException{
         establishConnection();

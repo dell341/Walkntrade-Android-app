@@ -8,9 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.ActionMode;
-import android.view.ContextMenu;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
@@ -35,7 +33,7 @@ public class ViewPosts extends Activity {
     private static final String TAG = "ViewPost";
 
     private Context context;
-    private ProgressBar pBar;
+    private ProgressBar progressBar;
     private TextView noResults;
     private ListView listOfPosts;
 
@@ -47,9 +45,9 @@ public class ViewPosts extends Activity {
         context = getApplicationContext();
         listOfPosts = (ListView) findViewById(R.id.postsList);
         noResults = (TextView) findViewById(R.id.noPosts);
-        pBar = (ProgressBar) findViewById(R.id.progressBarViewPosts);
+        progressBar = (ProgressBar) findViewById(R.id.progressBarViewPosts);
 
-        new UserPostsTask(this, pBar, noResults, listOfPosts).execute();
+        new UserPostsTask(this, progressBar, noResults, listOfPosts).execute();
 
         listOfPosts.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         listOfPosts.setMultiChoiceModeListener(new MultiChoiceListener());
@@ -69,20 +67,12 @@ public class ViewPosts extends Activity {
         }
     }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, view, menuInfo);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.context_menu_post, menu);
-    }
-
     private class MultiChoiceListener implements AbsListView.MultiChoiceModeListener{
         ArrayList<String> listOfPostId = new ArrayList<String>();
         private int count = 0;
 
         @Override
         public void onItemCheckedStateChanged(ActionMode actionMode, int position, long id, boolean selected) {
-
             ViewPostAdapter adapter = (ViewPostAdapter) listOfPosts.getAdapter();
             ViewPostItem item = adapter.getItem(position);
 
@@ -112,7 +102,7 @@ public class ViewPosts extends Activity {
         @Override
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             switch(menuItem.getItemId()){
-                case R.id.action_delete_post:
+                case R.id.action_delete:
                     new RemovePostTask().execute(listOfPostId);
                     actionMode.finish(); //Close the Contextual Action Bar
                     return true;
@@ -128,6 +118,11 @@ public class ViewPosts extends Activity {
     }
 
     private class RemovePostTask extends AsyncTask<ArrayList<String>, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
         @Override
         protected Void doInBackground(ArrayList<String>... postToDelete) {
             DataParser database = new DataParser(context);
@@ -145,7 +140,7 @@ public class ViewPosts extends Activity {
         @Override
         protected void onPostExecute(Void aVoid) {
             //Repopulate list
-            new UserPostsTask(context, pBar, noResults, listOfPosts).execute();
+            new UserPostsTask(context, progressBar, noResults, listOfPosts).execute();
         }
     }
 }

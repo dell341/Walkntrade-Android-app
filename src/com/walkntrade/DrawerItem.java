@@ -52,6 +52,10 @@ public class DrawerItem {
 		return iconResource;
 	}
 
+    public void setCounter(int num) {
+        counter = num;
+    }
+
     public int getCount(){return counter;}
 	
 	public Bitmap getAvatar() {

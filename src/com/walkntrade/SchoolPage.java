@@ -48,6 +48,7 @@ public class SchoolPage extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_school_page);
 
+        new PollMessagesTask(this).execute();
 		actionBar = getActionBar();
         context = getApplicationContext();
 		drawerOptions = getResources().getStringArray(R.array.user_options);
@@ -68,6 +69,17 @@ public class SchoolPage extends Activity {
 			
 			public void onDrawerOpened(View view) {//Navigation Drawer is completely open
 				actionBar.setTitle(getString(R.string.app_name));
+
+                if(DataParser.isUserLoggedIn(context)){
+                    //TODO: Revise this later. Make it more efficient
+
+                    DrawerAdapter adapter = (DrawerAdapter)navigationDrawerList.getAdapter();
+                    DrawerItem inboxItem = adapter.getItem(7);
+                    inboxItem.setCounter(DataParser.getMessagesAmount(context));
+
+                    adapter.notifyDataSetChanged();
+                }
+
 				invalidateOptionsMenu();
 				super.onDrawerOpened(view);
 			}

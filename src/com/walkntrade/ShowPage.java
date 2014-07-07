@@ -26,6 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.posts.Post;
@@ -160,6 +161,7 @@ public class ShowPage extends Activity {
         });
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
+        new PollMessagesTask(this).execute();
 	}
 
     @Override
@@ -194,6 +196,7 @@ public class ShowPage extends Activity {
 
     @Override
     protected void onResume() {
+        new PollMessagesTask(this).execute();
         if(DataParser.isUserLoggedIn(this) && DataParser.isNetworkAvailable(this)) { //if user is already logged in, allow user to contact
             contact.setVisibility(View.VISIBLE);
             contact_nologin.setVisibility(View.GONE);

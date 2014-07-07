@@ -7,9 +7,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -19,6 +21,7 @@ import com.walkntrade.adapters.MessageAdapter;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Messages extends Activity implements AdapterView.OnItemClickListener{
@@ -43,6 +46,8 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         noResults = (TextView) findViewById(R.id.noResults);
         messageList = (ListView) findViewById(R.id.messageList);
+        messageList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        messageList.setMultiChoiceModeListener(new MultiChoiceListener());
 
         messageType = getIntent().getIntExtra(MESSAGE_TYPE, 0);
 
@@ -63,6 +68,14 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.feedback, menu);
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        if(messageList.getAdapter() != null)
+            new GetMessagesTask().execute();
+
+        super.onResume();
     }
 
     @Override
@@ -91,6 +104,56 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         startActivity(showMessageIntent);
     }
 
+    private class MultiChoiceListener implements AbsListView.MultiChoiceModeListener{
+        ArrayList<String> messageIds = new ArrayList<String>();
+        private int count = 0;
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.context_menu_post, menu);
+            return true;
+        }
+
+        @Override
+        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean selected) {
+            MessageAdapter adapter = (MessageAdapter) messageList.getAdapter();
+            MessageObject item = adapter.getItem(position);
+
+            if(selected) {
+                messageIds.add(item.getId());
+                count++;
+            }
+            else {
+                messageIds.remove(item.getId());
+                count--;
+            }
+
+            mode.setTitle(count+" message(s) selected");
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_delete:
+                    new RemoveMessageTask().execute(messageIds);
+                    mode.finish(); //Close the Contextual Action Bar
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            count = 0;
+        }
+    }
+
     private class GetMessagesTask extends AsyncTask<Void, Void, ArrayList<MessageObject>> {
         @Override
         protected void onPreExecute() {
@@ -114,16 +177,41 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         @Override
         protected void onPostExecute(ArrayList<MessageObject> messageObjects) {
             progressBar.setVisibility(View.GONE);
+            messageList.setAdapter(null);
 
-            if(messageObjects.isEmpty()) {
+            if(messageObjects.isEmpty())
                 noResults.setVisibility(View.VISIBLE);
-                messageList.setAdapter(null);
-            }
             else {
                 noResults.setVisibility(View.GONE);
                 messageList.setAdapter(new MessageAdapter(context, messageObjects));
                 messageList.setOnItemClickListener(Messages.this);
             }
+        }
+    }
+
+    private class RemoveMessageTask extends AsyncTask<ArrayList<String>, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(ArrayList<String>... messagesToDelete) {
+            DataParser database = new DataParser(context);
+
+            try {
+                for(String s : messagesToDelete[0])
+                    database.removeMessage(s);
+            } catch (IOException e) {
+                Log.e(TAG, "Deleting message(s)", e);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            new GetMessagesTask().execute();
         }
     }
 }
