@@ -122,19 +122,19 @@ public class DataParser {
 
     //Get Cookies already stored on device
     private void getCookies() {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_COOKIES, 0);
+        SharedPreferences settings = context.getSharedPreferences(PREFS_COOKIES, Context.MODE_PRIVATE);
         userLoginCookie = settings.getString(USER_LOGIN, BLANK);
         sessionSeedCookie = settings.getString(SESS_SEED, BLANK);
         sessionUidCookie = settings.getString(SESS_UID, BLANK);
 
         //Short name of school will be used in the cookies
-        settings = context.getSharedPreferences(PREFS_SCHOOL, 0);
+        settings = context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);
         sPrefCookie = settings.getString(S_PREF_SHORT, "sPref=" + BLANK);
     }
 
     //Update all cookies with new values from Cookie Store
     private void updateCookies() {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_COOKIES, 0);
+        SharedPreferences settings = context.getSharedPreferences(PREFS_COOKIES, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
         List<Cookie> cookieList = cookieStore.getCookies();
@@ -148,21 +148,21 @@ public class DataParser {
             else
                 Log.e(TAG, "Found Extra Cookie: " + cookie.getName());
         }
-        settings = context.getSharedPreferences(PREFS_SCHOOL, 0);
+        settings = context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);
         sPrefCookie = settings.getString(S_PREF_SHORT, "sPref=" + BLANK);
 
-        editor.commit(); //Save changes to the SharedPreferences
+        editor.apply(); //Save changes to the SharedPreferences
     }
 
     //Clear locally stored cookies
     private void clearCookies() {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_COOKIES, 0);
+        SharedPreferences settings = context.getSharedPreferences(PREFS_COOKIES, Context.MODE_PRIVATE);
         settings.edit().clear().commit();
     }
 
     //Clear locally stored user information
     private void clearUserInfo() {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_USER, 0);
+        SharedPreferences settings = context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
         settings.edit().clear().commit();
     }
 
@@ -207,7 +207,7 @@ public class DataParser {
 
     //Sets the selected school preference. Used when adding post to server
     public void setSchoolPref(String school) {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_SCHOOL, 0);
+        SharedPreferences settings = context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(S_PREF_SHORT, "sPref=" + school);
 
@@ -216,13 +216,13 @@ public class DataParser {
 
     //Returns the school preference. The most recently visited school page
     public static String getSchoolPref(Context _context) {
-        SharedPreferences settings = _context.getSharedPreferences(PREFS_SCHOOL, 0);
+        SharedPreferences settings = _context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);
         return settings.getString(S_PREF_SHORT, null).split("=")[1]; //sPref=[school] is split and the second index [school] is returned
     }
 
     //Sets the long name for school preference. Used to start app on School Page Activity
     public void setSchoolLongPref(String school) {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_SCHOOL, 0);
+        SharedPreferences settings = context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(S_PREF_LONG, school);
 
@@ -230,13 +230,13 @@ public class DataParser {
     }
 
     public static String getSchoolLongPref(Context _context) {
-        SharedPreferences settings = _context.getSharedPreferences(PREFS_SCHOOL, 0);
+        SharedPreferences settings = _context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);;
         return settings.getString(S_PREF_LONG, null);
     }
 
     //Stores username in SharedPreferences to avoid network connection every time
     private void setNamePref(String userName) {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_USER, 0);
+        SharedPreferences settings = context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(USER_NAME, userName);
 
@@ -245,13 +245,13 @@ public class DataParser {
 
     //Gets the stored username to avoid network connection every time
     public static String getNamePref(Context _context) {
-        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, 0);
+        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
         return settings.getString(USER_NAME, null);
     }
 
     //Stores email in SharedPreferences for later use
     public void setEmailPref(String email) {
-       SharedPreferences settings = context.getSharedPreferences(PREFS_USER, 0);
+       SharedPreferences settings = context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(USER_EMAIL, email);
 
@@ -259,13 +259,13 @@ public class DataParser {
     }
 
     public static String getEmailPref(Context _context){
-        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, 0);
+        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);;
         return settings.getString(USER_EMAIL, null);
     }
 
     //Stores phone number in SharedPreferences
     private void setPhonePref(String phoneNum) {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_USER, 0);
+        SharedPreferences settings = context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(USER_PHONE, phoneNum);
 
@@ -274,13 +274,13 @@ public class DataParser {
 
     //Gets the stored phone number
     public static String getPhonePref(Context _context) {
-        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, 0);
+        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
         return settings.getString(USER_PHONE, null);
     }
 
     //Stores amount of unread messages
     private void setMessagePref(int amount) {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_USER, 0);
+        SharedPreferences settings = context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt(USER_MESSAGES, amount);
 
@@ -288,13 +288,13 @@ public class DataParser {
     }
 
     public static int getMessagesAmount(Context _context) {
-        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, 0);
+        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
         return settings.getInt(USER_MESSAGES, 0);
     }
 
     //Returns user login status
     public static boolean isUserLoggedIn(Context _context) {
-        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, 0);
+        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
         return settings.getBoolean(DataParser.CURRENTLY_LOGGED_IN, false);
     }
 
@@ -340,7 +340,7 @@ public class DataParser {
         return serverResponse;
     }
 
-    //Logins User into Walkntrade
+    //Login User into Walkntrade
     public String login(String email, String password) throws IOException {
         establishConnection(); //Instantiate all streams and opens the connection
         String query = "intent=login&password=" + password + "&email=" + email + "&rememberMe=true";
@@ -500,7 +500,7 @@ public class DataParser {
     }
 
     //Returns amount of unread messages
-    public String getUnreadMessages() throws IOException{
+    public String getUnreadMessages() throws IOException, NumberFormatException{
         establishConnection();
 
         String query = "intent=pollNewWebmail";

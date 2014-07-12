@@ -48,7 +48,9 @@ public class SchoolPage extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_school_page);
 
-        new PollMessagesTask(this).execute();
+        if(DataParser.isUserLoggedIn(this))
+            new PollMessagesTask(this).execute();
+
 		actionBar = getActionBar();
         context = getApplicationContext();
 		drawerOptions = getResources().getStringArray(R.array.user_options);
@@ -110,9 +112,11 @@ public class SchoolPage extends Activity {
     protected void onResume() {
         super.onResume();
 
-        //Refreshes the ActionBar menu when activity is resumed
-        new PollMessagesTask(this).execute(); //Check for new messages
-        invalidateOptionsMenu();
+
+        if(DataParser.isUserLoggedIn(context))
+            new PollMessagesTask(this).execute(); //Check for new messages
+
+        invalidateOptionsMenu(); //Refreshes the ActionBar menu when activity is resumed
         updateDrawer();
     }
 
@@ -203,22 +207,22 @@ public class SchoolPage extends Activity {
             //User is signed in
             items.add(new DrawerItem(R.drawable.avatar, DataParser.getNamePref(context), true)); //User Item
             items.add(new DrawerItem(drawerOptions[0])); //Post [SECTION]
-            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[1])); //Books
-            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[2])); //Tech
-            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[3])); //Services
-            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[4])); //Misc.
+            items.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[1])); //Books
+            items.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[2])); //Tech
+            items.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[3])); //Services
+            items.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[4])); //Misc.
             items.add(new DrawerItem(drawerOptions[5])); //Messages [SECTION]
-            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[6], DataParser.getMessagesAmount(context))); //Inbox
-            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[7])); //Sent
+            items.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[6], DataParser.getMessagesAmount(context))); //Inbox
+            items.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[7])); //Sent
             items.add(new DrawerItem(drawerOptions[8])); //Settings [SECTION]
-            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[9])); //Account
-            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[10])); //Select School
+            items.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[9])); //Account
+            items.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[10])); //Select School
         }
         else {
             //User is signed out
             items.add(new DrawerItem(R.drawable.avatar, getString(R.string.user_name_no_login), true));
             items.add(new DrawerItem(drawerOptions[8])); //Settings [SECTION]
-            items.add(new DrawerItem(android.R.drawable.ic_btn_speak_now, drawerOptions[10])); //Select School
+            items.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[10])); //Select School
         }
 
         navigationDrawerList.setAdapter(new DrawerAdapter(this, items));

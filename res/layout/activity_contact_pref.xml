@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ContactPref">
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -13,12 +15,19 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:visibility="invisible"/>
 
-    <CheckBox
-        android:id="@+id/checkBox"
+    <Switch
+        android:id="@+id/switch_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:text="@string/contact_email"
-        android:textSize="16sp"/>
+        android:text="@string/contact_email"/>
+
+    <Switch
+        android:id="@+id/switch_notifications"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/push_notifications"/>
+
 
 </LinearLayout>

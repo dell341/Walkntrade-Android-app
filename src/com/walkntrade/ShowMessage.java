@@ -158,7 +158,7 @@ public class ShowMessage extends Activity {
             try {
                 message = database.getMessages(messageType, Integer.parseInt(id[0]));
             }catch (Exception e){
-               Log.e(TAG, "Getting Single Messge", e);
+               Log.e(TAG, "Getting Single Message", e);
             }
 
             return message;

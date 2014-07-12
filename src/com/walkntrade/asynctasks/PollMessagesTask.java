@@ -31,6 +31,8 @@ public class PollMessagesTask extends AsyncTask<Void, Void, String> {
             serverResponse = database.getUnreadMessages();
         } catch (IOException e) {
             Log.e(TAG, "Polling messages", e);
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Polling messages", e);
         }
 
         return serverResponse;

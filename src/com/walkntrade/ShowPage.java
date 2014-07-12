@@ -161,7 +161,8 @@ public class ShowPage extends Activity {
         });
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        new PollMessagesTask(this).execute();
+        if(DataParser.isUserLoggedIn(this))
+            new PollMessagesTask(this).execute();
 	}
 
     @Override
@@ -196,8 +197,8 @@ public class ShowPage extends Activity {
 
     @Override
     protected void onResume() {
-        new PollMessagesTask(this).execute();
         if(DataParser.isUserLoggedIn(this) && DataParser.isNetworkAvailable(this)) { //if user is already logged in, allow user to contact
+            new PollMessagesTask(this).execute();
             contact.setVisibility(View.VISIBLE);
             contact_nologin.setVisibility(View.GONE);
         }
