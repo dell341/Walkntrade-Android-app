@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -38,6 +39,7 @@ public class ContactPref extends Activity {
     private AtomicInteger msgId = new AtomicInteger();
     private ProgressBar progressBar;
     private Switch switchEmail, switchNofication;
+    private TextView notificationSettings;
 
     private String regId;
 
@@ -50,6 +52,7 @@ public class ContactPref extends Activity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         switchEmail = (Switch) findViewById(R.id.switch_email);
         switchNofication = (Switch) findViewById(R.id.switch_notifications);
+        notificationSettings = (TextView) findViewById(R.id.notification_settings);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         if(DataParser.isNetworkAvailable(this))
@@ -88,6 +91,13 @@ public class ContactPref extends Activity {
                     //Disable push notifications
                 }
 
+            }
+        });
+
+        notificationSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ContactPref.this, NotificationSettings.class));
             }
         });
     }

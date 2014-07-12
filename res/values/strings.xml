@@ -22,8 +22,6 @@
     <string name="default_image_url">/colorful/tfe_no_thumb.png</string>
     <string name="send_feedback">Send Feedback</string>
     <string name="confirm">Confirm</string>
-
-
     <string name="reply">Reply</string>
     <string name="received_messages">Received Messages</string>
     <string name="sent_messages">Sent Messages</string>
@@ -40,14 +38,16 @@
     <!-- Show Page Strings -->
     <string name="post_image">Image posted by user</string>
 
-    <!-- Auto-generated Strings **Remove All** -->
-
     <string name="title_activity_feedback">Send Feedback</string>
     <string name="email_optional">Email (Optional)</string>
     <string name="feedback">Feedback</string>
     <string name="feedback_fail">Could not send feedback</string>
+
+    <!-- Auto-generated Strings **Remove All** -->
+
     <string name="invalid_message">Message cannot be blank</string>
     <string name="title_activity_messages">Messages</string>
     <string name="title_activity_show_message">Walkntrade Message</string>
+    <string name="title_activity_notification_settings">NotificationSettings</string>
 
 </resources>

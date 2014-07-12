@@ -4,6 +4,7 @@
 
     <style name="WalkntradeTheme" parent="android:Theme.Holo.Light" >
         <item name="android:imeOptions">flagNoFullscreen</item>
+        <item name="android:textColor">@android:color/black</item>
     </style>
 
     <style name="WalkntradeTheme.Overlay" parent="WalkntradeTheme">

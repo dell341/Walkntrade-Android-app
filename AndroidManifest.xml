@@ -185,6 +185,14 @@
             android:name=".GcmIntentService"
             android:exported="false" >
         </service>
+
+        <activity
+            android:name=".NotificationSettings"
+            android:label="@string/title_activity_notification_settings">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walkntrade.ContactPref" />
+        </activity>
     </application>
 
 </manifest>

@@ -65,6 +65,7 @@ public class DataParser {
     public static final String PREFS_COOKIES = "CookiesPreferences";
     public static final String PREFS_USER = "UserPreferences";
     public static final String PREFS_SCHOOL = "SchoolPreferences";
+    public static final String PREFS_NOTIFICATIONS = "NotificationPreferences";
     public static final String USER_LOGIN = "user_login"; //Cookie title
     public static final String SESS_SEED = "sessionSeed"; //Cookie title
     public static final String SESS_UID = "sessionUid"; //Cookie title
@@ -76,6 +77,10 @@ public class DataParser {
     public static final String CURRENTLY_LOGGED_IN = "userLoggedIn"; //User-Pref title
     public static final String S_PREF_SHORT = "sPrefShort"; //School Preference title
     public static final String S_PREF_LONG = "sPrefLong"; //School Preference title
+    public static final String NOTIFY_USER = "notification_status"; //Notification preference title (boolean)
+    public static final String NOTIFY_VIBRATE = "notification_vibrate"; //Notification preference title (boolean)
+    public static final String NOTIFY_SOUND = "notification_sound"; //Notification preference title
+    public static final String NOTIFY_LIGHT = "notification_light"; //Notification preference title (boolean)
     public static final String BLANK = " ";
 
     private AndroidHttpClient httpClient; //Android Client, Uses User-Agent, and executes request

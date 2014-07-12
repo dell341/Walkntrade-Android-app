@@ -1,26 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ContactPref">
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="-4dp"
-        android:indeterminate="true"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:visibility="invisible"/>
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.walkntrade.NotificationSettings">
 
     <Switch
-        android:id="@+id/switch_email"
+        android:id="@+id/switch_vibrate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:text="@string/contact_email"/>
+        android:text="@string/notification_vibrate"/>
 
     <View
         android:layout_width="match_parent"
@@ -28,11 +22,11 @@
         android:background="#c2c2c2"/>
 
     <Switch
-        android:id="@+id/switch_notifications"
+        android:id="@+id/switch_light"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:text="@string/notification_push"/>
+        android:text="@string/notification_light"/>
 
     <View
         android:layout_width="match_parent"
@@ -40,17 +34,16 @@
         android:background="#c2c2c2"/>
 
     <TextView
-        android:id="@+id/notification_settings"
+        android:id="@+id/notification_sound"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:textSize="16sp"
-        android:text="@string/notification_settings"/>
+        android:text="@string/notification_sound"/>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#c2c2c2"/>
-
 
 </LinearLayout>
