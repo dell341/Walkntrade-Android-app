@@ -26,7 +26,7 @@ import com.walkntrade.io.DataParser;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ContactPref extends Activity {
+public class ContactPref extends Activity implements CompoundButton.OnCheckedChangeListener{
 
     private static final String TAG = "ContactPref";
     private static final String PROPERTY_REG_ID = "gcm_registration_id";
@@ -39,7 +39,6 @@ public class ContactPref extends Activity {
     private AtomicInteger msgId = new AtomicInteger();
     private ProgressBar progressBar;
     private Switch switchEmail, switchNofication;
-    private TextView notificationSettings;
 
     private String regId;
 
@@ -52,7 +51,7 @@ public class ContactPref extends Activity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         switchEmail = (Switch) findViewById(R.id.switch_email);
         switchNofication = (Switch) findViewById(R.id.switch_notifications);
-        notificationSettings = (TextView) findViewById(R.id.notification_settings);
+        TextView notificationSettings = (TextView) findViewById(R.id.notification_settings);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         if(DataParser.isNetworkAvailable(this))
@@ -71,28 +70,11 @@ public class ContactPref extends Activity {
                 registerForId();
         }
 
-        switchEmail.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked)
-                    new ChangeContactTask().execute("1");
-                else
-                    new ChangeContactTask().execute("0");
-            }
-        });
+        switchEmail.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_EMAIL));
+        switchNofication.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_USER));
 
-        switchNofication.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
-                    //Enable push notifications
-                }
-                else {
-                    //Disable push notifications
-                }
-
-            }
-        });
+        switchEmail.setOnCheckedChangeListener(this);
+        switchNofication.setOnCheckedChangeListener(this);
 
         notificationSettings.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,6 +105,20 @@ public class ContactPref extends Activity {
             switchNofication.setEnabled(false);
         else
             switchNofication.setEnabled(true);
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        int id = buttonView.getId();
+
+        switch (id){
+            case R.id.switch_email: DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_EMAIL, isChecked);
+                if(isChecked)
+                    new ChangeContactTask().execute("1");
+                else
+                    new ChangeContactTask().execute("2"); break;
+            case R.id.switch_notifications: DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_USER, isChecked); break;
+        }
     }
 
     //Check if Google Play services is available. Required for push notifications
@@ -182,7 +178,7 @@ public class ContactPref extends Activity {
 
                         //TODO: Send registration id to Walkntrade server
 
-                        storeRegistrationId(context, regId);
+                        storeRegistrationId(regId);
                     } catch(IOException e) {
                         msg = "Error: "+e.getMessage();
                     }
@@ -198,7 +194,7 @@ public class ContactPref extends Activity {
     }
 
     //Store registration id and app version code
-    private void storeRegistrationId(Context context, String regId){
+    private void storeRegistrationId(String regId){
         final SharedPreferences prefs = getSharedPreferences(ContactPref.class.getSimpleName(), Context.MODE_PRIVATE);
         int appVersion = getAppVersion();
         SharedPreferences.Editor editor = prefs.edit();
@@ -220,7 +216,7 @@ public class ContactPref extends Activity {
             String serverResponse = null;
 
             try{
-                serverResponse = database.getContactPref();
+                serverResponse = database.simpleGetIntent(DataParser.INTENT_GET_EMAILPREF);
             } catch (IOException e){
                 Log.e(TAG, "Get User Contact", e);
             }
@@ -244,7 +240,7 @@ public class ContactPref extends Activity {
             String serverResponse = null;
 
             try {
-                serverResponse = database.setContactPref(Integer.parseInt(pref[0]));
+                serverResponse = database.setEmailPreference(Integer.parseInt(pref[0]));
             }catch (IOException e){
                 Log.e(TAG, "Setting user contact", e);
             }

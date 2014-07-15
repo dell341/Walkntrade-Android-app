@@ -65,7 +65,7 @@ public class SchoolPage extends Activity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         //Set Title in Action Bar to the name of the school
-        actionBar.setTitle(DataParser.getSchoolLongPref(context));
+        actionBar.setTitle(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG));
 
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close){
 			
@@ -88,7 +88,7 @@ public class SchoolPage extends Activity {
 			
 			public void onDrawerClosed(View view) { //Navigation Drawer is completely closed
                 //Set Title in Action Bar to the name of the school
-                actionBar.setTitle(DataParser.getSchoolLongPref(context));
+                actionBar.setTitle(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG));
 				invalidateOptionsMenu(); //Forces action bar to refresh
 				super.onDrawerClosed(view);
 			}
@@ -205,7 +205,7 @@ public class SchoolPage extends Activity {
 
         if(DataParser.isUserLoggedIn(context)){
             //User is signed in
-            items.add(new DrawerItem(R.drawable.avatar, DataParser.getNamePref(context), true)); //User Item
+            items.add(new DrawerItem(R.drawable.avatar, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_NAME), true)); //User Item
             items.add(new DrawerItem(drawerOptions[0])); //Post [SECTION]
             items.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[1])); //Books
             items.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[2])); //Tech

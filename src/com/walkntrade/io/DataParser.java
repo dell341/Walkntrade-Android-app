@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 import android.view.Gravity;
@@ -77,11 +78,19 @@ public class DataParser {
     public static final String CURRENTLY_LOGGED_IN = "userLoggedIn"; //User-Pref title
     public static final String S_PREF_SHORT = "sPrefShort"; //School Preference title
     public static final String S_PREF_LONG = "sPrefLong"; //School Preference title
+    public static final String NOTIFY_EMAIL = "notification_email"; //Notification preference
     public static final String NOTIFY_USER = "notification_status"; //Notification preference title (boolean)
     public static final String NOTIFY_VIBRATE = "notification_vibrate"; //Notification preference title (boolean)
     public static final String NOTIFY_SOUND = "notification_sound"; //Notification preference title
     public static final String NOTIFY_LIGHT = "notification_light"; //Notification preference title (boolean)
     public static final String BLANK = " ";
+
+    //Non-unique intent declarations here
+    public static final String INTENT_GET_USERNAME = "getUserName";
+    public static final String INTENT_GET_AVATAR = "getAvatar";
+    public static final String INTENT_GET_EMAILPREF = "getEmailPref";
+    public static final String INTENT_GET_PHONENUM = "getPhoneNum";
+    public static final String INTENT_GET_NEWMESSAGE = "pollNewWebmail";
 
     private AndroidHttpClient httpClient; //Android Client, Uses User-Agent, and executes request
     private HttpContext httpContext; //Contains CookieStore that is sent along with request
@@ -162,13 +171,13 @@ public class DataParser {
     //Clear locally stored cookies
     private void clearCookies() {
         SharedPreferences settings = context.getSharedPreferences(PREFS_COOKIES, Context.MODE_PRIVATE);
-        settings.edit().clear().commit();
+        settings.edit().clear().apply();
     }
 
     //Clear locally stored user information
     private void clearUserInfo() {
         SharedPreferences settings = context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
-        settings.edit().clear().commit();
+        settings.edit().clear().apply();
     }
 
     private String readInputAsString(InputStream inStream) throws IOException {
@@ -190,7 +199,6 @@ public class DataParser {
         HttpResponse response = httpClient.execute(httpPost, httpContext); //Executes the request along with the cookie store
 
         updateCookies();
-
         return response.getEntity().getContent();
     }
 
@@ -208,88 +216,57 @@ public class DataParser {
         return false;
     }
 
-    //TODO: Combine all set & get pref methods
-
-    //Sets the selected school preference. Used when adding post to server
-    public void setSchoolPref(String school) {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);
+    //Stores values for later use. preferred school, username, phone number, email, etc.
+    public void setSharedStringPreference(String preferenceName, String key, String value) {
+        SharedPreferences settings = context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(S_PREF_SHORT, "sPref=" + school);
+        editor.putString(key, value);
 
         editor.apply(); //Save changes to the SharedPreferences
     }
 
-    //Returns the school preference. The most recently visited school page
-    public static String getSchoolPref(Context _context) {
-        SharedPreferences settings = _context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);
-        return settings.getString(S_PREF_SHORT, null).split("=")[1]; //sPref=[school] is split and the second index [school] is returned
-    }
-
-    //Sets the long name for school preference. Used to start app on School Page Activity
-    public void setSchoolLongPref(String school) {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);
+    public void setSharedIntPreferences(String preferenceName, String key, int value) {
+        SharedPreferences settings = context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(S_PREF_LONG, school);
+        editor.putInt(key, value);
 
         editor.apply();
     }
 
-    public static String getSchoolLongPref(Context _context) {
-        SharedPreferences settings = _context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);;
-        return settings.getString(S_PREF_LONG, null);
-    }
-
-    //Stores username in SharedPreferences to avoid network connection every time
-    private void setNamePref(String userName) {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
+    public static void setSharedBooleanPreferences(Context _context, String preferenceName, String key, boolean value) {
+        SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(USER_NAME, userName);
+        editor.putBoolean(key, value);
 
         editor.apply();
     }
 
-    //Gets the stored username to avoid network connection every time
-    public static String getNamePref(Context _context) {
-        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
-        return settings.getString(USER_NAME, null);
+    //Gets values stored on device
+    public static String getSharedStringPreference(Context _context, String preferenceName, String key) {
+        SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
+
+        if(key.equals(S_PREF_SHORT))
+            return settings.getString(S_PREF_SHORT, null).split("=")[1]; //sPref=[school] is split and the second index [school] is returned
+
+        return settings.getString(key, null);
     }
 
-    //Stores email in SharedPreferences for later use
-    public void setEmailPref(String email) {
-       SharedPreferences settings = context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
+    public static boolean getSharedBooleanPreference(Context _context, String preferenceName, String key) {
+        SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
+        return settings.getBoolean(key, false);
+    }
+
+    public static void setSoundPref(Context _context, Uri uri) {
+        SharedPreferences settings = _context.getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(USER_EMAIL, email);
+        editor.putString(NOTIFY_SOUND, uri.toString());
 
         editor.apply();
     }
 
-    public static String getEmailPref(Context _context){
-        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);;
-        return settings.getString(USER_EMAIL, null);
-    }
-
-    //Stores phone number in SharedPreferences
-    private void setPhonePref(String phoneNum) {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(USER_PHONE, phoneNum);
-
-        editor.apply();
-    }
-
-    //Gets the stored phone number
-    public static String getPhonePref(Context _context) {
-        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
-        return settings.getString(USER_PHONE, null);
-    }
-
-    //Stores amount of unread messages
-    private void setMessagePref(int amount) {
-        SharedPreferences settings = context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putInt(USER_MESSAGES, amount);
-
-        editor.apply();
+    public static String getSoundPref(Context _context) {
+        SharedPreferences settings = _context.getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
+        return settings.getString(NOTIFY_SOUND, null);
     }
 
     public static int getMessagesAmount(Context _context) {
@@ -372,29 +349,22 @@ public class DataParser {
         disconnectAll();
     }
 
-    public String getUserName() throws IOException {
+    //Used for repetitious intents like get username, phone number, email preference etc.
+    public String simpleGetIntent(String intentValue) throws IOException {
         establishConnection();
 
-        String query = "intent=getUserName";
+        String query = "intent="+intentValue;
 
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         InputStream inputStream = processRequest(entity);
         String serverResponse = readInputAsString(inputStream); //Reads message response from server
 
-        //Stores username locally to device
-        setNamePref(serverResponse);
-
-        disconnectAll();
-        return serverResponse;
-    }
-
-    public String getUserAvatar() throws IOException {
-        establishConnection();
-
-        String query = "intent=getAvatar";
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream); //Reads message response from server
+        if(intentValue.equals(INTENT_GET_USERNAME))
+            setSharedStringPreference(PREFS_USER, USER_NAME, serverResponse); //Stores username locally to device
+        else if(intentValue.equals(INTENT_GET_PHONENUM))
+            setSharedStringPreference(PREFS_USER, USER_PHONE, serverResponse); //Stores phone number locally to device
+        else if(intentValue.equals(INTENT_GET_NEWMESSAGE))
+            setSharedIntPreferences(PREFS_USER, USER_MESSAGES, Integer.parseInt(serverResponse)); //Stores amount of unread messages here
 
         disconnectAll();
         return serverResponse;
@@ -421,40 +391,13 @@ public class DataParser {
         return serverResponse;
     }
 
-    public String getContactPref() throws IOException {
-        establishConnection();
-
-        String query = "intent=getEmailPref";
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream);
-
-        disconnectAll();
-        return serverResponse;
-    }
-
-    public String setContactPref(int preference) throws IOException {
+    public String setEmailPreference(int preference) throws IOException {
         establishConnection();
 
         String query = "intent=setEmailPref&pref="+preference;
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         InputStream inputStream = processRequest(entity);
         String serverResponse = readInputAsString(inputStream);
-
-        disconnectAll();
-        return serverResponse;
-    }
-
-    public String getPhoneNumber() throws IOException {
-        establishConnection();
-
-        String query = "intent=getPhoneNum";
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream);
-
-        //Stores phone number locally to device
-        setPhonePref(serverResponse);
 
         disconnectAll();
         return serverResponse;
@@ -468,11 +411,11 @@ public class DataParser {
         switch (setting){
             case AccountSettingsChange.SETTING_EMAIL:
                 query = "intent=controlPanel&oldPw="+password+"&email="+settingValue;
-                setEmailPref(settingValue);
+                setSharedStringPreference(PREFS_USER, USER_EMAIL, settingValue);
                 break;
             case AccountSettingsChange.SETTING_PHONE:
                 query = "intent=controlPanel&oldPw="+password+"&phone="+settingValue;
-                setPhonePref(settingValue);
+                setSharedStringPreference(PREFS_USER, USER_PHONE, settingValue);
                 break;
             case AccountSettingsChange.SETTING_PASSWORD:
                 query = "intent=controlPanel&oldPw="+password+"&newPw="+settingValue;
@@ -499,21 +442,6 @@ public class DataParser {
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         InputStream inputStream = processRequest(entity);
         String serverResponse = readInputAsString(inputStream); //Reads message response from server
-
-        disconnectAll();
-        return serverResponse;
-    }
-
-    //Returns amount of unread messages
-    public String getUnreadMessages() throws IOException, NumberFormatException{
-        establishConnection();
-
-        String query = "intent=pollNewWebmail";
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream); //Reads message response from server
-
-        setMessagePref(Integer.parseInt(serverResponse)); //Stores amount of unread messages here
 
         disconnectAll();
         return serverResponse;
@@ -647,8 +575,6 @@ public class DataParser {
 
         return serverResponse;
     }
-
-    //TODO: Shorten intents that only send and receive Strings
     public String removePost(String obsId) throws IOException {
         establishConnection();
 

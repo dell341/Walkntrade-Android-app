@@ -27,7 +27,7 @@ import com.walkntrade.posts.Post;
 
 import java.util.ArrayList;
 
-public class Fragment_SchoolPage extends Fragment implements OnItemClickListener, AbsListView.OnScrollListener{
+public class Fragment_SchoolPage extends Fragment implements OnItemClickListener, AbsListView.OnScrollListener {
 
     private String TAG = "FRAGMENT:School_Page";
     public static final String ARG_CATEGORY = "Fragment Category";
@@ -49,13 +49,13 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         noResults = (TextView) rootView.findViewById(R.id.noResults);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
         Bundle args = getArguments();
-        
+
         category = args.getString(ARG_CATEGORY);
 
         bigProgressBar.setVisibility(View.GONE);
         /*On initial create, ArrayList will be empty. But onCreateView may be called several times
         Only call this method if the ArrayList is empty, which should only be during the initial creation*/
-        if(schoolPosts.isEmpty()) {
+        if (schoolPosts.isEmpty()) {
             bigProgressBar.setVisibility(View.VISIBLE);
             downloadMorePosts(bigProgressBar);
         }
@@ -76,9 +76,9 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     @Override
     public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         //If bottom of GridView is visible and Adapter has remaining posts not yet visible
-        if(firstVisibleItem + visibleItemCount >= totalItemCount && postsAdapter.hasMorePosts() ) {
+        if (firstVisibleItem + visibleItemCount >= totalItemCount && postsAdapter.hasMorePosts()) {
             //If there more posts not yet downloaded and the GridView is not empty (to ensure it doesn't try to download several times)
-            if(downloadMore && visibleItemCount != 0)
+            if (downloadMore && visibleItemCount != 0)
                 downloadMorePosts(progressBar);
 
             postsAdapter.loadMore();
@@ -88,7 +88,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
 
     //Download more posts from the server
     private void downloadMorePosts(ProgressBar progressBar) {
-        new SchoolPostsTask(getActivity(), this, progressBar, "", category, offset, 15).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSchoolLongPref(getActivity()));
+        new SchoolPostsTask(getActivity(), this, progressBar, "", category, offset, 15).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG));
         offset += 15;
     }
 
@@ -96,21 +96,21 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     public void shouldDownLoadMore(boolean _downloadMore) {
         downloadMore = _downloadMore;
 
-        if(schoolPosts.isEmpty())
+        if (schoolPosts.isEmpty())
             noResults.setVisibility(View.VISIBLE);
         else
             noResults.setVisibility(View.GONE);
     }
 
     //Add new data from the serve to the ArrayList and update the adapter
-    public void updateData(ArrayList<Post> newData){
+    public void updateData(ArrayList<Post> newData) {
         postsAdapter.incrementCount(newData);
-        for(Post i: newData)
+        for (Post i : newData)
             schoolPosts.add(i);
 
         postsAdapter.notifyDataSetChanged();
 
-        for(Post post : newData)
+        for (Post post : newData)
             new ThumbnailTask(getActivity(), postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
     }
 

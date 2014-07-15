@@ -27,13 +27,13 @@ public class UserNameTask extends AsyncTask<Void, Void, String> {
     }
     @Override
     protected String doInBackground(Void... voids) {
-        String userName = DataParser.getNamePref(context); //Gets username if already stored on device
+        String userName = DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_NAME); //Gets username if already stored on device
 
         if (userName == null) //If username is not already stored locally
         {
             DataParser database = new DataParser(context);
             try {
-                userName = database.getUserName();
+                userName = database.simpleGetIntent(DataParser.INTENT_GET_USERNAME);
             } catch (IOException e) {
                 Log.e(TAG, "Get username", e);
             }

@@ -39,7 +39,7 @@ public class Walkntrade_Main extends Activity {
 
     public void checkForConnection(){
         if(DataParser.isNetworkAvailable(this)) { //Checks if device has internet or mobile connection
-            if(DataParser.getSchoolLongPref(this) != null) //There is a school preference
+            if(DataParser.getSharedStringPreference(this, DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG) != null) //There is a school preference
                 startActivity(new Intent(this, SchoolPage.class)); //Starts SchoolPage Activity
             else
                 startActivity(new Intent(this, Selector.class)); //Starts Selector (Select/Change School) activity

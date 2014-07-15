@@ -148,10 +148,10 @@ public class ShowPage extends Activity {
             }
         });
 
-        if(DataParser.getPhonePref(context) == null || DataParser.getPhonePref(context).equals("0"))
+        if(DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.USER_PHONE) == null || DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.USER_PHONE).equals("0"))
             message = getString(R.string.post_message_content_no_phone);
         else
-            message = String.format(getString(R.string.post_message_content_phone), DataParser.getPhonePref(context));
+            message = String.format(getString(R.string.post_message_content_phone), DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.USER_PHONE));
 
         contact_nologin.setOnClickListener(new OnClickListener() {
             @Override
@@ -219,7 +219,7 @@ public class ShowPage extends Activity {
     }
 
     private String generateImgURL(int index){
-        String schoolID = DataParser.getSchoolPref(this);
+        String schoolID = DataParser.getSharedStringPreference(this, DataParser.PREFS_SCHOOL, DataParser.S_PREF_SHORT);
         String imgUrl = "post_images/"+schoolID+"/";
         imgUrl = imgUrl+identifier+"-"+index+".jpeg";
 
@@ -291,7 +291,7 @@ public class ShowPage extends Activity {
             Post post = null;
 
             try {
-                String schoolID = DataParser.getSchoolPref(context);
+                String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_SHORT);
                 post = database.getFullPost(identifier[0], schoolID);
             } catch (Exception e){
                 Log.e(TAG, "Retrieving full post", e);
@@ -367,7 +367,7 @@ public class ShowPage extends Activity {
         protected Bitmap doInBackground(String... imgURL) {
             Bitmap bm = null;
             try {
-                String schoolID = DataParser.getSchoolPref(context);
+                String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_SHORT);
                 String key = identifier+"_"+index;
 
                 imageCache = new DiskLruImageCache(context, schoolID+DiskLruImageCache.IMAGE_DIRECTORY);

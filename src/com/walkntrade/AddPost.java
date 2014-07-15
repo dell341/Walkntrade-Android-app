@@ -427,7 +427,7 @@ public class AddPost extends Activity implements OnClickListener {
             }
 
             String identifier = "";
-            String schoolCode = DataParser.getSchoolPref(context);
+            String schoolCode = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_SHORT);
 
             try {
                 //Calls different method if book was selected

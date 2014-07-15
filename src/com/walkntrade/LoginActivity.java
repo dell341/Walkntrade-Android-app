@@ -142,9 +142,9 @@ public class LoginActivity extends Activity {
 			String response = context.getString(R.string.login_failed);
 			try {
 				response = database.login(_emailAddress, _password);
-                database.getUserName();
-                database.setEmailPref(_emailAddress);
-                database.getPhoneNumber();
+                database.simpleGetIntent(DataParser.INTENT_GET_USERNAME);
+                database.setSharedStringPreference(DataParser.PREFS_USER, DataParser.USER_EMAIL, _emailAddress);
+                database.simpleGetIntent(DataParser.INTENT_GET_PHONENUM);
 			}
 			catch(Exception e) {
 				Log.e(TAG, "Logging in", e);

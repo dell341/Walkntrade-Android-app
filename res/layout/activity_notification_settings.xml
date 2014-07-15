@@ -13,7 +13,8 @@
         android:id="@+id/switch_vibrate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:text="@string/notification_vibrate"/>
 
     <View
@@ -25,7 +26,8 @@
         android:id="@+id/switch_light"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:text="@string/notification_light"/>
 
     <View
@@ -33,17 +35,32 @@
         android:layout_height="1dp"
         android:background="#c2c2c2"/>
 
-    <TextView
+    <LinearLayout
         android:id="@+id/notification_sound"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:textSize="16sp"
-        android:text="@string/notification_sound"/>
+        android:orientation="vertical"
+        android:clickable="true"
+        android:background="@drawable/list_selector_post">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:textSize="16sp"
+            android:text="@string/notification_sound"/>
+
+        <TextView
+            android:id="@+id/sound_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:textColor="@color/darker_gray"/>
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#c2c2c2"/>
+    android:background="#c2c2c2"/>
 
 </LinearLayout>

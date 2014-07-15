@@ -4,13 +4,15 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.support.v4.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.walkntrade.io.DataParser;
 
 
 /**
@@ -60,13 +62,42 @@ public class GcmIntentService extends IntentService {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("You received a message from: "+user)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+                .setContentTitle("You received a message from: " + user)
+                .setContentText(message)
+                //.setContentInfo(++numMessages+"") TODO: Find a way to increment notifications properly
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setDefaults(Notification.DEFAULT_SOUND);
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
 
-        builder.setContentText(message).setNumber(5);
+        boolean hasSound = false;
+        boolean vibrate = DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_VIBRATE);
+        boolean showLight = DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_LIGHT);
+
+        String sound = DataParser.getSoundPref(this);
+        if(sound != null) {
+            hasSound = true;
+            builder.setSound(Uri.parse(DataParser.getSoundPref(this)));
+        }
+
+        if(!hasSound) {
+            if(vibrate && showLight) {
+                builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
+                builder.setLights(0xffffff, 500, 500);
+            }
+            else if (vibrate)
+                builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
+            else if (showLight) {
+                builder.setDefaults(Notification.DEFAULT_SOUND);
+                builder.setLights(0xff00ff, 500, 500);
+            }
+        }
+        else if(vibrate && showLight) {
+            builder.setDefaults(Notification.DEFAULT_VIBRATE);
+            builder.setLights(0xffffff, 500, 500);
+        }
+        else if (vibrate)
+            builder.setDefaults(Notification.DEFAULT_VIBRATE);
+        else if (showLight)
+            builder.setLights(0xff00ff, 500, 500);
 
         builder.setContentIntent(contentIntent);
         notificationManager.notify(NOTIFICATION_ID, builder.build());
