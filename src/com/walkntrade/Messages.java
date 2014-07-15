@@ -86,7 +86,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
                 NavUtils.navigateUpTo(this, upIntent);
                 return true;
-            case R.id.feedback:
+            case R.id.action_feedback:
                 startActivity(new Intent(this, FeedbackActivity.class));
                 return true;
             default:

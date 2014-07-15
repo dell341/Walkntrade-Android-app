@@ -86,7 +86,7 @@ public class ShowMessage extends Activity {
                 upIntent.putExtra(Messages.MESSAGE_TYPE, messageType);
                 NavUtils.navigateUpTo(this, upIntent);
                 return true;
-            case R.id.feedback:
+            case R.id.action_feedback:
                 startActivity(new Intent(this, FeedbackActivity.class));
                 return true;
             default:

@@ -28,6 +28,7 @@ public class Walkntrade_Main extends Activity {
             }
         });
 
+        //TODO: Create Device tokens here regardless of login or not
 	}
 
 	@Override

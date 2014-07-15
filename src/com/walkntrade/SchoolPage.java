@@ -6,7 +6,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -112,7 +111,6 @@ public class SchoolPage extends Activity {
     protected void onResume() {
         super.onResume();
 
-
         if(DataParser.isUserLoggedIn(context))
             new PollMessagesTask(this).execute(); //Check for new messages
 
@@ -138,7 +136,7 @@ public class SchoolPage extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.selector, menu);
+		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
@@ -146,18 +144,27 @@ public class SchoolPage extends Activity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem signOutItem = menu.findItem(R.id.action_sign_out);
         MenuItem loginItem = menu.findItem(R.id.action_login);
+        MenuItem inboxItem = menu.findItem(R.id.action_inbox);
 
         if(DataParser.isUserLoggedIn(context)) {
             //Disable log-in icon
             loginItem.setVisible(false);
             //User logged in, enable sign out option
-            signOutItem.setEnabled(true);
             signOutItem.setVisible(true);
+            //Add inbox item
+            inboxItem.setEnabled(true);
+            inboxItem.setVisible(true);
+
+            if(DataParser.getMessagesAmount(context) > 0)
+                inboxItem.setIcon(R.drawable.ic_action_unread);
+            else
+                inboxItem.setIcon(R.drawable.ic_action_email);
         }
         else if(!DataParser.isUserLoggedIn(context)) {
             //User logged out, disable sign out option
-            signOutItem.setEnabled(false);
             signOutItem.setVisible(false);
+            //Remove inbox item
+            inboxItem.setVisible(false);
 
             loginItem.setIcon(R.drawable.ic_action_person);
 
@@ -171,7 +178,6 @@ public class SchoolPage extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         //ActionBarToggle handles navigation drawer events
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
@@ -182,10 +188,17 @@ public class SchoolPage extends Activity {
                 if(!DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context))
                     startActivity(new Intent(this, LoginActivity.class));
                 return true;
+            case R.id.action_inbox:
+                if(DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context)) {
+                    Intent getMessageIntent = new Intent(this, Messages.class);
+                    getMessageIntent.putExtra(Messages.MESSAGE_TYPE, Messages.RECEIVED_MESSAGES);
+                    startActivity(getMessageIntent);
+                }
+                return true;
             case R.id.action_sign_out:
                 signOut();
                 return true;
-            case R.id.feedback:
+            case R.id.action_feedback:
                 startActivity(new Intent(this, FeedbackActivity.class));
                 return true;
             default: return super.onOptionsItemSelected(item);
@@ -267,11 +280,6 @@ public class SchoolPage extends Activity {
 	}
 
     private void signOut(){
-        SharedPreferences settings = getSharedPreferences(DataParser.PREFS_USER, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(DataParser.CURRENTLY_LOGGED_IN, false);
-        editor.apply();
-
         if(DataParser.isNetworkAvailable(this))
             new LogoutTask(this).execute(); //Starts asynchronous sign out
         invalidateOptionsMenu();

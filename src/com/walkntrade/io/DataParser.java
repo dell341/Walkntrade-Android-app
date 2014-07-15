@@ -339,6 +339,10 @@ public class DataParser {
     public void logout() throws IOException {
         establishConnection();
 
+        SharedPreferences.Editor editor = context.getSharedPreferences(DataParser.PREFS_USER, 0).edit();
+        editor.putBoolean(DataParser.CURRENTLY_LOGGED_IN, false);
+        editor.apply();
+
         String query = "intent=logout";
 
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity

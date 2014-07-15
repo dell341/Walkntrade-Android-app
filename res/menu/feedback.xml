@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.walkntrade.FeedbackActivity" >
 
-    <item android:id="@+id/feedback"
+    <item android:id="@+id/action_feedback"
         android:title="@string/send_feedback"
         android:orderInCategory="100"
         android:showAsAction="never" />

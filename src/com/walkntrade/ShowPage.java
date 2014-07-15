@@ -26,6 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.walkntrade.asynctasks.LogoutTask;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
@@ -167,7 +168,39 @@ public class ShowPage extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.feedback, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem signOutItem = menu.findItem(R.id.action_sign_out);
+        MenuItem loginItem = menu.findItem(R.id.action_login);
+        MenuItem inboxItem = menu.findItem(R.id.action_inbox);
+
+        if(DataParser.isUserLoggedIn(context)) {
+            //Disable log-in icon
+            loginItem.setVisible(false);
+            //User logged in, enable sign out option
+            signOutItem.setVisible(true);
+            //Add inbox item
+            inboxItem.setEnabled(true);
+            inboxItem.setVisible(true);
+
+            if(DataParser.getMessagesAmount(context) > 0)
+                inboxItem.setIcon(R.drawable.ic_action_unread);
+            else
+                inboxItem.setIcon(R.drawable.ic_action_email);
+        }
+        else if(!DataParser.isUserLoggedIn(context)) {
+            //User logged out, disable sign out option
+            signOutItem.setVisible(false);
+            //Remove inbox item
+            inboxItem.setVisible(false);
+
+            loginItem.setIcon(R.drawable.ic_action_person);
+        }
+
         return true;
     }
 
@@ -177,7 +210,21 @@ public class ShowPage extends Activity {
             case android.R.id.home: //If the up button was selected, go back to parent activity
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
-            case R.id.feedback:
+            case R.id.action_login:
+                if(!DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context))
+                    startActivity(new Intent(this, LoginActivity.class));
+                return true;
+            case R.id.action_inbox:
+                if(DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context)) {
+                    Intent getMessageIntent = new Intent(this, Messages.class);
+                    getMessageIntent.putExtra(Messages.MESSAGE_TYPE, Messages.RECEIVED_MESSAGES);
+                    startActivity(getMessageIntent);
+                }
+                return true;
+            case R.id.action_sign_out:
+                signOut();
+                return true;
+            case R.id.action_feedback:
                 startActivity(new Intent(this, FeedbackActivity.class));
                 return true;
             default: return super.onOptionsItemSelected(item);
@@ -197,12 +244,20 @@ public class ShowPage extends Activity {
 
     @Override
     protected void onResume() {
+        invalidateOptionsMenu(); //Refreshes the ActionBar menu when activity is resumed
+
         if(DataParser.isUserLoggedIn(this) && DataParser.isNetworkAvailable(this)) { //if user is already logged in, allow user to contact
             new PollMessagesTask(this).execute();
             contact.setVisibility(View.VISIBLE);
             contact_nologin.setVisibility(View.GONE);
         }
         super.onResume();
+    }
+
+    private void signOut(){
+        if(DataParser.isNetworkAvailable(this))
+            new LogoutTask(this).execute(); //Starts asynchronous sign out
+        invalidateOptionsMenu();
     }
 
     private void processClick(int index){

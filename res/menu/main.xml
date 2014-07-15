@@ -8,7 +8,14 @@
         android:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/feedback"
+        android:id="@+id/action_inbox"
+        android:icon="@drawable/ic_action_email"
+        android:title="@string/received_messages"
+        android:titleCondensed="@string/title_activity_messages"
+        android:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_feedback"
         android:orderInCategory="200"
         android:title="@string/send_feedback"/>
 
