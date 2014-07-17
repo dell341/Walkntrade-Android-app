@@ -841,6 +841,8 @@ public class DataParser {
                     String title = "DNE";
                     String date = "DNE";
                     String views = "DNE";
+                    String expire = "DNE";
+                    String expired = "DNE";
 
                     if (qName.equalsIgnoreCase("SCHOOL"))//At the start of this element are we parsing a new school
                         parsingSchool = true;
@@ -860,9 +862,13 @@ public class DataParser {
                                 date = attributes.getValue(i);
                             else if (attributes.getLocalName(i).equalsIgnoreCase("views"))
                                 views = attributes.getValue(i);
+                            else if (attributes.getLocalName(i).equalsIgnoreCase("expire"))
+                                expire = attributes.getValue(i);
+                            else if (attributes.getLocalName(i).equalsIgnoreCase("expired"))
+                                expired = attributes.getValue(i);
 
                             //The last attribute to be initialized, views, will mark end of first post
-                            if (!views.equals("DNE"))
+                            if (!expired.equals("DNE"))
                                 userPosts.add(new PostReference(currentSchool, link, category, title, date, views));
                         }
                     }

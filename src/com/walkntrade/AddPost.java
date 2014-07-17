@@ -21,6 +21,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +50,7 @@ public class AddPost extends Activity implements OnClickListener {
     private static final int GALLERY_IMAGE_FOUR = 800;
 
     private ScrollView scrollView;
+    private ProgressBar progressBar;
     private TextView postError;
     private EditText title, author, description, price, isbn, tags;
     private ImageView image1, image2, image3, image4;
@@ -97,6 +99,7 @@ public class AddPost extends Activity implements OnClickListener {
             startLoginActivity();
 
         scrollView = (ScrollView) findViewById(R.id.scrollView);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
         postError = (TextView) findViewById(R.id.post_error);
         title = (EditText) findViewById(R.id.post_title);
         description = (EditText) findViewById(R.id.post_description);
@@ -417,6 +420,11 @@ public class AddPost extends Activity implements OnClickListener {
         }
 
         @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
         protected String doInBackground(Void... voids) {
             database = new DataParser(context);
             float priceValue;
@@ -483,6 +491,7 @@ public class AddPost extends Activity implements OnClickListener {
 
         @Override
         protected void onPostExecute(String s) {
+            progressBar.setVisibility(View.INVISIBLE);
             Toast.makeText(context, "Adding Images Complete", Toast.LENGTH_SHORT).show();
             finish();
         }
