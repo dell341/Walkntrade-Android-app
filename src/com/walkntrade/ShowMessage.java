@@ -82,9 +82,7 @@ public class ShowMessage extends Activity {
         switch (item.getItemId()) {
             //Used to support Android 15 and below
             case android.R.id.home: //If the up button was selected, go back to parent activity
-                Intent upIntent = NavUtils.getParentActivityIntent(this);
-                upIntent.putExtra(Messages.MESSAGE_TYPE, messageType);
-                NavUtils.navigateUpTo(this, upIntent);
+                NavUtils.navigateUpFromSameTask(this);
                 return true;
             case R.id.action_feedback:
                 startActivity(new Intent(this, FeedbackActivity.class));

@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,14 +28,16 @@ import com.walkntrade.posts.Post;
 
 import java.util.ArrayList;
 
-public class Fragment_SchoolPage extends Fragment implements OnItemClickListener, AbsListView.OnScrollListener {
+public class Fragment_SchoolPage extends Fragment implements OnItemClickListener, AbsListView.OnScrollListener, SwipeRefreshLayout.OnRefreshListener {
 
     private String TAG = "FRAGMENT:School_Page";
     public static final String ARG_CATEGORY = "Fragment Category";
     private String category;
 
+    private SwipeRefreshLayout refreshLayout;
+    private GridView gridView;
     private PostAdapter postsAdapter;
-    private ProgressBar progressBar;
+    private ProgressBar bigProgressBar, progressBar;
     private TextView noResults;
     private ArrayList<Post> schoolPosts = new ArrayList<Post>();
     private int offset = 0;
@@ -44,13 +47,17 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_school_page, container, false);
 
-        ProgressBar bigProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+        bigProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+        refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.refreshLayout);
         progressBar = (ProgressBar) rootView.findViewById(R.id.progressBarGrid);
         noResults = (TextView) rootView.findViewById(R.id.noResults);
-        GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
+        gridView = (GridView) rootView.findViewById(R.id.gridView);
         Bundle args = getArguments();
 
         category = args.getString(ARG_CATEGORY);
+
+        refreshLayout.setColorScheme(R.color.walkntrade_green, R.color.blue, R.color.walkntrade_green, R.color.blue);
+        refreshLayout.setOnRefreshListener(this);
 
         bigProgressBar.setVisibility(View.GONE);
         /*On initial create, ArrayList will be empty. But onCreateView may be called several times
@@ -86,6 +93,34 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         }
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Post selectedPost = (Post) parent.getItemAtPosition(position);
+
+        Intent showPage = new Intent(getActivity(), ShowPage.class);
+        showPage.putExtra(SchoolPage.SELECTED_POST, selectedPost.getIdentifier());
+        startActivity(showPage);
+    }
+
+    @Override
+    public void onRefresh() {
+        offset = 0;
+        schoolPosts.clear();
+
+        bigProgressBar.setVisibility(View.VISIBLE);
+        downloadMorePosts(bigProgressBar);
+        postsAdapter = new PostAdapter(this.getActivity(), schoolPosts);
+
+        refreshLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                refreshLayout.setRefreshing(false);
+                gridView.setAdapter(postsAdapter);
+            }
+        }, 3000);
+
+    }
+
     //Download more posts from the server
     private void downloadMorePosts(ProgressBar progressBar) {
         new SchoolPostsTask(getActivity(), this, progressBar, "", category, offset, 15).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG));
@@ -112,13 +147,5 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
 
         for (Post post : newData)
             new ThumbnailTask(getActivity(), postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
-    }
-
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Post selectedPost = (Post) parent.getItemAtPosition(position);
-
-        Intent showPage = new Intent(getActivity(), ShowPage.class);
-        showPage.putExtra(SchoolPage.SELECTED_POST, selectedPost.getIdentifier());
-        startActivity(showPage);
     }
 }

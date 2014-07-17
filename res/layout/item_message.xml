@@ -10,18 +10,21 @@
         android:id="@+id/message_subject"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:textColor="@android:color/black"/>
 
     <TextView
         android:id="@+id/message_user"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"/>
+        android:layout_alignParentRight="true"
+        android:textColor="@android:color/black"/>
 
     <TextView
         android:id="@+id/message_contents"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/message_subject"/>
+        android:layout_below="@id/message_subject"
+        android:textColor="@android:color/black"/>
 
 </RelativeLayout>

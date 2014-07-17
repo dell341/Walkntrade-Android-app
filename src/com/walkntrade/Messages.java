@@ -83,8 +83,8 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         switch (item.getItemId()) {
             //Used to support Android 15 and below
             case android.R.id.home: //If the up button was selected, go back to parent activity
-                Intent upIntent = NavUtils.getParentActivityIntent(this);
-                NavUtils.navigateUpTo(this, upIntent);
+                //Intent upIntent = NavUtils.getParentActivityIntent(this);
+                NavUtils.navigateUpFromSameTask(this);
                 return true;
             case R.id.action_feedback:
                 startActivity(new Intent(this, FeedbackActivity.class));

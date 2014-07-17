@@ -2,18 +2,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".School_page"
-    android:background="#dadada">
+    android:background="#dadada"
+    tools:context=".School_page">
 
     <TextView
         android:id="@+id/noResults"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:textStyle="bold"
-        android:visibility="gone"
+        android:text="@string/no_results"
         android:textSize="30sp"
-        android:text="@string/no_results" />
+        android:textStyle="bold"
+        android:visibility="gone" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -21,27 +21,34 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/noResults"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true" />
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <GridView
             android:id="@+id/gridView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:columnWidth="@dimen/grid_column_width"
+            android:horizontalSpacing="10dp"
             android:numColumns="auto_fit"
             android:padding="5dp"
-            android:verticalSpacing="10dp"
-            android:horizontalSpacing="10dp"
             android:stretchMode="columnWidth"
+            android:verticalSpacing="10dp"
             android:visibility="gone"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
-        <ProgressBar
-            android:id="@+id/progressBarGrid"
-            style="?android:attr/progressBarStyleInverse"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="#8CFFFFFF"
-            android:visibility="gone"/>
+    <ProgressBar
+        android:id="@+id/progressBarGrid"
+        style="?android:attr/progressBarStyleInverse"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#8CFFFFFF"
+        android:visibility="gone" />
 
 </RelativeLayout>
+
