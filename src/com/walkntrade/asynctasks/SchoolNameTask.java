@@ -68,7 +68,6 @@ public class SchoolNameTask extends AsyncTask<String, Void, ArrayList<String>> {
             mAdapter.addAll(names);
         }
 
-
         listOfSchools.setAdapter(mAdapter);
     }
 }

@@ -5,6 +5,7 @@ package com.walkntrade;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,10 +27,11 @@ public class Selector extends Activity implements OnItemClickListener {
     private String TAG = "Selector"; //Used for Log messages
 
     private TextView noResults;
-    private ListView listOfSchools;
-    private EditText schoolSearch;
-    private ProgressBar pBar;
+    private ListView schoolList;
+    private EditText editText;
+    private ProgressBar progressBar;
 	private Context context;
+    private SchoolNameTask asyncTask;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,19 +40,20 @@ public class Selector extends Activity implements OnItemClickListener {
         context = getApplicationContext();
 
         noResults = (TextView) findViewById(R.id.noResults);
-        listOfSchools = (ListView) findViewById(R.id.schoolList);
-        schoolSearch = (EditText) findViewById(R.id.schoolSearch);
-        pBar = (ProgressBar) findViewById(R.id.progressBar);
+        schoolList = (ListView) findViewById(R.id.schoolList);
+        editText = (EditText) findViewById(R.id.schoolSearch);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        asyncTask = new SchoolNameTask(context, progressBar, noResults, schoolList);
 
-        listOfSchools.setOnItemClickListener(this);
+        schoolList.setOnItemClickListener(this);
 
         //Search with a click
-        schoolSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                if(actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    String query = schoolSearch.getText().toString();
-                    new SchoolNameTask(context, pBar, noResults, listOfSchools).execute(query);
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    String query = editText.getText().toString();
+                    search(query);
                     return true;
                 }
 
@@ -59,7 +62,7 @@ public class Selector extends Activity implements OnItemClickListener {
         });
 
         //Search on text change
-        schoolSearch.addTextChangedListener(new TextWatcher() {
+        editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
             }
@@ -71,8 +74,9 @@ public class Selector extends Activity implements OnItemClickListener {
             @Override
             public void afterTextChanged(Editable editable) {
                 String query = editable.toString();
-                if(!query.isEmpty() && query.length() > 1) //Do not perform a blank or one letter search on text change
-                    new SchoolNameTask(context, pBar, noResults, listOfSchools).execute(query);
+                if (!query.isEmpty() && query.length() > 1) { //Do not perform a blank or one letter search on text change
+                    search(query);
+                }
             }
         });
 	}
@@ -87,6 +91,13 @@ public class Selector extends Activity implements OnItemClickListener {
         Intent schoolPage = new Intent(context, SchoolPage.class);
         startActivity(schoolPage);
         finish(); //Close this activity. App will now start-up from preferred school
+    }
+
+    private void search(String query){
+        if(asyncTask.cancel(true) || asyncTask.getStatus() == AsyncTask.Status.FINISHED) { //Attempts run new search by cancelling a running task or if the previous has finished
+            asyncTask = new SchoolNameTask(context, progressBar, noResults, schoolList);
+            asyncTask.execute(query);
+        }
     }
 
 }

@@ -463,10 +463,8 @@ public class AddPost extends Activity implements OnClickListener {
                 Toast.makeText(context, "Could not submit post", Toast.LENGTH_SHORT).show();
                 scrollView.fullScroll(View.FOCUS_UP);
             }
-            else {
-                Toast.makeText(context, "Post Added", Toast.LENGTH_SHORT).show();
+            else
                 new AddImagesTask().execute(identifier);
-            }
         }
     }
 
@@ -492,7 +490,7 @@ public class AddPost extends Activity implements OnClickListener {
         @Override
         protected void onPostExecute(String s) {
             progressBar.setVisibility(View.INVISIBLE);
-            Toast.makeText(context, "Adding Images Complete", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Post Added", Toast.LENGTH_SHORT).show();
             finish();
         }
     }
