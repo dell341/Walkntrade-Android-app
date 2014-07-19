@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CustomActionBar" parent="android:Widget.DeviceDefault.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/green_primary</item>
+    </style>
+
+</resources>

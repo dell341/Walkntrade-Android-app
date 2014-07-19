@@ -11,4 +11,11 @@
 
     <color name="gray">#ffcacaca</color>
     <color name="darker_gray">#aaaaaa</color>
+
+
+    <color name="green_dark">#0a8f08</color>
+    <color name="green_primary">#259b24</color>
+    <color name="green_secondary">#72d572</color>
+    <color name="green_tertiary">#f1f8e9</color>
+
 </resources>

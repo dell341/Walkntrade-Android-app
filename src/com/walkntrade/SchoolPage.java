@@ -94,7 +94,8 @@ public class SchoolPage extends Activity {
 		};
 
         viewPager.setAdapter(tabsAdapter);
-        pagerTab.setTabIndicatorColor(getResources().getColor(R.color.holo_blue));
+        pagerTab.setTabIndicatorColor(getResources().getColor(R.color.green_dark));
+        pagerTab.setTextColor(getResources().getColor(android.R.color.white));
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         navigationDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 	}
