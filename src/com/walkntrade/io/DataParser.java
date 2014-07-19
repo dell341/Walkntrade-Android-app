@@ -285,12 +285,17 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=checkUsername&username=" + username;
+        String serverResponse = null;
 
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream); //Reads message response from server
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
 
-        disconnectAll();
         return serverResponse.equals("0");
     }
 
@@ -299,12 +304,16 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=addUser&username=" + username + "&email=" + email + "&password=" + password + "&phone" + phoneNum;
+        String serverResponse = null;
 
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream); //Reads message response from server);
-
-        disconnectAll();
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
         return serverResponse;
     }
 
@@ -313,12 +322,16 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=verifyKey&key=" + key;
+        String serverResponse = null;
 
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream); //Reads message response from server
-
-        disconnectAll();
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
         return serverResponse;
     }
 
@@ -326,12 +339,16 @@ public class DataParser {
     public String login(String email, String password) throws IOException {
         establishConnection(); //Instantiate all streams and opens the connection
         String query = "intent=login&password=" + password + "&email=" + email + "&rememberMe=true";
+        String serverResponse = null;
 
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream); //Reads message response from server
-
-        disconnectAll();
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
         return serverResponse;
     }
 
@@ -358,10 +375,16 @@ public class DataParser {
         establishConnection();
 
         String query = "intent="+intentValue;
+        String serverResponse = null;
 
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream); //Reads message response from server
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
 
         if(intentValue.equals(INTENT_GET_USERNAME))
             setSharedStringPreference(PREFS_USER, USER_NAME, serverResponse); //Stores username locally to device
@@ -386,11 +409,15 @@ public class DataParser {
         builder.addPart("intent", new StringBody("uploadAvatar", ContentType.TEXT_PLAIN));
         builder.addPart("avatar", new FileBody(file, ContentType.create("image/jpeg"), "avatar_image"));
 
-        HttpEntity entity = builder.build();
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream);
+        String serverResponse = null;
 
-        disconnectAll();
+        try {
+            HttpEntity entity = builder.build();
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream);
+        } finally {
+            disconnectAll();
+        }
 
         return serverResponse;
     }
@@ -399,11 +426,16 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=setEmailPref&pref="+preference;
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream);
+        String serverResponse = null;
 
-        disconnectAll();
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
         return serverResponse;
     }
 
@@ -431,11 +463,16 @@ public class DataParser {
                 return "Setting not selected";
         }
 
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream);
+        String serverResponse = null;
 
-        disconnectAll();
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
         return serverResponse;
     }
 
@@ -443,11 +480,16 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=messageUser&uuid=&userName=" + userName + "&title=" + title + "&message=" + message;
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream); //Reads message response from server
+        String serverResponse = null;
 
-        disconnectAll();
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
         return serverResponse;
     }
 
@@ -521,11 +563,16 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=removeMessage&message_id="+id;
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream); //Reads message response from server
+        String serverResponse = null;
 
-        disconnectAll();
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
         return serverResponse;
     }
 
@@ -536,11 +583,16 @@ public class DataParser {
 
         String query = "intent=addPost&cat=" + category + "&school=" + school + "&title=" + title +
                 "&author=" + author + "&details=" + description + "&price=" + price + "&tags=" + tags + "&isbn=" + isbn;
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream); //Reads message response from server
+        String serverResponse = null;
 
-        disconnectAll();
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
         return serverResponse; //Returns post identifier or error message
     }
 
@@ -548,11 +600,16 @@ public class DataParser {
                                float price, String tags) throws IOException {
         establishConnection();
         String query = "intent=addPost&cat=" + category + "&school=" + school + "&title=" + title + "&details=" + description + "&price=" + price + "&tags=" + tags;
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream); //Reads message response from server
+        String serverResponse = null;
 
-        disconnectAll();
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
         return serverResponse; //Returns post identifier or error message
     }
 
@@ -571,11 +628,15 @@ public class DataParser {
         builder.addPart("identifier", new StringBody(identifier, ContentType.TEXT_PLAIN));
         builder.addPart("image", new FileBody(file));
 
-        HttpEntity entity = builder.build();
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream);
+        String serverResponse = null;
 
-        disconnectAll();
+        try {
+            HttpEntity entity = builder.build();
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream);
+        }
+        finally {
+        disconnectAll(); }
 
         return serverResponse;
     }
@@ -583,11 +644,16 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=removePost&" + obsId + "=";
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream); //Reads message response from server
+        String serverResponse = null;
 
-        disconnectAll();
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
         return serverResponse;
     }
 
@@ -596,11 +662,16 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=sendFeedback&email="+email+"&message="+message;
-        HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-        InputStream inputStream = processRequest(entity);
-        String serverResponse = readInputAsString(inputStream); //Reads message response from server
+        String serverResponse = null;
 
-        disconnectAll();
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
         return serverResponse;
     }
 
@@ -757,7 +828,7 @@ public class DataParser {
 
                 String title = "DNE";
                 String category = "DNE";
-                String details = "DNE";
+                String details = "";
                 String user = "DNE";
                 String price = "DNE";
                 String imgURL = "DNE";
@@ -778,8 +849,10 @@ public class DataParser {
                         title = new String(ch, start, length);
                     else if (currentElement.equalsIgnoreCase("CATEGORY"))
                         category = new String(ch, start, length);
-                    else if (currentElement.equalsIgnoreCase("DETAILS"))
-                        details = new String(ch, start, length);
+                    else if (currentElement.equalsIgnoreCase("DETAILS")) {
+                        details = details+new String(ch, start, length);
+                        Log.v(TAG, "Details: "+details+"\nLength: "+length+"\nStart: "+start+"\nCharacters: "+ch[0]);
+                    }
                     else if (currentElement.equalsIgnoreCase("USERNAME"))
                         user = new String(ch, start, length);
                     else if (currentElement.equalsIgnoreCase("PRICE"))
@@ -892,11 +965,20 @@ public class DataParser {
     //Can be called from anywhere without creating a DataParser object
     public static Bitmap loadBitmap(String _url) throws IOException {
         Bitmap bitmap;
+        InputStream in = new InputStream() {
+            @Override
+            public int read() throws IOException {
+                return 0;
+            }
+        };
 
-        InputStream in = new java.net.URL("http://walkntrade.com/" + _url).openStream();
-        bitmap = BitmapFactory.decodeStream(in);
-
-        in.close();
+        try {
+            in = new java.net.URL("http://walkntrade.com/" + _url).openStream();
+            bitmap = BitmapFactory.decodeStream(in);
+        }
+        finally {
+            in.close();
+        }
 
         return bitmap;
     }
