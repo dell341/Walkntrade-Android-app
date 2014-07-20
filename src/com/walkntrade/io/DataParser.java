@@ -180,6 +180,11 @@ public class DataParser {
         settings.edit().clear().apply();
     }
 
+    private void clearNotificationInfo() {
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
+        settings.edit().clear().apply();
+    }
+
     private String readInputAsString(InputStream inStream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
         StringBuilder builder = new StringBuilder();
@@ -251,9 +256,10 @@ public class DataParser {
         return settings.getString(key, null);
     }
 
+    //Since the default value is true, only use this with switches that should be true
     public static boolean getSharedBooleanPreference(Context _context, String preferenceName, String key) {
         SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
-        return settings.getBoolean(key, false);
+        return settings.getBoolean(key, true);
     }
 
     public static void setSoundPref(Context _context, Uri uri) {
@@ -360,12 +366,13 @@ public class DataParser {
         editor.putBoolean(DataParser.CURRENTLY_LOGGED_IN, false);
         editor.apply();
 
-        String query = "intent=logout";
+        String query = "intent=logout&GCMClear=true";
 
         HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
         processRequest(entity);
         clearCookies(); //Clears locally stored cookies
         clearUserInfo(); //Clears locally stored user information
+        clearNotificationInfo();
 
         disconnectAll();
     }
@@ -392,8 +399,11 @@ public class DataParser {
             setSharedStringPreference(PREFS_USER, USER_PHONE, serverResponse); //Stores phone number locally to device
         else if(intentValue.equals(INTENT_GET_NEWMESSAGE))
             setSharedIntPreferences(PREFS_USER, USER_MESSAGES, Integer.parseInt(serverResponse)); //Stores amount of unread messages here
+        else if(intentValue.equals(INTENT_GET_EMAILPREF))
+            setSharedStringPreference(PREFS_NOTIFICATIONS, NOTIFY_EMAIL, serverResponse); //Stores email contact preference
+        else
+            Log.e(TAG, "Intent unread: "+intentValue);
 
-        disconnectAll();
         return serverResponse;
     }
 
@@ -422,10 +432,11 @@ public class DataParser {
         return serverResponse;
     }
 
-    public String setEmailPreference(int preference) throws IOException {
+    public String setEmailPreference(String preference) throws IOException {
         establishConnection();
 
         String query = "intent=setEmailPref&pref="+preference;
+        setSharedStringPreference(PREFS_NOTIFICATIONS, NOTIFY_EMAIL, preference); //Stores email contact preference
         String serverResponse = null;
 
         try {

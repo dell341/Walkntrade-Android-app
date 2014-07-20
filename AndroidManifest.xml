@@ -169,7 +169,8 @@
         </activity>
         <activity
             android:name=".Messages"
-            android:label="@string/title_activity_messages" >
+            android:label="@string/title_activity_messages"
+            android:configChanges="orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.SchoolPage" />

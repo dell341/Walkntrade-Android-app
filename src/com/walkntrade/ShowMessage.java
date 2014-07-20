@@ -120,7 +120,7 @@ public class ShowMessage extends Activity {
                         String message = editText.getText().toString();
 
                         if (!message.isEmpty()) {
-                            new SendMessageTask().execute();
+                            new SendMessageTask().execute(message);
                             dialogInterface.dismiss();
                         }
                     }

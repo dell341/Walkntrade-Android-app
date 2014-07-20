@@ -53,12 +53,16 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
         else
             switchNofication.setEnabled(true);
 
-        switchEmail.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_EMAIL));
-        switchNofication.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_USER));
+        String emailPreference = DataParser.getSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_EMAIL);
+        if(emailPreference != null){
+            boolean value = emailPreference.equals("1");
+            switchEmail.setChecked(value);
+        }
 
-        switchEmail.setOnCheckedChangeListener(this);
+        switchNofication.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_USER));
         switchNofication.setOnCheckedChangeListener(this);
 
+        //Change notification sound, vibrate, light
         notificationSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,13 +97,15 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         int id = buttonView.getId();
+        Log.v(TAG, "switch was changed");
 
         switch (id){
-            case R.id.switch_email: DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_EMAIL, isChecked);
+            case R.id.switch_email:
                 if(isChecked)
                     new ChangeContactTask().execute("1");
                 else
-                    new ChangeContactTask().execute("2"); break;
+                    new ChangeContactTask().execute("0");
+                break;
             case R.id.switch_notifications: DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_USER, isChecked); break;
         }
     }
@@ -118,6 +124,7 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
         return true;
     }
 
+    //Gets the user contact preference
     private class GetContactTask extends AsyncTask<Void, Void, String>{
 
         @Override
@@ -142,9 +149,12 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
         @Override
         protected void onPostExecute(String s) {
             progressBar.setVisibility(View.INVISIBLE);
-
             if(s.equals("1")) //User wants receive emails
                 switchEmail.setChecked(true);
+            else
+                switchEmail.setChecked(false);
+
+            switchEmail.setOnCheckedChangeListener(ContactPref.this); //Prevents contact pref from being undone
         }
     }
 
@@ -155,7 +165,7 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
             String serverResponse = null;
 
             try {
-                serverResponse = database.setEmailPreference(Integer.parseInt(pref[0]));
+                serverResponse = database.setEmailPreference(pref[0]);
             }catch (IOException e){
                 Log.e(TAG, "Setting user contact", e);
             }

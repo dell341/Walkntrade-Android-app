@@ -19,11 +19,14 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.walkntrade.io.DataParser;
 
 public class LoginActivity extends Activity {
 
     private static final String TAG = "LoginActivity";
+    private static final int RESOLUTION_REQUEST = 9000;
     private static final int VERIFY_REQUEST = 100;
 
     private LinearLayout loginHeader;
@@ -76,7 +79,7 @@ public class LoginActivity extends Activity {
             public void onClick(View v) {
                 SharedPreferences.Editor editor = settings.edit();
                 editor.putBoolean(DataParser.CURRENTLY_LOGGED_IN, false);
-                editor.commit();
+                editor.apply();
 
                 finish();
             }
@@ -124,6 +127,20 @@ public class LoginActivity extends Activity {
 			
 		return true;
 	}
+
+    //Check if Google Play services is available. Required for push notifications
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if(GooglePlayServicesUtil.isUserRecoverableError(resultCode))
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this, RESOLUTION_REQUEST).show();
+            else
+                Log.i(TAG, "Play Services not available on device");
+
+            return false;
+        }
+        return true;
+    }
 	
 	//Asynchronous Task logs in user & retrieves username and password
 	private class LoginTask extends AsyncTask<String, Void, String> {
@@ -161,9 +178,23 @@ public class LoginActivity extends Activity {
 				loginError.setVisibility(View.GONE);
 				SharedPreferences.Editor editor = settings.edit();
 				editor.putBoolean(DataParser.CURRENTLY_LOGGED_IN, true);
-				editor.commit();
+				editor.apply();
 
-			    finish(); //Close this activity
+                //Checks if device has the Google Play Services APK
+                if (checkPlayServices()) {
+                    GcmRegistration gcmReg = new GcmRegistration(context);
+                    String regId = gcmReg.getRegistrationId();
+                    Log.i(TAG, regId);
+
+                    if(regId.isEmpty()) {
+                        gcmReg.registerForId();
+                        finish();
+                    }
+                    else
+                        finish();
+                }
+                else
+                    finish(); //Closes this activity
 			}
             else if(response.equals(getString(R.string.error_need_verification))) {
                 Intent verifyIntent = new Intent(LoginActivity.this, VerifyKeyActivity.class);
