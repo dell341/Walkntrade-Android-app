@@ -33,7 +33,7 @@ public class GcmRegistration {
 
     //Gets current registration id for GCM, if it exists
     public String getRegistrationId() {
-        final SharedPreferences prefs = context.getSharedPreferences(GcmRegistration.class.getSimpleName(), Context.MODE_PRIVATE);
+        final SharedPreferences prefs = context.getSharedPreferences(DataParser.PREFS_USER, Context.MODE_PRIVATE);
         String registrationId = prefs.getString(PROPERTY_REG_ID, "");
         if(registrationId.isEmpty()) {
             Log.i(TAG, "GCM registration not found");
@@ -91,7 +91,7 @@ public class GcmRegistration {
 
     //Store registration id and app version code
     private void storeRegistrationId(){
-        final SharedPreferences prefs = context.getSharedPreferences(GcmRegistration.class.getSimpleName(), Context.MODE_PRIVATE);
+        final SharedPreferences prefs = context.getSharedPreferences(DataParser.PREFS_USER, Context.MODE_PRIVATE);
         int appVersion = getAppVersion();
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PROPERTY_REG_ID, regId);

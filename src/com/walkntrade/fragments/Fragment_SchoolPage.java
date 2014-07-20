@@ -104,6 +104,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
 
     @Override
     public void onRefresh() {
+        refreshLayout.setEnabled(false);
         offset = 0;
         schoolPosts.clear();
 
@@ -114,6 +115,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         refreshLayout.postDelayed(new Runnable() {
             @Override
             public void run() {
+                refreshLayout.setEnabled(true);
                 refreshLayout.setRefreshing(false);
                 gridView.setAdapter(postsAdapter);
             }

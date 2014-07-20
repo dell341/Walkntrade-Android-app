@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -24,7 +25,7 @@ import com.walkntrade.io.DataParser;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Messages extends Activity implements AdapterView.OnItemClickListener{
+public class Messages extends Activity implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener{
 
     private static final String TAG = "Messages";
     public static final String MESSAGE_TYPE = "reading_inbox_or_sent";
@@ -32,6 +33,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     public static final int SENT_MESSAGES = 1;
 
     private Context context;
+    private SwipeRefreshLayout refreshLayout;
     private ProgressBar progressBar;
     private TextView noResults;
     private ListView messageList;
@@ -43,12 +45,15 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         setContentView(R.layout.activity_messages);
 
         context = getApplicationContext();
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refreshLayout);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         noResults = (TextView) findViewById(R.id.noResults);
         messageList = (ListView) findViewById(R.id.messageList);
         messageList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         messageList.setMultiChoiceModeListener(new MultiChoiceListener());
 
+        refreshLayout.setColorScheme(R.color.walkntrade_green, R.color.blue, R.color.walkntrade_green, R.color.blue);
+        refreshLayout.setOnRefreshListener(this);
         messageType = getIntent().getIntExtra(MESSAGE_TYPE, 0);
 
         if(messageType == RECEIVED_MESSAGES)
@@ -57,6 +62,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             getActionBar().setTitle(getString(R.string.sent_messages));
 
         new PollMessagesTask(this).execute();
+        progressBar.setVisibility(View.VISIBLE);
         new GetMessagesTask().execute();
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -72,8 +78,10 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
     @Override
     protected void onResume() {
-        if(messageList.getAdapter() != null)
+        if(messageList.getAdapter() != null) {
+            progressBar.setVisibility(View.VISIBLE);
             new GetMessagesTask().execute();
+        }
 
         super.onResume();
     }
@@ -92,6 +100,18 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onRefresh() {
+        new GetMessagesTask().execute();
+
+        refreshLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                refreshLayout.setRefreshing(false);
+            }
+        }, 3000);
     }
 
     @Override
@@ -157,7 +177,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private class GetMessagesTask extends AsyncTask<Void, Void, ArrayList<MessageObject>> {
         @Override
         protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
+            //progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override

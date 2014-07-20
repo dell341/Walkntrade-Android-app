@@ -6,13 +6,18 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.walkntrade.io.DataParser;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -44,14 +49,19 @@ public class GcmIntentService extends IntentService {
             String id = extras.getString("id");
             String user = extras.getString("user");
             String message = extras.getString("message");
+            String image = extras.getString("userImageURL");
 
-            sendNotification(id, user, message);
+            if(id != null) //As long as id is not null, send the notification
+            sendNotification(id, user, message, image);
         }
     }
 
     //Put the received message into a notification
-    private void sendNotification(String id, String user, String message) {
+    private void sendNotification(String id, String user, String message, String image) {
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        AsyncTask<String, Void, Bitmap> task = new GetImage();
+        task.execute(image);
 
         Intent showMessage = new Intent(this, ShowMessage.class);
 
@@ -65,12 +75,19 @@ public class GcmIntentService extends IntentService {
         PendingIntent contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("Message from: " + user)
-                .setContentText(message)
-                //.setContentInfo(++numMessages+"") TODO: Find a way to increment notifications properly
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH);
+        try {
+            builder.setSmallIcon(R.drawable.ic_launcher)
+                    .setLargeIcon(task.get())
+                    .setContentTitle("Message from: " + user)
+                    .setContentText(message)
+                    //.setContentInfo(++numMessages+"") TODO: Find a way to increment notifications properly
+                    .setAutoCancel(true)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
         boolean hasSound = false;
         boolean vibrate = DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_VIBRATE);
@@ -105,6 +122,20 @@ public class GcmIntentService extends IntentService {
 
         builder.setContentIntent(contentIntent);
         notificationManager.notify(NOTIFICATION_ID, builder.build());
+    }
+
+    private class GetImage extends AsyncTask<String, Void, Bitmap>{
+        @Override
+        protected Bitmap doInBackground(String... image) {
+            Bitmap largeIcon = null;
+            try {
+                largeIcon =  DataParser.loadBitmap(image[0]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return largeIcon;
+        }
     }
 
 }
