@@ -439,6 +439,25 @@ public class DataParser {
         return serverResponse;
     }
 
+    //Sends the registration id, which will be used to receive push notifications, to the server
+    public String setRegistrationId(String deviceToken) throws IOException {
+        establishConnection();
+
+        String query = "intent=addAndroidDeviceId&deviceId="+deviceToken;
+        String serverResponse = null;
+
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
+        return serverResponse;
+    }
+
+
     public String changeSetting(String password, String settingValue, int setting) throws IOException{
         establishConnection();
 
