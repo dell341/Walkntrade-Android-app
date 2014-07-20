@@ -40,13 +40,18 @@ public class PostAdapter extends BaseAdapter {
             currentPostCount += newData.size();
     }
 
+    public void clearContents(){
+        currentPostCount = 0;
+        items.clear();
+    }
+
     @Override //The amount of views to display
     public int getCount() {
         return currentPostCount;
     }
 
     @Override
-    public Post getItem(int i) {
+    public Post getItem(int i) throws IndexOutOfBoundsException{
         return items.get(i);
     }
 
@@ -77,20 +82,23 @@ public class PostAdapter extends BaseAdapter {
         else
             holder = (ViewHolder)postGridView.getTag();
 
-		//Gets the current item which will be a Post object
-		Post post = getItem(position);
-		
-		//Get the values from the Post object
         try {
-            holder.image.setImageBitmap(post.getBitmapImage());
-        }
-        catch(NullPointerException e){
-            Log.e(TAG, "Getting post image", e);
-        }
-		holder.title.setText(post.getTitle());
+            //Gets the current item which will be a Post object
+            Post post = getItem(position);
+            //Get the values from the Post object
+            try {
+                holder.image.setImageBitmap(post.getBitmapImage());
+            }
+            catch(NullPointerException e){
+                Log.e(TAG, "Getting post image", e);
+            }
+            holder.title.setText(post.getTitle());
 //		holder.details.setText(post.getDetails());
-		holder.author.setText(post.getAuthor());
+            holder.author.setText(post.getAuthor());
 //		holder.price.setText(post.getPrice());
+        } catch(IndexOutOfBoundsException e){
+            Log.e(TAG, "Getting post object", e);
+        }
 
 		return postGridView;
 	}

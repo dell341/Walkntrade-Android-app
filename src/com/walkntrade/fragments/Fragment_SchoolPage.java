@@ -108,21 +108,10 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         refreshLayout.setEnabled(false);
         offset = 0;
 
-        schoolPosts.clear();
-        //postsAdapter = new PostAdapter(this.getActivity(), schoolPosts);
+        postsAdapter.clearContents();
 
         bigProgressBar.setVisibility(View.VISIBLE);
         downloadMorePosts(bigProgressBar);
-
-//        refreshLayout.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                refreshLayout.setEnabled(true);
-//                refreshLayout.setRefreshing(false);
-//                //gridView.setAdapter(postsAdapter);
-//            }
-//        }, 3000);
-
     }
 
     //Download more posts from the server

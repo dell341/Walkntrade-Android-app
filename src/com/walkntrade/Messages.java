@@ -105,13 +105,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     @Override
     public void onRefresh() {
         new GetMessagesTask().execute();
-
-        refreshLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                refreshLayout.setRefreshing(false);
-            }
-        }, 3000);
     }
 
     @Override
@@ -196,6 +189,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         @Override
         protected void onPostExecute(ArrayList<MessageObject> messageObjects) {
+            refreshLayout.setRefreshing(false);
             progressBar.setVisibility(View.GONE);
             messageList.setAdapter(null);
 
