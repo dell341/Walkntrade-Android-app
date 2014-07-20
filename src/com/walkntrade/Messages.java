@@ -52,7 +52,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         messageList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         messageList.setMultiChoiceModeListener(new MultiChoiceListener());
 
-        refreshLayout.setColorScheme(R.color.walkntrade_green, R.color.blue, R.color.walkntrade_green, R.color.blue);
+        refreshLayout.setColorScheme(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
         messageType = getIntent().getIntExtra(MESSAGE_TYPE, 0);
 

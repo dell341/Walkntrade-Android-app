@@ -11,6 +11,7 @@
             android:id="@+id/progressBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="-6dp"
             style="?android:attr/progressBarStyleHorizontal"
             android:indeterminate="true"
             android:visibility="invisible"/>

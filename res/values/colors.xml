@@ -18,4 +18,8 @@
     <color name="green_secondary">#72d572</color>
     <color name="green_tertiary">#f1f8e9</color>
 
+    <color name="green_progress_1">#5af158</color>
+    <color name="green_progress_2">#14e715</color>
+    <color name="green_progress_3">#12c700</color>
+
 </resources>
