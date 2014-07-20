@@ -85,18 +85,21 @@ public class ShowPage extends Activity {
         //If orientation has been changed, retrieve previously saved data instead of another network connection.
         if(savedInstanceState != null){
 
-            thisPost = savedInstanceState.getParcelable(SAVED_POST);
-            title.setText(thisPost.getTitle());
-            details.setText(thisPost.getDetails());
-            user.setText(thisPost.getAuthor());
-            date.setText(thisPost.getDate());
-            price.setText("$"+thisPost.getPrice());
-
             title.setVisibility(View.VISIBLE);
             details.setVisibility(View.VISIBLE);
             user.setVisibility(View.VISIBLE);
             date.setVisibility(View.VISIBLE);
             price.setVisibility(View.VISIBLE);
+
+            thisPost = savedInstanceState.getParcelable(SAVED_POST);
+            title.setText(thisPost.getTitle());
+            details.setText(thisPost.getDetails());
+            user.setText(thisPost.getAuthor());
+            date.setText(thisPost.getDate());
+            if(!thisPost.getPrice().equals("0"))
+                price.setText("$"+thisPost.getPrice());
+            else
+                price.setVisibility(View.INVISIBLE);
 
 //            image.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_1));
 //            image2.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_2));
@@ -375,7 +378,10 @@ public class ShowPage extends Activity {
             details.setText(post.getDetails());
             user.setText(post.getAuthor());
             date.setText(post.getDate());
-            price.setText("$"+post.getPrice());
+            if(!post.getPrice().equals("0"))
+                price.setText("$"+post.getPrice());
+            else
+                price.setVisibility(View.INVISIBLE);
 
             createMessageDialog();
         }
