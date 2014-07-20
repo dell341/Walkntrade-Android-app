@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.walkntrade.io.DataParser;
@@ -54,6 +55,8 @@ public class GcmIntentService extends IntentService {
             if(id != null) //As long as id is not null, send the notification
             sendNotification(id, user, message, image);
         }
+        else
+            Log.i(TAG, "Empty message received");
     }
 
     //Put the received message into a notification

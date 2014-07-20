@@ -42,6 +42,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     private ArrayList<Post> schoolPosts = new ArrayList<Post>();
     private int offset = 0;
     private boolean downloadMore = true;
+    private boolean shouldClearList = false;
 
     @Override //This method may be called several times
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -83,7 +84,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     @Override
     public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         //If bottom of GridView is visible and Adapter has remaining posts not yet visible
-        if (firstVisibleItem + visibleItemCount >= totalItemCount && postsAdapter.hasMorePosts()) {
+        if (firstVisibleItem + visibleItemCount >= totalItemCount && postsAdapter.hasMorePosts() && !refreshLayout.isRefreshing()) {
             //If there more posts not yet downloaded and the GridView is not empty (to ensure it doesn't try to download several times)
             if (downloadMore && visibleItemCount != 0)
                 downloadMorePosts(progressBar);
@@ -106,20 +107,21 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     public void onRefresh() {
         refreshLayout.setEnabled(false);
         offset = 0;
+
         schoolPosts.clear();
+        //postsAdapter = new PostAdapter(this.getActivity(), schoolPosts);
 
         bigProgressBar.setVisibility(View.VISIBLE);
         downloadMorePosts(bigProgressBar);
-        postsAdapter = new PostAdapter(this.getActivity(), schoolPosts);
 
-        refreshLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                refreshLayout.setEnabled(true);
-                refreshLayout.setRefreshing(false);
-                gridView.setAdapter(postsAdapter);
-            }
-        }, 3000);
+//        refreshLayout.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                refreshLayout.setEnabled(true);
+//                refreshLayout.setRefreshing(false);
+//                //gridView.setAdapter(postsAdapter);
+//            }
+//        }, 3000);
 
     }
 
@@ -141,6 +143,9 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
 
     //Add new data from the serve to the ArrayList and update the adapter
     public void updateData(ArrayList<Post> newData) {
+        refreshLayout.setEnabled(true);
+        refreshLayout.setRefreshing(false);
+
         postsAdapter.incrementCount(newData);
         for (Post i : newData)
             schoolPosts.add(i);

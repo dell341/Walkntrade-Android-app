@@ -73,7 +73,7 @@ public class GcmRegistration {
                     msg = "Device registered, registration ID="+regId;
 
                     DataParser database = new DataParser(context);
-                    Log.i(TAG, "Register Id: " + database.setRegistrationId(regId));
+                    Log.i(TAG, "Registered id to server?: " + database.setRegistrationId(regId));
 
                     storeRegistrationId();
                 } catch(IOException e) {

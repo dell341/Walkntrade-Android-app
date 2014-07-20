@@ -5,6 +5,7 @@ package com.walkntrade;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -14,6 +15,8 @@ import android.widget.Button;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.walkntrade.io.DataParser;
+
+import java.io.IOException;
 
 public class Walkntrade_Main extends Activity {
 
@@ -45,11 +48,32 @@ public class Walkntrade_Main extends Activity {
             Log.i(TAG, regId);
 
             if(regId.isEmpty()) {
+                Log.i(TAG, "Registration id is empty, Creating one now");
                 gcmReg.registerForId();
                 finish();
             }
-            else
-                finish();
+            else { //If registration id is already found. Send it to the server to make sure it's still updated.
+                new AsyncTask<String, Void, String>(){
+                    @Override
+                    protected String doInBackground(String... regId) {
+                        String serverResponse = null;
+
+                        try {
+                            DataParser database = new DataParser(context);
+                            serverResponse = database.setRegistrationId(regId[0]);
+                        } catch(IOException e) {
+                            Log.e(TAG, "Sending id to server", e);
+                        }
+
+                        return serverResponse;
+                    }
+
+                    @Override
+                    protected void onPostExecute(String s) {
+                        finish();
+                    }
+                }.execute(regId);
+            }
         }
         else
             finish(); //Closes this activity

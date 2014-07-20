@@ -465,6 +465,7 @@ public class DataParser {
         finally {
             disconnectAll();
         }
+
         return serverResponse;
     }
 
@@ -879,10 +880,8 @@ public class DataParser {
                         title = new String(ch, start, length);
                     else if (currentElement.equalsIgnoreCase("CATEGORY"))
                         category = new String(ch, start, length);
-                    else if (currentElement.equalsIgnoreCase("DETAILS")) {
+                    else if (currentElement.equalsIgnoreCase("DETAILS"))
                         details = details+new String(ch, start, length);
-                        Log.v(TAG, "Details: "+details+"\nLength: "+length+"\nStart: "+start+"\nCharacters: "+ch[0]);
-                    }
                     else if (currentElement.equalsIgnoreCase("USERNAME"))
                         user = new String(ch, start, length);
                     else if (currentElement.equalsIgnoreCase("PRICE"))

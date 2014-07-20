@@ -23,6 +23,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.walkntrade.io.DataParser;
 
+import java.io.IOException;
+
 public class LoginActivity extends Activity {
 
     private static final String TAG = "LoginActivity";
@@ -187,14 +189,36 @@ public class LoginActivity extends Activity {
                     Log.i(TAG, regId);
 
                     if(regId.isEmpty()) {
+                        Log.i(TAG, "Registration id is empty, Creating one now");
                         gcmReg.registerForId();
                         finish();
                     }
-                    else
-                        finish();
+                    else { //If registration id is already found. Send it to the server to make sure it's still updated.
+                        new AsyncTask<String, Void, String>(){
+                            @Override
+                            protected String doInBackground(String... regId) {
+                                String serverResponse = null;
+
+                                try {
+                                    serverResponse = database.setRegistrationId(regId[0]);
+                                } catch(IOException e) {
+                                    Log.e(TAG, "Sending id to server", e);
+                                }
+
+                                return serverResponse;
+                            }
+
+                            @Override
+                            protected void onPostExecute(String s) {
+                                finish();
+                            }
+                        }.execute(regId);
+                    }
                 }
-                else
-                    finish(); //Closes this activity
+                else {
+                    Log.e(TAG, "Google Services not available");
+                    finish(); //Closes this activity if Google Play Services not available
+                }
 			}
             else if(response.equals(getString(R.string.error_need_verification))) {
                 Intent verifyIntent = new Intent(LoginActivity.this, VerifyKeyActivity.class);
