@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -57,9 +56,15 @@ public class Walkntrade_Main extends Activity {
             regId = getRegistrationId(context);
             Log.i(TAG, regId);
 
-            if(regId.isEmpty())
+            if(regId.isEmpty()) {
                 registerForId();
+                finish();
+            }
+            else
+                finish();
         }
+        else
+            finish(); //Closes this activity
 
 	}
 
@@ -76,8 +81,6 @@ public class Walkntrade_Main extends Activity {
                 startActivity(new Intent(this, SchoolPage.class)); //Starts SchoolPage Activity
             else
                 startActivity(new Intent(this, Selector.class)); //Starts Selector (Select/Change School) activity
-
-            finish(); //Closes this activity
         }
     }
 
@@ -137,7 +140,7 @@ public class Walkntrade_Main extends Activity {
                     msg = "Device registered, registration ID="+regId;
 
                     DataParser database = new DataParser(context);
-                    database.setRegistrationId(regId);
+                    Log.v(TAG, "Register Id: " + database.setRegistrationId(regId));
 
                     storeRegistrationId();
                 } catch(IOException e) {
@@ -149,7 +152,6 @@ public class Walkntrade_Main extends Activity {
             @Override
             protected void onPostExecute(String msg) {
                 Log.i(TAG, msg);
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
             }
         }.execute();
     }

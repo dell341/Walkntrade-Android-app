@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.walkntrade.io.DataParser;
@@ -37,6 +38,7 @@ public class GcmIntentService extends IntentService {
         String messageType = gcm.getMessageType(intent);
 
         if(!extras.isEmpty()) {
+            Log.v("GCMIntentService", "Number of extras: "+extras.size());
             String id = extras.getString("id");
             String user = extras.getString("user");
             String message = extras.getString("message");
@@ -66,6 +68,7 @@ public class GcmIntentService extends IntentService {
                 .setContentText(message)
                 //.setContentInfo(++numMessages+"") TODO: Find a way to increment notifications properly
                 .setAutoCancel(true)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
         boolean hasSound = false;

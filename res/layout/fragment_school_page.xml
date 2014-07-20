@@ -15,14 +15,6 @@
         android:textStyle="bold"
         android:visibility="gone" />
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleInverse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/noResults"
-        android:layout_centerInParent="true" />
-
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
@@ -40,6 +32,14 @@
             android:verticalSpacing="10dp"
             android:visibility="gone"/>
     </android.support.v4.widget.SwipeRefreshLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleInverse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/noResults"
+        android:layout_centerInParent="true" />
 
     <ProgressBar
         android:id="@+id/progressBarGrid"
