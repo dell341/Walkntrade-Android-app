@@ -1,47 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:padding="5dp"
     android:gravity="center"
-    android:orientation="vertical"
     android:background="@drawable/grid_selector_post">
-    
-    <ImageView
-        android:id="@+id/post_image"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/image_height"
-        android:contentDescription="@string/post_image"
-        android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
-        android:src="@drawable/post_image"/>
-        
-    <TextView 
+
+    <com.walkntrade.LightTextView
 	    android:id="@+id/post_title"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:gravity="center"
-	    android:textStyle="bold"
-	    android:singleLine="true"
-        android:textSize="@dimen/school_post_size"
+        android:textSize="22sp"
 	    android:ellipsize="end"/>
 
-    <!--<TextView-->
-	    <!--android:id="@+id/post_details"-->
-	    <!--android:layout_width="match_parent"-->
-	    <!--android:layout_height="wrap_content"-->
-	    <!--android:singleLine="true"-->
-	    <!--android:ellipsize="end"/> &lt;!&ndash; Find a way in the future to ellipsize multiple lines &ndash;&gt;-->
-    <!---->
-    <!--<TextView-->
-	    <!--android:id="@+id/post_price"-->
-	    <!--android:layout_width="match_parent"-->
-	    <!--android:layout_height="wrap_content"-->
-	    <!--android:gravity="center"/>-->
-    
-    <TextView
-	    android:id="@+id/post_author"
-	    android:layout_width="match_parent"
+    <View
+        android:id="@+id/border"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="5dp"
+        android:layout_below="@id/post_title"
+        android:background="#c2c2c2"/>
+
+    <ImageView
+        android:id="@+id/post_image"
+        android:layout_width="@dimen/image_width"
+        android:layout_height="@dimen/image_height"
+        android:layout_below="@id/border"
+        android:layout_marginRight="5dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/post_image"/>
+
+    <com.walkntrade.LightTextView
+	    android:id="@+id/post_details"
+	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
+        android:layout_alignTop="@id/post_image"
+        android:layout_toRightOf="@id/post_image"
+        android:maxLines="4"
+	    android:ellipsize="end"/>
+
+    <com.walkntrade.LightTextView
+	    android:id="@+id/post_price"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:layout_toRightOf="@id/post_image"
+        android:layout_below="@id/post_details"
+        android:textSize="22sp"
 	    android:gravity="center"/>
 
-</LinearLayout>
+    <com.walkntrade.ThinTextView
+	    android:id="@+id/post_author"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/post_image"
+        android:layout_below="@id/post_price"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:ellipsize="end"/>
+
+</RelativeLayout>

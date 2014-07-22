@@ -73,9 +73,9 @@ public class PostAdapter extends BaseAdapter {
             //Get the text views and image views and assign the proper one
             holder.image = (ImageView) postGridView.findViewById(R.id.post_image);
             holder.title = (TextView) postGridView.findViewById(R.id.post_title);
-//            holder.details = (TextView) postGridView.findViewById(R.id.post_details);
+            holder.details = (TextView) postGridView.findViewById(R.id.post_details);
             holder.author = (TextView) postGridView.findViewById(R.id.post_author);
-//            holder.price = (TextView) postGridView.findViewById(R.id.post_price);
+            holder.price = (TextView) postGridView.findViewById(R.id.post_price);
 
             postGridView.setTag(holder);
         }
@@ -93,9 +93,9 @@ public class PostAdapter extends BaseAdapter {
                 Log.e(TAG, "Getting post image", e);
             }
             holder.title.setText(post.getTitle());
-//		holder.details.setText(post.getDetails());
+		    holder.details.setText(post.getDetails());
             holder.author.setText(post.getAuthor());
-//		holder.price.setText(post.getPrice());
+		    holder.price.setText(post.getPrice());
         } catch(IndexOutOfBoundsException e){
             Log.e(TAG, "Getting post object", e);
         }
@@ -121,8 +121,8 @@ public class PostAdapter extends BaseAdapter {
     private static class ViewHolder{ //Increase efficiency by decreasing the amount of calls to findViewById
         public ImageView image;
         public TextView title;
-//        public TextView details;
+        public TextView details;
         public TextView author;
-//        public TextView price;
+        public TextView price;
     }
 }

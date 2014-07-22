@@ -4,6 +4,7 @@
     <color name="error_red">#FF0000</color>
 
     <color name="blue">#0000FF</color>
+    <color name="hover_holo_blue">#ffaee7ff</color>
     <color name="holo_blue">#ff33b5e5</color>
     <color name="darker_blue">#ff00009f</color>
 
@@ -11,7 +12,8 @@
 
     <color name="gray">#ffcacaca</color>
     <color name="darker_gray">#aaaaaa</color>
-
+    <color name="start_gray">#ffffffff</color>
+    <color name="end_gray">#ffbbbbbb</color>
 
     <color name="green_dark">#0a8f08</color>
     <color name="green_primary">#259b24</color>
