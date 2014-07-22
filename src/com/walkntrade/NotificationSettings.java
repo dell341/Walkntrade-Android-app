@@ -38,9 +38,6 @@ public class NotificationSettings extends Activity implements CompoundButton.OnC
         LinearLayout sound = (LinearLayout) findViewById(R.id.notification_sound);
         soundTitle = (TextView) findViewById(R.id.sound_title);
 
-        //TODO: Control flash light on Android devices
-        //light.setEnabled(false);
-
         vibrate.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_VIBRATE));
         light.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_LIGHT));
 

@@ -1,4 +1,4 @@
-package com.walkntrade;
+package com.walkntrade.gcm;
 
 import android.app.Activity;
 import android.content.ComponentName;

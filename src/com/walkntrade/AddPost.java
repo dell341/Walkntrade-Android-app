@@ -67,31 +67,26 @@ public class AddPost extends Activity implements OnClickListener {
 
         int position = getIntent().getIntExtra(AddPost.CATEGORY_POSITION, 2);
         context = getApplicationContext();
+        setContentView(R.layout.add_post);
 
-        //TODO:  Adjust, so only one layout is used. Not two.
         switch (position) {
             case 2:
-                setContentView(R.layout.add_post_book);
                 selectedCategory = getString(R.string.server_category_book);
                 getActionBar().setTitle("Adding " + getString(R.string.server_category_book));
                 break;
             case 3:
                 selectedCategory = getString(R.string.server_category_tech);
-                setContentView(R.layout.add_post_other);
                 getActionBar().setTitle("Adding " + getString(R.string.server_category_tech));
                 break;
             case 4:
                 selectedCategory = getString(R.string.server_category_service);
-                setContentView(R.layout.add_post_other);
                 getActionBar().setTitle("Adding " + getString(R.string.server_category_service));
                 break;
             case 5:
                 selectedCategory = getString(R.string.server_category_misc);
-                setContentView(R.layout.add_post_other);
                 getActionBar().setTitle("Adding " + getString(R.string.server_category_misc));
                 break;
             default:
-                setContentView(R.layout.add_post_book);
                 selectedCategory = getString(R.string.server_category_book);
         }
 
@@ -108,6 +103,8 @@ public class AddPost extends Activity implements OnClickListener {
         if (selectedCategory.equals(getString(R.string.server_category_book))) {
             author = (EditText) findViewById(R.id.post_author);
             isbn = (EditText) findViewById(R.id.post_isbn);
+            author.setVisibility(View.VISIBLE);
+            isbn.setVisibility(View.VISIBLE);
         }
         image1 = (ImageView) findViewById(R.id.add_image_1);
         image2 = (ImageView) findViewById(R.id.add_image_2);

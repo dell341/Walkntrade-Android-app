@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.walkntrade.R;
-import com.walkntrade.ViewPostItem;
+import com.walkntrade.adapters.item.ViewPostItem;
 
 import java.util.List;
 

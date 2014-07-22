@@ -21,6 +21,7 @@ import android.widget.ListView;
 
 import com.walkntrade.adapters.DrawerAdapter;
 import com.walkntrade.adapters.TabsPagerAdapter;
+import com.walkntrade.adapters.item.DrawerItem;
 import com.walkntrade.asynctasks.AvatarRetrievalTask;
 import com.walkntrade.asynctasks.LogoutTask;
 import com.walkntrade.asynctasks.PollMessagesTask;

@@ -1,4 +1,4 @@
-package com.walkntrade;
+package com.walkntrade.adapters.item;
 
 import com.walkntrade.posts.PostReference;
 

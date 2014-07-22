@@ -1,4 +1,4 @@
-package com.walkntrade;
+package com.walkntrade.gcm;
 
 import android.content.Context;
 import android.content.SharedPreferences;

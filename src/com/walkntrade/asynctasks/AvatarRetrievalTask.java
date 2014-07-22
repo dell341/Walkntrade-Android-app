@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ListView;
 
-import com.walkntrade.DrawerItem;
+import com.walkntrade.adapters.item.DrawerItem;
 import com.walkntrade.adapters.DrawerAdapter;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;

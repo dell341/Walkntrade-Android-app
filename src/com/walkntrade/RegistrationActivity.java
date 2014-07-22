@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +27,8 @@ public class RegistrationActivity extends Activity {
 
     private String TAG = "Registration";
     private ScrollView scrollView;
-    private TextView registerError;
+    private ProgressBar progressBar;
+    private TextView error;
     private EditText userName, email, phoneNumber, password, passwordVerf;
     private String _userName, _email, _phoneNumber, _password, _passwordVerf;
     private Context context;
@@ -38,7 +40,8 @@ public class RegistrationActivity extends Activity {
 
         context = getApplicationContext();
         scrollView = (ScrollView) findViewById(R.id.scrollView);
-        registerError = (TextView) findViewById(R.id.register_error);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        error = (TextView) findViewById(R.id.register_error);
         userName = (EditText) findViewById(R.id.register_username);
         email = (EditText) findViewById(R.id.register_email);
         phoneNumber = (EditText) findViewById(R.id.register_phoneNum);
@@ -49,7 +52,7 @@ public class RegistrationActivity extends Activity {
         submitButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                registerError.setVisibility(View.GONE);
+                error.setVisibility(View.GONE);
 
                 //Collect all string values from input fields
                 _userName = userName.getText().toString();
@@ -59,7 +62,7 @@ public class RegistrationActivity extends Activity {
                 _passwordVerf = passwordVerf.getText().toString();
 
                 if (canRegister() && DataParser.isNetworkAvailable(context)) {
-                    new RegistrationTask(context, registerError, _userName, _email, _phoneNumber, _password).execute();
+                    new RegistrationTask().execute();
                 }
             }
         });
@@ -119,8 +122,8 @@ public class RegistrationActivity extends Activity {
         }
 
         if(!canRegister){
-            registerError.setText(getString(R.string.error_registration));
-            registerError.setVisibility(View.VISIBLE);
+            error.setText(getString(R.string.error_registration));
+            error.setVisibility(View.VISIBLE);
             scrollView.fullScroll(View.FOCUS_UP);
         }
 
@@ -129,34 +132,25 @@ public class RegistrationActivity extends Activity {
 
     private class RegistrationTask extends AsyncTask<Void, Void, String> {
 
-        private Context context;
-        private TextView error;
-        private String userName, email, phoneNumber, password;
-        private DataParser database;
-
         private boolean userNameTaken;
 
-        public RegistrationTask(Context _context,TextView _error, String _userName, String _email, String _phoneNumber, String _password){
-            context = _context;
-            error = _error;
-            userName = _userName;
-            email = _email;
-            phoneNumber = _phoneNumber;
-            password = _password;
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected String doInBackground(Void... voids) {
             userNameTaken = false;
-            database = new DataParser(context);
+            DataParser database = new DataParser(context);
 
             String response = null;
             try {
-                if(!database.isUserNameFree(userName)) {
+                if(!database.isUserNameFree(_userName)) {
                     userNameTaken = true;
                     return null;
                 }
-                response = database.registerUser(userName, email, password, phoneNumber); //Sends request to register user
+                response = database.registerUser(_userName, _email, _password, _phoneNumber); //Sends request to register user
             } catch (IOException e) {
                 Log.e(TAG, "Registering user", e);
             }
@@ -165,6 +159,8 @@ public class RegistrationActivity extends Activity {
 
         @Override
             protected void onPostExecute(String response) {
+            progressBar.setVisibility(View.INVISIBLE);
+
             if(userNameTaken) { //If username is taken set error as so in the RegistrationActivity
                 error.setText(context.getString(R.string.error_username_taken));
                 error.setVisibility(View.VISIBLE);

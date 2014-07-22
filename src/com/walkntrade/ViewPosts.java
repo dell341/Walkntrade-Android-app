@@ -17,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.walkntrade.adapters.ViewPostAdapter;
+import com.walkntrade.adapters.item.ViewPostItem;
 import com.walkntrade.asynctasks.UserPostsTask;
 import com.walkntrade.io.DataParser;
 

@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.walkntrade.DrawerItem;
+import com.walkntrade.adapters.item.DrawerItem;
 import com.walkntrade.LoginActivity;
 import com.walkntrade.R;
 import com.walkntrade.io.DataParser;

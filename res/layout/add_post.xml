@@ -1,20 +1,20 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/scrollView"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
-    <RelativeLayout
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/progress_bar_margin_top"
+        android:indeterminate="true"
+        android:visibility="visible" />
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="-6dp"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:indeterminate="true"
-            android:visibility="invisible"/>
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -35,12 +35,30 @@
                 android:inputType="text|textCapWords" />
 
             <EditText
+                android:id="@+id/post_author"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:hint="@string/post_author"
+                android:inputType="textCapWords"
+                android:visibility="gone" />
+
+            <EditText
                 android:id="@+id/post_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
                 android:hint="@string/post_description"
                 android:inputType="textMultiLine|textCapSentences" />
+
+            <EditText
+                android:id="@+id/post_isbn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:hint="@string/post_isbn"
+                android:inputType="number"
+                android:visibility="gone" />
 
             <EditText
                 android:id="@+id/post_price"
@@ -110,6 +128,7 @@
                 android:paddingRight="45dp"
                 android:text="@string/post_submit" />
         </LinearLayout>
-    </RelativeLayout>
 
-</ScrollView>
+
+    </ScrollView>
+</RelativeLayout>

@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:inputType="textNoSuggestions"
         android:imeOptions="actionSearch"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="@dimen/edit_text_margin_top"
         android:textColor="#000000"
         android:textSize="25sp"
         android:typeface="sans"

@@ -14,6 +14,7 @@ import android.widget.Button;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.walkntrade.gcm.GcmRegistration;
 import com.walkntrade.io.DataParser;
 
 import java.io.IOException;

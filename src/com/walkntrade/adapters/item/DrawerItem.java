@@ -1,4 +1,4 @@
-package com.walkntrade;
+package com.walkntrade.adapters.item;
 
 import android.graphics.Bitmap;
 

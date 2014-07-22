@@ -1,4 +1,4 @@
-package com.walkntrade;
+package com.walkntrade.gcm;
 
 import android.app.IntentService;
 import android.app.Notification;
@@ -15,6 +15,9 @@ import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.walkntrade.Messages;
+import com.walkntrade.R;
+import com.walkntrade.ShowMessage;
 import com.walkntrade.io.DataParser;
 
 import java.io.IOException;

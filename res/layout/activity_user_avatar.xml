@@ -1,48 +1,55 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".UserAvatar">
-    <RelativeLayout
-        xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    tools:context="com.walkntrade.UserAvatar">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context="com.walkntrade.UserAvatar">
+        android:layout_marginTop="@dimen/progress_bar_margin_top"
+        android:indeterminate="true"
+        android:visibility="invisible" />
 
-        <ProgressBar
-            android:id="@+id/progressBar"
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/progressBar"
+        tools:context=".UserAvatar">
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="-2dp"
-            android:indeterminate="true"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/error_message"
+                style="@style/TextViewError"
+                android:layout_alignParentTop="true"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/error_message"
-            style="@style/TextViewError"
-            android:layout_alignParentTop="true"
-            android:textSize="18sp"/>
+            <ImageView
+                android:id="@+id/avatar"
+                android:layout_width="@dimen/image_size_main"
+                android:layout_height="@dimen/image_size_main"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/post_image"
+                android:scaleType="centerCrop"
+                android:src="@drawable/post_image" />
 
-        <ImageView
-            android:id="@+id/avatar"
-            android:layout_width="@dimen/image_size_main"
-            android:layout_height="@dimen/image_size_main"
-            android:layout_marginTop="20dp"
-            android:layout_centerHorizontal="true"
-            android:adjustViewBounds="true"
-            android:scaleType="centerCrop"
-            android:contentDescription="@string/post_image"
-            android:src="@drawable/post_image"/>
+            <Button
+                android:id="@+id/uploadButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/avatar"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:text="@string/avatar_upload" />
+         </RelativeLayout>
 
-        <Button
-            android:id="@+id/uploadButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_below="@id/avatar"
-            android:layout_centerHorizontal="true"
-            android:text="@string/avatar_upload"/>
+    </ScrollView>
+</RelativeLayout>
 
-    </RelativeLayout>
-</ScrollView>

@@ -8,7 +8,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.walkntrade.ViewPostItem;
+import com.walkntrade.adapters.item.ViewPostItem;
 import com.walkntrade.adapters.ViewPostAdapter;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.posts.PostReference;
