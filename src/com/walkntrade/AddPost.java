@@ -56,6 +56,7 @@ public class AddPost extends Activity implements OnClickListener {
     private ImageView image1, image2, image3, image4;
     private String _title, _author, _description, _isbn, _price, _tags;
     private Context context;
+    private Button submit;
 
     private String selectedCategory;
     private String mCurrentPhotoPath;
@@ -101,7 +102,7 @@ public class AddPost extends Activity implements OnClickListener {
         price = (EditText) findViewById(R.id.post_price);
         tags = (EditText) findViewById(R.id.post_tags);
         if (selectedCategory.equals(getString(R.string.server_category_book))) {
-            author = (EditText) findViewById(R.id.post_author);
+            author = (EditText) findViewById(R.id.post_user);
             isbn = (EditText) findViewById(R.id.post_isbn);
             author.setVisibility(View.VISIBLE);
             isbn.setVisibility(View.VISIBLE);
@@ -110,9 +111,9 @@ public class AddPost extends Activity implements OnClickListener {
         image2 = (ImageView) findViewById(R.id.add_image_2);
         image3 = (ImageView) findViewById(R.id.add_image_3);
         image4 = (ImageView) findViewById(R.id.add_image_4);
-        Button submitButton = (Button) findViewById(R.id.post_submit);
+        submit = (Button) findViewById(R.id.post_submit);
 
-        submitButton.setOnClickListener(new OnClickListener() {
+        submit.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!DataParser.isUserLoggedIn(context)) {
@@ -418,6 +419,7 @@ public class AddPost extends Activity implements OnClickListener {
 
         @Override
         protected void onPreExecute() {
+            submit.setEnabled(false);
             progressBar.setVisibility(View.VISIBLE);
         }
 

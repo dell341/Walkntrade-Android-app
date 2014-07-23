@@ -46,7 +46,6 @@ public class Walkntrade_Main extends Activity {
         if (checkPlayServices()) {
             GcmRegistration gcmReg = new GcmRegistration(context);
             String regId = gcmReg.getRegistrationId();
-            Log.i(TAG, regId);
 
             if(regId.isEmpty()) {
                 Log.i(TAG, "Registration id is empty, Creating one now");

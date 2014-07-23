@@ -34,6 +34,9 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     public static final String ARG_CATEGORY = "Fragment Category";
     private String category;
 
+    private static final String SAVED_ARRAYLIST = "saved_instance_array_list";
+    private static final String SAVED_CATEGORY = "saved_instance_category";
+
     private SwipeRefreshLayout refreshLayout;
     private GridView gridView;
     private PostAdapter postsAdapter;
@@ -55,12 +58,19 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         gridView = (GridView) rootView.findViewById(R.id.gridView);
         Bundle args = getArguments();
 
-        category = args.getString(ARG_CATEGORY);
-
         refreshLayout.setColorScheme(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
 
         bigProgressBar.setVisibility(View.GONE);
+
+        if (savedInstanceState != null) {
+            schoolPosts = savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST);
+            category = savedInstanceState.getString(SAVED_CATEGORY);
+            offset += schoolPosts.size();
+        }
+        else
+            category = args.getString(ARG_CATEGORY);
+
         /*On initial create, ArrayList will be empty. But onCreateView may be called several times
         Only call this method if the ArrayList is empty, which should only be during the initial creation*/
         if (schoolPosts.isEmpty()) {
@@ -112,6 +122,12 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
 
         bigProgressBar.setVisibility(View.VISIBLE);
         downloadMorePosts(bigProgressBar);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(SAVED_ARRAYLIST, schoolPosts);
+        outState.putString(SAVED_CATEGORY, category);
     }
 
     //Download more posts from the server

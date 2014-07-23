@@ -16,9 +16,12 @@
     <dimen name="school_post_size">16sp</dimen>
 
     <!-- School Page posts sizes-->
-    <dimen name="grid_column_width">280dp</dimen>
-    <dimen name="image_width">280dp</dimen>
-    <dimen name="image_height">240dp</dimen>
+    <dimen name="image_width">220dp</dimen>
+    <dimen name="image_height">180dp</dimen>
+    <dimen name="post_title">22sp</dimen>
+    <dimen name="post_details">18sp</dimen>
+    <dimen name="post_price">26sp</dimen>
+    <dimen name="post_user">18sp</dimen>
 
     <!-- ShowPage sizes-->
     <dimen name="title_size">26sp</dimen>

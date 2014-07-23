@@ -1,16 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/progress_bar_margin_top"
-        android:indeterminate="true"
-        android:visibility="visible" />
-
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -35,7 +25,7 @@
                 android:inputType="text|textCapWords" />
 
             <EditText
-                android:id="@+id/post_author"
+                android:id="@+id/post_user"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
@@ -119,16 +109,30 @@
                     android:src="@drawable/ic_action_new_picture" />
             </LinearLayout>
 
-            <Button
-                android:id="@+id/post_submit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:paddingLeft="45dp"
-                android:paddingRight="45dp"
-                android:text="@string/post_submit" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <!-- ProgressBar that is next to submit button-->
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/post_submit"
+                    android:layout_centerVertical="true"
+                    style="?android:attr/progressBarStyleInverse"
+                    android:visibility="invisible"/>
+
+                <Button
+                    android:id="@+id/post_submit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:paddingLeft="45dp"
+                    android:paddingRight="45dp"
+                    android:text="@string/post_submit" />
+                </RelativeLayout>
+
+
         </LinearLayout>
-
-
     </ScrollView>
 </RelativeLayout>

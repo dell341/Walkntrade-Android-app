@@ -77,7 +77,6 @@
         </activity>
         <activity
             android:name=".SchoolPage"
-            android:configChanges="orientation|screenSize"
             android:label="@string/tSchoolName"
             android:launchMode="singleTop" >
         </activity>
