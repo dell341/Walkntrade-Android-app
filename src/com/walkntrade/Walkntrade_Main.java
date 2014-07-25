@@ -31,16 +31,10 @@ public class Walkntrade_Main extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.splash);
 		
-		checkForConnection();
+		boolean hasConnection = hasConnection();
 
         context = getApplicationContext();
         Button retry = (Button)findViewById(R.id.retryButton);
-        retry.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                checkForConnection();
-            }
-        });
 
         //Checks if device has the Google Play Services APK
         if (checkPlayServices()) {
@@ -50,7 +44,6 @@ public class Walkntrade_Main extends Activity {
             if(regId.isEmpty()) {
                 Log.i(TAG, "Registration id is empty, Creating one now");
                 gcmReg.registerForId();
-                finish();
             }
             else { //If registration id is already found. Send it to the server to make sure it's still updated.
                 new AsyncTask<String, Void, String>(){
@@ -64,19 +57,23 @@ public class Walkntrade_Main extends Activity {
                         } catch(IOException e) {
                             Log.e(TAG, "Sending id to server", e);
                         }
-
                         return serverResponse;
-                    }
-
-                    @Override
-                    protected void onPostExecute(String s) {
-                        finish();
                     }
                 }.execute(regId);
             }
         }
-        else
+
+
+        if(hasConnection)
             finish(); //Closes this activity
+
+        retry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(hasConnection())
+                    finish();
+            }
+        });
 
 	}
 
@@ -87,13 +84,16 @@ public class Walkntrade_Main extends Activity {
 		return true;
 	}
 
-    public void checkForConnection(){
+    public boolean hasConnection(){
         if(DataParser.isNetworkAvailable(this)) { //Checks if device has internet or mobile connection
             if(DataParser.getSharedStringPreference(this, DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG) != null) //There is a school preference
                 startActivity(new Intent(this, SchoolPage.class)); //Starts SchoolPage Activity
             else
                 startActivity(new Intent(this, Selector.class)); //Starts Selector (Select/Change School) activity
+            return true;
         }
+        else
+            return false;
     }
 
     //Check if Google Play services is available. Required for push notifications
