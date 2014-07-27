@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.walkntrade.adapters.MessageAdapter;
@@ -34,7 +33,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
     private Context context;
     private SwipeRefreshLayout refreshLayout;
-    private ProgressBar progressBar;
     private TextView noResults;
     private ListView messageList;
     private int messageType;
@@ -46,7 +44,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         context = getApplicationContext();
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refreshLayout);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
         noResults = (TextView) findViewById(R.id.noResults);
         messageList = (ListView) findViewById(R.id.messageList);
         messageList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -62,7 +59,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             getActionBar().setTitle(getString(R.string.sent_messages));
 
         new PollMessagesTask(this).execute();
-        progressBar.setVisibility(View.VISIBLE);
         new GetMessagesTask().execute();
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -78,10 +74,8 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
     @Override
     protected void onResume() {
-        if(messageList.getAdapter() != null) {
-            progressBar.setVisibility(View.VISIBLE);
+        if(messageList.getAdapter() != null)
             new GetMessagesTask().execute();
-        }
 
         super.onResume();
     }
@@ -170,7 +164,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private class GetMessagesTask extends AsyncTask<Void, Void, ArrayList<MessageObject>> {
         @Override
         protected void onPreExecute() {
-            //progressBar.setVisibility(View.VISIBLE);
+            refreshLayout.setRefreshing(true);
         }
 
         @Override
@@ -190,7 +184,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         @Override
         protected void onPostExecute(ArrayList<MessageObject> messageObjects) {
             refreshLayout.setRefreshing(false);
-            progressBar.setVisibility(View.GONE);
             messageList.setAdapter(null);
 
             if(messageObjects.isEmpty())
@@ -206,7 +199,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private class RemoveMessageTask extends AsyncTask<ArrayList<String>, Void, Void> {
         @Override
         protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
+            refreshLayout.setRefreshing(true);
         }
 
         @Override

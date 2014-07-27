@@ -162,7 +162,7 @@ public class SchoolPage extends Activity {
             else
                 inboxItem.setIcon(R.drawable.ic_action_email);
         }
-        else if(!DataParser.isUserLoggedIn(context)) {
+        else if(!DataParser.isUserLoggedIn(context)){
             //User logged out, disable sign out option
             signOutItem.setVisible(false);
             //Remove inbox item
@@ -284,6 +284,7 @@ public class SchoolPage extends Activity {
     private void signOut(){
         if(DataParser.isNetworkAvailable(this))
             new LogoutTask(this).execute(); //Starts asynchronous sign out
+
         invalidateOptionsMenu();
         updateDrawer(); //Update navigation drawer after logging out
     }

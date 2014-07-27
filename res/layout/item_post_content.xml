@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="48dp"
     android:padding="8dp"
-    android:background="@drawable/list_selector_post">
+    android:background="@drawable/list_selector">
 
     <!-- Title of Post-->
     <TextView

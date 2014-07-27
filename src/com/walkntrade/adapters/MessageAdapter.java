@@ -42,7 +42,7 @@ public class MessageAdapter extends ArrayAdapter<MessageObject>{
         contents.setText(message.getContents());
 
         if(message.isUnRead()) //If message is unread, highlight it
-            messageView.setBackgroundColor(getContext().getResources().getColor(R.color.gray));
+            messageView.setBackgroundResource(R.drawable.highlight_list_selector);
 
         return messageView;
     }

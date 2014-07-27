@@ -58,7 +58,7 @@
             android:paddingBottom="10dp"
             android:textSize="16sp"
             android:text="@string/notification_settings"
-            android:background="@drawable/list_selector_post"/>
+            android:background="@drawable/list_selector"/>
 
         <View
             android:layout_width="match_parent"

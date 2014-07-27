@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -26,13 +27,14 @@ import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener{
 
     private static final String TAG = "LoginActivity";
     private static final int RESOLUTION_REQUEST = 9000;
     private static final int VERIFY_REQUEST = 100;
 
     private LinearLayout loginHeader;
+    private SwipeRefreshLayout refreshLayout;
 	private TextView loginError;
     private ProgressBar progressBar;
     private EditText emailAddress, password;
@@ -47,15 +49,19 @@ public class LoginActivity extends Activity {
 		setContentView(R.layout.activity_login);
 
 		settings = getSharedPreferences(DataParser.PREFS_USER, 0);
-        loginHeader = (LinearLayout) findViewById(R.id.login_header);
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refreshLayout);
+        //loginHeader = (LinearLayout) findViewById(R.id.login_header);
 		loginError = (TextView) findViewById(R.id.loginErrorMessage);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        //progressBar = (ProgressBar) findViewById(R.id.progressBar);
         TextView skipLogin = (TextView) findViewById(R.id.skipLogin);
 		emailAddress = (EditText) findViewById(R.id.email);
 		password = (EditText) findViewById(R.id.password);
         Button submitButton = (Button) findViewById(R.id.submit);
         Button registerButton = (Button) findViewById(R.id.register);
 		context = getApplicationContext();
+
+        refreshLayout.setColorScheme(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
+        refreshLayout.setOnRefreshListener(this);
 		
 		submitButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -113,6 +119,11 @@ public class LoginActivity extends Activity {
         }
     }
 
+    @Override
+    public void onRefresh() {
+
+    }
+
     //Verifies that login credentials are valid
 	private boolean canLogin() {
 		if(TextUtils.isEmpty(_emailAddress) || !_emailAddress.contains("@")) {
@@ -151,7 +162,8 @@ public class LoginActivity extends Activity {
 
         @Override
         protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
+            refreshLayout.setRefreshing(true);
+            //progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -175,7 +187,8 @@ public class LoginActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(String response) {
-            progressBar.setVisibility(View.INVISIBLE);
+            //progressBar.setVisibility(View.INVISIBLE);
+            refreshLayout.setRefreshing(false);
 
 			if(response.equals(DataParser.LOGIN_SUCCESS)) {
 				loginError.setVisibility(View.GONE);

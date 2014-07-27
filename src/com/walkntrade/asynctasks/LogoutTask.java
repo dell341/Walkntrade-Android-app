@@ -25,15 +25,18 @@ public class LogoutTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
+    protected void onPreExecute() {
+        SharedPreferences settings = context.getSharedPreferences(DataParser.PREFS_USER, 0);
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putBoolean(DataParser.CURRENTLY_LOGGED_IN, false);
+        editor.apply();
+    }
+
+    @Override
     protected Void doInBackground(Void... voids) {
         DataParser database = new DataParser(context);
         try {
-            SharedPreferences settings = context.getSharedPreferences(DataParser.PREFS_USER, 0);
-            SharedPreferences.Editor editor = settings.edit();
-
-            editor.putBoolean(DataParser.CURRENTLY_LOGGED_IN, false);
-            editor.commit();
-
             database.logout();
         } catch(IOException e) {
             Log.e(TAG, "Logging out", e);
