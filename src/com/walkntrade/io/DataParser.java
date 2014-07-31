@@ -67,6 +67,7 @@ public class DataParser {
     public static final String PREFS_USER = "UserPreferences";
     public static final String PREFS_SCHOOL = "SchoolPreferences";
     public static final String PREFS_NOTIFICATIONS = "NotificationPreferences";
+    public static final String PREFS_AUTHORIZATION = "AuthorizationPreferences";
     public static final String USER_LOGIN = "user_login"; //Cookie title
     public static final String SESS_SEED = "sessionSeed"; //Cookie title
     public static final String SESS_UID = "sessionUid"; //Cookie title
@@ -83,6 +84,7 @@ public class DataParser {
     public static final String NOTIFY_VIBRATE = "notification_vibrate"; //Notification preference title (boolean)
     public static final String NOTIFY_SOUND = "notification_sound"; //Notification preference title
     public static final String NOTIFY_LIGHT = "notification_light"; //Notification preference title (boolean)
+    public static final String AUTHORIZED = "user_authorization"; //Authorization-Pref title (boolean) User password changed or session id expired.
     public static final String BLANK = " ";
 
     //Non-unique intent declarations here
@@ -361,10 +363,6 @@ public class DataParser {
     //Logs user out of Walkntrade
     public void logout() throws IOException {
         establishConnection();
-
-        SharedPreferences.Editor editor = context.getSharedPreferences(DataParser.PREFS_USER, 0).edit();
-        editor.putBoolean(DataParser.CURRENTLY_LOGGED_IN, false);
-        editor.apply();
 
         String query = "intent=logout&GCMClear=true";
 

@@ -6,6 +6,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -175,6 +176,16 @@ public class SchoolPage extends Activity {
             loginItem.setVisible(!drawerOpen);
         }
 
+        SharedPreferences preference = this.getSharedPreferences(DataParser.PREFS_AUTHORIZATION, Context.MODE_PRIVATE);
+        boolean isAuthorized = preference.getBoolean(DataParser.AUTHORIZED, true);
+
+        if(!isAuthorized) { //If user is not authorized clear all info and sign out
+            SharedPreferences.Editor editor = preference.edit();
+            editor.putBoolean(DataParser.AUTHORIZED, true);
+            editor.apply();
+            signOut();
+        }
+
         return true;
     }
 
@@ -233,7 +244,7 @@ public class SchoolPage extends Activity {
             items.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[9])); //Account
             items.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[10])); //Select School
         }
-        else {
+        else if(!DataParser.isUserLoggedIn(context)){
             //User is signed out
             items.add(new DrawerItem(R.drawable.avatar, getString(R.string.user_name_no_login), true));
             items.add(new DrawerItem(drawerOptions[8])); //Settings [SECTION]

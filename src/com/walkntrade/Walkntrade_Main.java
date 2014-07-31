@@ -5,6 +5,7 @@ package com.walkntrade;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.widget.Button;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.walkntrade.asynctasks.LogoutTask;
 import com.walkntrade.gcm.GcmRegistration;
 import com.walkntrade.io.DataParser;
 
@@ -30,8 +32,6 @@ public class Walkntrade_Main extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.splash);
-		
-		boolean hasConnection = hasConnection();
 
         context = getApplicationContext();
         Button retry = (Button)findViewById(R.id.retryButton);
@@ -54,17 +54,27 @@ public class Walkntrade_Main extends Activity {
                         try {
                             DataParser database = new DataParser(context);
                             serverResponse = database.setRegistrationId(regId[0]);
+
+                            if(serverResponse.equals("Not authorized")) {
+                                SharedPreferences settings = context.getSharedPreferences(DataParser.PREFS_AUTHORIZATION, Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = settings.edit();
+
+                                editor.putBoolean(DataParser.AUTHORIZED, false);
+                                editor.apply();
+                                new LogoutTask(context).execute();
+                            }
+
                         } catch(IOException e) {
                             Log.e(TAG, "Sending id to server", e);
                         }
                         return serverResponse;
                     }
+
                 }.execute(regId);
             }
         }
 
-
-        if(hasConnection)
+        if (hasConnection())
             finish(); //Closes this activity
 
         retry.setOnClickListener(new View.OnClickListener() {
