@@ -50,7 +50,7 @@ public class ShowPage extends Activity {
     private Context context;
     private String identifier;
     private Post thisPost;
-    private ProgressBar progress;
+    private ProgressBar progress, progressImage;
     private TextView title, details, user, date, price;
     private ImageView image, image2, image3, image4;
     private AlertDialog dialog;
@@ -69,6 +69,7 @@ public class ShowPage extends Activity {
 		identifier = getIntent().getStringExtra(SchoolPage.SELECTED_POST);
 
         progress = (ProgressBar) findViewById(R.id.progressBar);
+        progressImage = (ProgressBar) findViewById(R.id.progressBar2);
 		title = (TextView) findViewById(R.id.show_post_title);
 		details = (TextView) findViewById(R.id.show_post_details);
 		user = (TextView) findViewById(R.id.show_post_user);
@@ -105,7 +106,6 @@ public class ShowPage extends Activity {
 //            image2.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_2));
 //            image3.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_3));
 //            image4.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_4));
-
             createMessageDialog();
         }
         else {
@@ -116,16 +116,16 @@ public class ShowPage extends Activity {
 
         //First Image
         String imgUrl = generateImgURL(0);
-        new SpecialImageRetrievalTask(image, identifier, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+        new SpecialImageRetrievalTask(image, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
         //Second Image
         imgUrl = generateImgURL(1);
-        new SpecialImageRetrievalTask(image2, identifier, 1).execute(imgUrl);
+        new SpecialImageRetrievalTask(image2, 1).execute(imgUrl);
         //Third Image
         imgUrl = generateImgURL(2);
-        new SpecialImageRetrievalTask(image3, identifier, 2).execute(imgUrl);
+        new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
         //Fourth Image
         imgUrl = generateImgURL(3);
-        new SpecialImageRetrievalTask(image4, identifier, 3).execute(imgUrl);
+        new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
 
         //Set OnClick Listeners for each image
         image.setOnClickListener(new OnClickListener() {
@@ -374,16 +374,21 @@ public class ShowPage extends Activity {
                 contact_nologin.setVisibility(View.GONE);
             }
 
-            title.setText(post.getTitle());
-            details.setText(post.getDetails());
-            user.setText(post.getAuthor());
-            date.setText(post.getDate());
-            if(!post.getPrice().equals("0"))
-                price.setText("$"+post.getPrice());
-            else
-                price.setVisibility(View.INVISIBLE);
+            try {
+                title.setText(post.getTitle());
+                details.setText(post.getDetails());
+                user.setText(post.getAuthor());
+                date.setText(post.getDate());
+                if (!post.getPrice().equals("0"))
+                    price.setText("$" + post.getPrice());
+                else
+                    price.setVisibility(View.INVISIBLE);
 
-            createMessageDialog();
+                createMessageDialog();
+            } catch(NullPointerException e) {
+                Log.e(TAG, "Post does not exist", e);
+                finish();
+            }
         }
     }
 
@@ -414,14 +419,18 @@ public class ShowPage extends Activity {
     public class SpecialImageRetrievalTask extends AsyncTask<String, Void, Bitmap>{
         private final String TAG = "ASYNCTASK:SPECIALImageRetrieval";
         private ImageView imgView;
-        private String identifier;
         private int index;
         private DiskLruImageCache imageCache;
 
-        public SpecialImageRetrievalTask(ImageView _imgView, String _identifier, int _index){
+        public SpecialImageRetrievalTask(ImageView _imgView, int _index){
             imgView = _imgView;
-            identifier = _identifier;
             index = _index;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            if(index == 0) //Show progress only on the first big image
+            progressImage.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -450,6 +459,7 @@ public class ShowPage extends Activity {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
+            progressImage.setVisibility(View.INVISIBLE);
             if(bitmap != null) {
                 imgView.setVisibility(View.VISIBLE);
                 imgView.setImageBitmap(bitmap);

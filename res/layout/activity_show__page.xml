@@ -32,28 +32,41 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
-                android:text="@string/show_title"
                 android:textSize="@dimen/title_size"
                 android:typeface="sans"
                 android:visibility="invisible" />
 
-            <ImageView
-                android:id="@+id/show_post_image"
-                android:layout_width="@dimen/image_size_main"
-                android:layout_height="@dimen/image_size_main"
-                android:layout_below="@id/show_post_title"
-                android:layout_marginRight="10dp"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/post_image"
-                android:scaleType="centerCrop"
-                android:src="@drawable/post_image" />
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/show_post_title">
+
+                <ImageView
+                    android:id="@+id/show_post_image"
+                    android:layout_width="@dimen/image_size_main"
+                    android:layout_height="@dimen/image_size_main"
+
+                    android:layout_marginRight="10dp"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/post_image"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/post_image" />
+
+                <ProgressBar
+                    android:id="@+id/progressBar2"
+                    style="?android:attr/progressBarStyleInverse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:visibility="invisible"/>
+            </RelativeLayout>
+
 
             <TextView
                 android:id="@+id/show_post_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/show_post_image"
-                android:text="@string/show_price"
                 android:textSize="@dimen/price_size"
                 android:textStyle="bold"
                 android:visibility="invisible" />
@@ -63,7 +76,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/show_post_price"
-                android:text="@string/show_date"
                 android:textSize="@dimen/show_page_text"
                 android:visibility="invisible" />
 
@@ -74,7 +86,6 @@
                 android:layout_below="@id/show_post_price"
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@id/show_post_date"
-                android:text="@string/show_user"
                 android:textSize="@dimen/show_page_text"
                 android:visibility="invisible" />
 
@@ -122,7 +133,6 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/show_post_image_4"
                 android:layout_marginTop="5dp"
-                android:text="@string/show_description"
                 android:textSize="@dimen/show_page_text"
                 android:visibility="invisible" />
 
