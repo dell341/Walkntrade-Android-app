@@ -465,6 +465,9 @@ public class ShowPage extends Activity {
                 imgView.setImageBitmap(bitmap);
                 imageCount++;
             }
+            else if(index == 0) { //If no images exist. Put the default image for the first image.
+                imgView.setImageDrawable(getResources().getDrawable(R.drawable.post_image));
+            }
         }
     }
 }

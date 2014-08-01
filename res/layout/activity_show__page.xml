@@ -37,6 +37,7 @@
                 android:visibility="invisible" />
 
             <RelativeLayout
+                android:id="@+id/image_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/show_post_title">
@@ -50,7 +51,7 @@
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/post_image"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/post_image" />
+                    android:background="@color/gray"/>
 
                 <ProgressBar
                     android:id="@+id/progressBar2"
@@ -66,7 +67,7 @@
                 android:id="@+id/show_post_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/show_post_image"
+                android:layout_below="@id/image_layout"
                 android:textSize="@dimen/price_size"
                 android:textStyle="bold"
                 android:visibility="invisible" />
@@ -94,7 +95,7 @@
                 android:layout_width="@dimen/image_size_sub"
                 android:layout_height="@dimen/image_size_sub"
                 android:layout_below="@id/show_post_title"
-                android:layout_toRightOf="@id/show_post_image"
+                android:layout_toRightOf="@id/image_layout"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/post_image"
                 android:scaleType="centerCrop"
@@ -107,7 +108,7 @@
                 android:layout_height="@dimen/image_size_sub"
                 android:layout_below="@id/show_post_image_2"
                 android:layout_marginTop="10dp"
-                android:layout_toRightOf="@id/show_post_image"
+                android:layout_toRightOf="@id/image_layout"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/post_image"
                 android:scaleType="centerCrop"
@@ -120,7 +121,7 @@
                 android:layout_height="@dimen/image_size_sub"
                 android:layout_below="@id/show_post_image_3"
                 android:layout_marginTop="10dp"
-                android:layout_toRightOf="@id/show_post_image"
+                android:layout_toRightOf="@id/image_layout"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/post_image"
                 android:scaleType="centerCrop"
