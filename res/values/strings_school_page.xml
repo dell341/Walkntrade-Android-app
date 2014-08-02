@@ -28,5 +28,6 @@
     <!-- School Page Strings -->
     <string name="tSchoolName">No School Selected</string>
     <string name="ePostName">Search for posts</string>
+    <string name="post_search">Narrow your search</string>
 
 </resources>

@@ -8,13 +8,18 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.walkntrade.R;
@@ -38,18 +43,20 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     private static final String SAVED_CATEGORY = "saved_instance_category";
 
     private SwipeRefreshLayout refreshLayout;
-    private GridView gridView;
     private PostAdapter postsAdapter;
     private ProgressBar bigProgressBar, progressBar;
+    private GridView gridView;
     private TextView noResults;
+    private String searchQuery = ""; //Search query stays the same throughout all fragments
     private ArrayList<Post> schoolPosts = new ArrayList<Post>();
     private int offset = 0;
     private boolean downloadMore = true;
-    private boolean shouldClearList = false;
+    private boolean openHasFired = false;
 
     @Override //This method may be called several times
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_school_page, container, false);
+        setHasOptionsMenu(true);
 
         bigProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.refreshLayout);
@@ -58,7 +65,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         gridView = (GridView) rootView.findViewById(R.id.gridView);
         Bundle args = getArguments();
 
-        refreshLayout.setColorScheme(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
+        refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
 
         bigProgressBar.setVisibility(View.GONE);
@@ -85,6 +92,65 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         gridView.setVisibility(View.VISIBLE);
 
         return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.fragment_school_page, menu);
+
+        final MenuItem menuItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) menuItem.getActionView();
+
+        searchView.setQueryHint(getString(R.string.post_search));
+        searchView.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openHasFired = true;
+                if(!searchQuery.isEmpty())
+                    searchView.setQuery(searchQuery, false);
+            }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            int queryLength = 0;
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchQuery = query;
+                getActivity().getActionBar().setTitle(searchQuery);
+                menuItem.collapseActionView();
+
+                gridView.setAdapter(null);
+                postsAdapter.clearContents();
+                offset = 0;
+                downloadMorePosts(bigProgressBar);
+
+                gridView.setAdapter(postsAdapter);
+                openHasFired = false;
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if(queryLength > newText.length() && newText.length() == 0 && openHasFired) {
+                    searchQuery = "";
+                    getActivity().getActionBar().setTitle(DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG));
+
+                    gridView.setAdapter(null);
+                    postsAdapter.clearContents();
+                    offset = 0;
+                    downloadMorePosts(bigProgressBar);
+
+                    gridView.setAdapter(postsAdapter);
+                }
+
+                queryLength = newText.length();
+                return true;
+            }
+        });
+
     }
 
     @Override
@@ -132,7 +198,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
 
     //Download more posts from the server
     private void downloadMorePosts(ProgressBar progressBar) {
-        new SchoolPostsTask(getActivity(), this, progressBar, "", category, offset, 15).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG));
+        new SchoolPostsTask(getActivity(), this, progressBar, searchQuery, category, offset, 15).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG));
         offset += 15;
     }
 
@@ -145,6 +211,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         else
             noResults.setVisibility(View.GONE);
     }
+
 
     //Add new data from the serve to the ArrayList and update the adapter
     public void updateData(ArrayList<Post> newData) {
@@ -160,4 +227,5 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         for (Post post : newData)
             new ThumbnailTask(getActivity(), postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
     }
+
 }

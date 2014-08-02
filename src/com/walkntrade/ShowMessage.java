@@ -168,12 +168,17 @@ public class ShowMessage extends Activity {
 
             MessageObject message = messageObject.get(0);
 
-            subject.setText(message.getSubject());
-            contents.setText(message.getContents());
-            user.setText(message.getUser());
-            date.setText(message.getDate());
+            try {
+                subject.setText(message.getSubject());
+                contents.setText(message.getContents());
+                user.setText(message.getUser());
+                date.setText(message.getDate());
 
-            createMessageDialog();
+                createMessageDialog();
+            } catch(NullPointerException e) {
+                Log.e(TAG, "Message no longer exists", e);
+                finish();
+            }
         }
     }
 
