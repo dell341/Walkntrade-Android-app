@@ -118,6 +118,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
 
             @Override
             public boolean onQueryTextSubmit(String query) {
+                openHasFired = false;
                 searchQuery = query;
                 getActivity().getActionBar().setTitle(searchQuery);
                 menuItem.collapseActionView();
@@ -128,7 +129,6 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
                 downloadMorePosts(bigProgressBar);
 
                 gridView.setAdapter(postsAdapter);
-                openHasFired = false;
                 return true;
             }
 
