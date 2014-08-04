@@ -50,7 +50,7 @@ public class ShowPage extends Activity {
     private Context context;
     private String identifier;
     private Post thisPost;
-    private ProgressBar progress, progressImage;
+    private ProgressBar progressImage;
     private TextView title, details, user, date, price;
     private ImageView image, image2, image3, image4;
     private AlertDialog dialog;
@@ -66,9 +66,8 @@ public class ShowPage extends Activity {
 		setContentView(R.layout.activity_show__page);
 
         context = getApplicationContext();
-		identifier = getIntent().getStringExtra(SchoolPage.SELECTED_POST);
+		thisPost = getIntent().getParcelableExtra(SchoolPage.SELECTED_POST);
 
-        progress = (ProgressBar) findViewById(R.id.progressBar);
         progressImage = (ProgressBar) findViewById(R.id.progressBar2);
 		title = (TextView) findViewById(R.id.show_post_title);
 		details = (TextView) findViewById(R.id.show_post_details);
@@ -83,34 +82,21 @@ public class ShowPage extends Activity {
         image3 = (ImageView) findViewById(R.id.show_post_image_3);
         image4 = (ImageView) findViewById(R.id.show_post_image_4);
 
-        //If orientation has been changed, retrieve previously saved data instead of another network connection.
-        if(savedInstanceState != null){
-
-            title.setVisibility(View.VISIBLE);
-            details.setVisibility(View.VISIBLE);
-            user.setVisibility(View.VISIBLE);
-            date.setVisibility(View.VISIBLE);
-            price.setVisibility(View.VISIBLE);
-
-            thisPost = savedInstanceState.getParcelable(SAVED_POST);
-            title.setText(thisPost.getTitle());
-            details.setText(thisPost.getDetails());
-            user.setText(thisPost.getAuthor());
-            date.setText(thisPost.getDate());
-            if(!thisPost.getPrice().equals("0"))
-                price.setText("$"+thisPost.getPrice());
-            else
-                price.setVisibility(View.INVISIBLE);
+        identifier = thisPost.getIdentifier();
+        title.setText(thisPost.getTitle());
+        details.setText(thisPost.getDetails());
+        user.setText(thisPost.getAuthor());
+        date.setText(thisPost.getDate());
+        if(!thisPost.getPrice().equals("0"))
+            price.setText(thisPost.getPrice());
+        else
+            price.setVisibility(View.INVISIBLE);
 
 //            image.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_1));
 //            image2.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_2));
 //            image3.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_3));
 //            image4.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_4));
-            createMessageDialog();
-        }
-        else {
-            new FullPostTask().execute(identifier); //Retrieves full information for this post
-        }
+        createMessageDialog();
 
         //Calls images to be displayed on show page
 
@@ -234,17 +220,6 @@ public class ShowPage extends Activity {
         }
     }
 
-    @Override //Saves data to be used upon recreation of activity. Prevents additional network connections.
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(SAVED_POST, thisPost);
-//        outState.putParcelable(SAVED_IMAGE_1, ((BitmapDrawable)image.getDrawable()).getBitmap());
-//        outState.putParcelable(SAVED_IMAGE_2, ((BitmapDrawable)image.getDrawable()).getBitmap());
-//        outState.putParcelable(SAVED_IMAGE_3, ((BitmapDrawable)image.getDrawable()).getBitmap());
-//        outState.putParcelable(SAVED_IMAGE_4, ((BitmapDrawable)image.getDrawable()).getBitmap());
-        super.onSaveInstanceState(outState);
-    }
-
-
     @Override
     protected void onResume() {
         invalidateOptionsMenu(); //Refreshes the ActionBar menu when activity is resumed
@@ -333,63 +308,6 @@ public class ShowPage extends Activity {
                 dialog.show();
             }
         });
-    }
-
-    //Retrieves full post information
-    private class FullPostTask extends AsyncTask<String, Void, Post> {
-
-        @Override
-        protected void onPreExecute() {
-            progress.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected Post doInBackground(String... identifier) {
-            DataParser database = new DataParser(context);
-            Post post = null;
-
-            try {
-                String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_SHORT);
-                post = database.getFullPost(identifier[0], schoolID);
-            } catch (Exception e){
-                Log.e(TAG, "Retrieving full post", e);
-            }
-
-            return post;
-        }
-
-        @Override
-        protected void onPostExecute(Post post) {
-            thisPost = post;
-            progress.setVisibility(View.INVISIBLE);
-
-            title.setVisibility(View.VISIBLE);
-            details.setVisibility(View.VISIBLE);
-            user.setVisibility(View.VISIBLE);
-            date.setVisibility(View.VISIBLE);
-            price.setVisibility(View.VISIBLE);
-
-            if(DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context)) { //if user is already logged in, allow user to contact
-                contact.setVisibility(View.VISIBLE);
-                contact_nologin.setVisibility(View.GONE);
-            }
-
-            try {
-                title.setText(post.getTitle());
-                details.setText(post.getDetails());
-                user.setText(post.getAuthor());
-                date.setText(post.getDate());
-                if (!post.getPrice().equals("0"))
-                    price.setText("$" + post.getPrice());
-                else
-                    price.setVisibility(View.INVISIBLE);
-
-                createMessageDialog();
-            } catch(NullPointerException e) {
-                Log.e(TAG, "Post does not exist", e);
-                finish();
-            }
-        }
     }
 
     //Sends message to user

@@ -29,6 +29,7 @@
 
     <style name="WidgetTheme" parent="android:Theme.Holo">
         <item name="android:textColorHint">@color/opaque_white</item>
+        <item name="android:popupMenuStyle">@android:style/Widget.Holo.Light.ListPopupWindow</item>
     </style>
 
 </resources>

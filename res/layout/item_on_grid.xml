@@ -30,7 +30,8 @@
         android:layout_marginRight="5dp"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
-        android:contentDescription="@string/post_image"/>
+        android:contentDescription="@string/post_image"
+        android:background="@color/gray"/>
 
     <com.walkntrade.LightTextView
 	    android:id="@+id/post_details"

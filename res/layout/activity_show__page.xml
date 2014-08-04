@@ -5,16 +5,6 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".Show_Page">
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="@dimen/progress_bar_margin_top"
-        android:indeterminate="true"
-        android:visibility="invisible" />
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -33,8 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
                 android:textSize="@dimen/title_size"
-                android:typeface="sans"
-                android:visibility="invisible" />
+                android:typeface="sans"/>
 
             <RelativeLayout
                 android:id="@+id/image_layout"
@@ -46,7 +35,6 @@
                     android:id="@+id/show_post_image"
                     android:layout_width="@dimen/image_size_main"
                     android:layout_height="@dimen/image_size_main"
-
                     android:layout_marginRight="10dp"
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/post_image"
@@ -69,16 +57,14 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/image_layout"
                 android:textSize="@dimen/price_size"
-                android:textStyle="bold"
-                android:visibility="invisible" />
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/show_post_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/show_post_price"
-                android:textSize="@dimen/show_page_text"
-                android:visibility="invisible" />
+                android:textSize="@dimen/show_page_text"/>
 
             <TextView
                 android:id="@+id/show_post_user"
@@ -87,8 +73,7 @@
                 android:layout_below="@id/show_post_price"
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@id/show_post_date"
-                android:textSize="@dimen/show_page_text"
-                android:visibility="invisible" />
+                android:textSize="@dimen/show_page_text"/>
 
             <ImageView
                 android:id="@+id/show_post_image_2"
@@ -134,8 +119,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/show_post_image_4"
                 android:layout_marginTop="5dp"
-                android:textSize="@dimen/show_page_text"
-                android:visibility="invisible" />
+                android:textSize="@dimen/show_page_text"/>
 
             <Button
                 android:id="@+id/show_post_contact"

@@ -20,7 +20,7 @@
     <!-- School Page posts sizes -->
     <dimen name="image_width">150dp</dimen>
     <dimen name="image_height">120dp</dimen>
-    <dimen name="post_title">22sp</dimen>
+    <dimen name="post_title">18sp</dimen>
     <dimen name="post_details">14sp</dimen>
     <dimen name="post_price">22sp</dimen>
     <dimen name="post_user">14sp</dimen>
