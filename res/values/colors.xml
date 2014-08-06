@@ -11,6 +11,7 @@
 
     <color name="opaque_white">#8dffffff</color>
 
+    <color name="light_gray">#ffdbdbdb</color>
     <color name="gray">#ffcacaca</color>
     <color name="darker_gray">#aaaaaa</color>
     <color name="start_gray">#ffffffff</color>

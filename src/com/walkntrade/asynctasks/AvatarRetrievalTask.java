@@ -4,10 +4,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 
-import com.walkntrade.adapters.item.DrawerItem;
 import com.walkntrade.adapters.DrawerAdapter;
+import com.walkntrade.adapters.item.DrawerItem;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 
@@ -23,10 +23,10 @@ public class AvatarRetrievalTask extends AsyncTask<Void, Void, Bitmap> {
 
     private final String TAG = "ASYNCTASK:AvatarRetrieval";
     private Context context;
-    private ListView drawerList;
+    private ExpandableListView drawerList;
 
     //Retrieves the user's avatar for the NavigationDrawer
-    public AvatarRetrievalTask(Context _context, ListView _drawerList) {
+    public AvatarRetrievalTask(Context _context, ExpandableListView _drawerList) {
         context = _context;
         drawerList = _drawerList;
     }
@@ -67,8 +67,8 @@ public class AvatarRetrievalTask extends AsyncTask<Void, Void, Bitmap> {
 
     @Override
     protected void onPostExecute(Bitmap avatar) {
-        DrawerAdapter adapter = (DrawerAdapter) drawerList.getAdapter();
-        DrawerItem item = adapter.getItem(0); //Get user header item
+        DrawerAdapter adapter = (DrawerAdapter) drawerList.getExpandableListAdapter();
+        DrawerItem item = (DrawerItem)adapter.getGroup(0); //Get user header item
 
         if(avatar != null)
             item.setAvatar(avatar);

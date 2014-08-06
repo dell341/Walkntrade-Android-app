@@ -2,11 +2,11 @@
 <resources>
     <!-- NavigationDrawer (Side Menu) strings -->
     <string-array name="user_options">
-        <item>Post</item>
-        <item>Post Books</item>
-        <item>Post Tech</item>
-        <item>Post Services</item>
-        <item>Post Misc.</item>
+        <item>Add a post&#8230;</item>
+        <item>book</item>
+        <item>tech/game</item>
+        <item>service</item>
+        <item>misc.</item>
         <item>Messages</item>
         <item>Inbox</item>
         <item>Sent</item>
@@ -24,6 +24,7 @@
 
     <string name="drawer_open">Navigation Drawer has been opened</string>
     <string name="drawer_close">Navigation Drawer has been closed</string>
+    <string name="drawer_expand">Expand Navigation Drawer Options</string>
 
     <!-- School Page Strings -->
     <string name="tSchoolName">No School Selected</string>

@@ -22,13 +22,14 @@
 
 	<!-- Navigation Drawer layout (sidebar menu) -->
 	    
-	    <ListView android:id="@+id/navigation_drawer_list"
+	    <ExpandableListView android:id="@+id/navigation_drawer_list"
 	        android:layout_width="@dimen/navigation_drawer_width"
 	        android:layout_height="match_parent"
 	        android:layout_gravity="start"
 	        android:divider="@null"
 	        android:dividerHeight="0dp"
 	        android:choiceMode="singleChoice"
+            android:groupIndicator="@null"
 	        android:background="#f3f3f3"/>
 	
 </android.support.v4.widget.DrawerLayout>

@@ -63,7 +63,7 @@ public class ShowPage extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_show__page);
+		setContentView(R.layout.activity_show_page);
 
         context = getApplicationContext();
 		thisPost = getIntent().getParcelableExtra(SchoolPage.SELECTED_POST);

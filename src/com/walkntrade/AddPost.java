@@ -71,19 +71,19 @@ public class AddPost extends Activity implements OnClickListener {
         setContentView(R.layout.add_post);
 
         switch (position) {
-            case 2:
+            case 0:
                 selectedCategory = getString(R.string.server_category_book);
                 getActionBar().setTitle("Adding " + getString(R.string.server_category_book));
                 break;
-            case 3:
+            case 1:
                 selectedCategory = getString(R.string.server_category_tech);
                 getActionBar().setTitle("Adding " + getString(R.string.server_category_tech));
                 break;
-            case 4:
+            case 2:
                 selectedCategory = getString(R.string.server_category_service);
                 getActionBar().setTitle("Adding " + getString(R.string.server_category_service));
                 break;
-            case 5:
+            case 3:
                 selectedCategory = getString(R.string.server_category_misc);
                 getActionBar().setTitle("Adding " + getString(R.string.server_category_misc));
                 break;
