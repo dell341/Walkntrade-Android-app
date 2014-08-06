@@ -19,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,19 +26,16 @@ import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class ShowMessage extends Activity {
 
     private static final String TAG = "ShowMessage";
-    public static final String MESSAGE_ID = "id_of_message";
+    public static final String MESSAGE_OBJECT = "message_object";
 
     private Context context;
-    private ProgressBar progressBar;
-    private TextView subject, contents, user, date;
+    private TextView subject, user;
     private Button button;
     private AlertDialog dialog;
-    private int messageType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,18 +43,16 @@ public class ShowMessage extends Activity {
         setContentView(R.layout.activity_show_message);
 
         context = getApplicationContext();
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
         subject = (TextView) findViewById(R.id.message_subject);
-        contents = (TextView) findViewById(R.id.message_contents);
+        TextView contents = (TextView) findViewById(R.id.message_contents);
         user = (TextView) findViewById(R.id.message_user);
-        date = (TextView) findViewById(R.id.message_date);
+        TextView date = (TextView) findViewById(R.id.message_date);
         button = (Button) findViewById(R.id.button);
 
-        String id = getIntent().getStringExtra(MESSAGE_ID);
-        messageType = getIntent().getIntExtra(Messages.MESSAGE_TYPE, -1);
+        MessageObject message = getIntent().getParcelableExtra(MESSAGE_OBJECT);
+        int messageType = getIntent().getIntExtra(Messages.MESSAGE_TYPE, -1);
 
         new PollMessagesTask(this).execute();
-        new GetMessageTask().execute(id);
 
         if(messageType == Messages.RECEIVED_MESSAGES)
             getActionBar().setTitle(getString(R.string.received_message));
@@ -66,6 +60,13 @@ public class ShowMessage extends Activity {
             getActionBar().setTitle(getString(R.string.sent_message));
             button.setVisibility(View.GONE);
         }
+
+        subject.setText(message.getSubject());
+        contents.setText(message.getContents());
+        user.setText(message.getUser());
+        date.setText(message.getDate());
+
+        createMessageDialog();
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
@@ -140,46 +141,6 @@ public class ShowMessage extends Activity {
                 dialog.show();
             }
         });
-    }
-
-    private class GetMessageTask extends AsyncTask<String, Void, ArrayList<MessageObject>> {
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected ArrayList<MessageObject> doInBackground(String... id) {
-            DataParser database = new DataParser(context);
-            ArrayList<MessageObject> message = new ArrayList<MessageObject>();
-
-            try {
-                message = database.getMessages(messageType, Integer.parseInt(id[0]));
-            }catch (Exception e){
-               Log.e(TAG, "Getting Single Message", e);
-            }
-
-            return message;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<MessageObject> messageObject) {
-            progressBar.setVisibility(View.INVISIBLE);
-
-            MessageObject message = messageObject.get(0);
-
-            try {
-                subject.setText(message.getSubject());
-                contents.setText(message.getContents());
-                user.setText(message.getUser());
-                date.setText(message.getDate());
-
-                createMessageDialog();
-            } catch(NullPointerException e) {
-                Log.e(TAG, "Message no longer exists", e);
-                finish();
-            }
-        }
     }
 
     //Sends message to user

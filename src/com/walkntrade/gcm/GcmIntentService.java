@@ -76,7 +76,8 @@ public class GcmIntentService extends IntentService {
         stackBuilder.addParentStack(ShowMessage.class);
         stackBuilder.addNextIntent(showMessage); //Adds intent to the top of the stack
 
-        showMessage.putExtra(ShowMessage.MESSAGE_ID, id);
+        //TODO: Create Message object here
+        //showMessage.putExtra(ShowMessage.MESSAGE_ID, id);
         showMessage.putExtra(Messages.MESSAGE_TYPE, Messages.RECEIVED_MESSAGES);
         PendingIntent contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 

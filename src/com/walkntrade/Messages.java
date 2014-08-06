@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.walkntrade.adapters.MessageAdapter;
@@ -32,6 +33,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     public static final int SENT_MESSAGES = 1;
 
     private Context context;
+    private ProgressBar progressBar;
     private SwipeRefreshLayout refreshLayout;
     private TextView noResults;
     private ListView messageList;
@@ -43,13 +45,14 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         setContentView(R.layout.activity_messages);
 
         context = getApplicationContext();
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refreshLayout);
         noResults = (TextView) findViewById(R.id.noResults);
         messageList = (ListView) findViewById(R.id.messageList);
         messageList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         messageList.setMultiChoiceModeListener(new MultiChoiceListener());
 
-        refreshLayout.setColorScheme(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
+        refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
         messageType = getIntent().getIntExtra(MESSAGE_TYPE, 0);
 
@@ -106,7 +109,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         MessageObject message = (MessageObject)parent.getItemAtPosition(position);
 
         Intent showMessageIntent = new Intent(this, ShowMessage.class);
-        showMessageIntent.putExtra(ShowMessage.MESSAGE_ID, message.getId());
+        showMessageIntent.putExtra(ShowMessage.MESSAGE_OBJECT, message);
         showMessageIntent.putExtra(MESSAGE_TYPE, messageType);
         startActivity(showMessageIntent);
     }
@@ -183,6 +186,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         @Override
         protected void onPostExecute(ArrayList<MessageObject> messageObjects) {
+            progressBar.setVisibility(View.GONE);
             refreshLayout.setRefreshing(false);
             messageList.setAdapter(null);
 
