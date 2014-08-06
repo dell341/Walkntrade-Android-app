@@ -15,6 +15,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.walkntrade.MessageObject;
 import com.walkntrade.Messages;
 import com.walkntrade.R;
 import com.walkntrade.ShowMessage;
@@ -52,18 +53,20 @@ public class GcmIntentService extends IntentService {
         if(!extras.isEmpty()) {
             String id = extras.getString("id");
             String user = extras.getString("user");
+            String subject = extras.getString("subject");
             String message = extras.getString("message");
+            String date = extras.getString("date");
             String image = extras.getString("userImageURL");
 
             if(id != null) //As long as id is not null, send the notification
-            sendNotification(id, user, message, image);
+            sendNotification(id, user, subject, message, date, image);
         }
         else
             Log.i(TAG, "Empty message received");
     }
 
     //Put the received message into a notification
-    private void sendNotification(String id, String user, String message, String image) {
+    private void sendNotification(String id, String user, String subject, String message, String date, String image) {
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 
         AsyncTask<String, Void, Bitmap> task = new GetImage();
@@ -76,8 +79,10 @@ public class GcmIntentService extends IntentService {
         stackBuilder.addParentStack(ShowMessage.class);
         stackBuilder.addNextIntent(showMessage); //Adds intent to the top of the stack
 
-        //TODO: Create Message object here
-        //showMessage.putExtra(ShowMessage.MESSAGE_ID, id);
+        if(subject == null || date == null) //TODO: Remove this after notification from server has adapted
+            showMessage.putExtra(ShowMessage.MESSAGE_OBJECT, new MessageObject(id, user, "[Field will be updated]", message, "[Field will be updated]", "0"));
+        else
+            showMessage.putExtra(ShowMessage.MESSAGE_OBJECT, new MessageObject(id, user, subject, message, date, "0"));
         showMessage.putExtra(Messages.MESSAGE_TYPE, Messages.RECEIVED_MESSAGES);
         PendingIntent contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
