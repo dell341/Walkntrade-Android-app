@@ -6,11 +6,11 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -20,7 +20,7 @@ import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
 
-public class ContactPref extends Activity implements CompoundButton.OnCheckedChangeListener{
+public class ContactPref extends Activity implements CompoundButton.OnCheckedChangeListener, SwipeRefreshLayout.OnRefreshListener{
 
     private static final String TAG = "ContactPref";
     private static final String PROPERTY_REG_ID = "gcm_registration_id";
@@ -29,7 +29,7 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
     private static final int RESOLUTION_REQUEST = 9000;
 
     private Context context;
-    private ProgressBar progressBar;
+    private SwipeRefreshLayout refreshLayout;
     private Switch switchEmail, switchNofication;
 
     @Override
@@ -38,11 +38,14 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
         setContentView(R.layout.activity_contact_pref);
 
         context = getApplicationContext();
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         switchEmail = (Switch) findViewById(R.id.switch_email);
         switchNofication = (Switch) findViewById(R.id.switch_notifications);
         TextView notificationSettings = (TextView) findViewById(R.id.notification_settings);
         getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
+        refreshLayout.setEnabled(false);
 
         if(DataParser.isNetworkAvailable(this))
             new GetContactTask().execute(); //Get contact preference from server
@@ -110,6 +113,10 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
         }
     }
 
+    @Override
+    public void onRefresh() {
+    }
+
     //Check if Google Play services is available. Required for push notifications
     private boolean checkPlayServices() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
@@ -129,7 +136,7 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
 
         @Override
         protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
+            refreshLayout.setRefreshing(true);
         }
 
         @Override
@@ -148,7 +155,7 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
 
         @Override
         protected void onPostExecute(String s) {
-            progressBar.setVisibility(View.INVISIBLE);
+            refreshLayout.setRefreshing(false);
             if(s.equals("1")) //User wants receive emails
                 switchEmail.setChecked(true);
             else
