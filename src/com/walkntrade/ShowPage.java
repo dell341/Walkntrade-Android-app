@@ -96,7 +96,6 @@ public class ShowPage extends Activity {
 //            image2.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_2));
 //            image3.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_3));
 //            image4.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_4));
-        createMessageDialog();
 
         //Calls images to be displayed on show page
 
@@ -143,6 +142,7 @@ public class ShowPage extends Activity {
         else
             message = String.format(getString(R.string.post_message_content_phone), DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.USER_PHONE));
 
+        createMessageDialog();
         contact_nologin.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -377,7 +377,6 @@ public class ShowPage extends Activity {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            progressImage.setVisibility(View.INVISIBLE);
             if(bitmap != null) {
                 imgView.setVisibility(View.VISIBLE);
                 imgView.setImageBitmap(bitmap);
@@ -386,6 +385,8 @@ public class ShowPage extends Activity {
             else if(index == 0) { //If no images exist. Put the default image for the first image.
                 imgView.setImageDrawable(getResources().getDrawable(R.drawable.post_image));
             }
+
+            progressImage.setVisibility(View.INVISIBLE);
         }
     }
 }

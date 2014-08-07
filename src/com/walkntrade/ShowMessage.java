@@ -26,6 +26,7 @@ import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class ShowMessage extends Activity {
 
@@ -33,6 +34,7 @@ public class ShowMessage extends Activity {
     public static final String MESSAGE_OBJECT = "message_object";
 
     private Context context;
+    private int messageType;
     private TextView subject, user;
     private Button button;
     private AlertDialog dialog;
@@ -50,9 +52,10 @@ public class ShowMessage extends Activity {
         button = (Button) findViewById(R.id.button);
 
         MessageObject message = getIntent().getParcelableExtra(MESSAGE_OBJECT);
-        int messageType = getIntent().getIntExtra(Messages.MESSAGE_TYPE, -1);
+        messageType = getIntent().getIntExtra(Messages.MESSAGE_TYPE, -1);
 
         new PollMessagesTask(this).execute();
+        new GetMessageTask().execute(message.getId());
 
         if(messageType == Messages.RECEIVED_MESSAGES)
             getActionBar().setTitle(getString(R.string.received_message));
@@ -141,6 +144,23 @@ public class ShowMessage extends Activity {
                 dialog.show();
             }
         });
+    }
+
+    //Used just to show message as read
+    private class GetMessageTask extends AsyncTask<String, Void, ArrayList<MessageObject>> {
+        @Override
+        protected ArrayList<MessageObject> doInBackground(String... id) {
+            DataParser database = new DataParser(context);
+            ArrayList<MessageObject> message = new ArrayList<MessageObject>();
+
+            try {
+                message = database.getMessages(messageType, Integer.parseInt(id[0]));
+            }catch (Exception e){
+                Log.e(TAG, "Getting Single Message", e);
+            }
+
+            return message;
+        }
     }
 
     //Sends message to user

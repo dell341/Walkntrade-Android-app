@@ -100,7 +100,6 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         int id = buttonView.getId();
-        Log.v(TAG, "switch was changed");
 
         switch (id){
             case R.id.switch_email:
