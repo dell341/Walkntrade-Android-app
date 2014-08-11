@@ -6,9 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -22,7 +20,6 @@ import com.walkntrade.ShowMessage;
 import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -70,35 +67,35 @@ public class GcmIntentService extends IntentService {
     private void sendNotification(String id, String user, String subject, String message, String date, String image) {
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        AsyncTask<String, Void, Bitmap> task = new GetImage();
-        task.execute(image);
+//        AsyncTask<String, Void, Bitmap> asyncTask = new GetImage();
+//        asyncTask.execute(image);
 
         Intent showMessage = new Intent(this, ShowMessage.class);
+        Intent notfBroadcast = new Intent(this, NotificationBroadcastReceiver.class);
 
-        //Allows parent navigation after clicking opening ShowMessage activity
+        showMessage.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        showMessage.putExtra(ShowMessage.MESSAGE_OBJECT, new MessageObject(id, user, subject, message, date, "0"));
+        showMessage.putExtra(Messages.MESSAGE_TYPE, Messages.RECEIVED_MESSAGES);
+        showMessage.setAction("ACTION_"+System.currentTimeMillis()); //Makes intents unique, so Android does not reuse invalid intents
+
+        //Allows parent navigation after opening ShowMessage activity
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(ShowMessage.class);
         stackBuilder.addNextIntent(showMessage); //Adds intent to the top of the stack
 
-        if(subject == null || date == null) //TODO: Remove this after notification from server has adapted
-            showMessage.putExtra(ShowMessage.MESSAGE_OBJECT, new MessageObject(id, user, "[Field will be updated]", message, "[Field will be updated]", "0"));
-        else
-            showMessage.putExtra(ShowMessage.MESSAGE_OBJECT, new MessageObject(id, user, subject, message, date, "0"));
-        showMessage.putExtra(Messages.MESSAGE_TYPE, Messages.RECEIVED_MESSAGES);
         PendingIntent contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent deleteIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, notfBroadcast, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         try {
             builder.setSmallIcon(R.drawable.ic_launcher)
-                    .setLargeIcon(task.get())
+                    .setLargeIcon(DataParser.loadBitmap(image))
                     .setContentTitle("Message from: " + user)
                     .setContentText(message)
-                    //.setContentInfo(++numMessages+"") TODO: Find a way to increment notifications properly
+                    .setContentInfo(++numMessages+"")
                     .setAutoCancel(true)
                     .setPriority(NotificationCompat.PRIORITY_HIGH);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -133,22 +130,29 @@ public class GcmIntentService extends IntentService {
         else if (showLight)
             builder.setLights(0xff00ff, 500, 500);
 
-        builder.setContentIntent(contentIntent);
+        builder.setContentIntent(contentIntent); //Fired when the notification is clicked
+        builder.setDeleteIntent(deleteIntent); //Fired when notification is dismissed
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
-    private class GetImage extends AsyncTask<String, Void, Bitmap>{
-        @Override
-        protected Bitmap doInBackground(String... image) {
-            Bitmap largeIcon = null;
-            try {
-                largeIcon =  DataParser.loadBitmap(image[0]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//    private class GetImage extends AsyncTask<String, Void, Bitmap>{
+//        @Override
+//        protected Bitmap doInBackground(String... image) {
+//            Bitmap largeIcon = null;
+//            try {
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            return largeIcon;
+//        }
+//    }
 
-            return largeIcon;
-        }
+    public static void resetNotfCounter(Context context){
+        NotificationManager notfManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notfManager.cancel(NOTIFICATION_ID);
+        numMessages = 0;
     }
 
 }

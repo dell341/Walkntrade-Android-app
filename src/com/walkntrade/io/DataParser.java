@@ -522,21 +522,18 @@ public class DataParser {
         return serverResponse;
     }
 
-    public ArrayList<MessageObject> getMessages(int _messageType, int id) throws Exception{
+    public ArrayList<MessageObject> getMessages(int _messageType) throws Exception{
         establishConnection();
 
         try {
             messages = new ArrayList<MessageObject>();
             final int messageType = _messageType;
-            final int queryId = id;
             String query;
 
-            if(messageType == Messages.RECEIVED_MESSAGES && queryId == -1)
+            if(messageType == Messages.RECEIVED_MESSAGES)
                 query = "intent=getWebmail";
-            else if(messageType == Messages.SENT_MESSAGES && queryId == -1)
-                query = "intent=getSentWebmail";
             else
-                query = "intent=getMessage&message_id="+queryId;
+                query = "intent=getSentWebmail";
 
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inStream = processRequest(entity);
@@ -572,7 +569,7 @@ public class DataParser {
                     }
 
                     //The last attribute to be initialized is the date, end of message
-                    if(messageType == Messages.RECEIVED_MESSAGES && queryId == -1) { //Received messages need the read attribute
+                    if(messageType == Messages.RECEIVED_MESSAGES) { //Received messages need the read attribute
                         if (!read.equals("DNE"))
                             messages.add(new MessageObject(id, user, subject, contents, date, read));
                     }
@@ -586,6 +583,21 @@ public class DataParser {
         }
 
         return messages;
+    }
+
+    //Currently not used to retrieve message, but just mark it as read. Server marks a message as read, when this intent is called.
+    public void getMessage(String id) throws IOException{
+        establishConnection();
+
+        String query = "intent=getMessage&message_id="+id;
+
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            processRequest(entity);
+        }
+        finally {
+            disconnectAll();
+        }
     }
 
     public String removeMessage(String id) throws IOException{
@@ -920,6 +932,7 @@ public class DataParser {
         };
 
         try {
+            Log.v(TAG, "Retrieving bitmap image");
             in = new java.net.URL("http://walkntrade.com/" + _url).openStream();
             bitmap = BitmapFactory.decodeStream(in);
         }

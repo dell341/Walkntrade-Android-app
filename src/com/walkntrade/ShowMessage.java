@@ -22,11 +22,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.walkntrade.asynctasks.PollMessagesTask;
+import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class ShowMessage extends Activity {
 
@@ -51,28 +50,39 @@ public class ShowMessage extends Activity {
         TextView date = (TextView) findViewById(R.id.message_date);
         button = (Button) findViewById(R.id.button);
 
-        MessageObject message = getIntent().getParcelableExtra(MESSAGE_OBJECT);
-        messageType = getIntent().getIntExtra(Messages.MESSAGE_TYPE, -1);
+        Intent previousIntent = getIntent();
+        Bundle bundledExtras = previousIntent.getExtras();
 
-        new PollMessagesTask(this).execute();
-        new GetMessageTask().execute(message.getId());
+        if(bundledExtras != null) {
+            Log.v(TAG, "Bundle: "+bundledExtras.toString());
 
-        if(messageType == Messages.RECEIVED_MESSAGES)
-            getActionBar().setTitle(getString(R.string.received_message));
-        else {
-            getActionBar().setTitle(getString(R.string.sent_message));
-            button.setVisibility(View.GONE);
+            MessageObject message = getIntent().getParcelableExtra(MESSAGE_OBJECT);
+            messageType = getIntent().getIntExtra(Messages.MESSAGE_TYPE, -1);
+
+            GcmIntentService.resetNotfCounter(context); //Clears out all message notifications in Status Bar
+
+            if (messageType == Messages.RECEIVED_MESSAGES)
+                getActionBar().setTitle(getString(R.string.received_message));
+            else {
+                getActionBar().setTitle(getString(R.string.sent_message));
+                button.setVisibility(View.GONE);
+            }
+
+            new GetMessageTask().execute(message.getId());
+
+            subject.setText(message.getSubject());
+            contents.setText(message.getContents());
+            user.setText(message.getUser());
+            date.setText(message.getDate());
+
+            createMessageDialog();
+
+            getActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        else
+            Log.v(TAG, "Bundle is null");
 
-        subject.setText(message.getSubject());
-        contents.setText(message.getContents());
-        user.setText(message.getUser());
-        date.setText(message.getDate());
-
-        createMessageDialog();
-        getActionBar().setDisplayHomeAsUpEnabled(true);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -105,7 +115,7 @@ public class ShowMessage extends Activity {
 
         //Adds color to Contact title
         SpannableStringBuilder stringBuilder = new SpannableStringBuilder();
-        String t = getString(R.string.contact)+": ";
+        String t = getString(R.string.contact) + ": ";
         String u = user.getText().toString();
 
         SpannableString string = new SpannableString(t);
@@ -146,20 +156,19 @@ public class ShowMessage extends Activity {
         });
     }
 
-    //Used just to show message as read
-    private class GetMessageTask extends AsyncTask<String, Void, ArrayList<MessageObject>> {
+    //Used just to show message as read: Server counts message as read, only when this intent is called
+    private class GetMessageTask extends AsyncTask<String, Void, Void> {
         @Override
-        protected ArrayList<MessageObject> doInBackground(String... id) {
+        protected Void doInBackground(String... id) {
             DataParser database = new DataParser(context);
-            ArrayList<MessageObject> message = new ArrayList<MessageObject>();
 
             try {
-                message = database.getMessages(messageType, Integer.parseInt(id[0]));
-            }catch (Exception e){
+                database.getMessage(id[0]);
+            } catch (Exception e) {
                 Log.e(TAG, "Getting Single Message", e);
             }
 
-            return message;
+            return null;
         }
     }
 
@@ -173,7 +182,7 @@ public class ShowMessage extends Activity {
             String response = context.getString(R.string.message_failed);
 
             try {
-                response = database.messageUser(user.getText().toString(), "RE:"+subject.getText().toString(), message[0]);
+                response = database.messageUser(user.getText().toString(), "RE:" + subject.getText().toString(), message[0]);
             } catch (IOException e) {
                 Log.e(TAG, "Messaging user", e);
             }

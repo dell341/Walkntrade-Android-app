@@ -2,6 +2,7 @@ package com.walkntrade;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 /**
  * Copyright (c) 2014, All Rights Reserved
@@ -19,6 +20,7 @@ public class MessageObject implements Parcelable{
         this.date = date;
         this.read = read;
 
+        Log.v("MessageObject", this.id);
         //TODO: Separate date from time
     }
 
@@ -44,6 +46,7 @@ public class MessageObject implements Parcelable{
     }
 
     public String getId(){
+        Log.v("MessageObject", "ID: "+id);
         return id;
     }
 

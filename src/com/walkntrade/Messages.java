@@ -176,7 +176,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             ArrayList<MessageObject> messages = new ArrayList<MessageObject>();
 
             try {
-                messages = database.getMessages(messageType, -1);
+                messages = database.getMessages(messageType);
             } catch (Exception e) {
                 Log.e(TAG, "Get Messages", e);
             }
