@@ -932,7 +932,6 @@ public class DataParser {
         };
 
         try {
-            Log.v(TAG, "Retrieving bitmap image");
             in = new java.net.URL("http://walkntrade.com/" + _url).openStream();
             bitmap = BitmapFactory.decodeStream(in);
         }

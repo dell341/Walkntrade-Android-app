@@ -6,13 +6,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -270,20 +266,11 @@ public class ShowPage extends Activity {
         final EditText editText = ((EditText)messageView.findViewById(R.id.post_message));
         editText.setText(message);
 
-        //Adds color to Contact title
-        SpannableStringBuilder stringBuilder = new SpannableStringBuilder();
-        String t = getString(R.string.contact)+": ";
-        String u = user.getText().toString();
-
-        SpannableString string = new SpannableString(t);
-        stringBuilder.append(string);
-        string = new SpannableString(u);
-        string.setSpan(new ForegroundColorSpan(Color.BLACK), 0, u.length(), 0);
-        stringBuilder.append(string);
+        String title = getString(R.string.contact)+": "+user.getText().toString();
 
         //Creates dialog popup to contact user
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(stringBuilder)
+        builder.setTitle(title)
                 .setView(messageView)
                 .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
                     @Override
