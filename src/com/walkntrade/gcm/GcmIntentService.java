@@ -16,6 +16,7 @@ import com.walkntrade.MessageObject;
 import com.walkntrade.Messages;
 import com.walkntrade.R;
 import com.walkntrade.ShowMessage;
+import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
@@ -51,6 +52,8 @@ public class GcmIntentService extends IntentService {
             return;
 
         if (!extras.isEmpty()) {
+            new PollMessagesTask(getApplicationContext()).execute(); //Poll new message, when this message arrived.
+
             String id = extras.getString("id");
             String user = extras.getString("user");
             String subject = extras.getString("subject");
