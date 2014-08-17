@@ -7,7 +7,7 @@
     <string name="notification_light">Light</string>
     <string name="notification_sound">Notification sound</string>
 
-    <string name="notification_from">Message from : </string>
+    <string name="notification_from">Message from </string>
     <string name="notification_overflow">5+ new messages</string>
     <string name="notification_title"> new messages</string>
 

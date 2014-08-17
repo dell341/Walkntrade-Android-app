@@ -90,7 +90,7 @@ public class GcmIntentService extends IntentService {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         try {
-            builder.setSmallIcon(R.drawable.ic_launcher)
+            builder.setSmallIcon(R.drawable.walkntrade_notification)
                     .setLargeIcon(DataParser.loadBitmap(image))
                     .setContentTitle(getApplicationContext().getString(R.string.notification_from) + " " + user)
                     .setContentText(message)
