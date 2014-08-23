@@ -3,6 +3,7 @@
 
     <!-- Universal strings, used anywhere in the app -->
     <string name="app_name">Walkntrade</string>
+    <string name="url_privacy">http://walkntrade.com/privacy</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="no_connection">Network connection not found</string>
@@ -20,7 +21,6 @@
     <string name="user_name_no_login">Please Login</string>
     <string name="default_avatar_url">colorful/Anonymous_User.jpg</string>
     <string name="default_image_url">/colorful/tfe_no_thumb.png</string>
-    <string name="send_feedback">Send Feedback</string>
     <string name="confirm">Confirm</string>
     <string name="reply">Reply</string>
     <string name="received_messages">Received Messages</string>
@@ -37,14 +37,17 @@
 
     <!-- Show Page Strings -->
     <string name="post_image">Image posted by user</string>
-
-    <string name="title_activity_feedback">Send Feedback</string>
     <string name="email_optional">Email (Optional)</string>
+
+    <!-- Extra: Help, Feedback, Privacy Policy, etc. -->
+    <string name="privacy_and_feedback">Feedback &amp; Privacy Policy</string>
+    <string name="privacy_and_feedback_short">Feedback &amp; Policy</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="send_feedback">Send us Feedback</string>
     <string name="feedback">Feedback</string>
     <string name="feedback_fail">Could not send feedback</string>
 
     <!-- Auto-generated Strings **Remove All** -->
-
     <string name="invalid_message">Message cannot be blank</string>
     <string name="title_activity_messages">Messages</string>
     <string name="title_activity_show_message">Walkntrade Message</string>

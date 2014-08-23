@@ -2,10 +2,13 @@ package com.walkntrade;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,15 +20,16 @@ import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
 
-public class FeedbackActivity extends Activity{
+public class Feedback extends Activity{
 
     private static final String TAG = "FeedbackActivity";
 
     private Context context;
-    private ProgressBar progressBar;
     private TextView errorMessage;
     private EditText email, message;
     private String _email, _message;
+    private ProgressBar progressBar;
+    private Button submit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,19 +41,34 @@ public class FeedbackActivity extends Activity{
         errorMessage = (TextView) findViewById(R.id.error_message);
         email = (EditText) findViewById(R.id.email);
         message = (EditText) findViewById(R.id.message);
-        Button button = (Button) findViewById(R.id.button);
+        submit = (Button) findViewById(R.id.button);
 
-        button.setOnClickListener(new View.OnClickListener() {
+        submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 errorMessage.setVisibility(View.GONE);
                 _email = email.getText().toString();
                 _message = message.getText().toString();
 
-                if(canContinue() && DataParser.isNetworkAvailable(context))
+                if (canContinue() && DataParser.isNetworkAvailable(context))
                     new SendFeedbackTask().execute();
             }
         });
+
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            //Used to support Android 15 and below
+            case android.R.id.home: //If the up button was selected, go back to parent activity
+                Intent upIntent = NavUtils.getParentActivityIntent(this);
+                NavUtils.navigateUpTo(this, upIntent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private boolean canContinue() {
@@ -78,6 +97,7 @@ public class FeedbackActivity extends Activity{
         @Override
         protected void onPreExecute() {
             progressBar.setVisibility(View.VISIBLE);
+            submit.setEnabled(false);
         }
 
         @Override
@@ -96,7 +116,8 @@ public class FeedbackActivity extends Activity{
 
         @Override
         protected void onPostExecute(String response) {
-            progressBar.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.GONE);
+            submit.setEnabled(true);
             Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
             finish();
         }

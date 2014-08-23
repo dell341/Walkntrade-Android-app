@@ -15,9 +15,10 @@
         android:showAsAction="always"/>
 
     <item
-        android:id="@+id/action_feedback"
+        android:id="@+id/action_privacy_feedback"
         android:orderInCategory="200"
-        android:title="@string/send_feedback"/>
+        android:title="@string/privacy_and_feedback"
+        android:titleCondensed="@string/privacy_and_feedback_short"/>
 
     <item
         android:id="@+id/action_sign_out"

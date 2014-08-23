@@ -203,8 +203,8 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
             case R.id.action_sign_out:
                 signOut();
                 return true;
-            case R.id.action_feedback:
-                startActivity(new Intent(this, FeedbackActivity.class));
+            case R.id.action_privacy_feedback:
+                startActivity(new Intent(this, Privacy_Feedback.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -330,51 +330,6 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
                 break;
         }
 
-        mDrawerLayout.closeDrawer(navigationDrawerList);
-    }
-
-    private void selectItem(int position, long id) {
-
-        //TODO: Special case scenario. Revise later: Assign ids to items on drawer
-        if (id == 1994) {
-            startActivity(new Intent(SchoolPage.this, Selector.class));//Change School
-            finish();
-            return;
-        }
-
-        //Perform action based on selected item
-        switch (position) {
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-                Intent addPostIntent = new Intent(this, AddPost.class);
-                addPostIntent.putExtra(AddPost.CATEGORY_POSITION, position);
-                startActivity(addPostIntent);
-                break;
-            case 7:
-                Intent getMessageIntent = new Intent(this, Messages.class);
-                getMessageIntent.putExtra(Messages.MESSAGE_TYPE, Messages.RECEIVED_MESSAGES);
-                startActivity(getMessageIntent);
-                break;
-            case 8:
-                getMessageIntent = new Intent(this, Messages.class);
-                getMessageIntent.putExtra(Messages.MESSAGE_TYPE, Messages.SENT_MESSAGES);
-                startActivity(getMessageIntent);
-                break;
-            case 10:
-                startActivity(new Intent(this, UserSettings.class));
-                break; //Account
-            case 11:
-                startActivity(new Intent(SchoolPage.this, Selector.class));//Change School
-                finish();
-                break;
-            default:
-                return;
-        }
-
-        //Highlight the selected item, update the title, close the drawer
-        navigationDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawer(navigationDrawerList);
     }
 

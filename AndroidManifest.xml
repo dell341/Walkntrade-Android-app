@@ -29,8 +29,8 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:logo="@drawable/walkntrade_icon"
         android:label="@string/app_name"
+        android:logo="@drawable/walkntrade_icon"
         android:theme="@style/WalkntradeTheme" >
         <meta-data
             android:name="com.google.android.gms.version"
@@ -173,9 +173,11 @@
                 android:value="com.walkntrade.AccountSettings" />
         </activity>
         <activity
-            android:name=".FeedbackActivity"
-            android:label="@string/title_activity_feedback"
-            android:theme="@style/DialogTheme" >
+            android:name=".Feedback"
+            android:label="@string/send_feedback">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walkntrade.Privacy_Feedback" />
         </activity>
         <activity
             android:name=".Messages"
@@ -198,6 +200,10 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.ContactPref" />
+        </activity>
+        <activity
+            android:name=".Privacy_Feedback"
+            android:label="@string/privacy_and_feedback" >
         </activity>
     </application>
 
