@@ -12,7 +12,7 @@
         </shape>
     </item>
 
-    <!--White shape-->
+    <!--foreground shape-->
     <item android:bottom="2px">
         <shape android:shape="rectangle">
             <corners android:radius="1dp" />

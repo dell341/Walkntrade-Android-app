@@ -51,7 +51,7 @@ public class ShowPage extends Activity {
     private ImageView image, image2, image3, image4;
     private AlertDialog dialog;
     private String message;
-    private Button contact, contact_nologin;
+    private Button contact;
     private String[] imgURLs;
 
     public int imageCount = 0;
@@ -64,29 +64,28 @@ public class ShowPage extends Activity {
         context = getApplicationContext();
 		thisPost = getIntent().getParcelableExtra(SchoolPage.SELECTED_POST);
 
-        progressImage = (ProgressBar) findViewById(R.id.progressBar2);
-		title = (TextView) findViewById(R.id.show_post_title);
-		details = (TextView) findViewById(R.id.show_post_details);
-		user = (TextView) findViewById(R.id.show_post_user);
-		date = (TextView) findViewById(R.id.show_post_date);
-		price = (TextView) findViewById(R.id.show_post_price);
-        contact = (Button) findViewById(R.id.show_post_contact);
-        contact_nologin = (Button) findViewById(R.id.show_post_contact_login);
+        progressImage = (ProgressBar) findViewById(R.id.progressBar);
+		title = (TextView) findViewById(R.id.postTitle);
+		details = (TextView) findViewById(R.id.postDescr);
+		user = (TextView) findViewById(R.id.userName);
+		date = (TextView) findViewById(R.id.postDate);
+		price = (TextView) findViewById(R.id.postPrice);
+        contact = (Button) findViewById(R.id.postContact);
 
-        image = (ImageView) findViewById(R.id.show_post_image);
-        image2 = (ImageView) findViewById(R.id.show_post_image_2);
-        image3 = (ImageView) findViewById(R.id.show_post_image_3);
-        image4 = (ImageView) findViewById(R.id.show_post_image_4);
+        image = (ImageView) findViewById(R.id.postImage1);
+        image2 = (ImageView) findViewById(R.id.postImage2);
+        image3 = (ImageView) findViewById(R.id.postImage3);
+        image4 = (ImageView) findViewById(R.id.postImage4);
 
         identifier = thisPost.getIdentifier();
         title.setText(thisPost.getTitle());
         details.setText(thisPost.getDetails());
         user.setText(thisPost.getAuthor());
         date.setText(thisPost.getDate());
-        if(!thisPost.getPrice().equals("0"))
+        if(!thisPost.getPrice().equals(""))
             price.setText(thisPost.getPrice());
         else
-            price.setVisibility(View.INVISIBLE);
+            price.setVisibility(View.GONE);
 
 //            image.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_1));
 //            image2.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_2));
@@ -139,16 +138,25 @@ public class ShowPage extends Activity {
             message = String.format(getString(R.string.post_message_content_phone), DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.USER_PHONE));
 
         createMessageDialog();
-        contact_nologin.setOnClickListener(new OnClickListener() {
+        contact.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(ShowPage.this, LoginActivity.class));
+                if(DataParser.isUserLoggedIn(ShowPage.this))
+                    dialog.show();
+                else
+                    startActivity(new Intent(ShowPage.this, LoginActivity.class));
             }
         });
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        if(DataParser.isUserLoggedIn(this))
+
+        if(DataParser.isUserLoggedIn(this)) {
             new PollMessagesTask(this).execute();
+            contact.setText(getString(R.string.contact));
+        }
+        else
+            contact.setText(getString(R.string.contact_login));
+
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
     @Override
@@ -220,18 +228,22 @@ public class ShowPage extends Activity {
     protected void onResume() {
         invalidateOptionsMenu(); //Refreshes the ActionBar menu when activity is resumed
 
-        if(DataParser.isUserLoggedIn(this) && DataParser.isNetworkAvailable(this)) { //if user is already logged in, allow user to contact
+        if(DataParser.isUserLoggedIn(this)) {
             new PollMessagesTask(this).execute();
-            contact.setVisibility(View.VISIBLE);
-            contact_nologin.setVisibility(View.GONE);
+            contact.setText(getString(R.string.contact));
         }
+        else
+            contact.setText(getString(R.string.contact_login));
+
         super.onResume();
     }
 
     private void signOut(){
         if(DataParser.isNetworkAvailable(this))
             new LogoutTask(this).execute(); //Starts asynchronous sign out
+
         invalidateOptionsMenu();
+        contact.setText(getString(R.string.contact_login));
     }
 
     private void processClick(int index){
@@ -288,13 +300,6 @@ public class ShowPage extends Activity {
                 });
 
         dialog = builder.create();
-
-        contact.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.show();
-            }
-        });
     }
 
     //Sends message to user

@@ -14,17 +14,16 @@
         android:focusable="false"
         android:clickable="false"
         android:textSize="@dimen/school_post_size"
-        android:textColor="@android:color/black"
-        android:text="@string/message_failed"/>
+        android:textColor="@android:color/black"/>
 
     <!-- Icon to edit current post -->
-    <ImageView
-        android:id="@+id/view_post_edit"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="8dp"
-        android:contentDescription="@string/edit_post"
-        android:src="@drawable/ic_action_edit"/>
+    <!--<ImageView-->
+        <!--android:id="@+id/view_post_edit"-->
+        <!--android:layout_width="32dp"-->
+        <!--android:layout_height="32dp"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:layout_marginRight="8dp"-->
+        <!--android:contentDescription="@string/edit_post"-->
+        <!--android:src="@drawable/ic_action_edit"/>-->
 
 </RelativeLayout>
