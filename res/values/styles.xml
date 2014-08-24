@@ -24,7 +24,7 @@
     </style>
 
     <!-- Theme used for the post image pop-up -->
-    <style name="ImageDialogTheme" parent="@android:style/Theme.Black.NoTitleBar">
+    <style name="ImageDialogTheme" parent="android:Theme.Holo.NoActionBar">
     </style>
 
     <style name="WidgetTheme" parent="android:Theme.Holo">
