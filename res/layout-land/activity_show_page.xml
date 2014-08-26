@@ -31,8 +31,8 @@
 
                 <ImageView
                     android:id="@+id/postImage1"
-                    android:layout_width="@dimen/image_size_main"
-                    android:layout_height="@dimen/image_size_main"
+                    android:layout_width="@dimen/image_size_height"
+                    android:layout_height="@dimen/image_size_height"
                     android:layout_marginRight="10dp"
                     android:adjustViewBounds="true"
                     android:background="@color/gray"
@@ -74,8 +74,8 @@
 
             <ImageView
                 android:id="@+id/postImage2"
-                android:layout_width="@dimen/image_size_sub"
-                android:layout_height="@dimen/image_size_sub"
+                android:layout_width="@dimen/image_size_width"
+                android:layout_height="@dimen/image_size_width"
                 android:layout_below="@id/postTitle"
                 android:layout_toRightOf="@id/image_layout"
                 android:adjustViewBounds="true"
@@ -86,8 +86,8 @@
 
             <ImageView
                 android:id="@+id/postImage3"
-                android:layout_width="@dimen/image_size_sub"
-                android:layout_height="@dimen/image_size_sub"
+                android:layout_width="@dimen/image_size_width"
+                android:layout_height="@dimen/image_size_width"
                 android:layout_below="@id/postImage2"
                 android:layout_marginTop="10dp"
                 android:layout_toRightOf="@id/image_layout"
@@ -99,8 +99,8 @@
 
             <ImageView
                 android:id="@+id/postImage4"
-                android:layout_width="@dimen/image_size_sub"
-                android:layout_height="@dimen/image_size_sub"
+                android:layout_width="@dimen/image_size_width"
+                android:layout_height="@dimen/image_size_width"
                 android:layout_below="@id/postTitle"
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@id/postImage2"
