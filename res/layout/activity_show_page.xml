@@ -14,29 +14,30 @@
             android:id="@+id/postLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:layout_marginBottom="1.5dp">
+            android:layout_marginBottom="1.5dp"
+            android:clipToPadding="false">
 
             <com.walkntrade.LightTextView
                 android:id="@+id/postTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:background="@color/white"
                 android:padding="5dp"
-                android:textSize="@dimen/title_size"
-                android:background="@color/white" />
+                android:textSize="@dimen/title_size" />
 
             <HorizontalScrollView
                 android:id="@+id/multipleImages"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/postTitle"
+                android:clipToPadding="false"
+                android:fillViewport="true"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp"
-                android:clipToPadding="false"
-                android:scrollbars="none"
-                android:layout_below="@id/postTitle">
+                android:scrollbars="none">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -44,13 +45,15 @@
                     android:orientation="horizontal">
 
                     <RelativeLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="0.5dp">
 
+                        <!-- ImageView matches parent so single image fills the screen, but multiple
+                        images still scroll perfectly fine-->
                         <ImageView
                             android:id="@+id/postImage1"
-                            android:layout_width="@dimen/image_size_width"
+                            android:layout_width="match_parent"
                             android:layout_height="@dimen/image_size_height"
                             android:adjustViewBounds="true"
                             android:background="@color/gray"
@@ -105,10 +108,10 @@
                 android:layout_below="@id/multipleImages"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
+                android:background="@color/white"
                 android:padding="5dp"
                 android:textSize="@dimen/price_size"
-                android:textStyle="bold"
-                android:background="@color/white" />
+                android:textStyle="bold" />
 
             <com.walkntrade.LightTextView
                 android:id="@+id/postDescr"
@@ -117,9 +120,9 @@
                 android:layout_below="@id/postPrice"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
+                android:background="@color/white"
                 android:padding="5dp"
-                android:textSize="@dimen/show_page_text"
-                android:background="@color/white" />
+                android:textSize="@dimen/show_page_text" />
 
         </RelativeLayout>
 
