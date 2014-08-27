@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/grid_hover"
+    <item android:drawable="@drawable/rounded_rectangle_hover"
         android:state_focused="true"/>
-    <item android:drawable="@drawable/grid_select"
+    <item android:drawable="@drawable/rounded_rectangle_select"
         android:state_pressed="true"/>
-    <item android:drawable="@drawable/grid"/>
+    <item android:drawable="@drawable/rounded_rectangle"/>
 </selector>

@@ -93,7 +93,6 @@
         </activity>
         <activity
             android:name=".ShowPage"
-            android:configChanges="screenSize"
             android:label="@string/title_activity_show__page" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

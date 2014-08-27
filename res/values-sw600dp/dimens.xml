@@ -28,6 +28,6 @@
     <dimen name="price_size">28sp</dimen>
     <dimen name="show_page_text">18sp</dimen>
     <dimen name="image_size_height">300dp</dimen>
-    <dimen name="image_size_width">120dp</dimen>
+    <dimen name="image_size_width">320dp</dimen>
 
 </resources>

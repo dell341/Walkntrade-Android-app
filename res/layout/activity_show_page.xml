@@ -4,6 +4,8 @@
     android:layout_height="match_parent"
     android:background="@color/light_gray"
     android:scrollbars="none"
+    android:paddingBottom="5dp"
+    android:clipToPadding="false"
     tools:context=".ShowPage">
 
     <RelativeLayout
@@ -24,9 +26,9 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:layout_marginTop="5dp"
-                android:background="@color/white"
                 android:padding="5dp"
-                android:textSize="@dimen/title_size" />
+                android:textSize="@dimen/title_size"
+                android:background="@drawable/top_rounded_rectangle"/>
 
             <HorizontalScrollView
                 android:id="@+id/multipleImages"
@@ -70,7 +72,7 @@
 
                     <ImageView
                         android:id="@+id/postImage2"
-                        android:layout_width="@dimen/image_size_width"
+                        android:layout_width="match_parent"
                         android:layout_height="@dimen/image_size_height"
                         android:layout_marginRight="0.5dp"
                         android:adjustViewBounds="true"
@@ -80,7 +82,7 @@
 
                     <ImageView
                         android:id="@+id/postImage3"
-                        android:layout_width="@dimen/image_size_width"
+                        android:layout_width="match_parent"
                         android:layout_height="@dimen/image_size_height"
                         android:layout_marginRight="0.5dp"
                         android:adjustViewBounds="true"
@@ -90,7 +92,7 @@
 
                     <ImageView
                         android:id="@+id/postImage4"
-                        android:layout_width="@dimen/image_size_width"
+                        android:layout_width="match_parent"
                         android:layout_height="@dimen/image_size_height"
                         android:layout_marginRight="0.5dp"
                         android:adjustViewBounds="true"
@@ -140,7 +142,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="1.5dp"
                 android:layout_weight="0.5"
-                android:background="@color/white"
+                android:background="@drawable/bottom_left_rounded_rectangle"
                 android:padding="5dp">
 
                 <ImageView
@@ -177,7 +179,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginRight="5dp"
                 android:layout_weight="0.5"
-                android:background="@color/white"
+                android:background="@drawable/bottom_right_rounded_rectangle"
                 android:padding="5dp">
 
                 <Button
