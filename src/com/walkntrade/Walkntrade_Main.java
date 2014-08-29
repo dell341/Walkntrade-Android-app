@@ -27,6 +27,7 @@ public class Walkntrade_Main extends Activity {
     private static final int RESOLUTION_REQUEST = 9000;
 
     private Context context;
+    private boolean hasError = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -73,15 +74,26 @@ public class Walkntrade_Main extends Activity {
                 }.execute(regId);
             }
         }
+        if (hasConnection() && !hasError) {
+            if(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG) != null) //There is a school preference
+                startActivity(new Intent(context, SchoolPage.class)); //Starts SchoolPage Activity
+            else
+                startActivity(new Intent(context, Selector.class)); //Starts Selector (Select/Change School) activity
 
-        if (hasConnection())
             finish(); //Closes this activity
+        }
 
         retry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(hasConnection())
-                    finish();
+                if (hasConnection() && checkPlayServices()) {
+                    if(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG) != null) //There is a school preference
+                        startActivity(new Intent(context, SchoolPage.class)); //Starts SchoolPage Activity
+                    else
+                        startActivity(new Intent(context, Selector.class)); //Starts Selector (Select/Change School) activity
+
+                    finish(); //Closes this activity
+                }
             }
         });
 
@@ -95,28 +107,26 @@ public class Walkntrade_Main extends Activity {
 	}
 
     public boolean hasConnection(){
-        if(DataParser.isNetworkAvailable(this)) { //Checks if device has internet or mobile connection
-            if(DataParser.getSharedStringPreference(this, DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG) != null) //There is a school preference
-                startActivity(new Intent(this, SchoolPage.class)); //Starts SchoolPage Activity
-            else
-                startActivity(new Intent(this, Selector.class)); //Starts Selector (Select/Change School) activity
-            return true;
-        }
-        else
-            return false;
+        return DataParser.isNetworkAvailable(this); //Checks if device has internet or mobile connection
     }
 
     //Check if Google Play services is available. Required for push notifications
     private boolean checkPlayServices() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
+
         if (resultCode != ConnectionResult.SUCCESS) {
-            if(GooglePlayServicesUtil.isUserRecoverableError(resultCode))
+            if(GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                Log.v(TAG, "GooglePlayServices error: "+resultCode);
                 GooglePlayServicesUtil.getErrorDialog(resultCode, this, RESOLUTION_REQUEST).show();
+            }
             else
                 Log.i(TAG, "Play Services not available on device");
 
+            hasError = true;
             return false;
         }
+
+        hasError = false;
         return true;
     }
 }

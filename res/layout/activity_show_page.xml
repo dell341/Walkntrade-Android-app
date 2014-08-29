@@ -51,6 +51,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginRight="0.5dp">
 
+
                         <!-- ImageView matches parent so single image fills the screen, but multiple
                         images still scroll perfectly fine-->
                         <ImageView
@@ -79,6 +80,7 @@
                         android:contentDescription="@string/post_image"
                         android:scaleType="centerCrop"
                         android:visibility="gone" />
+
 
                     <ImageView
                         android:id="@+id/postImage3"
