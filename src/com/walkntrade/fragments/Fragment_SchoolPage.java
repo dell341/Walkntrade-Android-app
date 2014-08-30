@@ -56,7 +56,8 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     @Override //This method may be called several times
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_school_page, container, false);
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(true); //Options in Actionbar (Search)
+        setRetainInstance(true); //Prevents fragment from being destroyed during activity change. (Especially if AsyncTask is currently running)
 
         bigProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.refreshLayout);
@@ -70,10 +71,13 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
 
         bigProgressBar.setVisibility(View.GONE);
 
-        if (savedInstanceState != null) {
-            schoolPosts = savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST);
-            category = savedInstanceState.getString(SAVED_CATEGORY);
-            offset += schoolPosts.size();
+        //Recalls data from onSaveState. Prevents network calls for a simple orientation change
+        if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
+            if(savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST) != null) {
+                schoolPosts = savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST);
+                category = savedInstanceState.getString(SAVED_CATEGORY);
+                offset += schoolPosts.size();
+            }
         }
         else
             category = args.getString(ARG_CATEGORY);
