@@ -196,6 +196,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(SAVED_ARRAYLIST, schoolPosts);
         outState.putString(SAVED_CATEGORY, category);
     }

@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
@@ -27,6 +28,7 @@ import java.io.IOException;
 public class ImageDialog extends Activity {
 
     private static final String TAG = "ImageDialog";
+    private static final String SAVED_IMAGE = "saved_instance_image";
     private static final String IMAGE_INDEX = "Index_of_image";
     private static final String IMAGE_URL = "Url_of_image";
 
@@ -79,24 +81,44 @@ public class ImageDialog extends Activity {
     }
 
     public static class ImageFragment extends Fragment{
+        private ImageView imageView;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_image, container, false);
 
-            ImageView imageView = (ImageView) rootView.findViewById(R.id.full_post_image);
+            imageView = (ImageView) rootView.findViewById(R.id.full_post_image);
             ProgressBar progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
             Bundle args = getArguments();
             int index = args.getInt(IMAGE_INDEX);
             String url = args.getString(IMAGE_URL);
 
-            if(DataParser.isNetworkAvailable(context)) {
+            if(savedInstanceState != null) {
+                Bitmap bitmap = savedInstanceState.getParcelable(SAVED_IMAGE);
+                imageView.setImageBitmap(bitmap);
+
+                if(bitmap == null) {
+                    ImageRetrievalTask task = new ImageRetrievalTask(index, imageView, progressBar);
+                    task.execute(url);
+                }
+            }
+            else if(DataParser.isNetworkAvailable(context)) {
                 //Calls single image to be displayed in pop-up
                 ImageRetrievalTask task = new ImageRetrievalTask(index, imageView, progressBar);
                 task.execute(url);
             }
 
             return rootView;
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle outState) {
+            super.onSaveInstanceState(outState);
+            try {
+                outState.putParcelable(SAVED_IMAGE, ((BitmapDrawable) imageView.getDrawable()).getBitmap());
+            } catch (NullPointerException e){
+                Log.e(TAG, "Orientation Change before image downloaded");
+            }
         }
     }
 
@@ -129,7 +151,7 @@ public class ImageDialog extends Activity {
 
                 bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from Cache
 
-                if(bm == null) //If it doesn't exists, retrieve image from network
+                if(bm == null)  //If it doesn't exists, retrieve image from network
                     bm = DataParser.loadBitmap(imgURL[0]);
 
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache

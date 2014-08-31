@@ -89,8 +89,7 @@
         </activity>
         <activity
             android:name=".SchoolPage"
-            android:label="@string/tSchoolName"
-            android:launchMode="singleTop" >
+            android:label="@string/tSchoolName">
         </activity>
         <activity
             android:name=".ShowPage"
@@ -107,7 +106,6 @@
         </activity>
         <activity
             android:name=".ImageDialog"
-            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_image_dialog"
             android:theme="@style/ImageDialogTheme" >
         </activity>
