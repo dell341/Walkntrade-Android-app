@@ -56,7 +56,7 @@
                         images still scroll perfectly fine-->
                         <ImageView
                             android:id="@+id/postImage1"
-                            android:layout_width="match_parent"
+                            android:layout_width="20dp"
                             android:layout_height="@dimen/image_size_height"
                             android:adjustViewBounds="true"
                             android:background="@color/gray"
@@ -73,7 +73,7 @@
 
                     <ImageView
                         android:id="@+id/postImage2"
-                        android:layout_width="match_parent"
+                        android:layout_width="20dp"
                         android:layout_height="@dimen/image_size_height"
                         android:layout_marginRight="0.5dp"
                         android:adjustViewBounds="true"
@@ -84,7 +84,7 @@
 
                     <ImageView
                         android:id="@+id/postImage3"
-                        android:layout_width="match_parent"
+                        android:layout_width="20dp"
                         android:layout_height="@dimen/image_size_height"
                         android:layout_marginRight="0.5dp"
                         android:adjustViewBounds="true"
@@ -94,7 +94,7 @@
 
                     <ImageView
                         android:id="@+id/postImage4"
-                        android:layout_width="match_parent"
+                        android:layout_width="20dp"
                         android:layout_height="@dimen/image_size_height"
                         android:layout_marginRight="0.5dp"
                         android:adjustViewBounds="true"

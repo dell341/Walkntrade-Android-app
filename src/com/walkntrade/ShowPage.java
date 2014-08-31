@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -76,6 +77,13 @@ public class ShowPage extends Activity {
         image2 = (ImageView) findViewById(R.id.postImage2);
         image3 = (ImageView) findViewById(R.id.postImage3);
         image4 = (ImageView) findViewById(R.id.postImage4);
+
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+
+        image.getLayoutParams().width = displayMetrics.widthPixels;
+        image2.getLayoutParams().width = displayMetrics.widthPixels;
+        image3.getLayoutParams().width = displayMetrics.widthPixels;
+        image4.getLayoutParams().width = displayMetrics.widthPixels;
 
         identifier = thisPost.getIdentifier();
         title.setText(thisPost.getTitle());
