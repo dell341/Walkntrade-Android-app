@@ -94,7 +94,7 @@ public class PostAdapter extends BaseAdapter {
             }
             holder.title.setText(post.getTitle());
 		    holder.details.setText(post.getDetails());
-            holder.author.setText(post.getAuthor());
+            holder.author.setText(post.getUser());
 		    holder.price.setText(post.getPrice());
         } catch(IndexOutOfBoundsException e){
             Log.e(TAG, "Getting post object", e);

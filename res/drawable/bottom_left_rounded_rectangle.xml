@@ -5,18 +5,17 @@
     <!-- Background shadow-->
     <item >
         <shape android:shape="rectangle">
-        <corners android:bottomLeftRadius="2dp"/>
-        <gradient android:startColor="@color/start_gray"
-            android:endColor="@color/end_gray"
-            android:angle="-90"/>
+            <corners android:bottomLeftRadius="2dp"/>
+            <gradient android:startColor="@color/start_gray"
+                android:endColor="@color/end_gray"
+                android:angle="-90"/>
         </shape>
     </item>
 
     <item android:bottom="2px">
         <shape android:shape="rectangle">
-
+            <corners android:bottomLeftRadius="2dp"/>
             <solid android:color="@color/white"/>
-            <size android:height="45dp" android:width="20dp"/>
         </shape>
     </item>
 </layer-list>

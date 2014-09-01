@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Background shadow-->
+    <item >
+        <shape android:shape="rectangle">
+            <corners android:bottomLeftRadius="2dp" android:bottomRightRadius="2dp"/>
+            <gradient android:startColor="@color/start_gray"
+                android:endColor="@color/end_gray"
+                android:angle="-90"/>
+        </shape>
+    </item>
+
     <item >
         <shape android:shape="rectangle">
             <corners android:bottomLeftRadius="2dp" android:bottomRightRadius="2dp"/>

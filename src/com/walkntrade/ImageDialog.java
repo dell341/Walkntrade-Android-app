@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.walkntrade.fragments.Fragment_Post;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 
@@ -42,9 +43,9 @@ public class ImageDialog extends Activity {
 		setContentView(R.layout.activity_image_dialog);
 
         context = getApplicationContext();
-		imgURLs = getIntent().getStringArrayExtra(ShowPage.IMGSRC);
-		identifier = getIntent().getStringExtra(ShowPage.IDENTIFIER);
-        int index = getIntent().getIntExtra(ShowPage.INDEX, 0);
+		imgURLs = getIntent().getStringArrayExtra(Fragment_Post.IMGSRC);
+		identifier = getIntent().getStringExtra(Fragment_Post.IDENTIFIER);
+        int index = getIntent().getIntExtra(Fragment_Post.INDEX, 0);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         ImageFragmentAdapter adapter = new ImageFragmentAdapter(getFragmentManager());

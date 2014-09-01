@@ -1,61 +1,29 @@
 package com.walkntrade;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.walkntrade.asynctasks.LogoutTask;
-import com.walkntrade.asynctasks.PollMessagesTask;
+import com.walkntrade.fragments.Fragment_ContactUser;
+import com.walkntrade.fragments.Fragment_Post;
 import com.walkntrade.io.DataParser;
-import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.posts.Post;
 
-import java.io.IOException;
-
-public class ShowPage extends Activity {
+public class ShowPage extends Activity implements Fragment_Post.ContactUserListener {
 
     private String TAG = "ShowPage";
-	public static String IMGSRC = "Link_For_Images";
-	public static String IDENTIFIER = "Unique_Post_Id";
-    public static String INDEX = "Image_Index";
-
-    private static final String SAVED_POST = "saved_instance_post";
-    private static final String SAVED_IMAGE_1 = "saved_instance_image_1";
-    private static final String SAVED_IMAGE_2 = "saved_instance_image_2";
-    private static final String SAVED_IMAGE_3 = "saved_instance_image_3";
-    private static final String SAVED_IMAGE_4 = "saved_instance_image_4";
+    private static final String TWOPANEBOOL = "saved_instance_two_pane";
+    private static final String ONEPANEBOOL = "saved_instance_one_pane";
 
     private Context context;
-    private String identifier;
-    private Post thisPost;
-    private ProgressBar progressImage;
-    private TextView title, details, user, date, price;
-    private ImageView image, image2, image3, image4;
-    private AlertDialog dialog;
-    private String message;
-    private Button contact;
-    private String[] imgURLs;
-
-    public int imageCount = 0;
+    private boolean twoPaneUsedFirst = false;
+    private boolean onePaneCreated = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,108 +31,57 @@ public class ShowPage extends Activity {
 		setContentView(R.layout.activity_show_page);
 
         context = getApplicationContext();
-		thisPost = getIntent().getParcelableExtra(SchoolPage.SELECTED_POST);
-
-        progressImage = (ProgressBar) findViewById(R.id.progressBar);
-		title = (TextView) findViewById(R.id.postTitle);
-		details = (TextView) findViewById(R.id.postDescr);
-		user = (TextView) findViewById(R.id.userName);
-		date = (TextView) findViewById(R.id.postDate);
-		price = (TextView) findViewById(R.id.postPrice);
-        contact = (Button) findViewById(R.id.postContact);
-
-        image = (ImageView) findViewById(R.id.postImage1);
-        image2 = (ImageView) findViewById(R.id.postImage2);
-        image3 = (ImageView) findViewById(R.id.postImage3);
-        image4 = (ImageView) findViewById(R.id.postImage4);
-
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-
-        image.getLayoutParams().width = displayMetrics.widthPixels;
-        image2.getLayoutParams().width = displayMetrics.widthPixels;
-        image3.getLayoutParams().width = displayMetrics.widthPixels;
-        image4.getLayoutParams().width = displayMetrics.widthPixels;
-
-        identifier = thisPost.getIdentifier();
-        title.setText(thisPost.getTitle());
-        details.setText(thisPost.getDetails());
-        user.setText(thisPost.getAuthor());
-        date.setText(thisPost.getDate());
-        if(!thisPost.getPrice().equals(""))
-            price.setText(thisPost.getPrice());
-        else
-            price.setVisibility(View.GONE);
-
-//            image.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_1));
-//            image2.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_2));
-//            image3.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_3));
-//            image4.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_4));
-
-        //Calls images to be displayed on show page
-
-        //First Image
-        String imgUrl = generateImgURL(0);
-        new SpecialImageRetrievalTask(image, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
-        //Second Image
-        imgUrl = generateImgURL(1);
-        new SpecialImageRetrievalTask(image2, 1).execute(imgUrl);
-        //Third Image
-        imgUrl = generateImgURL(2);
-        new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
-        //Fourth Image
-        imgUrl = generateImgURL(3);
-        new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
-
-        //Set OnClick Listeners for each image
-        image.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                processClick(0);
-            }
-        });
-
-        image2.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                processClick(1);
-            }
-        });
-
-        image3.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                processClick(2);
-            }
-        });
-
-        image4.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                processClick(3);
-            }
-        });
-
-        if(DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.USER_PHONE) == null || DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.USER_PHONE).equals("0"))
-            message = getString(R.string.post_message_content_no_phone);
-        else
-            message = String.format(getString(R.string.post_message_content_phone), DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.USER_PHONE));
-
-        createMessageDialog();
-        contact.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(DataParser.isUserLoggedIn(ShowPage.this))
-                    dialog.show();
-                else
-                    startActivity(new Intent(ShowPage.this, LoginActivity.class));
-            }
-        });
-
-
-        if(DataParser.isUserLoggedIn(this)) {
-            new PollMessagesTask(this).execute();
-            contact.setText(getString(R.string.contact));
-        }
-        else
-            contact.setText(getString(R.string.contact_login));
-
         getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        Post thisPost = getIntent().getParcelableExtra(SchoolPage.SELECTED_POST);
+        Bundle args = new Bundle();
+        args.putParcelable(SchoolPage.SELECTED_POST, thisPost);
+        args.putBoolean(Fragment_Post.TWO_PANE, false);
+
+        if(savedInstanceState != null){
+            twoPaneUsedFirst = savedInstanceState.getBoolean(TWOPANEBOOL);
+            onePaneCreated = savedInstanceState.getBoolean(ONEPANEBOOL);
+        }
+
+        if(findViewById(R.id.frame_layout) != null) {
+         //If FrameLayout is not null, one-pane layout is being used
+            if(savedInstanceState != null) { //Prevents activity from adding infinite amount of fragments on top of one another
+
+                if(twoPaneUsedFirst && !onePaneCreated) { //If layout started in two-pane, one-pane doesn't yet exist. Create it.
+                    onePaneCreated = true;
+                    Fragment_Post postFragment = new Fragment_Post();
+                    postFragment.setArguments(args);
+
+                    getFragmentManager().beginTransaction().add(R.id.frame_layout, postFragment).commit();
+                }
+
+                return;
+            }
+
+            Fragment_Post postFragment = new Fragment_Post();
+            postFragment.setArguments(args);
+
+            getFragmentManager().beginTransaction().add(R.id.frame_layout, postFragment).commit();
+        }
+        else { //Two-pane layout is being used
+
+            if(!twoPaneUsedFirst && !onePaneCreated)
+                twoPaneUsedFirst = true;
+
+            args.putString(Fragment_ContactUser.TITLE, thisPost.getTitle());
+            args.putString(Fragment_ContactUser.USER, thisPost.getUser());
+            args.putBoolean(Fragment_Post.TWO_PANE, true);
+
+            Fragment_Post postFragment = new Fragment_Post();
+            Fragment_ContactUser contactFragment = new Fragment_ContactUser();
+
+            postFragment.setArguments(args);
+            contactFragment.setArguments(args);
+
+            getFragmentManager().beginTransaction().replace(R.id.postFragment, postFragment).commit();
+            getFragmentManager().beginTransaction().replace(R.id.contactFragment, contactFragment).commit();
+        }
+
 	}
 
     @Override
@@ -235,15 +152,29 @@ public class ShowPage extends Activity {
     @Override
     protected void onResume() {
         invalidateOptionsMenu(); //Refreshes the ActionBar menu when activity is resumed
-
-        if(DataParser.isUserLoggedIn(this)) {
-            new PollMessagesTask(this).execute();
-            contact.setText(getString(R.string.contact));
-        }
-        else
-            contact.setText(getString(R.string.contact_login));
-
         super.onResume();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(TWOPANEBOOL, twoPaneUsedFirst);
+        outState.putBoolean(ONEPANEBOOL, onePaneCreated);
+    }
+
+    @Override
+    public void contactUser(String user, String title) {
+        Fragment_ContactUser fragment = new Fragment_ContactUser();
+
+        Bundle args = new Bundle();
+        args.putString(Fragment_ContactUser.USER, user);
+        args.putString(Fragment_ContactUser.TITLE, title);
+        fragment.setArguments(args);
+
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     private void signOut(){
@@ -251,142 +182,6 @@ public class ShowPage extends Activity {
             new LogoutTask(this).execute(); //Starts asynchronous sign out
 
         invalidateOptionsMenu();
-        contact.setText(getString(R.string.contact_login));
-    }
-
-    private void processClick(int index){
-        imgURLs = new String[imageCount];
-        for(int i=0; i < imageCount; i++)
-            generateValidImgURL(i);
-        if(imgURLs.length > 0) {
-            Intent imgDialog = new Intent(ShowPage.this, ImageDialog.class);
-            imgDialog.putExtra(IMGSRC, imgURLs);
-            imgDialog.putExtra(INDEX, index);
-            imgDialog.putExtra(IDENTIFIER, identifier);
-            startActivity(imgDialog);
-        }
-    }
-
-    private String generateImgURL(int index){
-        String schoolID = DataParser.getSharedStringPreference(this, DataParser.PREFS_SCHOOL, DataParser.S_PREF_SHORT);
-        String imgUrl = "post_images/"+schoolID+"/";
-        imgUrl = imgUrl+identifier+"-"+index+".jpeg";
-
-        return imgUrl;
-    }
-
-    private void generateValidImgURL(int index){
-        imgURLs[index] = generateImgURL(index);
-    }
-
-    private void createMessageDialog() {
-        //Custom Message View
-        LayoutInflater inflater = this.getLayoutInflater();
-        View messageView = inflater.inflate(R.layout.activity_message_dialog, null);
-        final EditText editText = ((EditText)messageView.findViewById(R.id.post_message));
-        editText.setText(message);
-
-        String title = getString(R.string.contact)+": "+user.getText().toString();
-
-        //Creates dialog popup to contact user
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(title)
-                .setView(messageView)
-                .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        new SendMessageTask().execute(editText.getText().toString());
-                        dialogInterface.dismiss();
-
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-
-        dialog = builder.create();
-    }
-
-    //Sends message to user
-    private class SendMessageTask extends AsyncTask<String, Void, String> {
-        private DataParser database;
-
-        @Override
-        protected String doInBackground(String... message) {
-            database = new DataParser(context);
-            String response = context.getString(R.string.message_failed);
-
-            try {
-                response = database.messageUser(thisPost.getAuthor(), thisPost.getTitle(), message[0]);
-            } catch (IOException e) {
-                Log.e(TAG, "Messaging user", e);
-            }
-            return response;
-        }
-
-        @Override
-        protected void onPostExecute(String response) {
-            Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    //TODO: In the future receive amount of images belonging to current post. Then use that to predict amount of image urls to generate. Then delete this class
-    public class SpecialImageRetrievalTask extends AsyncTask<String, Void, Bitmap>{
-        private final String TAG = "ASYNCTASK:SPECIALImageRetrieval";
-        private ImageView imgView;
-        private int index;
-        private DiskLruImageCache imageCache;
-
-        public SpecialImageRetrievalTask(ImageView _imgView, int _index){
-            imgView = _imgView;
-            index = _index;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            if(index == 0) //Show progress only on the first big image
-            progressImage.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... imgURL) {
-            Bitmap bm = null;
-            try {
-                String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_SHORT);
-                String key = identifier+"_"+index;
-
-                imageCache = new DiskLruImageCache(context, schoolID+DiskLruImageCache.IMAGE_DIRECTORY);
-                bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from Cache
-
-                if(bm == null) //If it doesn't exists, retrieve image from network
-                    bm = DataParser.loadBitmap(imgURL[0]);
-
-                imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
-            } catch (IOException e) {
-                Log.e(TAG, "Retrieving post image", e);
-            }
-            finally{
-                imageCache.close();
-            }
-
-            return bm;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if(bitmap != null) {
-                imgView.setVisibility(View.VISIBLE);
-                imgView.setImageBitmap(bitmap);
-                imageCount++;
-            }
-            else if(index == 0) { //If no images exist. Put the default image for the first image.
-                imgView.setImageDrawable(getResources().getDrawable(R.drawable.post_image));
-            }
-
-            progressImage.setVisibility(View.INVISIBLE);
-        }
+        //contact.setText(getString(R.string.contact_login));
     }
 }

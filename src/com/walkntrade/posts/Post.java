@@ -14,15 +14,15 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 	public static final String CATEGORY_SERVICE = "Services";
 	public static final String CATEGORY_MISC = "Miscellaneous";
 	
-	private String identifier, title, details, author, imgURL, date, views;
+	private String identifier, title, details, user, imgURL, date, views;
 	private String price = "";
 	private Bitmap defaultImage = null;
 	
-	public Post(String _identifier, String _title, String _details, String _author, String _imgURL, String _date, String _price, String _views) {
+	public Post(String _identifier, String _title, String _details, String _user, String _imgURL, String _date, String _price, String _views) {
         identifier = _identifier;
 		title = _title;
 		details = _details;
-		author = _author;
+		user = _user;
 		imgURL = _imgURL;
 		date = _date;
 		price = _price;
@@ -41,8 +41,8 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 		return details;
 	}
 	
-	public String getAuthor() {
-		return author;
+	public String getUser() {
+		return user;
 	}
 	
 	public String getImgUrl() {
@@ -80,7 +80,7 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
         identifier = in.readString();
 		title = in.readString();
 		details = in.readString();
-		author = in.readString();
+		user = in.readString();
 		imgURL = in.readString();
 		date = in.readString();
 		price = in.readString();
@@ -97,7 +97,7 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
         out.writeString(identifier);
 		out.writeString(title);
 		out.writeString(details);
-		out.writeString(author);
+		out.writeString(user);
 		out.writeString(imgURL);
 		out.writeString(date);
 		out.writeString(price);

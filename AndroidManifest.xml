@@ -82,7 +82,6 @@
         </activity>
         <activity
             android:name=".Selector"
-            android:configChanges="orientation"
             android:label="@string/title_activity_selector"
             android:theme="@style/WalkntradeTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustPan" >
@@ -93,7 +92,8 @@
         </activity>
         <activity
             android:name=".ShowPage"
-            android:label="@string/title_activity_show__page" >
+            android:label="@string/title_activity_show__page"
+            android:windowSoftInputMode="stateHidden|adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.SchoolPage" />
