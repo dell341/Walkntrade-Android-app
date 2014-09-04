@@ -33,7 +33,7 @@
                 android:layout_below="@id/postTitle"
                 android:clipToPadding="false"
                 android:fillViewport="true"
-                android:paddingLeft="1dp"
+                android:paddingLeft="@dimen/horizontal_view_padding"
                 android:paddingRight="3dp"
                 android:scrollbars="none">
 

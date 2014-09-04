@@ -2,4 +2,5 @@
 <resources>
     <!-- ShowPage image height in landscape mode-->
     <dimen name="image_size_height">280dp</dimen>
+    <dimen name="horizontal_view_padding">5dp</dimen>
 </resources>

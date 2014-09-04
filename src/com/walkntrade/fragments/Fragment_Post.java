@@ -103,6 +103,7 @@ public class Fragment_Post extends Fragment {
             image4.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667));
         }
 
+
         identifier = thisPost.getIdentifier();
         title.setText(thisPost.getTitle());
         details.setText(thisPost.getDetails());
@@ -125,7 +126,7 @@ public class Fragment_Post extends Fragment {
         new SpecialImageRetrievalTask(image, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
         //Second Image
         imgUrl = generateImgURL(1);
-        new SpecialImageRetrievalTask(image2, 1).execute(imgUrl);
+        new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
         //Third Image
         imgUrl = generateImgURL(2);
         new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);

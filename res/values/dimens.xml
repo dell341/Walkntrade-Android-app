@@ -31,5 +31,6 @@
     <dimen name="show_page_text">16sp</dimen>
     <dimen name="image_size_width">320dp</dimen>
     <dimen name="image_size_height">220dp</dimen>
+    <dimen name="horizontal_view_padding">3dp</dimen>
 
 </resources>
