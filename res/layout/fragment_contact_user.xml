@@ -1,36 +1,44 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.walkntrade.AnimatedScrollLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_margin="5dp"
-    android:padding="5dp"
-    android:background="@drawable/rounded_rectangle">
+    android:scrollbars="none"
+    android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/message_error"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/TextViewError"/>
-
-    <com.walkntrade.LightTextView
-        android:id="@+id/contactUser"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:text="@string/contact"/>
+        android:layout_height="match_parent"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:orientation="vertical"
+        android:background="@drawable/rounded_rectangle">
+        <TextView
+            android:id="@+id/message_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/TextViewError"/>
 
-    <EditText
-        android:id="@+id/message_contents"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:hint="@string/enter_message"/>
+        <com.walkntrade.LightTextView
+            android:id="@+id/contactUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="@string/contact"/>
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/send"/>
+        <EditText
+            android:id="@+id/message_contents"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:hint="@string/enter_message"/>
 
-</LinearLayout>
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/send"/>
+        </LinearLayout>
+
+
+
+</com.walkntrade.AnimatedScrollLayout>

@@ -1,11 +1,8 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<com.walkntrade.AnimatedScrollLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:scrollbars="none"
-    android:paddingBottom="5dp"
-    android:clipToPadding="false"
-    tools:context=".ShowPage">
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -25,9 +22,9 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:layout_marginTop="5dp"
+                android:background="@drawable/top_rounded_rectangle"
                 android:padding="5dp"
-                android:textSize="@dimen/title_size"
-                android:background="@drawable/top_rounded_rectangle"/>
+                android:textSize="@dimen/title_size" />
 
             <HorizontalScrollView
                 android:id="@+id/multipleImages"
@@ -36,7 +33,7 @@
                 android:layout_below="@id/postTitle"
                 android:clipToPadding="false"
                 android:fillViewport="true"
-                android:paddingLeft="3dp"
+                android:paddingLeft="1dp"
                 android:paddingRight="3dp"
                 android:scrollbars="none">
 
@@ -193,4 +190,4 @@
         </LinearLayout>
 
     </RelativeLayout>
-</ScrollView>
+</com.walkntrade.AnimatedScrollLayout>

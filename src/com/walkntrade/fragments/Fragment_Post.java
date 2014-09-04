@@ -81,10 +81,10 @@ public class Fragment_Post extends Fragment {
 
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         if(!twoPane) {
-            image.getLayoutParams().width = displayMetrics.widthPixels;
-            image2.getLayoutParams().width = displayMetrics.widthPixels;
-            image3.getLayoutParams().width = displayMetrics.widthPixels;
-            image4.getLayoutParams().width = displayMetrics.widthPixels;
+            image.getLayoutParams().width = (int) (displayMetrics.widthPixels* .98);
+            image2.getLayoutParams().width = (int) (displayMetrics.widthPixels* .98);
+            image3.getLayoutParams().width = (int) (displayMetrics.widthPixels* .98);
+            image4.getLayoutParams().width = (int) (displayMetrics.widthPixels* .98);
 
             contact.setOnClickListener(new View.OnClickListener() {
                 @Override

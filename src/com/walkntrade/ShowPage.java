@@ -172,6 +172,7 @@ public class ShowPage extends Activity implements Fragment_Post.ContactUserListe
         fragment.setArguments(args);
 
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.animator.fragment_slide_in_left, R.animator.fragment_slide_off_left, R.animator.fragment_slide_in_right, R.animator.fragment_slide_off_right);
         transaction.replace(R.id.frame_layout, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
