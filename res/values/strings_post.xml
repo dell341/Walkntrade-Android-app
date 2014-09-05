@@ -35,6 +35,7 @@
     <!-- ShowPage Strings -->
     <string name="contact">Contact User</string>
     <string name="contact_login">Log-in to inquire</string>
+    <string name="contacting_user">Messaging </string>
     <string name="show_title">This is the title of the Post. Plus a lot of extra stuff</string>
     <string name="show_description">This is the description of this post. In it\'s entirety, this is just filler text.
         This is taking up the space that a typical post would take. Now this is the end of this "paragraph".</string>

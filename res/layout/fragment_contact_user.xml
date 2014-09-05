@@ -1,44 +1,61 @@
 <com.walkntrade.AnimatedScrollLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:scrollbars="none"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:scrollbars="none">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="5dp"
-        android:padding="5dp"
+        android:background="@drawable/rounded_rectangle"
         android:orientation="vertical"
-        android:background="@drawable/rounded_rectangle">
-        <TextView
+        android:padding="5dp">
+
+        <com.walkntrade.LightTextView
             android:id="@+id/message_error"
+            style="@style/TextViewError"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/TextViewError"/>
+            android:visibility="visible" />
 
         <com.walkntrade.LightTextView
             android:id="@+id/contactUser"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:text="@string/contact"/>
+            android:text="@string/contacting_user"
+            android:textSize="22sp" />
 
         <EditText
             android:id="@+id/message_contents"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textMultiLine"
-            android:hint="@string/enter_message"/>
+            android:hint="@string/enter_message"
+            android:inputType="textMultiLine" />
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/send"/>
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/checkBoz"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
+                android:enabled="false"
+                android:text="@string/add_phone"/>
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/send" />
         </LinearLayout>
 
+
+    </LinearLayout>
 
 
 </com.walkntrade.AnimatedScrollLayout>

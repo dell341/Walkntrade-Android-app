@@ -1,6 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/white">
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -66,48 +68,53 @@
                 android:hint="@string/post_tags"
                 android:inputType="textMultiLine|textCapWords" />
 
-            <LinearLayout
+            <HorizontalScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content">
 
-                <ImageView
-                    android:id="@+id/add_image_1"
-                    android:layout_width="@dimen/image_size_width"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:contentDescription="@string/post_image"
-                    android:src="@drawable/ic_action_new_picture" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <ImageView
-                    android:id="@+id/add_image_2"
-                    android:layout_width="@dimen/image_size_width"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:contentDescription="@string/post_image"
-                    android:src="@drawable/ic_action_new_picture" />
+                    <ImageView
+                        android:id="@+id/add_image_1"
+                        android:layout_width="@dimen/photo_width"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:contentDescription="@string/post_image"
+                        android:src="@drawable/ic_action_new_picture" />
 
-                <ImageView
-                    android:id="@+id/add_image_3"
-                    android:layout_width="@dimen/image_size_width"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:contentDescription="@string/post_image"
-                    android:src="@drawable/ic_action_new_picture" />
+                    <ImageView
+                        android:id="@+id/add_image_2"
+                        android:layout_width="@dimen/photo_width"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:contentDescription="@string/post_image"
+                        android:src="@drawable/ic_action_new_picture" />
 
-                <ImageView
-                    android:id="@+id/add_image_4"
-                    android:layout_width="@dimen/image_size_width"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:contentDescription="@string/post_image"
-                    android:src="@drawable/ic_action_new_picture" />
-            </LinearLayout>
+                    <ImageView
+                        android:id="@+id/add_image_3"
+                        android:layout_width="@dimen/photo_width"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:contentDescription="@string/post_image"
+                        android:src="@drawable/ic_action_new_picture" />
+
+                    <ImageView
+                        android:id="@+id/add_image_4"
+                        android:layout_width="@dimen/photo_width"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:contentDescription="@string/post_image"
+                        android:src="@drawable/ic_action_new_picture" />
+                </LinearLayout>
+            </HorizontalScrollView>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -115,12 +122,12 @@
                 <!-- ProgressBar that is next to submit button-->
                 <ProgressBar
                     android:id="@+id/progressBar"
+                    style="?android:attr/progressBarStyleInverse"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/post_submit"
                     android:layout_centerVertical="true"
-                    style="?android:attr/progressBarStyleInverse"
-                    android:visibility="invisible"/>
+                    android:layout_toLeftOf="@+id/post_submit"
+                    android:visibility="invisible" />
 
                 <Button
                     android:id="@+id/post_submit"
@@ -130,7 +137,7 @@
                     android:paddingLeft="45dp"
                     android:paddingRight="45dp"
                     android:text="@string/post_submit" />
-                </RelativeLayout>
+            </RelativeLayout>
 
 
         </LinearLayout>

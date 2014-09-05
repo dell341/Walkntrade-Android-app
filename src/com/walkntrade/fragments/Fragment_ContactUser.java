@@ -9,9 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.walkntrade.R;
 import com.walkntrade.io.DataParser;
@@ -29,6 +30,7 @@ public class Fragment_ContactUser extends Fragment {
     public static final String TITLE = "title_of_message";
 
     private Context context;
+    private TextView messageFeedback;
     private String user, subject, message;
     private EditText messageContents;
     private Button button;
@@ -41,19 +43,38 @@ public class Fragment_ContactUser extends Fragment {
         user = getArguments().getString(USER);
         subject = getArguments().getString(TITLE);
 
+        messageFeedback = (TextView) rootView.findViewById(R.id.message_error);
         TextView contactUser = (TextView) rootView.findViewById(R.id.contactUser);
         messageContents = (EditText) rootView.findViewById(R.id.message_contents);
+        CheckBox checkBox = (CheckBox) rootView.findViewById(R.id.checkBoz);
         button = (Button) rootView.findViewById(R.id.button);
 
         //If user has no phone number on their account. Include a message without the phone number
         //TODO: Add checkbox to add or remove phone number
         if(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_PHONE) == null || DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_PHONE).equals("0"))
             message = getString(R.string.post_message_content_no_phone);
-        else
+        else {
             message = String.format(getString(R.string.post_message_content_phone), DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_PHONE));
+            checkBox.setEnabled(true);
+            checkBox.setChecked(true);
+        }
 
-        contactUser.setText(getString(R.string.contact)+" : "+user);
+        contactUser.setText(getString(R.string.contacting_user)+" "+user);
         messageContents.setText(message);
+
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    message = String.format(getString(R.string.post_message_content_phone), DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_PHONE));
+                    messageContents.setText(message);
+                }
+                else {
+                    message = getString(R.string.post_message_content_no_phone);
+                    messageContents.setText(message);
+                }
+            }
+        });
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,7 +111,15 @@ public class Fragment_ContactUser extends Fragment {
 
         @Override
         protected void onPostExecute(String response) {
-            Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+
+            if(response.equals("success")){
+                messageFeedback.setTextColor(getResources().getColor(R.color.holo_blue));
+                messageFeedback.setText(response);
+            }
+            else {
+                messageFeedback.setText(response);
+            }
+
             button.setEnabled(true);
         }
     }

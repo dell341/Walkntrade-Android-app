@@ -114,11 +114,6 @@ public class Fragment_Post extends Fragment {
         else
             price.setVisibility(View.GONE);
 
-//            image.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_1));
-//            image2.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_2));
-//            image3.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_3));
-//            image4.setImageBitmap((Bitmap)savedInstanceState.getParcelable(SAVED_IMAGE_4));
-
         //Calls images to be displayed on show page
 
         //First Image
@@ -126,7 +121,7 @@ public class Fragment_Post extends Fragment {
         new SpecialImageRetrievalTask(image, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
         //Second Image
         imgUrl = generateImgURL(1);
-        new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+        new SpecialImageRetrievalTask(image2, 1).execute(imgUrl);
         //Third Image
         imgUrl = generateImgURL(2);
         new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
