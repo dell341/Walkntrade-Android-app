@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.walkntrade"
-    android:versionCode="10"
-    android:versionName="1.2.7" >
+    android:versionCode="11"
+    android:versionName="1.3.0" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -71,7 +71,7 @@
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
             android:theme="@style/WalkntradeTheme.NoActionBar"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
+            android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
             android:name=".RegistrationActivity"
