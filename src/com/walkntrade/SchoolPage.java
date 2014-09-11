@@ -256,24 +256,24 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
             //Expandable section
             DrawerItem postSection = new DrawerItem(drawerOptions[0], R.drawable.expander_open_holo_light);
             drawerItemParents.add(postSection); //Post [SECTION] id:100
-            drawerItemChildList.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[1])); //Books id:110
-            drawerItemChildList.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[2])); //Tech id:120
-            drawerItemChildList.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[3])); //Services id:130
-            drawerItemChildList.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[4])); //Misc. id:140
+            drawerItemChildList.add(new DrawerItem(R.drawable.ic_book, drawerOptions[1])); //Books id:110
+            drawerItemChildList.add(new DrawerItem(R.drawable.ic_tech, drawerOptions[2])); //Tech id:120
+            drawerItemChildList.add(new DrawerItem(R.drawable.ic_service, drawerOptions[3])); //Services id:130
+            drawerItemChildList.add(new DrawerItem(R.drawable.ic_misc, drawerOptions[4])); //Misc. id:140
 
             drawerItemChildren.put(postSection, drawerItemChildList);
 
             drawerItemParents.add(new DrawerItem(drawerOptions[5], R.drawable.expander_open_holo_light)); //Messages [SECTION] id:200
-            drawerItemParents.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[6], DataParser.getMessagesAmount(context))); //Inbox id:300
-            drawerItemParents.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[7])); //Sent id:400
+            drawerItemParents.add(new DrawerItem(R.drawable.ic_message, drawerOptions[6], DataParser.getMessagesAmount(context))); //Inbox id:300
+            drawerItemParents.add(new DrawerItem(R.drawable.ic_message, drawerOptions[7])); //Sent id:400
             drawerItemParents.add(new DrawerItem(drawerOptions[8], R.drawable.expander_open_holo_light)); //Settings [SECTION] id:500
-            drawerItemParents.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[9])); //Account id:600
-            drawerItemParents.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[10])); //Select School id:700
+            drawerItemParents.add(new DrawerItem(R.drawable.ic_account, drawerOptions[9])); //Account id:600
+            drawerItemParents.add(new DrawerItem(R.drawable.ic_location, drawerOptions[10])); //Select School id:700
         } else if (!DataParser.isUserLoggedIn(context)) {
             //User is signed out
             drawerItemParents.add(new DrawerItem(R.drawable.avatar, getString(R.string.user_name_no_login), true)); //id:000
             drawerItemParents.add(new DrawerItem(drawerOptions[8], R.drawable.expander_open_holo_light)); //Settings [SECTION] id:100
-            drawerItemParents.add(new DrawerItem(R.drawable.ic_action_mic, drawerOptions[10])); //Select School id:200
+            drawerItemParents.add(new DrawerItem(R.drawable.ic_location, drawerOptions[10])); //Select School id:200
         }
 
         navigationDrawerList.setAdapter(new DrawerAdapter(this, drawerItemParents, drawerItemChildren));

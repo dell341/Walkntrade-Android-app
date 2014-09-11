@@ -97,10 +97,10 @@ public class Fragment_Post extends Fragment {
                 }
             });
         } else {
-            image.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667));
-            image2.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667));
-            image3.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667));
-            image4.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667));
+            image.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667 * .99));
+            image2.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667 * .99));
+            image3.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667 * .99));
+            image4.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667 * .99));
         }
 
 
