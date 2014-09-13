@@ -941,4 +941,52 @@ public class DataParser {
 
         return bitmap;
     }
+
+    //Gets a sample sized bitmap, so the device uses less memory to store it
+    public static Bitmap loadOptBitmap(String _url, int width, int height) throws IOException {
+        Bitmap bitmap;
+        InputStream in = new InputStream() {
+            @Override
+            public int read() throws IOException {
+                return 0;
+            }
+        };
+
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+
+            in = new java.net.URL("http://walkntrade.com/" + _url).openStream();
+            BitmapFactory.decodeStream(in, null, options);
+
+            options.inSampleSize = getSampleSize(options, width, height);
+            Log.v(TAG, "Sample size: "+options.inSampleSize);
+
+            options.inJustDecodeBounds = false;
+            in = new java.net.URL("http://walkntrade.com/" + _url).openStream();
+            bitmap = BitmapFactory.decodeStream(in, null, options);
+        }
+        finally {
+            in.close();
+        }
+
+        return bitmap;
+    }
+
+    public static int getSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if(height > reqHeight || width > reqWidth){
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            while((halfHeight / inSampleSize) > reqHeight && (halfWidth/inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+   }
 }

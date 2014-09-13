@@ -113,15 +113,14 @@ public class Fragment_Post extends Fragment {
             price.setText(thisPost.getPrice());
         else
             price.setVisibility(View.GONE);
-
-        //Calls images to be displayed on show page
+//Calls images to be displayed on show page
 
         //First Image
         String imgUrl = generateImgURL(0);
         new SpecialImageRetrievalTask(image, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
         //Second Image
         imgUrl = generateImgURL(1);
-        new SpecialImageRetrievalTask(image2, 1).execute(imgUrl);
+        new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
         //Third Image
         imgUrl = generateImgURL(2);
         new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
@@ -240,12 +239,21 @@ public class Fragment_Post extends Fragment {
                 imageCache = new DiskLruImageCache(context, schoolID+DiskLruImageCache.IMAGE_DIRECTORY);
                 bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from Cache
 
-                if(bm == null) //If it doesn't exists, retrieve image from network
-                    bm = DataParser.loadBitmap(imgURL[0]);
+                if(bm == null) { //If it doesn't exists, retrieve image from network
+                    int width;
+                    int height;
+
+                    do { //Keep measuring the width of the ImageView if it's zero
+                    width = image.getMeasuredWidth();
+                    height = image.getMeasuredHeight();
+                    } while (width == 0 || height == 0);
+
+                    bm = DataParser.loadOptBitmap(imgURL[0], width, height);
+                }
 
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {
-                Log.e(TAG, "Retrieving post image", e);
+                Log.e(TAG, "Image does not exist");
             }
             finally{
                 imageCache.close();
