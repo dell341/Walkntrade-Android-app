@@ -30,8 +30,9 @@ import java.io.IOException;
 public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener{
 
     private static final String TAG = "LoginActivity";
-    private static final int RESOLUTION_REQUEST = 9000;
-    private static final int VERIFY_REQUEST = 100;
+    private static final int REQUEST_RESOLUTION = 9000;
+    private static final int REQUEST_VERIFY = 100;
+    public static final int REQUEST_LOGIN = 200;
 
     private LinearLayout loginHeader;
     private SwipeRefreshLayout refreshLayout;
@@ -60,7 +61,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         Button registerButton = (Button) findViewById(R.id.register);
 		context = getApplicationContext();
 
-        refreshLayout.setColorScheme(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
+        refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
 		
 		submitButton.setOnClickListener(new OnClickListener() {
@@ -90,6 +91,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
                 editor.putBoolean(DataParser.CURRENTLY_LOGGED_IN, false);
                 editor.apply();
 
+                setResult(Activity.RESULT_CANCELED);
                 finish();
             }
         });
@@ -105,7 +107,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == VERIFY_REQUEST){
+        if(requestCode == REQUEST_VERIFY){
             if(resultCode == RESULT_OK) //If user has successfully verified their account, just log them in
                 if (canLogin() && DataParser.isNetworkAvailable(context)) {
                     loginError.setVisibility(View.GONE);
@@ -147,7 +149,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
         if (resultCode != ConnectionResult.SUCCESS) {
             if(GooglePlayServicesUtil.isUserRecoverableError(resultCode))
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this, RESOLUTION_REQUEST).show();
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this, REQUEST_RESOLUTION).show();
             else
                 Log.i(TAG, "Play Services not available on device");
 
@@ -205,6 +207,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
                     if(regId.isEmpty()) {
                         Log.i(TAG, "Registration id is empty, Creating one now");
                         gcmReg.registerForId();
+                        setResult(Activity.RESULT_OK);
                         finish();
                     }
                     else { //If registration id is already found. Send it to the server to make sure it's still updated.
@@ -224,6 +227,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
                             @Override
                             protected void onPostExecute(String s) {
+                                setResult(Activity.RESULT_OK);
                                 finish();
                             }
                         }.execute(regId);
@@ -231,12 +235,13 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
                 }
                 else {
                     Log.e(TAG, "Google Services not available");
+                    setResult(Activity.RESULT_CANCELED);
                     finish(); //Closes this activity if Google Play Services not available
                 }
 			}
             else if(response.equals(getString(R.string.error_need_verification))) {
                 Intent verifyIntent = new Intent(LoginActivity.this, VerifyKeyActivity.class);
-                startActivityForResult(verifyIntent, VERIFY_REQUEST); //Starts Verify activity
+                startActivityForResult(verifyIntent, REQUEST_VERIFY); //Starts Verify activity
             }
 			else {
 				loginError.setText(response);

@@ -1,5 +1,6 @@
 package com.walkntrade.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -96,7 +97,7 @@ public class DrawerAdapter extends BaseExpandableListAdapter {
                     @Override
                     public void onClick(View view) {
                         if(!DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context))
-                            context.startActivity(new Intent(context, LoginActivity.class));
+                            ((Activity)context).startActivityForResult(new Intent(context, LoginActivity.class), LoginActivity.REQUEST_LOGIN);
                     }
                 });
             }

@@ -8,11 +8,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +36,7 @@ import java.util.List;
 public class SchoolPage extends Activity implements ExpandableListView.OnGroupClickListener, ExpandableListView.OnChildClickListener {
 
     private final String TAG = "SchoolPage";
+    private static final String SAVED_AVATAR_IMAGE = "saved_instance_avatar";
     public static final String SELECTED_POST = "Selected_Post";
 
     private String[] drawerOptions;
@@ -43,6 +46,8 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
 
     private ActionBar actionBar;
     private Context context;
+
+    private boolean hasAvatar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,10 +65,28 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         PagerTabStrip pagerTab = (PagerTabStrip) findViewById(R.id.pager_tab);
         TabsPagerAdapter tabsAdapter = new TabsPagerAdapter(getFragmentManager(), this);
+        hasAvatar = false;
+
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
+        if(savedInstanceState != null)
+            hasAvatar = true;
 
         updateDrawer();
 
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        //Retrieve saved avatar image
+        if(savedInstanceState != null &&  DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
+            Bitmap bm = savedInstanceState.getParcelable(SAVED_AVATAR_IMAGE);
+
+            if(bm == null)
+                new AvatarRetrievalTask(this, navigationDrawerList).execute();
+            else {
+                DrawerAdapter adapter = (DrawerAdapter) navigationDrawerList.getExpandableListAdapter();
+                DrawerItem item = (DrawerItem)adapter.getGroup(0); //Get user header item
+                item.setAvatar(bm);
+                adapter.notifyDataSetChanged();
+            }
+        }
 
         //Set Title in Action Bar to the name of the school
         actionBar.setTitle(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG));
@@ -74,7 +97,7 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
                 actionBar.setTitle(getString(R.string.app_name));
 
                 if (DataParser.isUserLoggedIn(context)) {
-                    //TODO: Revise this later. Make it more efficient
+                    //TODO: Find a better way to update the inbox amount
 
                     DrawerAdapter adapter = (DrawerAdapter) navigationDrawerList.getExpandableListAdapter();
                     DrawerItem inboxItem = (DrawerItem) adapter.getGroup(3);
@@ -111,7 +134,21 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
             new PollMessagesTask(this).execute(); //Check for new messages
 
         invalidateOptionsMenu(); //Refreshes the ActionBar menu when activity is resumed
-        updateDrawer();
+        //updateDrawer();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        DrawerAdapter adapter = (DrawerAdapter) navigationDrawerList.getExpandableListAdapter();
+        DrawerItem item = (DrawerItem)adapter.getGroup(0); //Get user header item
+
+        try {
+            outState.putParcelable(SAVED_AVATAR_IMAGE, item.getAvatar());
+        } catch (NullPointerException e){
+            Log.e(TAG, "Orientation Change before image downloaded");
+        }
     }
 
     //Must be called at this state for the ActionBarDrawerToggle
@@ -191,7 +228,7 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
         switch (item.getItemId()) {
             case R.id.action_login:
                 if (!DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context))
-                    startActivity(new Intent(this, LoginActivity.class));
+                    startActivityForResult(new Intent(this, LoginActivity.class), LoginActivity.REQUEST_LOGIN);
                 return true;
             case R.id.action_inbox:
                 if (DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context)) {
@@ -209,6 +246,14 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //If user logs in, update the navigation drawer
+        if(requestCode == LoginActivity.REQUEST_LOGIN)
+            if(resultCode == Activity.RESULT_OK)
+                updateDrawer();
     }
 
     @Override
@@ -237,12 +282,10 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
     //Update contents in Navigation Drawer. User logged in/ User not logged in
     private void updateDrawer() {
         if (DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
-            new AvatarRetrievalTask(this, navigationDrawerList).execute();
             new UserNameTask(this, navigationDrawerList).execute();
+            if(!hasAvatar)
+                new AvatarRetrievalTask(this, navigationDrawerList).execute();
         }
-
-//        DrawerAdapter adapter = (DrawerAdapter) navigationDrawerList.getAdapter();
-//            adapter.clearContents();//Clears out current information
 
         //Create titles and options for the NavigationDrawer
         ArrayList<DrawerItem> drawerItemParents = new ArrayList<DrawerItem>();
