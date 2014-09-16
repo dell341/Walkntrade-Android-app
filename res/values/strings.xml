@@ -51,7 +51,6 @@
     <string name="invalid_message">Message cannot be blank</string>
     <string name="title_activity_messages">Messages</string>
     <string name="title_activity_show_message">Walkntrade Message</string>
-    <string name="title_activity_notification_settings">NotificationSettings</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

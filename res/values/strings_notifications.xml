@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="title_activity_notification_settings">Notification Settings</string>
     <string name="notification_push">Receive push notifications</string>
     <string name="notification_settings">Push Notification settings</string>
     <string name="notification_vibrate">Vibrate</string>

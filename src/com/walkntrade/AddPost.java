@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -38,6 +39,7 @@ import java.util.Random;
 public class AddPost extends Activity implements OnClickListener {
 
     private static final String TAG = "AddPost";
+    private static final String SAVED_IMAGE_PATHS = "saved_instance_image_paths";
     public static final String CATEGORY_POSITION = "category_position";
 
     private static final int CAPTURE_IMAGE_ONE = 100;
@@ -73,19 +75,19 @@ public class AddPost extends Activity implements OnClickListener {
         switch (position) {
             case 0:
                 selectedCategory = getString(R.string.server_category_book);
-                getActionBar().setTitle("Adding " + getString(R.string.server_category_book));
+                getActionBar().setTitle(getString(R.string.add_book));
                 break;
             case 1:
                 selectedCategory = getString(R.string.server_category_tech);
-                getActionBar().setTitle("Adding " + getString(R.string.server_category_tech));
+                getActionBar().setTitle(getString(R.string.add_tech));
                 break;
             case 2:
                 selectedCategory = getString(R.string.server_category_service);
-                getActionBar().setTitle("Adding " + getString(R.string.server_category_service));
+                getActionBar().setTitle(getString(R.string.add_service));
                 break;
             case 3:
                 selectedCategory = getString(R.string.server_category_misc);
-                getActionBar().setTitle("Adding " + getString(R.string.server_category_misc));
+                getActionBar().setTitle(getString(R.string.add_misc));
                 break;
             default:
                 selectedCategory = getString(R.string.server_category_book);
@@ -112,6 +114,27 @@ public class AddPost extends Activity implements OnClickListener {
         image3 = (ImageView) findViewById(R.id.add_image_3);
         image4 = (ImageView) findViewById(R.id.add_image_4);
         submit = (Button) findViewById(R.id.post_submit);
+
+        if(savedInstanceState != null) {
+            int width = (int) context.getResources().getDimension(R.dimen.photo_width);
+            int height = (int) context.getResources().getDimension(R.dimen.photo_width);
+            photoPaths = savedInstanceState.getStringArray(SAVED_IMAGE_PATHS);
+            int index = 0;
+
+            for(String path : photoPaths) {
+                if(path != null) {
+                    Bitmap bm = ImageTool.getImageFromDevice(path, width, height);
+                    switch(index){
+                        case 0: image1.setImageBitmap(bm); break;
+                        case 1: image2.setImageBitmap(bm); break;
+                        case 2: image3.setImageBitmap(bm); break;
+                        case 4: image4.setImageBitmap(bm); break;
+                        default: break;
+                    }
+                }
+                index++;
+            }
+        }
 
         submit.setOnClickListener(new OnClickListener() {
             @Override
@@ -298,8 +321,16 @@ public class AddPost extends Activity implements OnClickListener {
                 }
                 addPicToGallery();
             }
-            imageView.setImageBitmap(ImageTool.getImageFromDevice(mCurrentPhotoPath, imageView));
+            int width = (int) context.getResources().getDimension(R.dimen.photo_width);
+            int height = (int) context.getResources().getDimension(R.dimen.photo_width);
+            imageView.setImageBitmap(ImageTool.getImageFromDevice(mCurrentPhotoPath, width, height));
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putStringArray(SAVED_IMAGE_PATHS, photoPaths);
     }
 
     //Creates image file to be saved

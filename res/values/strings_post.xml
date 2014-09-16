@@ -12,6 +12,11 @@
     <string name="post_submit">Submit Post</string>
     <string name="add_photo">Upload photo</string>
 
+    <string name="add_book">Adding book post</string>
+    <string name="add_tech">Adding tech post</string>
+    <string name="add_service">Adding services post</string>
+    <string name="add_misc">Adding miscellaneous post</string>
+
     <string-array name="add_photo_options">
         <item>Use camera</item>
         <item>Upload existing photo</item>

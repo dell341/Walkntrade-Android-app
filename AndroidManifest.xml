@@ -111,7 +111,6 @@
         </activity>
         <activity
             android:name=".AddPost"
-            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_add_post" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

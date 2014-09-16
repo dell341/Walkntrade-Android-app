@@ -140,7 +140,10 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             else
                 addPicToGallery();
 
-            avatar.setImageBitmap(ImageTool.getImageFromDevice(mCurrentPhotoPath, avatar));
+            int width = (int) getResources().getDimension(R.dimen.image_size_height);
+            int height = (int) getResources().getDimension(R.dimen.image_size_height);
+
+            avatar.setImageBitmap(ImageTool.getImageFromDevice(mCurrentPhotoPath, width, height));
         }
     }
 

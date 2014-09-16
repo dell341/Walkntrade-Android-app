@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.widget.ImageView;
 
 /**
  * Copyright (c) 2014, All Rights Reserved
@@ -34,10 +33,8 @@ public class ImageTool {
     }
 
     //Returns a scaled image for specified image view
-    public static Bitmap getImageFromDevice(String path, ImageView imageView) {
+    public static Bitmap getImageFromDevice(String path, int targetWidth, int targetHeight) {
         //Scale bitmap to ImageView, minimizing memory usage
-        int targetWidth = imageView.getWidth();
-        int targetHeight = imageView.getHeight();
 
         //Get dimensions of actual image
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();

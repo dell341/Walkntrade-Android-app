@@ -244,8 +244,8 @@ public class Fragment_Post extends Fragment {
                     int height;
 
                     do { //Keep measuring the width of the ImageView if it's zero
-                    width = image.getMeasuredWidth();
-                    height = image.getMeasuredHeight();
+                    width = image.getWidth();
+                    height = image.getHeight();
                     } while (width == 0 || height == 0);
 
                     bm = DataParser.loadOptBitmap(imgURL[0], width, height);
