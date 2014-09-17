@@ -50,7 +50,6 @@ public class Fragment_ContactUser extends Fragment {
         button = (Button) rootView.findViewById(R.id.button);
 
         //If user has no phone number on their account. Include a message without the phone number
-        //TODO: Add checkbox to add or remove phone number
         if(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_PHONE) == null || DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_PHONE).equals("0"))
             message = getString(R.string.post_message_content_no_phone);
         else {

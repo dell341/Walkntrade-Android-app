@@ -294,7 +294,7 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
 
         if (DataParser.isUserLoggedIn(context)) {
             //User is signed in
-            drawerItemParents.add(new DrawerItem(R.drawable.avatar, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_NAME), true)); //User Item id:000
+            drawerItemParents.add(new DrawerItem(R.drawable.ic_action_person, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_NAME), true)); //User Item id:000
 
             //Expandable section
             DrawerItem postSection = new DrawerItem(drawerOptions[0], R.drawable.expander_open_holo_light);
@@ -314,7 +314,7 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
             drawerItemParents.add(new DrawerItem(R.drawable.ic_location, drawerOptions[10])); //Select School id:700
         } else if (!DataParser.isUserLoggedIn(context)) {
             //User is signed out
-            drawerItemParents.add(new DrawerItem(R.drawable.avatar, getString(R.string.user_name_no_login), true)); //id:000
+            drawerItemParents.add(new DrawerItem(R.drawable.ic_action_person, getString(R.string.user_name_no_login), true)); //id:000
             drawerItemParents.add(new DrawerItem(drawerOptions[8], R.drawable.expander_open_holo_light)); //Settings [SECTION] id:100
             drawerItemParents.add(new DrawerItem(R.drawable.ic_location, drawerOptions[10])); //Select School id:200
         }
