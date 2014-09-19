@@ -73,6 +73,7 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
             hasAvatar = true;
 
         updateDrawer();
+        navigationDrawerList.expandGroup(1); //Expand add post group
 
         //Retrieve saved avatar image
         if(savedInstanceState != null &&  DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
@@ -252,8 +253,10 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //If user logs in, update the navigation drawer
         if(requestCode == LoginActivity.REQUEST_LOGIN)
-            if(resultCode == Activity.RESULT_OK)
+            if(resultCode == Activity.RESULT_OK) {
                 updateDrawer();
+                navigationDrawerList.expandGroup(1); //Expand add post group
+            }
     }
 
     @Override
