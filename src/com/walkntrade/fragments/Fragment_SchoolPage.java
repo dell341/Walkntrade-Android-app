@@ -60,7 +60,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         setRetainInstance(true); //Prevents fragment from being destroyed during activity change. (Especially if AsyncTask is currently running)
 
         bigProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
-        refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.refreshLayout);
+        refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.refresh_layout);
         progressBar = (ProgressBar) rootView.findViewById(R.id.progressBarGrid);
         noResults = (TextView) rootView.findViewById(R.id.noResults);
         gridView = (GridView) rootView.findViewById(R.id.gridView);

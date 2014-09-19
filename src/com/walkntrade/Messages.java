@@ -46,7 +46,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         context = getApplicationContext();
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refreshLayout);
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         noResults = (TextView) findViewById(R.id.noResults);
         messageList = (ListView) findViewById(R.id.messageList);
         messageList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);

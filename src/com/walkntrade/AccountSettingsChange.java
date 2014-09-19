@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +27,7 @@ import java.io.IOException;
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
-public class AccountSettingsChange extends Activity {
+public class AccountSettingsChange extends Activity implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "AccountSettingsChange";
     public static final String CHANGE_SETTING = "settings_to_change";
@@ -35,7 +35,7 @@ public class AccountSettingsChange extends Activity {
     public static final int SETTING_PHONE = 1;
     public static final int SETTING_PASSWORD = 2;
 
-    private ProgressBar progressBar;
+    private SwipeRefreshLayout refreshLayout;
     private TextView errorMessage;
     private EditText newSetting, newSettingConfirm;
     private int setting;
@@ -46,11 +46,15 @@ public class AccountSettingsChange extends Activity {
         setContentView(R.layout.activity_account_change);
 
         setting = getIntent().getIntExtra(CHANGE_SETTING, 0);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         errorMessage = (TextView) findViewById(R.id.errorMessage);
         newSetting = (EditText) findViewById(R.id.newSetting);
         newSettingConfirm = (EditText) findViewById(R.id.newSettingConfirm);
+
         Button button = (Button) findViewById(R.id.button);
+        refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
+        refreshLayout.setOnRefreshListener(this);
+        refreshLayout.setEnabled(false);
 
         switch(setting){
             case SETTING_EMAIL:
@@ -129,6 +133,11 @@ public class AccountSettingsChange extends Activity {
         }
     }
 
+    @Override
+    public void onRefresh() {
+
+    }
+
     public boolean canContinue() {
         boolean canContinue = true;
         String t1 = newSetting.getText().toString();
@@ -172,7 +181,7 @@ public class AccountSettingsChange extends Activity {
 
         @Override
         protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
+            refreshLayout.setRefreshing(true);
         }
 
         @Override
@@ -191,7 +200,7 @@ public class AccountSettingsChange extends Activity {
 
         @Override
         protected void onPostExecute(String serverResponse) {
-            progressBar.setVisibility(View.INVISIBLE);
+            refreshLayout.setRefreshing(false);
 
             Toast toast = Toast.makeText(AccountSettingsChange.this, serverResponse, Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0);

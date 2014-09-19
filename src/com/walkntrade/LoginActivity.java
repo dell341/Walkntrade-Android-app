@@ -49,7 +49,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         setContentView(R.layout.activity_login);
 
         settings = getSharedPreferences(DataParser.PREFS_USER, 0);
-        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refreshLayout);
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         loginError = (TextView) findViewById(R.id.loginErrorMessage);
         resetPassword = (TextView) findViewById(R.id.forgot_password);
         emailAddress = (EditText) findViewById(R.id.email);
@@ -60,6 +60,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
+        refreshLayout.setEnabled(false);
 
         resetPassword.setOnClickListener(new OnClickListener() {
             @Override
@@ -127,7 +128,6 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
     @Override
     public void onRefresh() {
-
     }
 
     //Verifies that login credentials are valid
@@ -169,7 +169,6 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         @Override
         protected void onPreExecute() {
             refreshLayout.setRefreshing(true);
-            //progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -192,7 +191,6 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
         @Override
         protected void onPostExecute(String response) {
-            //progressBar.setVisibility(View.INVISIBLE);
             refreshLayout.setRefreshing(false);
 
             if (response.equals(DataParser.LOGIN_SUCCESS)) {
