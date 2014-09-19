@@ -31,9 +31,9 @@ public class VerifyKeyActivity extends Activity {
         setContentView(R.layout.activity_veryify_key);
 
         context = getApplicationContext();
-        verifyError = (TextView) findViewById(R.id.verify_error);
+        verifyError = (TextView) findViewById(R.id.error_message);
         verifyKey = (EditText) findViewById(R.id.verify_key);
-        Button submitButton = (Button) findViewById(R.id.verify_submit);
+        Button submitButton = (Button) findViewById(R.id.submit);
 
         submitButton.setOnClickListener(new OnClickListener() {
             @Override

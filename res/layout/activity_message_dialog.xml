@@ -9,7 +9,7 @@
         android:id="@+id/message_error"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/TextViewError"/>
+        style="@style/TextViewRed"/>
 
     <EditText
         android:id="@+id/post_message"

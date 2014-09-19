@@ -85,7 +85,7 @@ public class AccountSettingsChange extends Activity {
                     View layout = getLayoutInflater().inflate(R.layout.activity_veryify_key, null);
 
                     final EditText editText = (EditText) layout.findViewById(R.id.verify_key);
-                    Button button = (Button) layout.findViewById(R.id.verify_submit);
+                    Button button = (Button) layout.findViewById(R.id.submit);
                     editText.setHint(getString(R.string.old_password));
                     editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                     button.setVisibility(View.GONE);
@@ -142,7 +142,7 @@ public class AccountSettingsChange extends Activity {
         switch (setting) {
             case SETTING_EMAIL:
                 if(TextUtils.isEmpty(t1) || !t1.contains("@")) {
-                    newSetting.setError(getString(R.string.invalidEmailAddress));
+                    newSetting.setError(getString(R.string.invalid_email_address));
                     canContinue = false;
                 }
                 break;

@@ -23,10 +23,10 @@
 
             <TextView
                 android:id="@+id/errorMessage"
-                style="@style/TextViewError"
+                style="@style/TextViewRed"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
-                android:text="@string/loginError" />
+                android:text="@string/login_error" />
         </LinearLayout>
 
         <EditText

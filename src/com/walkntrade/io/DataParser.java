@@ -325,6 +325,24 @@ public class DataParser {
         return serverResponse;
     }
 
+    //Resets user's password
+    public String resetPassword(String email) throws IOException {
+        establishConnection();
+
+        String query = "intent=resetPassword&email="+email;
+        String serverResponse = null;
+
+        try {
+            HttpEntity entity = new StringEntity(query);
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream);
+        } finally {
+            disconnectAll();
+        }
+
+        return serverResponse;
+    }
+
     //Verifies user based on key provided
     public String verifyUser(String key) throws IOException {
         establishConnection();

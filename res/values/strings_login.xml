@@ -2,17 +2,30 @@
 <resources>
     <!-- LoginActivity Strings -->
     <string name="title_activity_login">LoginActivity</string>
-    <string name="enterEmail">Email Address</string>
-    <string name="enterPassword">Password</string>
+    <string name="email_address">Email Address</string>
+    <string name="enter_password">Password</string>
     <string name="submit">Submit</string>
     <string name="register">Register</string>
-    <string name="skipLogin">Continue without Log-in</string>
-    <string name="signIn">Sign in</string>
+    <string name="forgot_password">Forgot your password?</string>
+    <string name="sign_in">Sign in</string>
 
     <!-- Login Errors -->
-    <string name="loginError">Could not Log-in</string>
-    <string name="invalidEmailAddress">Enter a valid email address</string>
-    <string name="invalidPassword">Password field is blank</string>
-    <string name="error_need_verification">verify</string>
+    <string name="login_error">Could not Log-in</string>
+    <string name="invalid_email_address">Enter a valid email address</string>
+    <string name="invalid_password">Password field is blank</string>
+
+    <!-- Password Issues-->
+    <string name="title_activity_reset_password">Reset Password</string>
+    <string name="reset_password">Reset password</string>
+    <string name="reset_password_ques">Would you like to reset your password?</string>
+    <string name="reset_password_text">We will send you a temporary password to the following email address:</string>
+    <string name="enter_email">Enter email address</string>
+    <string name="reset_password_success">Check your email inbox for your new password.</string>
+
+    <!-- Verify account-->
+    <string name="title_activity_verify_key">Account Verification</string>
+    <string name="verify_enter_key">Enter key verification code</string>
+    <string name="verify_success">Your email address has been verified!</string>
+    <string name="verify_failed">Either the link is no longer valid or you mistyped the key.</string>
     
 </resources>

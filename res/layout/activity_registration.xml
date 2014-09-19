@@ -23,7 +23,7 @@
 
             <TextView
                 android:id="@+id/register_error"
-                style="@style/TextViewError"
+                style="@style/TextViewRed"
                 android:textSize="18sp"/>
 
             <EditText

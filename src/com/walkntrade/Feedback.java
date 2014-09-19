@@ -76,7 +76,7 @@ public class Feedback extends Activity{
 
         if(!TextUtils.isEmpty(_email) && !_email.contains("@")) {
             canContinue = false;
-            email.setError(getString(R.string.invalidEmailAddress));
+            email.setError(getString(R.string.invalid_email_address));
         }
 
         if(TextUtils.isEmpty(_message)) {

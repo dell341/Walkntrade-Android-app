@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.walkntrade"
     android:versionCode="11"
-    android:versionName="1.3.0" >
+    android:versionName="1.3.2" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -32,13 +32,12 @@
         android:label="@string/app_name"
         android:logo="@drawable/walkntrade_icon"
         android:theme="@style/WalkntradeTheme" >
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
         <receiver
-            android:name=".gcm.GcmBroadcastReceiver"
+            android:name="com.walkntrade.gcm.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -48,17 +47,17 @@
         </receiver>
 
         <service
-            android:name=".gcm.GcmIntentService"
+            android:name="com.walkntrade.gcm.GcmIntentService"
             android:exported="false" >
         </service>
 
         <receiver
-            android:name=".gcm.NotificationBroadcastReceiver"
+            android:name="com.walkntrade.gcm.NotificationBroadcastReceiver"
             android:exported="false" >
         </receiver>
 
         <activity
-            android:name=".Walkntrade_Main"
+            android:name="com.walkntrade.Walkntrade_Main"
             android:label="@string/app_name"
             android:theme="@style/WalkntradeTheme.NoActionBar" >
             <intent-filter>
@@ -68,32 +67,31 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name="com.walkntrade.LoginActivity"
             android:label="@string/title_activity_login"
-            android:theme="@style/WalkntradeTheme.NoActionBar"
-            android:windowSoftInputMode="adjustResize" >
+            android:theme="@style/WalkntradeTheme.NoActionBar" >
         </activity>
         <activity
-            android:name=".RegistrationActivity"
+            android:name="com.walkntrade.RegistrationActivity"
             android:label="@string/title_activity_registration" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.LoginActivity" />
         </activity>
         <activity
-            android:name=".Selector"
+            android:name="com.walkntrade.Selector"
             android:label="@string/title_activity_selector"
             android:theme="@style/WalkntradeTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustPan" >
         </activity>
         <activity
-            android:name=".SchoolPage"
-            android:label="@string/tSchoolName">
+            android:name="com.walkntrade.SchoolPage"
+            android:label="@string/tSchoolName" >
         </activity>
         <activity
-            android:name=".ShowPage"
+            android:name="com.walkntrade.ShowPage"
             android:label="@string/title_activity_show__page"
-            android:windowSoftInputMode="stateHidden|adjustPan">
+            android:windowSoftInputMode="stateHidden|adjustPan" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.SchoolPage" />
@@ -105,29 +103,29 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ImageDialog"
+            android:name="com.walkntrade.ImageDialog"
             android:label="@string/title_activity_image_dialog"
             android:theme="@style/ImageDialogTheme" >
         </activity>
         <activity
-            android:name=".AddPost"
+            android:name="com.walkntrade.AddPost"
             android:label="@string/title_activity_add_post" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.SchoolPage" />
         </activity>
         <activity
-            android:name=".VerifyKeyActivity"
-            android:label="@string/title_activity_verify_key"
-            android:theme="@style/DialogTheme" >
-            <intent-filter>
-                <action android:name="android.intent.action.KEYVERIFY" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
+            android:name="com.walkntrade.ResetPasswordActivity"
+            android:label="@string/title_activity_reset_password"
+            android:theme="@style/DialogTheme">
         </activity>
         <activity
-            android:name=".UserSettings"
+            android:name="com.walkntrade.VerifyKeyActivity"
+            android:label="@string/title_activity_verify_key"
+            android:theme="@style/DialogTheme" >
+        </activity>
+        <activity
+            android:name="com.walkntrade.UserSettings"
             android:configChanges="orientation"
             android:label="@string/title_activity_user_settings" >
             <meta-data
@@ -135,21 +133,21 @@
                 android:value="com.walkntrade.SchoolPage" />
         </activity>
         <activity
-            android:name=".ViewPosts"
+            android:name="com.walkntrade.ViewPosts"
             android:label="@string/title_activity_view_posts" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.UserSettings" />
         </activity>
         <activity
-            android:name=".ContactPref"
+            android:name="com.walkntrade.ContactPref"
             android:label="@string/title_activity_contact_pref" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.UserSettings" />
         </activity>
         <activity
-            android:name=".UserAvatar"
+            android:name="com.walkntrade.UserAvatar"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_user_avatar" >
             <meta-data
@@ -157,28 +155,28 @@
                 android:value="com.walkntrade.UserSettings" />
         </activity>
         <activity
-            android:name=".AccountSettings"
+            android:name="com.walkntrade.AccountSettings"
             android:label="@string/title_activity_user_account" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.UserSettings" />
         </activity>
         <activity
-            android:name=".AccountSettingsChange"
+            android:name="com.walkntrade.AccountSettingsChange"
             android:label="@string/title_activity_user_account" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.AccountSettings" />
         </activity>
         <activity
-            android:name=".Feedback"
-            android:label="@string/send_feedback">
+            android:name="com.walkntrade.Feedback"
+            android:label="@string/send_feedback" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.Privacy_Feedback" />
         </activity>
         <activity
-            android:name=".Messages"
+            android:name="com.walkntrade.Messages"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_messages" >
             <meta-data
@@ -186,21 +184,21 @@
                 android:value="com.walkntrade.SchoolPage" />
         </activity>
         <activity
-            android:name=".ShowMessage"
+            android:name="com.walkntrade.ShowMessage"
             android:label="@string/title_activity_show_message" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.Messages" />
         </activity>
         <activity
-            android:name=".NotificationSettings"
+            android:name="com.walkntrade.NotificationSettings"
             android:label="@string/title_activity_notification_settings" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.ContactPref" />
         </activity>
         <activity
-            android:name=".Privacy_Feedback"
+            android:name="com.walkntrade.Privacy_Feedback"
             android:label="@string/privacy_and_feedback" >
         </activity>
     </application>

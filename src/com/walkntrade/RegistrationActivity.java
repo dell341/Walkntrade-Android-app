@@ -102,7 +102,7 @@ public class RegistrationActivity extends Activity {
         }
 
         if(TextUtils.isEmpty(_email) || !_email.contains("@")) {
-            email.setError(getString(R.string.invalidEmailAddress));
+            email.setError(getString(R.string.invalid_email_address));
             canRegister = false;
         }
 

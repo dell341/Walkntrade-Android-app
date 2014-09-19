@@ -52,7 +52,7 @@
         android:layout_toEndOf="@id/drawer_user"
         android:layout_toRightOf="@id/drawer_user"
         android:background="@drawable/grid_selector_post"
-        android:text="@string/signIn"
+        android:text="@string/sign_in"
         android:textSize="16sp" />
 
 </RelativeLayout>

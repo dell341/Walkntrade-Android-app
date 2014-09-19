@@ -14,7 +14,7 @@
 
         <com.walkntrade.LightTextView
             android:id="@+id/message_error"
-            style="@style/TextViewError"
+            style="@style/TextViewRed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="visible" />
