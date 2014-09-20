@@ -53,6 +53,8 @@
     <string name="enter_message">Insert message here</string>
     <string name="post_message_content_phone">Hi, I would like to find out more about your post, please call me at %1$s or contact me on Walkntrade. Thanks!</string>
     <string name="post_message_content_no_phone">Hi, I would like to find out more about your post, please contact me on Walkntrade. Thanks!</string>
+    <string name="send_message">Sending Message Confirmation</string>
+    <string name="send_message_quest">Do you want to send this message?</string>
     <string name="send">Send</string>
     <string name="cancel">Cancel</string>
     <string name="message_failed">Could not send message</string>

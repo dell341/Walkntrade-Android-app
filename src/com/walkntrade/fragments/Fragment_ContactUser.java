@@ -1,7 +1,9 @@
 package com.walkntrade.fragments;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -79,7 +81,23 @@ public class Fragment_ContactUser extends Fragment {
             @Override
             public void onClick(View v) {
                 message = messageContents.getText().toString();
-                new SendMessageTask().execute();
+
+                //Confirms if user wants to send a message
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(getString(R.string.send_message))
+                        .setMessage(R.string.send_message_quest)
+                        .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                new SendMessageTask().execute();
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).create().show();
             }
         });
 
