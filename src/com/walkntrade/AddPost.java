@@ -230,6 +230,15 @@ public class AddPost extends Activity implements OnClickListener {
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString(SAVED_CURRENT_PATH, currentPhotoPath);
+        outState.putStringArray(SAVED_IMAGE_PATHS, photoPaths);
+        outState.putParcelableArray(SAVED_IMAGE_URIS, uriStreams);
+    }
+
     @Override //Captures click event for the image views
     public void onClick(View view) {
         final View currentView = view;
@@ -371,15 +380,6 @@ public class AddPost extends Activity implements OnClickListener {
                 imageView.setImageBitmap(ImageTool.getImageFromDevice(currentPhotoPath, width, height));
             }
         }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putString(SAVED_CURRENT_PATH, currentPhotoPath);
-        outState.putStringArray(SAVED_IMAGE_PATHS, photoPaths);
-        outState.putParcelableArray(SAVED_IMAGE_URIS, uriStreams);
     }
 
     //Creates image file to be saved
@@ -560,7 +560,6 @@ public class AddPost extends Activity implements OnClickListener {
                 //Add any images with photo paths. Pictures taken with the device's camera
                 for (String photoPath : photoPaths)
                     if (photoPath != null && !photoPath.isEmpty()) {//Photopath is not null and it is not empty
-                        Log.v(TAG, "Adding captured image");
                         responses[currentPhotoIndex] = database.uploadPostImage(identifier[0], photoPath, currentPhotoIndex++);
                     }
 
@@ -569,7 +568,6 @@ public class AddPost extends Activity implements OnClickListener {
                         if (uriStream != null) {
                             try {
                                 InputStream photoStream = context.getContentResolver().openInputStream(uriStream);
-                                Log.v(TAG, "Adding uploaded image: "+uriStream);
                                 responses[currentPhotoIndex] = database.uploadPostImage(identifier[0], photoStream, currentPhotoIndex++);
                             } catch (FileNotFoundException e) {
                                 Log.e(TAG, "File Not Found", e);
@@ -586,7 +584,7 @@ public class AddPost extends Activity implements OnClickListener {
         protected void onPostExecute(String[] responses) {
             for(String response : responses)
                 if(response != null)
-                    Log.v(TAG, response);
+                    Log.d(TAG, response);
             progressBar.setVisibility(View.INVISIBLE);
             Toast.makeText(context, "Post Added", Toast.LENGTH_SHORT).show();
             finish();

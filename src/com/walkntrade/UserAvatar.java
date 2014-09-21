@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -36,6 +37,9 @@ import java.util.Random;
 public class UserAvatar extends Activity implements View.OnClickListener {
 
     private static final String TAG = "UserAvatar";
+    private static final String SAVED_IMAGE_PATH = "saved_image_path";
+    private static final String SAVED_IMAGE_URI = "saved_image_uri";
+    private static final String SAVED_IMAGE = "saved_image_instance";
     private static final int CAPTURE_IMAGE = 100;
     private static final int GALLERY_IMAGE = 200;
 
@@ -44,6 +48,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
     private TextView error;
     private ProgressBar progress;
     private InputStream inputStream;
+    private Uri uriStream;
     private String currentPhotoPath;
 
     @Override
@@ -57,9 +62,36 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         avatar = (ImageView) findViewById(R.id.avatar);
         Button button = (Button) findViewById(R.id.uploadButton);
 
-        if(DataParser.isNetworkAvailable(this))
-         new GetAvatarTask().execute();
+        if(savedInstanceState != null) {
+            int width = (int) getResources().getDimension(R.dimen.image_size_height);
+            int height = (int) getResources().getDimension(R.dimen.image_size_height);
 
+            currentPhotoPath = savedInstanceState.getString(SAVED_IMAGE_PATH);
+            uriStream = savedInstanceState.getParcelable(SAVED_IMAGE_URI);
+
+            if(currentPhotoPath != null) //Image from camera capture
+                avatar.setImageBitmap(ImageTool.getImageFromDevice(currentPhotoPath, width, height));
+            else if (uriStream != null) { //Image from existing upload
+                try {
+                    avatar.setImageBitmap(ImageTool.getImageFromDevice(context, uriStream, width, height));
+                } catch (FileNotFoundException e) {
+                    Log.e(TAG, "File Not Found", e);
+                }
+            }
+            else { //Current avatar image
+               Bitmap bitmap = savedInstanceState.getParcelable(SAVED_IMAGE);
+               avatar.setImageBitmap(bitmap);
+
+                if(bitmap == null && DataParser.isNetworkAvailable(this))
+                    new GetAvatarTask().execute();
+            }
+
+        } else {
+            if(DataParser.isNetworkAvailable(this))
+                new GetAvatarTask().execute();
+        }
+
+        avatar.setOnClickListener(this);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,6 +118,20 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString(SAVED_IMAGE_PATH, currentPhotoPath);
+        outState.putParcelable(SAVED_IMAGE_URI, uriStream);
+
+        try {
+            outState.putParcelable(SAVED_IMAGE, ((BitmapDrawable) avatar.getDrawable()).getBitmap());
+        } catch (NullPointerException e){
+            Log.e(TAG, "Orientation Change before image downloaded");
         }
     }
 
@@ -144,6 +190,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
                 try {
                     currentPhotoPath = null;
+                    uriStream = returnUri;
                     inputStream = getContentResolver().openInputStream(returnUri);
                     avatar.setImageBitmap(ImageTool.getImageFromDevice(context, returnUri, width, height));
                 } catch (FileNotFoundException e) {
@@ -153,6 +200,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             }
             else {
                 addPicToGallery();
+                inputStream = null;
                 avatar.setImageBitmap(ImageTool.getImageFromDevice(currentPhotoPath, width, height));
             }
 
@@ -237,8 +285,6 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 avatar.setImageBitmap(bitmap);
             else
                 avatar.setImageDrawable(getResources().getDrawable(R.drawable.no_avatar));
-
-            avatar.setOnClickListener(UserAvatar.this);
         }
     }
 
