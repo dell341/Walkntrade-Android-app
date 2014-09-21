@@ -31,7 +31,9 @@ import com.walkntrade.io.DataParser;
 import com.walkntrade.io.ImageTool;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
@@ -39,7 +41,9 @@ import java.util.Random;
 public class AddPost extends Activity implements OnClickListener {
 
     private static final String TAG = "AddPost";
+    private static final String SAVED_CURRENT_PATH = "saved_instance_current_path";
     private static final String SAVED_IMAGE_PATHS = "saved_instance_image_paths";
+    private static final String SAVED_IMAGE_URIS = "saved_instance_image_uri";
     public static final String CATEGORY_POSITION = "category_position";
 
     private static final int CAPTURE_IMAGE_ONE = 100;
@@ -61,7 +65,9 @@ public class AddPost extends Activity implements OnClickListener {
     private Button submit;
 
     private String selectedCategory;
-    private String mCurrentPhotoPath;
+    private int currentPhotoIndex = 0;
+    private String currentPhotoPath;
+    private Uri[] uriStreams = new Uri[4];
     private String[] photoPaths = new String[4];
 
     @Override
@@ -118,22 +124,49 @@ public class AddPost extends Activity implements OnClickListener {
         if(savedInstanceState != null) {
             int width = (int) context.getResources().getDimension(R.dimen.photo_width);
             int height = (int) context.getResources().getDimension(R.dimen.photo_width);
+
+            currentPhotoPath = savedInstanceState.getString(SAVED_CURRENT_PATH);
             photoPaths = savedInstanceState.getStringArray(SAVED_IMAGE_PATHS);
+            uriStreams = (Uri[]) savedInstanceState.getParcelableArray(SAVED_IMAGE_URIS);
+
             int index = 0;
 
-            for(String path : photoPaths) {
-                if(path != null) {
-                    Bitmap bm = ImageTool.getImageFromDevice(path, width, height);
-                    switch(index){
+            //Get camera captured image on orientation change
+            for(String photoPath : photoPaths){
+                if(photoPath != null) {
+                    Bitmap bm = ImageTool.getImageFromDevice(photoPaths[index], width, height);
+                    switch(index) {
                         case 0: image1.setImageBitmap(bm); break;
                         case 1: image2.setImageBitmap(bm); break;
                         case 2: image3.setImageBitmap(bm); break;
-                        case 4: image4.setImageBitmap(bm); break;
+                        case 3: image4.setImageBitmap(bm); break;
                         default: break;
                     }
                 }
                 index++;
             }
+
+            index = 0;
+            //Get uploaded image on orientation change
+            for(Uri uri : uriStreams) {
+                if(uri != null) {
+                    try {
+                        Bitmap bm = ImageTool.getImageFromDevice(context, uri, width, height);
+
+                        switch (index) {
+                            case 0: image1.setImageBitmap(bm); break;
+                            case 1: image2.setImageBitmap(bm); break;
+                            case 2: image3.setImageBitmap(bm); break;
+                            case 3: image4.setImageBitmap(bm); break;
+                            default: break;
+                        }
+                    } catch (FileNotFoundException e) {
+                        Log.e(TAG, "File not found", e);
+                    }
+                }
+                index++;
+            }
+
         }
 
         submit.setOnClickListener(new OnClickListener() {
@@ -220,7 +253,6 @@ public class AddPost extends Activity implements OnClickListener {
                                 }
 
                                 if (image != null) {
-                                    if (cameraIntent.resolveActivity(getPackageManager()) != null) {
                                         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(image)); //Set image file name and location
 
                                         switch (currentView.getId()) {
@@ -236,7 +268,6 @@ public class AddPost extends Activity implements OnClickListener {
                                             case R.id.add_image_4:
                                                 startActivityForResult(cameraIntent, CAPTURE_IMAGE_FOUR);
                                                 break;
-                                        }
                                     }
                                 }
                                 dialogInterface.dismiss();
@@ -244,9 +275,9 @@ public class AddPost extends Activity implements OnClickListener {
                             case 1: //Upload existing photo
 
                                 Intent galleryPhotoIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                                galleryPhotoIntent.setType("image/jpg");
+                                galleryPhotoIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                                galleryPhotoIntent.setType("image/jpeg");
 
-                                if (galleryPhotoIntent.resolveActivity(getPackageManager()) != null)
                                     switch (currentView.getId()) {
                                         case R.id.add_image_1:
                                             startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_ONE);
@@ -273,64 +304,82 @@ public class AddPost extends Activity implements OnClickListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             ImageView imageView;
+            int width = (int) context.getResources().getDimension(R.dimen.photo_width);
+            int height = (int) context.getResources().getDimension(R.dimen.photo_width);
 
-            if (requestCode > 400) {
+            if (requestCode > CAPTURE_IMAGE_FOUR) {
                     Uri returnUri = data.getData();
-                    mCurrentPhotoPath = ImageTool.getPath(context, returnUri);
+
+                try {
                     switch (requestCode) {
                         case GALLERY_IMAGE_ONE:
-                            photoPaths[0] = mCurrentPhotoPath;
+                            photoPaths[0] = null;
+                            uriStreams[0] = returnUri;
                             imageView = image1;
                             break;
                         case GALLERY_IMAGE_TWO:
-                            photoPaths[1] = mCurrentPhotoPath;
+                            photoPaths[1] = null;
+                            uriStreams[1] = returnUri;
                             imageView = image2;
                             break;
                         case GALLERY_IMAGE_THREE:
-                            photoPaths[2] = mCurrentPhotoPath;
+                            photoPaths[2] = null;
+                            uriStreams[2] = returnUri;
                             imageView = image3;
                             break;
                         case GALLERY_IMAGE_FOUR:
-                            photoPaths[3] = mCurrentPhotoPath;
+                            photoPaths[3] = null;
+                            uriStreams[3] = returnUri;
                             imageView = image4;
                             break;
-                        default:
-                            return;
+                        default: return;
                     }
+
+                    imageView.setImageBitmap(ImageTool.getImageFromDevice(context, returnUri, width, height));
+                } catch (FileNotFoundException e) {
+                    Log.e(TAG, "File not found", e);
+                }
+
             }
             else {
+
                 switch (requestCode) {
                     case CAPTURE_IMAGE_ONE:
-                        photoPaths[0] = mCurrentPhotoPath;
+                        uriStreams[0] = null;
+                        photoPaths[0] = currentPhotoPath;
                         imageView = image1;
                         break;
                     case CAPTURE_IMAGE_TWO:
-                        photoPaths[1] = mCurrentPhotoPath;
+                        uriStreams[1] = null;
+                        photoPaths[1] = currentPhotoPath;
                         imageView = image2;
                         break;
                     case CAPTURE_IMAGE_THREE:
-                        photoPaths[2] = mCurrentPhotoPath;
+                        uriStreams[2] = null;
+                        photoPaths[2] = currentPhotoPath;
                         imageView = image3;
                         break;
                     case CAPTURE_IMAGE_FOUR:
-                        photoPaths[3] = mCurrentPhotoPath;
+                        uriStreams[3] = null;
+                        photoPaths[3] = currentPhotoPath;
                         imageView = image4;
                         break;
                     default:
                         return;
                 }
                 addPicToGallery();
+                imageView.setImageBitmap(ImageTool.getImageFromDevice(currentPhotoPath, width, height));
             }
-            int width = (int) context.getResources().getDimension(R.dimen.photo_width);
-            int height = (int) context.getResources().getDimension(R.dimen.photo_width);
-            imageView.setImageBitmap(ImageTool.getImageFromDevice(mCurrentPhotoPath, width, height));
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        outState.putString(SAVED_CURRENT_PATH, currentPhotoPath);
         outState.putStringArray(SAVED_IMAGE_PATHS, photoPaths);
+        outState.putParcelableArray(SAVED_IMAGE_URIS, uriStreams);
     }
 
     //Creates image file to be saved
@@ -350,14 +399,14 @@ public class AddPost extends Activity implements OnClickListener {
             }
 
         File imageFile = File.createTempFile(imageFileName, ".jpg", storageDir);
-        mCurrentPhotoPath = imageFile.getAbsolutePath();
+        currentPhotoPath = imageFile.getAbsolutePath();
         return imageFile;
     }
 
     //Add file to device default gallery
     private void addPicToGallery() {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(mCurrentPhotoPath);
+        File f = new File(currentPhotoPath);
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         context.sendBroadcast(mediaScanIntent);
@@ -499,26 +548,45 @@ public class AddPost extends Activity implements OnClickListener {
     }
 
     //Asynchronous Task: Sends images after successfully adding a post
-    public class AddImagesTask extends AsyncTask<String, String, String>{
+    public class AddImagesTask extends AsyncTask<String, String, String[]>{
         private DataParser database;
 
         @Override
-        protected String doInBackground(String... identifier) {
+        protected String[] doInBackground(String... identifier) {
             database = new DataParser(context);
-            String response = null;
+            String[] responses = new String[4];
 
             try {
-                for(int i=0; i<photoPaths.length; i++)
-                    if(photoPaths[i] != null && !photoPaths[i].isEmpty()) //Photopath is not null and it is not empty
-                    response = database.uploadPostImage(identifier[0], photoPaths[i], i);
+                //Add any images with photo paths. Pictures taken with the device's camera
+                for (String photoPath : photoPaths)
+                    if (photoPath != null && !photoPath.isEmpty()) {//Photopath is not null and it is not empty
+                        Log.v(TAG, "Adding captured image");
+                        responses[currentPhotoIndex] = database.uploadPostImage(identifier[0], photoPath, currentPhotoIndex++);
+                    }
+
+                    //Add any images from input streams. Existing images from device
+                    for (Uri uriStream : uriStreams)
+                        if (uriStream != null) {
+                            try {
+                                InputStream photoStream = context.getContentResolver().openInputStream(uriStream);
+                                Log.v(TAG, "Adding uploaded image: "+uriStream);
+                                responses[currentPhotoIndex] = database.uploadPostImage(identifier[0], photoStream, currentPhotoIndex++);
+                            } catch (FileNotFoundException e) {
+                                Log.e(TAG, "File Not Found", e);
+                            }
+                        }
+
             } catch (IOException e){
                 Log.e(TAG, "Uploading images", e);
             }
-            return response;
+            return responses;
         }
 
         @Override
-        protected void onPostExecute(String s) {
+        protected void onPostExecute(String[] responses) {
+            for(String response : responses)
+                if(response != null)
+                    Log.v(TAG, response);
             progressBar.setVisibility(View.INVISIBLE);
             Toast.makeText(context, "Post Added", Toast.LENGTH_SHORT).show();
             finish();

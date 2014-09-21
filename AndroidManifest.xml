@@ -148,7 +148,6 @@
         </activity>
         <activity
             android:name="com.walkntrade.UserAvatar"
-            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_user_avatar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

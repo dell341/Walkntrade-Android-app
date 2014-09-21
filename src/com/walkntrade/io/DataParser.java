@@ -36,6 +36,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.protocol.BasicHttpContext;
@@ -448,6 +449,30 @@ public class DataParser {
         return serverResponse;
     }
 
+    public String uploadUserAvatar(InputStream inStream) throws IOException{
+        establishConnection();
+
+        httpPost.removeHeaders("Content-Type"); //Handled by MultipartEntityBuilder, cause conflictions
+
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        builder.addPart("intent", new StringBody("uploadAvatar", ContentType.TEXT_PLAIN));
+        builder.addPart("avatar", new InputStreamBody(inStream, ContentType.create("image/jpeg"), "avatar.jpg"));
+
+        String serverResponse = null;
+
+        try {
+            HttpEntity entity = builder.build();
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream);
+        } finally {
+            disconnectAll();
+        }
+
+        return serverResponse;
+    }
+
     public String setEmailPreference(String preference) throws IOException {
         establishConnection();
 
@@ -696,6 +721,33 @@ public class DataParser {
         }
         finally {
         disconnectAll(); }
+
+        return serverResponse;
+    }
+
+    //Adds image to post corresponding to the appropriate identifier
+    public String uploadPostImage(String identifier, InputStream inStream, int index) throws IOException {
+        establishConnection();
+
+        httpPost.removeHeaders("Content-Type"); //Handled by MultipartEntityBuilder, cause conflictions
+
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        builder.addPart("intent", new StringBody("uploadPostImages", ContentType.TEXT_PLAIN));
+        builder.addPart("iteration", new StringBody(index + "", ContentType.TEXT_PLAIN));
+        builder.addPart("identifier", new StringBody(identifier, ContentType.TEXT_PLAIN));
+        builder.addPart("image", new InputStreamBody(inStream, ContentType.create("image/jpeg"), "post_image_"+index+".jpg"));
+
+        String serverResponse = null;
+
+        try {
+            HttpEntity entity = builder.build();
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream);
+        }
+        finally {
+            disconnectAll(); }
 
         return serverResponse;
     }

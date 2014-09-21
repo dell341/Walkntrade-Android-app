@@ -26,7 +26,9 @@ import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ImageTool;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
@@ -41,7 +43,8 @@ public class UserAvatar extends Activity implements View.OnClickListener {
     private ImageView avatar;
     private TextView error;
     private ProgressBar progress;
-    private String mCurrentPhotoPath;
+    private InputStream inputStream;
+    private String currentPhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +65,12 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             public void onClick(View view) {
                 error.setVisibility(View.GONE);
 
-                if(mCurrentPhotoPath == null) {
+                if(currentPhotoPath == null && inputStream == null) {
                     error.setText(getString(R.string.null_avatar_upload));
                     error.setVisibility(View.VISIBLE);
                 }
                 else
-                    new UploadAvatarTask().execute(mCurrentPhotoPath);
+                    new UploadAvatarTask().execute();
             }
         });
 
@@ -88,6 +91,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
+        error.setVisibility(View.GONE);
         //Creates dialog popup to take a new picture or upload existing photo
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.add_photo))
@@ -108,20 +112,18 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                                 }
 
                                 if (image != null) {
-                                    if (cameraIntent.resolveActivity(getPackageManager()) != null) {
                                         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(image)); //Set image file name and location
                                         startActivityForResult(cameraIntent, CAPTURE_IMAGE);
-                                    }
                                 }
                                 dialogInterface.dismiss();
                                 break;
                             case 1: //Upload existing photo
 
                                 Intent galleryPhotoIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                                galleryPhotoIntent.addCategory(Intent.CATEGORY_OPENABLE);
                                 galleryPhotoIntent.setType("image/jpeg");
 
-                                if (galleryPhotoIntent.resolveActivity(getPackageManager()) != null)
-                                    startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE);
+                                startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE);
                                 dialogInterface.dismiss();
                                 break;
                         }
@@ -131,19 +133,30 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        int width = (int) getResources().getDimension(R.dimen.image_size_height);
+        int height = (int) getResources().getDimension(R.dimen.image_size_height);
+
         if (resultCode == RESULT_OK) {
 
             if (requestCode == GALLERY_IMAGE) {
                 Uri returnUri = data.getData();
-                mCurrentPhotoPath = ImageTool.getPath(context, returnUri); //Gets image path of Gallery image
+                Log.v(TAG, "URI: "+returnUri);
+
+                try {
+                    currentPhotoPath = null;
+                    inputStream = getContentResolver().openInputStream(returnUri);
+                    avatar.setImageBitmap(ImageTool.getImageFromDevice(context, returnUri, width, height));
+                } catch (FileNotFoundException e) {
+                    Log.e(TAG, "File not found", e);
+                }
+
             }
-            else
+            else {
                 addPicToGallery();
+                avatar.setImageBitmap(ImageTool.getImageFromDevice(currentPhotoPath, width, height));
+            }
 
-            int width = (int) getResources().getDimension(R.dimen.image_size_height);
-            int height = (int) getResources().getDimension(R.dimen.image_size_height);
 
-            avatar.setImageBitmap(ImageTool.getImageFromDevice(mCurrentPhotoPath, width, height));
         }
     }
 
@@ -164,14 +177,14 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             }
 
         File imageFile = File.createTempFile(imageFileName, ".jpg", storageDir);
-        mCurrentPhotoPath = imageFile.getAbsolutePath(); //Gets image path of created image
+        currentPhotoPath = imageFile.getAbsolutePath(); //Gets image path of created image
         return imageFile;
     }
 
     //Add file to device default gallery
     private void addPicToGallery() {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(mCurrentPhotoPath);
+        File f = new File(currentPhotoPath);
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         context.sendBroadcast(mediaScanIntent);
@@ -229,7 +242,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         }
     }
 
-    private class UploadAvatarTask extends AsyncTask<String, Void, String> {
+    private class UploadAvatarTask extends AsyncTask<Void, Void, String> {
 
         private DiskLruImageCache imageCache;
 
@@ -240,12 +253,17 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         }
 
         @Override
-        protected String doInBackground(String... imagePath) {
+        protected String doInBackground(Void... voids) {
             DataParser database = new DataParser(context);
             String response = null;
 
             try {
-                response = database.uploadUserAvatar(imagePath[0]);
+
+                if(currentPhotoPath != null)
+                    response = database.uploadUserAvatar(currentPhotoPath);
+                else
+                    response = database.uploadUserAvatar(inputStream);
+
                 imageCache = new DiskLruImageCache(context, DiskLruImageCache.USER_IMAGE);
             } catch(IOException e){
                 Log.e(TAG, "Uploading user avatar", e);
