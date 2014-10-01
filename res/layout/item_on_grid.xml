@@ -6,7 +6,7 @@
     android:gravity="center"
     android:background="@drawable/grid_selector_post">
 
-    <com.walkntrade.LightTextView
+    <com.walkntrade.views.LightTextView
 	    android:id="@+id/post_title"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
@@ -33,7 +33,7 @@
         android:contentDescription="@string/post_image"
         android:background="@color/gray"/>
 
-    <com.walkntrade.LightTextView
+    <com.walkntrade.views.LightTextView
 	    android:id="@+id/post_details"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
 	    android:ellipsize="end"
         android:textSize="@dimen/post_details"/>
 
-    <com.walkntrade.LightTextView
+    <com.walkntrade.views.LightTextView
 	    android:id="@+id/post_price"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
@@ -53,8 +53,8 @@
         android:textSize="@dimen/post_price"
 	    android:gravity="center"/>
 
-    <com.walkntrade.ThinTextView
-	    android:id="@+id/post_user"
+    <com.walkntrade.views.ThinTextView
+	    android:id="@+id/post_author"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
         android:layout_toRightOf="@id/post_image"

@@ -48,7 +48,7 @@ public class GcmIntentService extends IntentService {
         //String messageType = gcm.getMessageType(intent);
 
         //If user does want to receive notifications and is not logged, do not continue.
-        if (!DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_USER) && !DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.CURRENTLY_LOGGED_IN))
+        if (!DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_USER) && !DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_CURRENTLY_LOGGED_IN))
             return;
 
         if (!extras.isEmpty()) {
@@ -104,7 +104,7 @@ public class GcmIntentService extends IntentService {
         //Set big view if more than one notification has been received
         if (messageObjects.size() > 1) {
             NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-            inboxStyle.setSummaryText(DataParser.getSharedStringPreference(getApplicationContext(), DataParser.PREFS_USER, DataParser.USER_NAME));
+            inboxStyle.setSummaryText(DataParser.getSharedStringPreference(getApplicationContext(), DataParser.PREFS_USER, DataParser.KEY_USER_NAME));
 
             for (MessageObject messageObject : messageObjects) {
                 String userText = messageObject.getUser();
@@ -123,8 +123,8 @@ public class GcmIntentService extends IntentService {
         }
 
         boolean hasSound = false;
-        boolean vibrate = DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_VIBRATE);
-        boolean showLight = DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_LIGHT);
+        boolean vibrate = DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_VIBRATE);
+        boolean showLight = DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_LIGHT);
 
         String sound = DataParser.getSoundPref(this);
         if (sound != null) {

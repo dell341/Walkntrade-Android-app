@@ -1,0 +1,211 @@
+<com.walkntrade.views.AnimatedScrollLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/postTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/dashed_border_selectable"
+            android:hint="@string/post_title"
+            android:inputType="text|textCapWords"
+            android:padding="5dp"
+            android:text="Title of current post"
+            android:textSize="@dimen/title_size" />
+
+        <EditText
+            android:id="@+id/post_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:background="@drawable/dashed_border_selectable"
+            android:hint="@string/post_author"
+            android:inputType="textCapWords"
+            android:visibility="gone" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="1"
+            android:rowCount="2">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="50">
+
+                    <ImageView
+                        android:id="@+id/postImage1"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/image_size_height"
+                        android:layout_margin="3dp"
+                        android:adjustViewBounds="true"
+                        android:clickable="true"
+                        android:background="@drawable/dashed_border_selectable"
+                        android:contentDescription="@string/post_image"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_action_new_picture" />
+
+                    <ProgressBar
+                        android:id="@+id/progressBar1"
+                        style="?android:attr/progressBarStyleInverse"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true" />
+
+                </RelativeLayout>
+
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="50">
+
+                    <ImageView
+                        android:id="@+id/postImage2"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/image_size_height"
+                        android:layout_margin="3dp"
+                        android:adjustViewBounds="true"
+                        android:background="@drawable/dashed_border_selectable"
+                        android:clickable="true"
+                        android:contentDescription="@string/post_image"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_action_new_picture" />
+
+                    <ProgressBar
+                        android:id="@+id/progressBar2"
+                        style="?android:attr/progressBarStyleInverse"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true" />
+
+                </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="50">
+
+                    <ImageView
+                        android:id="@+id/postImage3"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/image_size_height"
+                        android:layout_margin="3dp"
+                        android:adjustViewBounds="true"
+                        android:background="@drawable/dashed_border_selectable"
+                        android:clickable="true"
+                        android:contentDescription="@string/post_image"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_action_new_picture" />
+
+                    <ProgressBar
+                        android:id="@+id/progressBar3"
+                        style="?android:attr/progressBarStyleInverse"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="50">
+
+                    <ImageView
+                        android:id="@+id/postImage4"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/image_size_height"
+                        android:layout_margin="3dp"
+                        android:adjustViewBounds="true"
+                        android:background="@drawable/dashed_border_selectable"
+                        android:clickable="true"
+                        android:contentDescription="@string/post_image"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_action_new_picture" />
+
+                    <ProgressBar
+                        android:id="@+id/progressBar4"
+                        style="?android:attr/progressBarStyleInverse"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true" />
+
+                </RelativeLayout>
+            </LinearLayout>
+        </GridLayout>
+
+        <EditText
+            android:id="@+id/postPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/dashed_border_selectable"
+            android:hint="@string/post_price"
+            android:inputType="numberDecimal"
+            android:padding="5dp"
+            android:text="$0"
+            android:textSize="@dimen/price_size"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/post_isbn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:background="@drawable/dashed_border_selectable"
+            android:hint="@string/post_isbn"
+            android:inputType="number"
+            android:visibility="gone" />
+
+        <EditText
+            android:id="@+id/postDescr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/dashed_border_selectable"
+            android:hint="@string/post_description"
+            android:inputType="textMultiLine|textCapSentences"
+            android:padding="5dp"
+            android:text="This is the description of the current post. This is filler to create an approximate length of the description."
+            android:textSize="@dimen/show_page_text" />
+
+        <Button
+            android:id="@+id/postSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/save_changes" />
+
+    </LinearLayout>
+</com.walkntrade.views.AnimatedScrollLayout>

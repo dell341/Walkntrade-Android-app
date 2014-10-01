@@ -10,25 +10,25 @@ import com.walkntrade.posts.PostReference;
 //Represents items in the listview from the view posts option in user settings
 public class ViewPostItem {
 
-    private String text;
+    private String title;
     private String obsId;
     private boolean isHeader;
 
     //Header item (School)
-    public ViewPostItem(String _text) {
-        text = _text;
+    public ViewPostItem(String title) {
+        this.title = title;
         isHeader = true;
     }
 
     //Post Item
     public ViewPostItem(PostReference post){
-        text = post.getTitle();
+        title = post.getTitle();
         obsId = post.getLink();
         isHeader = false;
     }
 
     public String getContents() {
-        return text;
+        return title;
     }
 
     public String getObsId(){

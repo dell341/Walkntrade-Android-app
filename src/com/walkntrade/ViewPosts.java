@@ -12,14 +12,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.walkntrade.adapters.ViewPostAdapter;
 import com.walkntrade.adapters.item.ViewPostItem;
-import com.walkntrade.asynctasks.UserPostsTask;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.posts.PostReference;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
  * http://walkntrade.com
  */
 
-public class ViewPosts extends Activity {
+public class ViewPosts extends Activity implements AdapterView.OnItemClickListener{
 
     private static final String TAG = "ViewPost";
 
@@ -37,6 +38,7 @@ public class ViewPosts extends Activity {
     private ProgressBar progressBar;
     private TextView noResults;
     private ListView listOfPosts;
+    private ViewPostAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +50,11 @@ public class ViewPosts extends Activity {
         noResults = (TextView) findViewById(R.id.noPosts);
         progressBar = (ProgressBar) findViewById(R.id.progressBarViewPosts);
 
-        new UserPostsTask(this, progressBar, noResults, listOfPosts).execute();
+        new UserPostsTask().execute();
 
         listOfPosts.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         listOfPosts.setMultiChoiceModeListener(new MultiChoiceListener());
+        listOfPosts.setOnItemClickListener(this);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -65,6 +68,17 @@ public class ViewPosts extends Activity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        ViewPostItem item = (ViewPostItem) parent.getItemAtPosition(position);
+
+        if(!item.isHeader()) {
+            Intent editPost = new Intent(ViewPosts.this, EditPost.class);
+            editPost.putExtra(EditPost.POST_ID, item.getObsId());
+            startActivity(editPost);
         }
     }
 
@@ -118,6 +132,58 @@ public class ViewPosts extends Activity {
         }
     }
 
+    private class UserPostsTask extends AsyncTask<Void, Void, ArrayList<PostReference>> {
+
+        private static final String TAG = "AsyncTask:UserPosts";
+
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected ArrayList<PostReference> doInBackground(Void... voids) {
+            ArrayList<PostReference> userPosts = new ArrayList<PostReference>();
+            DataParser database = new DataParser(context);
+
+            try {
+                userPosts = database.getUserPosts();
+            }
+            catch(Exception e) {
+                Log.e(TAG, "Get user posts", e);
+            }
+            return userPosts;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<PostReference> falsePosts) {
+            progressBar.setVisibility(View.GONE);
+            listOfPosts.setAdapter(null); //Clears out any previous items
+
+            if (falsePosts.isEmpty())
+                noResults.setVisibility(View.VISIBLE);
+            else {
+                noResults.setVisibility(View.GONE);
+                ArrayList<ViewPostItem> items = new ArrayList<ViewPostItem>();
+
+                String currentSchool = "";
+
+                for (PostReference p : falsePosts) {
+                    if(!p.getSchool().equalsIgnoreCase(currentSchool)) { //If this post is a new school, create a new header
+                        currentSchool = p.getSchool();
+                        items.add(new ViewPostItem(p.getSchool()));
+                    }
+
+                    items.add(new ViewPostItem(p)); //Then continue adding posts
+                }
+
+                adapter = new ViewPostAdapter(context, items);
+                listOfPosts.setAdapter(adapter);
+            }
+        }
+    }
+
     private class RemovePostTask extends AsyncTask<ArrayList<String>, Void, Void> {
         @Override
         protected void onPreExecute() {
@@ -141,7 +207,7 @@ public class ViewPosts extends Activity {
         @Override
         protected void onPostExecute(Void aVoid) {
             //Repopulate list
-            new UserPostsTask(context, progressBar, noResults, listOfPosts).execute();
+            new UserPostsTask().execute();
         }
     }
 }

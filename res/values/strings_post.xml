@@ -25,6 +25,13 @@
     <!-- Books only -->
     <string name="post_author">Author</string>
     <string name="post_isbn">ISBN-10 or ISBN-13 (Optional)</string>
+
+    <!-- EditPost -->
+    <string name="title_activity_edit_post_page">Editing Post</string>
+    <string name="edit_post">Edit Post</string>
+    <string name="remove_post">Remove post</string>
+    <string name="remove_post_multiple">Remove posts</string>
+
     
     <!-- Error Messages -->
     <string name="post_error">Error submitting post</string>
@@ -55,7 +62,6 @@
     <string name="post_message_content_no_phone">Hi, I would like to find out more about your post, please contact me on Walkntrade. Thanks!</string>
     <string name="send_message">Sending Message Confirmation</string>
     <string name="send_message_quest">Do you want to send this message?</string>
-    <string name="send">Send</string>
-    <string name="cancel">Cancel</string>
+
     <string name="message_failed">Could not send message</string>
 </resources>

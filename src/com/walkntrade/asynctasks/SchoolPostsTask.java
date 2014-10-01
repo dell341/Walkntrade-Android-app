@@ -53,7 +53,7 @@ public class SchoolPostsTask extends AsyncTask<String, Void, ArrayList<Post>> {
             schoolID = database.getSchoolId(schoolName[0]);
 
             //Set School Preference
-            database.setSharedStringPreference(DataParser.PREFS_SCHOOL, DataParser.S_PREF_SHORT, "sPref=" + schoolID);
+            database.setSharedStringPreference(DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT, "sPref=" + schoolID);
 
             schoolPosts = database.getSchoolPosts(schoolID, query, category, offset, amount);
 

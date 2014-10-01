@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.walkntrade.EditPost;
 import com.walkntrade.ImageDialog;
 import com.walkntrade.LoginActivity;
 import com.walkntrade.R;
@@ -57,6 +58,7 @@ public class Fragment_Post extends Fragment {
     private String[] imgURLs;
 
     public int imageCount = 0;
+    private boolean currentUserPost = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,30 +81,19 @@ public class Fragment_Post extends Fragment {
         image3 = (ImageView) rootView.findViewById(R.id.postImage3);
         image4 = (ImageView) rootView.findViewById(R.id.postImage4);
 
+        //Sets the size of the image views, so it looks nice
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         if(!twoPane) {
             image.getLayoutParams().width = (int) (displayMetrics.widthPixels* .98);
             image2.getLayoutParams().width = (int) (displayMetrics.widthPixels* .98);
             image3.getLayoutParams().width = (int) (displayMetrics.widthPixels* .98);
             image4.getLayoutParams().width = (int) (displayMetrics.widthPixels* .98);
-
-            contact.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if(DataParser.isUserLoggedIn(context)){
-                        contactListener.contactUser(thisPost.getUser(), thisPost.getTitle());
-                    }
-                    else
-                        startActivity(new Intent(context, LoginActivity.class));
-                }
-            });
         } else {
             image.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667 * .99));
             image2.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667 * .99));
             image3.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667 * .99));
             image4.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667 * .99));
         }
-
 
         identifier = thisPost.getIdentifier();
         title.setText(thisPost.getTitle());
@@ -113,7 +104,7 @@ public class Fragment_Post extends Fragment {
             price.setText(thisPost.getPrice());
         else
             price.setVisibility(View.GONE);
-//Calls images to be displayed on show page
+  //Calls images to be displayed on show page
 
         //First Image
         String imgUrl = generateImgURL(0);
@@ -153,9 +144,36 @@ public class Fragment_Post extends Fragment {
             }
         });
 
-        if(DataParser.isUserLoggedIn(context)) {
+        contact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(DataParser.isUserLoggedIn(context)){
+                    if(currentUserPost) { //Edit Post
+                        String schoolId = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
+                        String obsId = schoolId+":"+thisPost.getIdentifier();
+
+                        Intent editPost = new Intent(context, EditPost.class);
+                        editPost.putExtra(EditPost.POST_ID, obsId);
+                        startActivity(editPost);
+                    }
+                    else
+                        contactListener.contactUser(thisPost.getUser(), thisPost.getTitle());
+                }
+                else
+                    startActivity(new Intent(context, LoginActivity.class));
+            }
+        });
+
+        if(DataParser.isUserLoggedIn(context)) { //If user is logged in
             new PollMessagesTask(context).execute();
-            contact.setText(getString(R.string.contact));
+            if(thisPost.getUser().equals(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME))) { //If this is the current user's post
+                currentUserPost = true;
+                contact.setText(getString(R.string.edit_post));
+            }
+            else {
+                currentUserPost = false;
+                contact.setText(getString(R.string.contact));
+            }
         }
         else
             contact.setText(getString(R.string.contact_login));
@@ -180,7 +198,14 @@ public class Fragment_Post extends Fragment {
 
         if(DataParser.isUserLoggedIn(context)) {
             new PollMessagesTask(context).execute();
-            contact.setText(getString(R.string.contact));
+            if(thisPost.getUser().equals(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME))) {
+                currentUserPost = true;
+                contact.setText(getString(R.string.edit_post));
+            }
+            else {
+                currentUserPost = false;
+                contact.setText(getString(R.string.contact));
+            }
         }
         else
             contact.setText(getString(R.string.contact_login));
@@ -200,7 +225,7 @@ public class Fragment_Post extends Fragment {
     }
 
     private String generateImgURL(int index){
-        String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_SHORT);
+        String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
         String imgUrl = "post_images/"+schoolID+"/";
         imgUrl = imgUrl+identifier+"-"+index+".jpeg";
 
@@ -233,7 +258,7 @@ public class Fragment_Post extends Fragment {
         protected Bitmap doInBackground(String... imgURL) {
             Bitmap bm = null;
             try {
-                String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_SHORT);
+                String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
                 String key = identifier+"_"+index;
 
                 imageCache = new DiskLruImageCache(context, schoolID+DiskLruImageCache.IMAGE_DIRECTORY);

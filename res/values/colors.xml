@@ -17,6 +17,7 @@
     <color name="darker_gray">#aaaaaa</color>
     <color name="start_gray">#ffffffff</color>
     <color name="end_gray">#ffbbbbbb</color>
+    <color name="black">#000000</color>
 
     <color name="green_dark">#0a8f08</color>
     <color name="green_primary">#259b24</color>

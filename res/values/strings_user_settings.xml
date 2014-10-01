@@ -15,8 +15,6 @@
    </string-array>
 
     <string name="contact_email">Contact me via email </string>
-    <string name="edit_post">Edit</string>
-    <string name="remove_post">Remove</string>
 
     <string name="avatar_upload">Upload Current Image</string>
     <string name="null_avatar_upload">Please select a new image</string>
@@ -32,7 +30,6 @@
     <string name="confirm_changes">Confirm changes</string>
     <string name="old_password">Enter current password</string>
 
-    <string name="save_changes">Save changes</string>
     <string name="save_change_failed">Could not save changes</string>
     <string name="error_empty_password">Could not save changes - please enter password</string>
 

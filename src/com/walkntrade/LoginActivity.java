@@ -180,7 +180,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
             try {
                 response = database.login(_emailAddress, _password);
                 database.simpleGetIntent(DataParser.INTENT_GET_USERNAME);
-                database.setSharedStringPreference(DataParser.PREFS_USER, DataParser.USER_EMAIL, _emailAddress);
+                database.setSharedStringPreference(DataParser.PREFS_USER, DataParser.KEY_USER_EMAIL, _emailAddress);
                 database.simpleGetIntent(DataParser.INTENT_GET_PHONENUM);
             } catch (Exception e) {
                 Log.e(TAG, "Logging in", e);
@@ -196,7 +196,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
             if (response.equals(DataParser.LOGIN_SUCCESS)) {
                 loginError.setVisibility(View.GONE);
                 SharedPreferences.Editor editor = settings.edit();
-                editor.putBoolean(DataParser.CURRENTLY_LOGGED_IN, true);
+                editor.putBoolean(DataParser.KEY_CURRENTLY_LOGGED_IN, true);
                 editor.apply();
 
                 //Checks if device has the Google Play Services APK

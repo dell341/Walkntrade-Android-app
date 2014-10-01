@@ -38,7 +38,7 @@ public class ImageRetrievalTask extends AsyncTask<String, Void, Bitmap> {
     protected Bitmap doInBackground(String... imgURL) {
         Bitmap bm = null;
         try {
-            String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_SHORT);
+            String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
             String key = identifier+"_"+index;
 
             imageCache = new DiskLruImageCache(context, schoolID+DiskLruImageCache.IMAGE_DIRECTORY);

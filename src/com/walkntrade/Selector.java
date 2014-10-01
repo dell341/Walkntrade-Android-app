@@ -86,7 +86,7 @@ public class Selector extends Activity implements OnItemClickListener {
         String schoolName = ((TextView)view).getText().toString();
 
         DataParser database = new DataParser(context);
-        database.setSharedStringPreference(DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG, schoolName);
+        database.setSharedStringPreference(DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG, schoolName);
 
         Intent schoolPage = new Intent(context, SchoolPage.class);
         startActivity(schoolPage);

@@ -90,7 +90,7 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
         }
 
         //Set Title in Action Bar to the name of the school
-        actionBar.setTitle(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG));
+        actionBar.setTitle(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
 
@@ -113,7 +113,7 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
 
             public void onDrawerClosed(View view) { //Navigation Drawer is completely closed
                 //Set Title in Action Bar to the name of the school
-                actionBar.setTitle(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG));
+                actionBar.setTitle(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
                 invalidateOptionsMenu(); //Forces action bar to refresh
                 super.onDrawerClosed(view);
             }
@@ -207,11 +207,11 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
         }
 
         SharedPreferences preference = this.getSharedPreferences(DataParser.PREFS_AUTHORIZATION, Context.MODE_PRIVATE);
-        boolean isAuthorized = preference.getBoolean(DataParser.AUTHORIZED, true);
+        boolean isAuthorized = preference.getBoolean(DataParser.KEY_AUTHORIZED, true);
 
         if (!isAuthorized) { //If user is not authorized clear all info and sign out
             SharedPreferences.Editor editor = preference.edit();
-            editor.putBoolean(DataParser.AUTHORIZED, true);
+            editor.putBoolean(DataParser.KEY_AUTHORIZED, true);
             editor.apply();
             signOut();
         }
@@ -297,7 +297,7 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
 
         if (DataParser.isUserLoggedIn(context)) {
             //User is signed in
-            drawerItemParents.add(new DrawerItem(R.drawable.ic_action_person, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_NAME), true)); //User Item id:000
+            drawerItemParents.add(new DrawerItem(R.drawable.ic_action_person, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), true)); //User Item id:000
 
             //Expandable section
             DrawerItem postSection = new DrawerItem(drawerOptions[0], R.drawable.expander_open_holo_light);

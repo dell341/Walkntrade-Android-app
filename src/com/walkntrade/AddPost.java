@@ -110,7 +110,7 @@ public class AddPost extends Activity implements OnClickListener {
         price = (EditText) findViewById(R.id.post_price);
         tags = (EditText) findViewById(R.id.post_tags);
         if (selectedCategory.equals(getString(R.string.server_category_book))) {
-            author = (EditText) findViewById(R.id.post_user);
+            author = (EditText) findViewById(R.id.post_author);
             isbn = (EditText) findViewById(R.id.post_isbn);
             author.setVisibility(View.VISIBLE);
             isbn.setVisibility(View.VISIBLE);
@@ -514,7 +514,7 @@ public class AddPost extends Activity implements OnClickListener {
             }
 
             String identifier = "";
-            String schoolCode = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_SHORT);
+            String schoolCode = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
 
             try {
                 //Calls different method if book was selected

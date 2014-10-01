@@ -1,4 +1,4 @@
-<com.walkntrade.AnimatedScrollLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.walkntrade.views.AnimatedScrollLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:scrollbars="none"
@@ -15,7 +15,7 @@
             android:layout_marginBottom="1.5dp"
             android:clipToPadding="false">
 
-            <com.walkntrade.LightTextView
+            <com.walkntrade.views.LightTextView
                 android:id="@+id/postTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -101,7 +101,7 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <com.walkntrade.LightTextView
+            <com.walkntrade.views.LightTextView
                 android:id="@+id/postPrice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -113,7 +113,7 @@
                 android:textSize="@dimen/price_size"
                 android:textStyle="bold" />
 
-            <com.walkntrade.LightTextView
+            <com.walkntrade.views.LightTextView
                 android:id="@+id/postDescr"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -152,7 +152,7 @@
                     android:scaleType="centerCrop"
                     android:src="@drawable/avatar" />
 
-                <com.walkntrade.ThinTextView
+                <com.walkntrade.views.ThinTextView
                     android:id="@+id/userName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -161,7 +161,7 @@
                     android:maxLines="2"
                     android:textSize="@dimen/show_page_text" />
 
-                <com.walkntrade.ThinTextView
+                <com.walkntrade.views.ThinTextView
                     android:id="@+id/postDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -190,4 +190,4 @@
         </LinearLayout>
 
     </RelativeLayout>
-</com.walkntrade.AnimatedScrollLayout>
+</com.walkntrade.views.AnimatedScrollLayout>

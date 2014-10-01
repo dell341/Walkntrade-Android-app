@@ -52,10 +52,10 @@ public class Fragment_ContactUser extends Fragment {
         button = (Button) rootView.findViewById(R.id.button);
 
         //If user has no phone number on their account. Include a message without the phone number
-        if(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_PHONE) == null || DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_PHONE).equals("0"))
+        if(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE) == null || DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE).equals("0"))
             message = getString(R.string.post_message_content_no_phone);
         else {
-            message = String.format(getString(R.string.post_message_content_phone), DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_PHONE));
+            message = String.format(getString(R.string.post_message_content_phone), DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE));
             checkBox.setEnabled(true);
             checkBox.setChecked(true);
         }
@@ -67,7 +67,7 @@ public class Fragment_ContactUser extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
-                    message = String.format(getString(R.string.post_message_content_phone), DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_PHONE));
+                    message = String.format(getString(R.string.post_message_content_phone), DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE));
                     messageContents.setText(message);
                 }
                 else {

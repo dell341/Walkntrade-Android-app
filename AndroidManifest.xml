@@ -26,6 +26,8 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <android:uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -117,7 +119,7 @@
         <activity
             android:name="com.walkntrade.ResetPasswordActivity"
             android:label="@string/title_activity_reset_password"
-            android:theme="@style/DialogTheme">
+            android:theme="@style/DialogTheme" >
         </activity>
         <activity
             android:name="com.walkntrade.VerifyKeyActivity"
@@ -199,6 +201,14 @@
         <activity
             android:name="com.walkntrade.Privacy_Feedback"
             android:label="@string/privacy_and_feedback" >
+        </activity>
+        <activity
+            android:name=".EditPost"
+            android:label="@string/title_activity_edit_post_page"
+            android:parentActivityName="com.walkntrade.ViewPosts" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walkntrade.ViewPosts" />
         </activity>
     </application>
 

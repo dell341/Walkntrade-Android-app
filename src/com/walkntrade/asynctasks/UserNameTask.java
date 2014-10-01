@@ -27,7 +27,7 @@ public class UserNameTask extends AsyncTask<Void, Void, String> {
     }
     @Override
     protected String doInBackground(Void... voids) {
-        String userName = DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.USER_NAME); //Gets username if already stored on device
+        String userName = DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME); //Gets username if already stored on device
 
         if (userName == null) //If username is not already stored locally
         {

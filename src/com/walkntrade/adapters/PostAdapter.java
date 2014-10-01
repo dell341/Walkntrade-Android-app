@@ -74,7 +74,7 @@ public class PostAdapter extends BaseAdapter {
             holder.image = (ImageView) postGridView.findViewById(R.id.post_image);
             holder.title = (TextView) postGridView.findViewById(R.id.post_title);
             holder.details = (TextView) postGridView.findViewById(R.id.post_details);
-            holder.author = (TextView) postGridView.findViewById(R.id.post_user);
+            holder.author = (TextView) postGridView.findViewById(R.id.post_author);
             holder.price = (TextView) postGridView.findViewById(R.id.post_price);
 
             postGridView.setTag(holder);

@@ -60,7 +60,7 @@ public class Walkntrade_Main extends Activity {
                                 SharedPreferences settings = context.getSharedPreferences(DataParser.PREFS_AUTHORIZATION, Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = settings.edit();
 
-                                editor.putBoolean(DataParser.AUTHORIZED, false);
+                                editor.putBoolean(DataParser.KEY_AUTHORIZED, false);
                                 editor.apply();
                                 new LogoutTask(context).execute();
                             }
@@ -75,7 +75,7 @@ public class Walkntrade_Main extends Activity {
             }
         }
         if (hasConnection() && !hasError) {
-            if(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG) != null) //There is a school preference
+            if(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG) != null) //There is a school preference
                 startActivity(new Intent(context, SchoolPage.class)); //Starts SchoolPage Activity
             else
                 startActivity(new Intent(context, Selector.class)); //Starts Selector (Select/Change School) activity
@@ -87,7 +87,7 @@ public class Walkntrade_Main extends Activity {
             @Override
             public void onClick(View view) {
                 if (hasConnection() && checkPlayServices()) {
-                    if(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG) != null) //There is a school preference
+                    if(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG) != null) //There is a school preference
                         startActivity(new Intent(context, SchoolPage.class)); //Starts SchoolPage Activity
                     else
                         startActivity(new Intent(context, Selector.class)); //Starts Selector (Select/Change School) activity

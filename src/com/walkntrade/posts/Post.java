@@ -1,6 +1,7 @@
 package com.walkntrade.posts;
 
 //Copyright (c), All Rights Reserved, http://walkntrade.com
+
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;

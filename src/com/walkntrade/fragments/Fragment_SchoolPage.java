@@ -140,7 +140,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
             public boolean onQueryTextChange(String newText) {
                 if(queryLength > newText.length() && newText.length() == 0 && openHasFired) {
                     searchQuery = "";
-                    getActivity().getActionBar().setTitle(DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG));
+                    getActivity().getActionBar().setTitle(DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
 
                     gridView.setAdapter(null);
                     postsAdapter.clearContents();
@@ -204,7 +204,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     //Download more posts from the server
     private void downloadMorePosts(ProgressBar progressBar) {
         noResults.setVisibility(View.GONE);
-        new SchoolPostsTask(getActivity(), this, progressBar, searchQuery, category, offset, 15).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.S_PREF_LONG));
+        new SchoolPostsTask(getActivity(), this, progressBar, searchQuery, category, offset, 15).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
         offset += 15;
     }
 

@@ -63,32 +63,37 @@ public class DataParser {
     private static final String TAG = "DATAPARSER";
     public static final String LOGIN_SUCCESS = "success";
 
-    //SharedPreferences Strings
+    //Cookies
+    public static final String COOKIES_USER_LOGIN = "user_login"; //Cookie title
+    public static final String COOKIES_SESS_SEED = "sessionSeed"; //Cookie title
+    public static final String COOKIES_SESS_UID = "sessionUid"; //Cookie title
+    public static final String COOKIES_SCHOOL_PREF = "sPref"; //Cookie title
+
+    //SharedPreferences preference names
     public static final String PREFS_COOKIES = "CookiesPreferences";
     public static final String PREFS_USER = "UserPreferences";
     public static final String PREFS_SCHOOL = "SchoolPreferences";
     public static final String PREFS_NOTIFICATIONS = "NotificationPreferences";
     public static final String PREFS_AUTHORIZATION = "AuthorizationPreferences";
-    public static final String USER_LOGIN = "user_login"; //Cookie title
-    public static final String SESS_SEED = "sessionSeed"; //Cookie title
-    public static final String SESS_UID = "sessionUid"; //Cookie title
-    public static final String S_PREF = "sPref"; //Cookie title
-    public static final String USER_NAME = "user_name"; //User-Pref title
-    public static final String USER_PHONE = "phone_number"; //User-Pref title
-    public static final String USER_EMAIL = "user_email"; //User-Pref title
-    public static final String USER_MESSAGES = "user_messages"; //User-Pref title
-    public static final String CURRENTLY_LOGGED_IN = "userLoggedIn"; //User-Pref title
-    public static final String S_PREF_SHORT = "sPrefShort"; //School Preference title
-    public static final String S_PREF_LONG = "sPrefLong"; //School Preference title
-    public static final String NOTIFY_EMAIL = "notification_email"; //Notification preference
-    public static final String NOTIFY_USER = "notification_status"; //Notification preference title (boolean)
-    public static final String NOTIFY_VIBRATE = "notification_vibrate"; //Notification preference title (boolean)
-    public static final String NOTIFY_SOUND = "notification_sound"; //Notification preference title
-    public static final String NOTIFY_LIGHT = "notification_light"; //Notification preference title (boolean)
-    public static final String AUTHORIZED = "user_authorization"; //Authorization-Pref title (boolean) User password changed or session id expired.
+
+    //SharedPreferences key names
+    public static final String KEY_USER_NAME = "user_name"; //User-Pref title
+    public static final String KEY_USER_PHONE = "phone_number"; //User-Pref title
+    public static final String KEY_USER_EMAIL = "user_email"; //User-Pref title
+    public static final String KEY_USER_MESSAGES = "user_messages"; //User-Pref title
+    public static final String KEY_CURRENTLY_LOGGED_IN = "userLoggedIn"; //User-Pref title
+    public static final String KEY_SCHOOL_SHORT = "sPrefShort"; //School Preference title
+    public static final String KEY_SCHOOL_LONG = "sPrefLong"; //School Preference title
+    public static final String KEY_NOTIFY_EMAIL = "notification_email"; //Notification preference
+    public static final String KEY_NOTIFY_USER = "notification_status"; //Notification preference title (boolean)
+    public static final String KEY_NOTIFY_VIBRATE = "notification_vibrate"; //Notification preference title (boolean)
+    public static final String KEY_NOTIFY_SOUND = "notification_sound"; //Notification preference title
+    public static final String KEY_NOTIFY_LIGHT = "notification_light"; //Notification preference title (boolean)
+    public static final String KEY_AUTHORIZED = "user_authorization"; //Authorization-Pref title (boolean) User password changed or session id expired.
+
     public static final String BLANK = " ";
 
-    //Non-unique intent declarations here
+    //Server commands & intent names
     public static final String INTENT_GET_USERNAME = "getUserName";
     public static final String INTENT_GET_AVATAR = "getAvatar";
     public static final String INTENT_GET_EMAILPREF = "getEmailPref";
@@ -140,13 +145,13 @@ public class DataParser {
     //Get Cookies already stored on device
     private void getCookies() {
         SharedPreferences settings = context.getSharedPreferences(PREFS_COOKIES, Context.MODE_PRIVATE);
-        userLoginCookie = settings.getString(USER_LOGIN, BLANK);
-        sessionSeedCookie = settings.getString(SESS_SEED, BLANK);
-        sessionUidCookie = settings.getString(SESS_UID, BLANK);
+        userLoginCookie = settings.getString(COOKIES_USER_LOGIN, BLANK);
+        sessionSeedCookie = settings.getString(COOKIES_SESS_SEED, BLANK);
+        sessionUidCookie = settings.getString(COOKIES_SESS_UID, BLANK);
 
         //Short name of school will be used in the cookies
         settings = context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);
-        sPrefCookie = settings.getString(S_PREF_SHORT, "sPref=" + BLANK);
+        sPrefCookie = settings.getString(KEY_SCHOOL_SHORT, "sPref=" + BLANK);
     }
 
     //Update all cookies with new values from Cookie Store
@@ -156,17 +161,17 @@ public class DataParser {
 
         List<Cookie> cookieList = cookieStore.getCookies();
         for (Cookie cookie : cookieList) {
-            if (cookie.getName().equals(USER_LOGIN))
-                editor.putString(USER_LOGIN, cookie.getName() + "=" + cookie.getValue());
-            else if (cookie.getName().equals(SESS_SEED))
-                editor.putString(SESS_SEED, cookie.getName() + "=" + cookie.getValue());
-            else if (cookie.getName().equals(SESS_UID))
-                editor.putString(SESS_UID, cookie.getName() + "=" + cookie.getValue());
+            if (cookie.getName().equals(COOKIES_USER_LOGIN))
+                editor.putString(COOKIES_USER_LOGIN, cookie.getName() + "=" + cookie.getValue());
+            else if (cookie.getName().equals(COOKIES_SESS_SEED))
+                editor.putString(COOKIES_SESS_SEED, cookie.getName() + "=" + cookie.getValue());
+            else if (cookie.getName().equals(COOKIES_SESS_UID))
+                editor.putString(COOKIES_SESS_UID, cookie.getName() + "=" + cookie.getValue());
             else
                 Log.e(TAG, "Found Extra Cookie: " + cookie.getName());
         }
         settings = context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);
-        sPrefCookie = settings.getString(S_PREF_SHORT, "sPref=" + BLANK);
+        sPrefCookie = settings.getString(KEY_SCHOOL_SHORT, "sPref=" + BLANK);
 
         editor.apply(); //Save changes to the SharedPreferences
     }
@@ -253,8 +258,8 @@ public class DataParser {
     public static String getSharedStringPreference(Context _context, String preferenceName, String key) {
         SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
 
-        if(key.equals(S_PREF_SHORT))
-            return settings.getString(S_PREF_SHORT, null).split("=")[1]; //sPref=[school] is split and the second index [school] is returned
+        if(key.equals(KEY_SCHOOL_SHORT))
+            return settings.getString(KEY_SCHOOL_SHORT, null).split("=")[1]; //sPref=[school] is split and the second index [school] is returned
 
         return settings.getString(key, null);
     }
@@ -268,25 +273,25 @@ public class DataParser {
     public static void setSoundPref(Context _context, Uri uri) {
         SharedPreferences settings = _context.getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(NOTIFY_SOUND, uri.toString());
+        editor.putString(KEY_NOTIFY_SOUND, uri.toString());
 
         editor.apply();
     }
 
     public static String getSoundPref(Context _context) {
         SharedPreferences settings = _context.getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
-        return settings.getString(NOTIFY_SOUND, null);
+        return settings.getString(KEY_NOTIFY_SOUND, null);
     }
 
     public static int getMessagesAmount(Context _context) {
         SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
-        return settings.getInt(USER_MESSAGES, 0);
+        return settings.getInt(KEY_USER_MESSAGES, 0);
     }
 
     //Returns user login status
     public static boolean isUserLoggedIn(Context _context) {
         SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
-        return settings.getBoolean(DataParser.CURRENTLY_LOGGED_IN, false);
+        return settings.getBoolean(DataParser.KEY_CURRENTLY_LOGGED_IN, false);
     }
 
     //Requirement check for registration
@@ -411,13 +416,13 @@ public class DataParser {
         }
 
         if(intentValue.equals(INTENT_GET_USERNAME))
-            setSharedStringPreference(PREFS_USER, USER_NAME, serverResponse); //Stores username locally to device
+            setSharedStringPreference(PREFS_USER, KEY_USER_NAME, serverResponse); //Stores username locally to device
         else if(intentValue.equals(INTENT_GET_PHONENUM))
-            setSharedStringPreference(PREFS_USER, USER_PHONE, serverResponse); //Stores phone number locally to device
+            setSharedStringPreference(PREFS_USER, KEY_USER_PHONE, serverResponse); //Stores phone number locally to device
         else if(intentValue.equals(INTENT_GET_NEWMESSAGE))
-            setSharedIntPreferences(PREFS_USER, USER_MESSAGES, Integer.parseInt(serverResponse)); //Stores amount of unread messages here
+            setSharedIntPreferences(PREFS_USER, KEY_USER_MESSAGES, Integer.parseInt(serverResponse)); //Stores amount of unread messages here
         else if(intentValue.equals(INTENT_GET_EMAILPREF))
-            setSharedStringPreference(PREFS_NOTIFICATIONS, NOTIFY_EMAIL, serverResponse); //Stores email contact preference
+            setSharedStringPreference(PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, serverResponse); //Stores email contact preference
         else
             Log.e(TAG, "Intent unread: "+intentValue);
 
@@ -477,7 +482,7 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=setEmailPref&pref="+preference;
-        setSharedStringPreference(PREFS_NOTIFICATIONS, NOTIFY_EMAIL, preference); //Stores email contact preference
+        setSharedStringPreference(PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, preference); //Stores email contact preference
         String serverResponse = null;
 
         try {
@@ -519,11 +524,11 @@ public class DataParser {
         switch (setting){
             case AccountSettingsChange.SETTING_EMAIL:
                 query = "intent=controlPanel&oldPw="+password+"&email="+settingValue;
-                setSharedStringPreference(PREFS_USER, USER_EMAIL, settingValue);
+                setSharedStringPreference(PREFS_USER, KEY_USER_EMAIL, settingValue);
                 break;
             case AccountSettingsChange.SETTING_PHONE:
                 query = "intent=controlPanel&oldPw="+password+"&phone="+settingValue;
-                setSharedStringPreference(PREFS_USER, USER_PHONE, settingValue);
+                setSharedStringPreference(PREFS_USER, KEY_USER_PHONE, settingValue);
                 break;
             case AccountSettingsChange.SETTING_PASSWORD:
                 query = "intent=controlPanel&oldPw="+password+"&newPw="+settingValue;
@@ -917,6 +922,89 @@ public class DataParser {
             disconnectAll();
         }
         return schoolPosts;
+    }
+
+    public Post getPostByIdentifier(final String obsId) throws Exception {
+        establishConnection();
+
+        try {
+            String query = "intent=getPostByIdentifier&" + obsId+ "==";
+            HttpEntity entity = new StringEntity(query);
+            InputStream inStream = processRequest(entity);
+
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+
+            DefaultHandler xmlHandler = new DefaultHandler() {
+
+                private String currentElement;
+                private boolean parsingPost = false;
+
+                String splitID[] = obsId.split(":");
+                String school = splitID[0];
+                String identifier = splitID[1]; //Identifier only holds the unique generated number for the post. Used in image url
+                String title = "";
+                String category = "DNE";
+                String details = "";
+                String user = "DNE";
+                String price = "DNE";
+                String imgURL = "DNE";
+                String date = "DNE";
+                String views = "DNE";
+
+                public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+                    currentElement = qName;
+
+                    if(qName.equalsIgnoreCase("POST"))
+                        parsingPost = true;
+                }
+
+                @Override
+                public void characters(char[] ch, int start, int length) throws SAXException {
+
+                    if (currentElement.equalsIgnoreCase("TITLE"))
+                        title = title + new String(ch, start, length);
+                    else if (currentElement.equalsIgnoreCase("CATEGORY"))
+                        category = new String(ch, start, length);
+                    else if (currentElement.equalsIgnoreCase("DETAILS"))
+                        details = details + new String(ch, start, length);
+                    else if (currentElement.equalsIgnoreCase("USERNAME"))
+                        user = new String(ch, start, length);
+                    else if (currentElement.equalsIgnoreCase("PRICE"))
+                        price = new String(ch, start, length);
+                    else if (currentElement.equalsIgnoreCase("DATE"))
+                        date = new String(ch, start, length);
+                    else if (currentElement.equalsIgnoreCase("VIEWS"))
+                        views = new String(ch, start, length);
+                }
+
+                @Override
+                public void endElement(String uri, String localName, String qName) throws SAXException {
+
+                    if(qName.equalsIgnoreCase("POST"))
+                        parsingPost = false;
+
+                    if(!parsingPost) { //End of Post has been reached
+                        identifier = identifier.toLowerCase(Locale.US);
+                        imgURL = "/post_images/"+school+"/"+identifier+"-thumb.jpeg";
+                        if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
+                            post = new Post_Book(identifier, title, details, user, imgURL, date, price, views);
+                        else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
+                            post = new Post_Tech(identifier, title, details, user, imgURL, date, price, views);
+                        else if (category.equalsIgnoreCase(context.getString(R.string.server_category_service)))
+                            post = new Post_Service(identifier, title, details, user, imgURL, date, price, views);
+                        else if (category.equalsIgnoreCase(context.getString(R.string.server_category_misc)))
+                            post = new Post_Misc(identifier, title, details, user, imgURL, date, price, views);
+                    }
+                    currentElement = "";
+                }
+            };
+            saxParser.parse(inStream, xmlHandler);
+        } finally { //If anything happens above, at least disconnect the HttpClient
+            disconnectAll();
+        }
+
+        return post;
     }
 
     public ArrayList<PostReference> getUserPosts() throws Exception {

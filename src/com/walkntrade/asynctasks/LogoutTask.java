@@ -29,7 +29,7 @@ public class LogoutTask extends AsyncTask<Void, Void, Void> {
         SharedPreferences settings = context.getSharedPreferences(DataParser.PREFS_USER, 0);
         SharedPreferences.Editor editor = settings.edit();
 
-        editor.putBoolean(DataParser.CURRENTLY_LOGGED_IN, false);
+        editor.putBoolean(DataParser.KEY_CURRENTLY_LOGGED_IN, false);
         editor.apply();
     }
 

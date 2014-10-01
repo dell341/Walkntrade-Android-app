@@ -38,8 +38,8 @@ public class NotificationSettings extends Activity implements CompoundButton.OnC
         LinearLayout sound = (LinearLayout) findViewById(R.id.notification_sound);
         soundTitle = (TextView) findViewById(R.id.sound_title);
 
-        vibrate.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_VIBRATE));
-        light.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_LIGHT));
+        vibrate.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_VIBRATE));
+        light.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_LIGHT));
 
         if(DataParser.getSoundPref(context) == null) { //If no sound preference is found. Use current sound.
             Uri uri = Settings.System.DEFAULT_NOTIFICATION_URI;
@@ -77,9 +77,9 @@ public class NotificationSettings extends Activity implements CompoundButton.OnC
 
         switch (id){
             case R.id.switch_vibrate:
-                DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_VIBRATE, isChecked); break;
+                DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_VIBRATE, isChecked); break;
             case R.id.switch_light:
-                DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_LIGHT, isChecked); break;
+                DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_LIGHT, isChecked); break;
         }
     }
 

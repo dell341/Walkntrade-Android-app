@@ -1,8 +1,10 @@
-package com.walkntrade;
+package com.walkntrade.views;
 
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+
+import com.walkntrade.views.LightTextView;
 
 /**
  * Copyright (c) 2014, All Rights Reserved

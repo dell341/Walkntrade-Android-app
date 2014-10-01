@@ -41,7 +41,7 @@ public class ThumbnailTask extends AsyncTask<String, Void, Bitmap> {
         if(imgURL[0].equalsIgnoreCase(context.getString(R.string.default_image_url)))
             return BitmapFactory.decodeResource(context.getResources(), R.drawable.post_image);
 
-        String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.S_PREF_SHORT);
+        String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
         String key = post.getIdentifier()+"_thumb";
 
         DiskLruImageCache imageCache = new DiskLruImageCache(context, schoolID + DiskLruImageCache.IMAGE_DIRECTORY);

@@ -1,4 +1,4 @@
-package com.walkntrade;
+package com.walkntrade.views;
 
 import android.content.Context;
 import android.util.AttributeSet;

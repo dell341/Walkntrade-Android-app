@@ -56,13 +56,13 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
         else
             switchNofication.setEnabled(true);
 
-        String emailPreference = DataParser.getSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_EMAIL);
+        String emailPreference = DataParser.getSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_EMAIL);
         if(emailPreference != null){
             boolean value = emailPreference.equals("1");
             switchEmail.setChecked(value);
         }
 
-        switchNofication.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_USER));
+        switchNofication.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_USER));
         switchNofication.setOnCheckedChangeListener(this);
 
         //Change notification sound, vibrate, light
@@ -108,7 +108,7 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
                 else
                     new ChangeContactTask().execute("0");
                 break;
-            case R.id.switch_notifications: DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.NOTIFY_USER, isChecked); break;
+            case R.id.switch_notifications: DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_USER, isChecked); break;
         }
     }
 

@@ -26,8 +26,8 @@ public class AccountSettings extends Activity {
 
         ListView listView = (ListView) findViewById(R.id.listView);
 
-        String email = DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.USER_EMAIL);
-        String phone = DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.USER_PHONE);
+        String email = DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.KEY_USER_EMAIL);
+        String phone = DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE);
         String password = getString(R.string.change_password);
 
         if(phone == null || phone.equals("0"))

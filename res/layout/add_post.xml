@@ -27,7 +27,7 @@
                 android:inputType="text|textCapWords" />
 
             <EditText
-                android:id="@+id/post_user"
+                android:id="@+id/post_author"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"

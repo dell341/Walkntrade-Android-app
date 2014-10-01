@@ -46,6 +46,11 @@ public class ViewPostAdapter extends ArrayAdapter<ViewPostItem> {
         return postItemView;
     }
 
+    @Override
+    public ViewPostItem getItem(int position) {
+        return super.getItem(position);
+    }
+
     @Override //Returns true if item is not a separator (non-selectable, non-clickable)
     //Prevents School names from being selected
     public boolean isEnabled(int position) {
