@@ -24,6 +24,7 @@ import com.walkntrade.posts.PostReference;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Copyright (c) 2014, All Rights Reserved
@@ -79,7 +80,14 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
         if(!item.isHeader()) {
             Intent editPost = new Intent(ViewPosts.this, EditPost.class);
-            editPost.putExtra(EditPost.POST_ID, item.getObsId());
+
+            String obsId = item.getObsId();
+            String splitID[] = obsId.split(":");
+            String identifier = splitID[1];
+            identifier = identifier.toLowerCase(Locale.US);
+
+            editPost.putExtra(EditPost.POST_ID, obsId);
+            editPost.putExtra(EditPost.POST_IDENTIFIER, identifier);
             startActivityForResult(editPost, REQUEST_EDIT_POST);
         }
     }

@@ -42,6 +42,7 @@ public class EditPost extends Activity implements View.OnClickListener {
     private static final String SAVED_IMAGE_PATHS = "saved_instance_image_paths";
     private static final String SAVED_IMAGE_URIS = "saved_instance_image_uri";
     public static final String POST_ID = "post_obs_id";
+    public static final String POST_IDENTIFIER = "post_identifier";
 
     private static final int CAPTURE_IMAGE_ONE = 100;
     private static final int CAPTURE_IMAGE_TWO = 200;
@@ -71,6 +72,7 @@ public class EditPost extends Activity implements View.OnClickListener {
         setContentView(R.layout.edit_post);
 
         obsId = getIntent().getStringExtra(POST_ID);
+        identifier = getIntent().getStringExtra(POST_IDENTIFIER);
 
         context = getApplicationContext();
         progress1 = (ProgressBar) findViewById(R.id.progressBar1);
@@ -108,20 +110,11 @@ public class EditPost extends Activity implements View.OnClickListener {
                 if (photoPath != null) {
                     Bitmap bm = ImageTool.getImageFromDevice(photoPaths[index], width, height);
                     switch (index) {
-                        case 0:
-                            image1.setImageBitmap(bm);
-                            break;
-                        case 1:
-                            image2.setImageBitmap(bm);
-                            break;
-                        case 2:
-                            image3.setImageBitmap(bm);
-                            break;
-                        case 3:
-                            image4.setImageBitmap(bm);
-                            break;
-                        default:
-                            break;
+                        case 0: image1.setImageBitmap(bm); break;
+                        case 1: image2.setImageBitmap(bm); break;
+                        case 2: image3.setImageBitmap(bm); break;
+                        case 3: image4.setImageBitmap(bm); break;
+                        default: break;
                     }
                 }
                 index++;
@@ -133,22 +126,12 @@ public class EditPost extends Activity implements View.OnClickListener {
                 if (uri != null) {
                     try {
                         Bitmap bm = ImageTool.getImageFromDevice(context, uri, width, height);
-
                         switch (index) {
-                            case 0:
-                                image1.setImageBitmap(bm);
-                                break;
-                            case 1:
-                                image2.setImageBitmap(bm);
-                                break;
-                            case 2:
-                                image3.setImageBitmap(bm);
-                                break;
-                            case 3:
-                                image4.setImageBitmap(bm);
-                                break;
-                            default:
-                                break;
+                            case 0: image1.setImageBitmap(bm); break;
+                            case 1: image2.setImageBitmap(bm);  break;
+                            case 2: image3.setImageBitmap(bm); break;
+                            case 3: image4.setImageBitmap(bm); break;
+                            default: break;
                         }
                     } catch (FileNotFoundException e) {
                         Log.e(TAG, "File not found", e);
@@ -156,8 +139,24 @@ public class EditPost extends Activity implements View.OnClickListener {
                 }
                 index++;
             }
-        } else //Get post from the id
+        } else {//Get post from the id
             new LaunchPostTask().execute(obsId);
+
+            //Calls images to be displayed on show page
+
+            //First Image
+            String imgUrl = generateImgURL(0);
+            new SpecialImageRetrievalTask(image1, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+            //Second Image
+            imgUrl = generateImgURL(1);
+            new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+            //Third Image
+            imgUrl = generateImgURL(2);
+            new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
+            //Fourth Image
+            imgUrl = generateImgURL(3);
+            new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
+        }
 
         image1.setOnClickListener(this);
         image2.setOnClickListener(this);
@@ -326,6 +325,9 @@ public class EditPost extends Activity implements View.OnClickListener {
                             return;
                     }
 
+                    if(returnUri == null)
+                        return;
+
                     imageView.setImageBitmap(ImageTool.getImageFromDevice(context, returnUri, width, height));
                 } catch (FileNotFoundException e) {
                     Log.e(TAG, "File not found", e);
@@ -421,27 +423,11 @@ public class EditPost extends Activity implements View.OnClickListener {
         protected void onPostExecute(Post thisPost) {
 
             getActionBar().setTitle(thisPost.getTitle());
-            identifier = thisPost.getIdentifier();
             title.setText(thisPost.getTitle());
             details.setText(thisPost.getDetails());
 
             if (!thisPost.getPrice().equals("0"))
                 price.setText(thisPost.getPrice());
-
-            //Calls images to be displayed on show page
-
-            //First Image
-            String imgUrl = generateImgURL(0);
-            new SpecialImageRetrievalTask(image1, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
-            //Second Image
-            imgUrl = generateImgURL(1);
-            new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
-            //Third Image
-            imgUrl = generateImgURL(2);
-            new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
-            //Fourth Image
-            imgUrl = generateImgURL(3);
-            new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
         }
     }
 
@@ -508,10 +494,11 @@ public class EditPost extends Activity implements View.OnClickListener {
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             if (bitmap != null) {
-                imgView.setVisibility(View.VISIBLE);
                 imgView.setImageBitmap(bitmap);
                 imageCount++;
             }
+            else
+                imgView.setImageResource(R.drawable.ic_action_new_picture);
 
             switch (index) {
                 case 0:
@@ -555,14 +542,18 @@ public class EditPost extends Activity implements View.OnClickListener {
                                 responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoPaths[i], currentPhotoIndex++);
                                 break;
                             case 1:
-                                if (imageCount > 0)
+                                if (imageCount > 0) {
                                     responses[1] = database.uploadPostImage(identifier, photoPaths[i], 1);
+                                    currentPhotoIndex = 2;
+                                }
                                 else
                                     responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoPaths[i], currentPhotoIndex++);
                                 break;
                             case 2:
-                                if (imageCount > 1)
+                                if (imageCount > 1) {
                                     responses[2] = database.uploadPostImage(identifier, photoPaths[i], 2);
+                                    currentPhotoIndex = 3;
+                                }
                                 else
                                     responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoPaths[i], currentPhotoIndex++);
                                 break;
@@ -580,35 +571,27 @@ public class EditPost extends Activity implements View.OnClickListener {
                         InputStream photoStream = context.getContentResolver().openInputStream(uriStreams[i]);
                         switch (i) {
                             case 0:
-                                Log.v(TAG, "Adding image #" + currentPhotoIndex);
                                 responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream, currentPhotoIndex++);
                                 break;
                             case 1:
                                 if (imageCount > 0) {
-                                    Log.v(TAG, "Count > 0. Adding image #1");
                                     responses[1] = database.uploadPostImage(identifier, photoStream, 1);
-                                } else {
-                                    Log.v(TAG, "Adding image #" + currentPhotoIndex);
+                                    currentPhotoIndex = 2;
+                                } else
                                     responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream, currentPhotoIndex++);
-                                }
                                 break;
                             case 2:
                                 if (imageCount > 1) {
-                                    Log.v(TAG, "Count > 1. Adding image #2");
                                     responses[2] = database.uploadPostImage(identifier, photoStream, 2);
-                                } else {
-                                    Log.v(TAG, "Adding image #" + currentPhotoIndex);
+                                    currentPhotoIndex = 3;
+                                } else
                                     responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream, currentPhotoIndex++);
-                                }
                                 break;
                             case 3:
                                 if (imageCount > 2) {
-                                    Log.v(TAG, "Count > 2. Adding image #3");
                                     responses[3] = database.uploadPostImage(identifier, photoStream, 3);
-                                } else {
-                                    Log.v(TAG, "Adding image #" + currentPhotoIndex);
+                                } else
                                     responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream, currentPhotoIndex++);
-                                }
                                 break;
                         }
                     }

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.util.Log;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -40,8 +39,6 @@ public class ImageTool {
     }
 
     public static Bitmap getImageFromDevice(Context context, Uri returnedUri, int targetWidth, int targetHeight) throws FileNotFoundException {
-
-        Log.v(TAG, "Context: "+context+". Uri: "+returnedUri);
         InputStream inStream = context.getContentResolver().openInputStream(returnedUri);
 
         //Get dimensions of actual image

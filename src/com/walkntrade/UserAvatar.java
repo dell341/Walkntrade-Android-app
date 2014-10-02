@@ -186,7 +186,9 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
             if (requestCode == GALLERY_IMAGE) {
                 Uri returnUri = data.getData();
-                Log.v(TAG, "URI: "+returnUri);
+
+                if(returnUri == null)
+                    return;
 
                 try {
                     currentPhotoPath = null;

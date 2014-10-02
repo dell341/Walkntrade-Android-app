@@ -344,6 +344,9 @@ public class AddPost extends Activity implements OnClickListener {
                         default: return;
                     }
 
+                    if(returnUri == null)
+                        return;
+
                     imageView.setImageBitmap(ImageTool.getImageFromDevice(context, returnUri, width, height));
                 } catch (FileNotFoundException e) {
                     Log.e(TAG, "File not found", e);

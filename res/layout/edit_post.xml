@@ -20,7 +20,6 @@
             android:hint="@string/post_title"
             android:inputType="text|textCapWords"
             android:padding="5dp"
-            android:text="Title of current post"
             android:textSize="@dimen/title_size" />
 
         <EditText
@@ -60,8 +59,7 @@
                         android:background="@drawable/dashed_border_selectable"
                         android:clickable="true"
                         android:contentDescription="@string/post_image"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/ic_action_new_picture" />
+                        android:scaleType="centerInside"/>
 
                     <ProgressBar
                         android:id="@+id/progressBar1"
@@ -88,8 +86,7 @@
                         android:background="@drawable/dashed_border_selectable"
                         android:clickable="true"
                         android:contentDescription="@string/post_image"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/ic_action_new_picture" />
+                        android:scaleType="centerInside"/>
 
                     <ProgressBar
                         android:id="@+id/progressBar2"
@@ -123,8 +120,7 @@
                         android:background="@drawable/dashed_border_selectable"
                         android:clickable="true"
                         android:contentDescription="@string/post_image"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/ic_action_new_picture" />
+                        android:scaleType="centerInside"/>
 
                     <ProgressBar
                         android:id="@+id/progressBar3"
@@ -150,8 +146,7 @@
                         android:background="@drawable/dashed_border_selectable"
                         android:clickable="true"
                         android:contentDescription="@string/post_image"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/ic_action_new_picture" />
+                        android:scaleType="centerInside"/>
 
                     <ProgressBar
                         android:id="@+id/progressBar4"
@@ -176,7 +171,6 @@
             android:hint="@string/post_price"
             android:inputType="numberDecimal"
             android:padding="5dp"
-            android:text="$0"
             android:textSize="@dimen/price_size"
             android:textStyle="bold" />
 
@@ -201,7 +195,6 @@
             android:hint="@string/post_description"
             android:inputType="textMultiLine|textCapSentences"
             android:padding="5dp"
-            android:text="This is the description of the current post. This is filler to create an approximate length of the description."
             android:textSize="@dimen/show_page_text" />
 
         <LinearLayout
