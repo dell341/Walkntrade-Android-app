@@ -57,8 +57,8 @@
                         android:layout_height="@dimen/image_size_height"
                         android:layout_margin="3dp"
                         android:adjustViewBounds="true"
-                        android:clickable="true"
                         android:background="@drawable/dashed_border_selectable"
+                        android:clickable="true"
                         android:contentDescription="@string/post_image"
                         android:scaleType="centerInside"
                         android:src="@drawable/ic_action_new_picture" />
@@ -68,7 +68,8 @@
                         style="?android:attr/progressBarStyleInverse"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerInParent="true" />
+                        android:layout_centerInParent="true"
+                        android:visibility="invisible" />
 
                 </RelativeLayout>
 
@@ -95,7 +96,8 @@
                         style="?android:attr/progressBarStyleInverse"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerInParent="true" />
+                        android:layout_centerInParent="true"
+                        android:visibility="invisible" />
 
                 </RelativeLayout>
             </LinearLayout>
@@ -129,7 +131,8 @@
                         style="?android:attr/progressBarStyleInverse"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerInParent="true" />
+                        android:layout_centerInParent="true"
+                        android:visibility="invisible" />
 
                 </RelativeLayout>
 
@@ -155,7 +158,8 @@
                         style="?android:attr/progressBarStyleInverse"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerInParent="true" />
+                        android:layout_centerInParent="true"
+                        android:visibility="invisible" />
 
                 </RelativeLayout>
             </LinearLayout>
@@ -200,12 +204,26 @@
             android:text="This is the description of the current post. This is filler to create an approximate length of the description."
             android:textSize="@dimen/show_page_text" />
 
-        <Button
-            android:id="@+id/postSave"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/save_changes" />
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleInverse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/save_changes" />
+        </LinearLayout>
+
 
     </LinearLayout>
 </com.walkntrade.views.AnimatedScrollLayout>

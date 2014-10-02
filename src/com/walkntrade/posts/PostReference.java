@@ -6,7 +6,7 @@ package com.walkntrade.posts;
  */
 
 //Does not hold all post information, so is not a complete Post object.
-//Used in the ViewPost Fragment
+//Used in the ViewPost activity
 public class PostReference {
     private String school, link, category, title, date, views;
 

@@ -135,6 +135,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toLeftOf="@+id/post_submit"
+                    android:layout_toStartOf="@+id/post_submit"
                     android:visibility="invisible" />
 
                 <Button

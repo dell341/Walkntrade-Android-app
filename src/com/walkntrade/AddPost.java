@@ -76,7 +76,7 @@ public class AddPost extends Activity implements OnClickListener {
 
         int position = getIntent().getIntExtra(AddPost.CATEGORY_POSITION, 2);
         context = getApplicationContext();
-        setContentView(R.layout.add_post);
+        setContentView(R.layout.activity_add_post);
 
         switch (position) {
             case 0:

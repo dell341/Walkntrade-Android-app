@@ -8,8 +8,8 @@ import android.os.Parcelable;
 
 public class Post_Service extends Post {
 	
-	public Post_Service(String _identifier, String _title, String _details, String _user, String _imgURL, String _date, String _price, String _views) {
-		super(_identifier, _title, _details, _user, _imgURL,_date, _price,_views);
+	public Post_Service(String obsId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views) {
+		super(obsId, identifier, title, details, user, imgURL,date, price, views);
 	}
 	
 	public String getCategory() {

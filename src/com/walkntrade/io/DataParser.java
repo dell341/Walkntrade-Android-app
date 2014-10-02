@@ -868,11 +868,12 @@ public class DataParser {
 
             DefaultHandler xmlHandler = new DefaultHandler() {
                 public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+                    String obsId = "DNE";
                     String identifier = "DNE";
                     String title = "DNE";
                     String category = "DNE";
                     String details = "DNE";
-                    String author = "DNE";
+                    String user = "DNE";
                     String price = "DNE";
                     String imgURL = "DNE";
                     String date = "DNE";
@@ -882,8 +883,8 @@ public class DataParser {
 
                         //Android does not support Java 7, so switch-case on Strings cannot be done
                         if (attributes.getLocalName(i).equalsIgnoreCase("obsId")) {
-                            String obsID = attributes.getValue(i); //OBSID also includes school id
-                            String splitID[] = obsID.split(":");
+                            obsId = attributes.getValue(i); //ObsId also includes school id
+                            String splitID[] = obsId.split(":");
                             identifier = splitID[1]; //Identifier only holds the unique generated number for the post. Used in image url
                             identifier = identifier.toLowerCase(Locale.US);//Some IDs contain capital letters, doesn't meet regex requirement of DiskLruCache
                         } else if (attributes.getLocalName(i).equalsIgnoreCase("title"))
@@ -893,7 +894,7 @@ public class DataParser {
                         else if (attributes.getLocalName(i).equalsIgnoreCase("details"))
                             details = attributes.getValue(i);
                         else if (attributes.getLocalName(i).equalsIgnoreCase("username"))
-                            author = attributes.getValue(i);
+                            user = attributes.getValue(i);
                         else if (attributes.getLocalName(i).equalsIgnoreCase("price"))
                             price = attributes.getValue(i);
                         else if (attributes.getLocalName(i).equalsIgnoreCase("image"))
@@ -906,13 +907,13 @@ public class DataParser {
                         //The last attribute to be initialized, views, will mark end of first post
                         if (!views.equals("DNE")) {
                             if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
-                                schoolPosts.add(new Post_Book(identifier, title, details, author, imgURL, date, price, views));
+                                schoolPosts.add(new Post_Book(obsId, identifier, title, details, user, imgURL,date, price, views));
                             else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
-                                schoolPosts.add(new Post_Tech(identifier, title, details, author, imgURL, date, price, views));
+                                schoolPosts.add(new Post_Tech(obsId, identifier, title, details, user, imgURL,date, price, views));
                             else if (category.equalsIgnoreCase(context.getString(R.string.server_category_service)))
-                                schoolPosts.add(new Post_Service(identifier, title, details, author, imgURL, date, price, views));
+                                schoolPosts.add(new Post_Service(obsId, identifier, title, details, user, imgURL,date, price, views));
                             else if (category.equalsIgnoreCase(context.getString(R.string.server_category_misc)))
-                                schoolPosts.add(new Post_Misc(identifier, title, details, author, imgURL, date, price, views));
+                                schoolPosts.add(new Post_Misc(obsId, identifier, title, details, user, imgURL,date, price, views));
                         }
                     }
                 }
@@ -988,13 +989,13 @@ public class DataParser {
                         identifier = identifier.toLowerCase(Locale.US);
                         imgURL = "/post_images/"+school+"/"+identifier+"-thumb.jpeg";
                         if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
-                            post = new Post_Book(identifier, title, details, user, imgURL, date, price, views);
+                            post = new Post_Book(obsId, identifier, title, details, user, imgURL,date, price, views);
                         else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
-                            post = new Post_Tech(identifier, title, details, user, imgURL, date, price, views);
+                            post = new Post_Tech(obsId, identifier, title, details, user, imgURL,date, price, views);
                         else if (category.equalsIgnoreCase(context.getString(R.string.server_category_service)))
-                            post = new Post_Service(identifier, title, details, user, imgURL, date, price, views);
+                            post = new Post_Service(obsId, identifier, title, details, user, imgURL,date, price, views);
                         else if (category.equalsIgnoreCase(context.getString(R.string.server_category_misc)))
-                            post = new Post_Misc(identifier, title, details, user, imgURL, date, price, views);
+                            post = new Post_Misc(obsId, identifier, title, details, user, imgURL,date, price, views);
                     }
                     currentElement = "";
                 }
@@ -1118,7 +1119,6 @@ public class DataParser {
             BitmapFactory.decodeStream(in, null, options);
 
             options.inSampleSize = getSampleSize(options, width, height);
-            Log.v(TAG, "Sample size: "+options.inSampleSize);
 
             options.inJustDecodeBounds = false;
             in = new java.net.URL("http://walkntrade.com/" + _url).openStream();

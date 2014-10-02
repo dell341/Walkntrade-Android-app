@@ -15,20 +15,25 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 	public static final String CATEGORY_SERVICE = "Services";
 	public static final String CATEGORY_MISC = "Miscellaneous";
 	
-	private String identifier, title, details, user, imgURL, date, views;
+	private String obsId, identifier, title, details, user, imgURL, date, views;
 	private String price = "";
 	private Bitmap defaultImage = null;
 	
-	public Post(String _identifier, String _title, String _details, String _user, String _imgURL, String _date, String _price, String _views) {
-        identifier = _identifier;
-		title = _title;
-		details = _details;
-		user = _user;
-		imgURL = _imgURL;
-		date = _date;
-		price = _price;
-		views = _views;
+	public Post(String obsId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views) {
+        this.obsId = obsId;
+        this.identifier = identifier;
+		this.title = title;
+		this.details = details;
+		this.user = user;
+		this.imgURL = imgURL;
+		this.date = date;
+		this.price = price;
+		this.views = views;
 	}
+
+    public String getObsId() {
+        return obsId;
+    }
 
     public String getIdentifier(){
         return identifier;
