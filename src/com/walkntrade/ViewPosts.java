@@ -33,6 +33,8 @@ import java.util.ArrayList;
 public class ViewPosts extends Activity implements AdapterView.OnItemClickListener{
 
     private static final String TAG = "ViewPost";
+    private static final int REQUEST_EDIT_POST = 100;
+    public static final int RESULT_REPOPULATE = 200;
 
     private Context context;
     private ProgressBar progressBar;
@@ -78,7 +80,17 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
         if(!item.isHeader()) {
             Intent editPost = new Intent(ViewPosts.this, EditPost.class);
             editPost.putExtra(EditPost.POST_ID, item.getObsId());
-            startActivity(editPost);
+            startActivityForResult(editPost, REQUEST_EDIT_POST);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_EDIT_POST:
+                if(resultCode == RESULT_REPOPULATE)
+                    //Repopulate list
+                    new UserPostsTask().execute(); break;
         }
     }
 
