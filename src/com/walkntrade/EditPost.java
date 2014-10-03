@@ -223,27 +223,36 @@ public class EditPost extends Activity implements View.OnClickListener {
     public void onClick(View view) {
         final View currentView = view;
         boolean viewHasImage = false;
-        int index = 0;
+        int index;
 
         switch(currentView.getId()) {
             case R.id.postImage1:
-                index = 0; break;
+                index = 0;
+                if(uriStreams[index] != null || photoPaths[index] != null || imageCount > 0)
+                    viewHasImage = true;
+                break;
             case R.id.postImage2:
-                index = 1; break;
+                index = 1;
+                if(uriStreams[index] != null || photoPaths[index] != null || imageCount > 1)
+                    viewHasImage = true;
+                break;
             case R.id.postImage3:
-                index = 2; break;
+                index = 2;
+                if(uriStreams[index] != null || photoPaths[index] != null || imageCount > 3)
+                    viewHasImage = true;
+                break;
             case R.id.postImage4:
-                index = 3; break;
+                index = 3;
+                if(uriStreams[index] != null || photoPaths[index] != null || imageCount > 1)
+                    viewHasImage = true;
+                break;
         }
-
-        if(uriStreams[index] != null || photoPaths[index] != null)
-            viewHasImage = true;
 
         //Creates dialog popup to take a new picture or upload existing photo
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.add_photo));
 
-        if(viewHasImage)
+        if(viewHasImage) //Add option to remove image if there is one at this location
                 builder.setItems(R.array.add_remove_photo_options, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int index) {
@@ -258,12 +267,27 @@ public class EditPost extends Activity implements View.OnClickListener {
                                 break;
                             case 2: //Remove photo
                                 dialogInterface.dismiss();
+                                removeImage(currentView);
                                 break;
                         }
                     }
                 }).create().show();
         else
-
+            builder.setItems(R.array.add_photo_options, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int index) {
+                    switch (index) {
+                        case 0: //Use camera
+                            useCamera(currentView);
+                            dialogInterface.dismiss();
+                            break;
+                        case 1: //Upload existing photo
+                            useExistingImage(currentView);
+                            dialogInterface.dismiss();
+                            break;
+                    }
+                }
+            }).create().show();
     }
 
     private void useCamera(View currentView) {
@@ -319,7 +343,28 @@ public class EditPost extends Activity implements View.OnClickListener {
     }
 
     private void removeImage(View currentView) {
-
+        switch (currentView.getId()) {
+            case R.id.postImage1:
+                uriStreams[0] = null;
+                photoPaths[0] = null;
+                image1.setImageResource(R.drawable.ic_action_new_picture);
+                break;
+            case R.id.postImage2:
+                uriStreams[1] = null;
+                photoPaths[1] = null;
+                image2.setImageResource(R.drawable.ic_action_new_picture);
+                break;
+            case R.id.postImage3:
+                uriStreams[3] = null;
+                photoPaths[3] = null;
+                image3.setImageResource(R.drawable.ic_action_new_picture);
+                break;
+            case R.id.postImage4:
+                uriStreams[3] = null;
+                photoPaths[3] = null;
+                image4.setImageResource(R.drawable.ic_action_new_picture);
+                break;
+        }
     }
 
     @Override

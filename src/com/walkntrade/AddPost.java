@@ -239,74 +239,143 @@ public class AddPost extends Activity implements OnClickListener {
         outState.putParcelableArray(SAVED_IMAGE_URIS, uriStreams);
     }
 
-    @Override //Captures click event for the image views
+    @Override
     public void onClick(View view) {
         final View currentView = view;
+        boolean viewHasImage = false;
+        int index = 0;
+
+        switch(currentView.getId()) {
+            case R.id.add_image_1:
+                index = 0; break;
+            case R.id.add_image_2:
+                index = 1; break;
+            case R.id.add_image_3:
+                index = 2; break;
+            case R.id.add_image_4:
+                index = 3; break;
+        }
+
+        if(uriStreams[index] != null || photoPaths[index] != null)
+            viewHasImage = true;
+
         //Creates dialog popup to take a new picture or upload existing photo
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.add_photo))
-                .setItems(R.array.add_photo_options, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int index) {
-                        switch (index) {
-                            case 0: //Use camera
+        builder.setTitle(getString(R.string.add_photo));
 
-                                //Create intent to take picture
-                                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                File image = null;
-
-                                try {
-                                    image = createImageFile();
-                                } catch (IOException e) {
-                                    Log.e(TAG, "Creating image file", e);
-                                }
-
-                                if (image != null) {
-                                        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(image)); //Set image file name and location
-
-                                        switch (currentView.getId()) {
-                                            case R.id.add_image_1:
-                                                startActivityForResult(cameraIntent, CAPTURE_IMAGE_ONE);
-                                                break;
-                                            case R.id.add_image_2:
-                                                startActivityForResult(cameraIntent, CAPTURE_IMAGE_TWO);
-                                                break;
-                                            case R.id.add_image_3:
-                                                startActivityForResult(cameraIntent, CAPTURE_IMAGE_THREE);
-                                                break;
-                                            case R.id.add_image_4:
-                                                startActivityForResult(cameraIntent, CAPTURE_IMAGE_FOUR);
-                                                break;
-                                    }
-                                }
-                                dialogInterface.dismiss();
-                                break;
-                            case 1: //Upload existing photo
-
-                                Intent galleryPhotoIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                                galleryPhotoIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                                galleryPhotoIntent.setType("image/jpeg");
-
-                                    switch (currentView.getId()) {
-                                        case R.id.add_image_1:
-                                            startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_ONE);
-                                            break;
-                                        case R.id.add_image_2:
-                                            startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_TWO);
-                                            break;
-                                        case R.id.add_image_3:
-                                            startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_THREE);
-                                            break;
-                                        case R.id.add_image_4:
-                                            startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_FOUR);
-                                            break;
-                                    }
-
-                                dialogInterface.dismiss();
-                                break;
-                        }
+        if(viewHasImage) //Add option to remove image if there is one at this location
+            builder.setItems(R.array.add_remove_photo_options, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int index) {
+                    switch (index) {
+                        case 0: //Use camera
+                            useCamera(currentView);
+                            dialogInterface.dismiss();
+                            break;
+                        case 1: //Upload existing photo
+                            useExistingImage(currentView);
+                            dialogInterface.dismiss();
+                            break;
+                        case 2: //Remove photo
+                            dialogInterface.dismiss();
+                            removeImage(currentView);
+                            break;
                     }
-                }).create().show();
+                }
+            }).create().show();
+        else
+            builder.setItems(R.array.add_photo_options, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int index) {
+                    switch (index) {
+                        case 0: //Use camera
+                            useCamera(currentView);
+                            dialogInterface.dismiss();
+                            break;
+                        case 1: //Upload existing photo
+                            useExistingImage(currentView);
+                            dialogInterface.dismiss();
+                            break;
+                    }
+                }
+            }).create().show();
+    }
+
+    private void useCamera(View currentView) {
+        //Create intent to take picture
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File image = null;
+
+        try {
+            image = createImageFile();
+        } catch (IOException e) {
+            Log.e(TAG, "Creating image file", e);
+        }
+
+        if (image != null) {
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(image)); //Set image file name and location
+
+            switch (currentView.getId()) {
+                case R.id.add_image_1:
+                    startActivityForResult(cameraIntent, CAPTURE_IMAGE_ONE);
+                    break;
+                case R.id.add_image_2:
+                    startActivityForResult(cameraIntent, CAPTURE_IMAGE_TWO);
+                    break;
+                case R.id.add_image_3:
+                    startActivityForResult(cameraIntent, CAPTURE_IMAGE_THREE);
+                    break;
+                case R.id.add_image_4:
+                    startActivityForResult(cameraIntent, CAPTURE_IMAGE_FOUR);
+                    break;
+            }
+        }
+    }
+
+    private void useExistingImage(View currentView) {
+        Intent galleryPhotoIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        galleryPhotoIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        galleryPhotoIntent.setType("image/jpeg");
+
+        switch (currentView.getId()) {
+            case R.id.add_image_1:
+                startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_ONE);
+                break;
+            case R.id.add_image_2:
+                startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_TWO);
+                break;
+            case R.id.add_image_3:
+                startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_THREE);
+                break;
+            case R.id.add_image_4:
+                startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_FOUR);
+                break;
+        }
+    }
+
+    private void removeImage(View currentView) {
+        switch (currentView.getId()) {
+            case R.id.add_image_1:
+                uriStreams[0] = null;
+                photoPaths[0] = null;
+                image1.setImageResource(R.drawable.ic_action_new_picture);
+                break;
+            case R.id.add_image_2:
+                uriStreams[1] = null;
+                photoPaths[1] = null;
+                image2.setImageResource(R.drawable.ic_action_new_picture);
+                break;
+            case R.id.add_image_3:
+                uriStreams[3] = null;
+                photoPaths[3] = null;
+                image3.setImageResource(R.drawable.ic_action_new_picture);
+                break;
+            case R.id.add_image_4:
+                uriStreams[3] = null;
+                photoPaths[3] = null;
+                image4.setImageResource(R.drawable.ic_action_new_picture);
+                break;
+        }
     }
 
     @Override
