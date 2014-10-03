@@ -222,71 +222,104 @@ public class EditPost extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         final View currentView = view;
+        boolean viewHasImage = false;
+        int index = 0;
+
+        switch(currentView.getId()) {
+            case R.id.postImage1:
+                index = 0; break;
+            case R.id.postImage2:
+                index = 1; break;
+            case R.id.postImage3:
+                index = 2; break;
+            case R.id.postImage4:
+                index = 3; break;
+        }
+
+        if(uriStreams[index] != null || photoPaths[index] != null)
+            viewHasImage = true;
+
         //Creates dialog popup to take a new picture or upload existing photo
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.add_photo))
-                .setItems(R.array.add_photo_options, new DialogInterface.OnClickListener() {
+        builder.setTitle(getString(R.string.add_photo));
+
+        if(viewHasImage)
+                builder.setItems(R.array.add_remove_photo_options, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int index) {
                         switch (index) {
                             case 0: //Use camera
-
-                                //Create intent to take picture
-                                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                File image = null;
-
-                                try {
-                                    image = createImageFile();
-                                } catch (IOException e) {
-                                    Log.e(TAG, "Creating image file", e);
-                                }
-
-                                if (image != null) {
-                                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(image)); //Set image file name and location
-
-                                    switch (currentView.getId()) {
-                                        case R.id.postImage1:
-                                            startActivityForResult(cameraIntent, CAPTURE_IMAGE_ONE);
-                                            break;
-                                        case R.id.postImage2:
-                                            startActivityForResult(cameraIntent, CAPTURE_IMAGE_TWO);
-                                            break;
-                                        case R.id.postImage3:
-                                            startActivityForResult(cameraIntent, CAPTURE_IMAGE_THREE);
-                                            break;
-                                        case R.id.postImage4:
-                                            startActivityForResult(cameraIntent, CAPTURE_IMAGE_FOUR);
-                                            break;
-                                    }
-                                }
+                                useCamera(currentView);
                                 dialogInterface.dismiss();
                                 break;
                             case 1: //Upload existing photo
-
-                                Intent galleryPhotoIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                                galleryPhotoIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                                galleryPhotoIntent.setType("image/jpeg");
-
-                                switch (currentView.getId()) {
-                                    case R.id.postImage1:
-                                        startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_ONE);
-                                        break;
-                                    case R.id.postImage2:
-                                        startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_TWO);
-                                        break;
-                                    case R.id.postImage3:
-                                        startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_THREE);
-                                        break;
-                                    case R.id.postImage4:
-                                        startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_FOUR);
-                                        break;
-                                }
-
+                                useExistingImage(currentView);
+                                dialogInterface.dismiss();
+                                break;
+                            case 2: //Remove photo
                                 dialogInterface.dismiss();
                                 break;
                         }
                     }
                 }).create().show();
+        else
+
+    }
+
+    private void useCamera(View currentView) {
+        //Create intent to take picture
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File image = null;
+
+        try {
+            image = createImageFile();
+        } catch (IOException e) {
+            Log.e(TAG, "Creating image file", e);
+        }
+
+        if (image != null) {
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(image)); //Set image file name and location
+
+            switch (currentView.getId()) {
+                case R.id.postImage1:
+                    startActivityForResult(cameraIntent, CAPTURE_IMAGE_ONE);
+                    break;
+                case R.id.postImage2:
+                    startActivityForResult(cameraIntent, CAPTURE_IMAGE_TWO);
+                    break;
+                case R.id.postImage3:
+                    startActivityForResult(cameraIntent, CAPTURE_IMAGE_THREE);
+                    break;
+                case R.id.postImage4:
+                    startActivityForResult(cameraIntent, CAPTURE_IMAGE_FOUR);
+                    break;
+            }
+        }
+    }
+
+    private void useExistingImage(View currentView) {
+        Intent galleryPhotoIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        galleryPhotoIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        galleryPhotoIntent.setType("image/jpeg");
+
+        switch (currentView.getId()) {
+            case R.id.postImage1:
+                startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_ONE);
+                break;
+            case R.id.postImage2:
+                startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_TWO);
+                break;
+            case R.id.postImage3:
+                startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_THREE);
+                break;
+            case R.id.postImage4:
+                startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_FOUR);
+                break;
+        }
+    }
+
+    private void removeImage(View currentView) {
+
     }
 
     @Override

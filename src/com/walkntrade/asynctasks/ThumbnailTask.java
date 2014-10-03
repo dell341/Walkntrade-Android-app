@@ -38,6 +38,9 @@ public class ThumbnailTask extends AsyncTask<String, Void, Bitmap> {
     protected Bitmap doInBackground(String... imgURL) {
         Bitmap bm = null;
 
+        if(context == null) //App was closed before AsyncTask was completed
+            return null;
+
         if(imgURL[0].equalsIgnoreCase(context.getString(R.string.default_image_url)))
             return BitmapFactory.decodeResource(context.getResources(), R.drawable.post_image);
 

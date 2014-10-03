@@ -21,6 +21,12 @@
         <item>Use camera</item>
         <item>Upload existing photo</item>
     </string-array>
+
+    <string-array name="add_remove_photo_options">
+        <item>Use camera</item>
+        <item>Upload existing photo</item>
+        <item>Remove image</item>
+    </string-array>
     
     <!-- Books only -->
     <string name="post_author">Author</string>
