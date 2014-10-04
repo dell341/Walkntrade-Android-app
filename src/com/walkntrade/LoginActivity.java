@@ -13,9 +13,11 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -70,16 +72,22 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
             }
         });
 
+        password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_DONE) {
+                    login();
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
         submitButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                loginError.setVisibility(View.GONE);
-                _emailAddress = emailAddress.getText().toString();
-                _password = password.getText().toString();
-                String[] userCredentials = {_emailAddress, _password};
-
-                if (canLogin() && DataParser.isNetworkAvailable(context))
-                    new LoginTask().execute(userCredentials);
+                login();
             }
         });
 
@@ -90,6 +98,16 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
                 startActivity(registerActivity);
             }
         });
+    }
+
+    private void login() {
+        loginError.setVisibility(View.GONE);
+        _emailAddress = emailAddress.getText().toString();
+        _password = password.getText().toString();
+        String[] userCredentials = {_emailAddress, _password};
+
+        if (canLogin() && DataParser.isNetworkAvailable(context))
+            new LoginTask().execute(userCredentials);
     }
 
     @Override
