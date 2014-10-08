@@ -153,7 +153,10 @@ public class Fragment_Post extends Fragment {
                         String obsId = schoolId+":"+thisPost.getIdentifier();
 
                         Intent editPost = new Intent(context, EditPost.class);
+
+                        editPost.putExtra(EditPost.POST_OBJECT, thisPost);
                         editPost.putExtra(EditPost.POST_ID, obsId);
+                        editPost.putExtra(EditPost.POST_IDENTIFIER, identifier);
                         startActivity(editPost);
                     }
                     else

@@ -41,6 +41,7 @@ public class EditPost extends Activity implements View.OnClickListener {
     private static final String SAVED_CURRENT_PATH = "saved_instance_current_path";
     private static final String SAVED_IMAGE_PATHS = "saved_instance_image_paths";
     private static final String SAVED_IMAGE_URIS = "saved_instance_image_uri";
+    public static final String POST_OBJECT = "post_object";
     public static final String POST_ID = "post_obs_id";
     public static final String POST_IDENTIFIER = "post_identifier";
 
@@ -71,6 +72,7 @@ public class EditPost extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_post);
 
+        Post thisPost = getIntent().getParcelableExtra(POST_OBJECT);
         obsId = getIntent().getStringExtra(POST_ID);
         identifier = getIntent().getStringExtra(POST_IDENTIFIER);
 
@@ -110,11 +112,20 @@ public class EditPost extends Activity implements View.OnClickListener {
                 if (photoPath != null) {
                     Bitmap bm = ImageTool.getImageFromDevice(photoPaths[index], width, height);
                     switch (index) {
-                        case 0: image1.setImageBitmap(bm); break;
-                        case 1: image2.setImageBitmap(bm); break;
-                        case 2: image3.setImageBitmap(bm); break;
-                        case 3: image4.setImageBitmap(bm); break;
-                        default: break;
+                        case 0:
+                            image1.setImageBitmap(bm);
+                            break;
+                        case 1:
+                            image2.setImageBitmap(bm);
+                            break;
+                        case 2:
+                            image3.setImageBitmap(bm);
+                            break;
+                        case 3:
+                            image4.setImageBitmap(bm);
+                            break;
+                        default:
+                            break;
                     }
                 }
                 index++;
@@ -127,11 +138,20 @@ public class EditPost extends Activity implements View.OnClickListener {
                     try {
                         Bitmap bm = ImageTool.getImageFromDevice(context, uri, width, height);
                         switch (index) {
-                            case 0: image1.setImageBitmap(bm); break;
-                            case 1: image2.setImageBitmap(bm);  break;
-                            case 2: image3.setImageBitmap(bm); break;
-                            case 3: image4.setImageBitmap(bm); break;
-                            default: break;
+                            case 0:
+                                image1.setImageBitmap(bm);
+                                break;
+                            case 1:
+                                image2.setImageBitmap(bm);
+                                break;
+                            case 2:
+                                image3.setImageBitmap(bm);
+                                break;
+                            case 3:
+                                image4.setImageBitmap(bm);
+                                break;
+                            default:
+                                break;
                         }
                     } catch (FileNotFoundException e) {
                         Log.e(TAG, "File not found", e);
@@ -139,11 +159,18 @@ public class EditPost extends Activity implements View.OnClickListener {
                 }
                 index++;
             }
-        } else {//Get post from the id
-            new LaunchPostTask().execute(obsId);
+        } else {
+            if (thisPost != null) { //If post object was sent from the ShowPage
+                identifier = thisPost.getIdentifier();
+                title.setText(thisPost.getTitle());
+                details.setText(thisPost.getDetails());
+
+                if (!thisPost.getPrice().equals("0"))
+                    price.setText(thisPost.getPrice());
+            } else //Get post from the id
+                new LaunchPostTask().execute(obsId);
 
             //Calls images to be displayed on show page
-
             //First Image
             String imgUrl = generateImgURL(0);
             new SpecialImageRetrievalTask(image1, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
@@ -156,7 +183,9 @@ public class EditPost extends Activity implements View.OnClickListener {
             //Fourth Image
             imgUrl = generateImgURL(3);
             new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
+
         }
+
 
         image1.setOnClickListener(this);
         image2.setOnClickListener(this);
@@ -225,25 +254,25 @@ public class EditPost extends Activity implements View.OnClickListener {
         boolean viewHasImage = false;
         int index;
 
-        switch(currentView.getId()) {
+        switch (currentView.getId()) {
             case R.id.postImage1:
                 index = 0;
-                if(uriStreams[index] != null || photoPaths[index] != null || imageCount > 0)
+                if (uriStreams[index] != null || photoPaths[index] != null || imageCount > 0)
                     viewHasImage = true;
                 break;
             case R.id.postImage2:
                 index = 1;
-                if(uriStreams[index] != null || photoPaths[index] != null || imageCount > 1)
+                if (uriStreams[index] != null || photoPaths[index] != null || imageCount > 1)
                     viewHasImage = true;
                 break;
             case R.id.postImage3:
                 index = 2;
-                if(uriStreams[index] != null || photoPaths[index] != null || imageCount > 3)
+                if (uriStreams[index] != null || photoPaths[index] != null || imageCount > 3)
                     viewHasImage = true;
                 break;
             case R.id.postImage4:
                 index = 3;
-                if(uriStreams[index] != null || photoPaths[index] != null || imageCount > 1)
+                if (uriStreams[index] != null || photoPaths[index] != null || imageCount > 1)
                     viewHasImage = true;
                 break;
         }
@@ -252,26 +281,26 @@ public class EditPost extends Activity implements View.OnClickListener {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.add_photo));
 
-        if(viewHasImage) //Add option to remove image if there is one at this location
-                builder.setItems(R.array.add_remove_photo_options, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int index) {
-                        switch (index) {
-                            case 0: //Use camera
-                                useCamera(currentView);
-                                dialogInterface.dismiss();
-                                break;
-                            case 1: //Upload existing photo
-                                useExistingImage(currentView);
-                                dialogInterface.dismiss();
-                                break;
-                            case 2: //Remove photo
-                                dialogInterface.dismiss();
-                                removeImage(currentView);
-                                break;
-                        }
+        if (viewHasImage) //Add option to remove image if there is one at this location
+            builder.setItems(R.array.add_remove_photo_options, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int index) {
+                    switch (index) {
+                        case 0: //Use camera
+                            useCamera(currentView);
+                            dialogInterface.dismiss();
+                            break;
+                        case 1: //Upload existing photo
+                            useExistingImage(currentView);
+                            dialogInterface.dismiss();
+                            break;
+                        case 2: //Remove photo
+                            dialogInterface.dismiss();
+                            removeImage(currentView);
+                            break;
                     }
-                }).create().show();
+                }
+            }).create().show();
         else
             builder.setItems(R.array.add_photo_options, new DialogInterface.OnClickListener() {
                 @Override
@@ -403,7 +432,7 @@ public class EditPost extends Activity implements View.OnClickListener {
                             return;
                     }
 
-                    if(returnUri == null)
+                    if (returnUri == null)
                         return;
 
                     imageView.setImageBitmap(ImageTool.getImageFromDevice(context, returnUri, width, height));
@@ -498,14 +527,14 @@ public class EditPost extends Activity implements View.OnClickListener {
         }
 
         @Override
-        protected void onPostExecute(Post thisPost) {
+        protected void onPostExecute(Post post) {
 
-            getActionBar().setTitle(thisPost.getTitle());
-            title.setText(thisPost.getTitle());
-            details.setText(thisPost.getDetails());
+            getActionBar().setTitle(post.getTitle());
+            title.setText(post.getTitle());
+            details.setText(post.getDetails());
 
-            if (!thisPost.getPrice().equals("0"))
-                price.setText(thisPost.getPrice());
+            if (!post.getPrice().equals("0"))
+                price.setText(post.getPrice());
         }
     }
 
@@ -574,8 +603,7 @@ public class EditPost extends Activity implements View.OnClickListener {
             if (bitmap != null) {
                 imgView.setImageBitmap(bitmap);
                 imageCount++;
-            }
-            else
+            } else
                 imgView.setImageResource(R.drawable.ic_action_new_picture);
 
             switch (index) {
@@ -623,16 +651,14 @@ public class EditPost extends Activity implements View.OnClickListener {
                                 if (imageCount > 0) {
                                     responses[1] = database.uploadPostImage(identifier, photoPaths[i], 1);
                                     currentPhotoIndex = 2;
-                                }
-                                else
+                                } else
                                     responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoPaths[i], currentPhotoIndex++);
                                 break;
                             case 2:
                                 if (imageCount > 1) {
                                     responses[2] = database.uploadPostImage(identifier, photoPaths[i], 2);
                                     currentPhotoIndex = 3;
-                                }
-                                else
+                                } else
                                     responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoPaths[i], currentPhotoIndex++);
                                 break;
                             case 3:

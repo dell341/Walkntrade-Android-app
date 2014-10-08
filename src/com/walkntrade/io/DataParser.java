@@ -206,7 +206,7 @@ public class DataParser {
         return builder.toString();
     }
 
-    //Sends out POST request and returns an InputStream
+    //Sends out POST_OBJECT request and returns an InputStream
     private InputStream processRequest(HttpEntity entity) throws IOException {
         httpPost.setEntity(entity);
         HttpResponse response = httpClient.execute(httpPost, httpContext); //Executes the request along with the cookie store

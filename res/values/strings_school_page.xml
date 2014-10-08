@@ -27,8 +27,7 @@
     <string name="drawer_expand">Expand Navigation Drawer Options</string>
 
     <!-- School Page Strings -->
-    <string name="tSchoolName">No School Selected</string>
-    <string name="ePostName">Search for posts</string>
-    <string name="post_search">Narrow your search</string>
+    <string name="school_name"> </string>
+    <string name="post_search">Search for posts</string>
 
 </resources>

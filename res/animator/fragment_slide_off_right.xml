@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!--Slide off the screen from the left. Going to the right direction.-->
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <objectAnimator
         android:propertyName="xTranslate"
         android:valueFrom="1"
         android:valueTo="0"
-        android:duration="300"/>
+        android:duration="500"/>
 </set>

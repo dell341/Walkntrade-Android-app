@@ -10,6 +10,7 @@ import android.widget.ScrollView;
  */
 public class AnimatedScrollLayout extends ScrollView {
 
+    private static final String TAG = "AnimatedScrollLayout";
     private int layoutWidth;
 
     public AnimatedScrollLayout(Context context) {
@@ -37,6 +38,9 @@ public class AnimatedScrollLayout extends ScrollView {
 
     //Slide left off screen
     public void setAntiXTranslate(float antiXTranslate){
-        setX(layoutWidth - (layoutWidth + antiXTranslate* layoutWidth));
+        if(layoutWidth != 0)  //This will prevent the layout from being set at the default position, when the layout width hasn't yet been determined
+            setX((layoutWidth - (layoutWidth + antiXTranslate * layoutWidth)));
+        else
+            setX(-600);
     }
 }
