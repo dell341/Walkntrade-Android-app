@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
@@ -127,6 +128,15 @@ public class AddPost extends Activity implements OnClickListener {
 
             currentPhotoPath = savedInstanceState.getString(SAVED_CURRENT_PATH);
             photoPaths = savedInstanceState.getStringArray(SAVED_IMAGE_PATHS);
+
+            boolean hasUri = false;
+            Parcelable[] parcelables = savedInstanceState.getParcelableArray(SAVED_IMAGE_URIS);
+            for(Parcelable uri : parcelables) {
+                if(uri != null)
+                    hasUri = true;
+            }
+
+            if(hasUri) //Cast array only if there is a non-null value, or it may return a ClassCast exception
             uriStreams = (Uri[]) savedInstanceState.getParcelableArray(SAVED_IMAGE_URIS);
 
             int index = 0;
@@ -387,6 +397,7 @@ public class AddPost extends Activity implements OnClickListener {
 
             if (requestCode > CAPTURE_IMAGE_FOUR) {
                     Uri returnUri = data.getData();
+                Log.i(TAG, "OnActivityResult: "+returnUri.getScheme()+"."+returnUri.getPath());
 
                 try {
                     switch (requestCode) {
