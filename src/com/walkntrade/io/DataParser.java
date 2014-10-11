@@ -59,7 +59,8 @@ import javax.xml.parsers.SAXParserFactory;
 
 //Handles almost all necessary network communications
 public class DataParser {
-    private static final String url = "http://api.walkntrade.com";
+    private static final String url = "https://walkntrade.com/";
+    private static final String apiUrl = "https://walkntrade.com/api/";
     private static final String TAG = "DATAPARSER";
     public static final String LOGIN_SUCCESS = "success";
 
@@ -132,7 +133,7 @@ public class DataParser {
         getCookies(); //Retrieve currently stored cookies
 
         httpClient = AndroidHttpClient.newInstance(USER_AGENT);
-        httpPost = new HttpPost(url);
+        httpPost = new HttpPost(apiUrl);
         httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
         httpPost.setHeader("Cookie", sessionSeedCookie + ";" + sessionUidCookie + ";" + userLoginCookie + ";" + sPrefCookie);
     }
@@ -1081,7 +1082,7 @@ public class DataParser {
     }
 
     //Can be called from anywhere without creating a DataParser object
-    public static Bitmap loadBitmap(String _url) throws IOException {
+    public static Bitmap loadBitmap(String link) throws IOException {
         Bitmap bitmap;
         InputStream in = new InputStream() {
             @Override
@@ -1091,7 +1092,7 @@ public class DataParser {
         };
 
         try {
-            in = new java.net.URL("http://walkntrade.com/" + _url).openStream();
+            in = new java.net.URL(url + link).openStream();
             bitmap = BitmapFactory.decodeStream(in);
         }
         finally {
@@ -1102,7 +1103,7 @@ public class DataParser {
     }
 
     //Gets a sample sized bitmap, so the device uses less memory to store it
-    public static Bitmap loadOptBitmap(String _url, int width, int height) throws IOException {
+    public static Bitmap loadOptBitmap(String link, int width, int height) throws IOException {
         Bitmap bitmap;
         InputStream in = new InputStream() {
             @Override
@@ -1115,13 +1116,13 @@ public class DataParser {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
 
-            in = new java.net.URL("http://walkntrade.com/" + _url).openStream();
+            in = new java.net.URL(url + link).openStream();
             BitmapFactory.decodeStream(in, null, options);
 
             options.inSampleSize = getSampleSize(options, width, height);
 
             options.inJustDecodeBounds = false;
-            in = new java.net.URL("http://walkntrade.com/" + _url).openStream();
+            in = new java.net.URL(url + link).openStream();
             bitmap = BitmapFactory.decodeStream(in, null, options);
         }
         finally {
