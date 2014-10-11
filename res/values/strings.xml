@@ -3,7 +3,7 @@
 
     <!-- Universal strings, used anywhere in the app -->
     <string name="app_name">Walkntrade</string>
-    <string name="url_privacy">http://walkntrade.com/privacy</string>
+    <string name="url_privacy">https://walkntrade.com/privacy</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="no_connection">Network connection not found</string>

@@ -10,8 +10,12 @@
     <!-- Width of Navigation Drawer -->
     <dimen name="navigation_drawer_width">240dp</dimen>
 
-    <!-- School select text book-->
-    <dimen name="edit_text_margin_top">100dp</dimen>
+    <!-- School selector-->
+    <dimen name="edit_text_margin_top">75dp</dimen>
+
+    <!-- Login -->
+    <dimen name="login_box_width">300dp</dimen>
+    <dimen name="login_box_padding">16dp</dimen>
 
     <!-- User Settings -->
     <dimen name="school_header_size">16sp</dimen>

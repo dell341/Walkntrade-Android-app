@@ -26,7 +26,7 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
-    <android:uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:allowBackup="true"
@@ -71,7 +71,8 @@
         <activity
             android:name="com.walkntrade.LoginActivity"
             android:label="@string/title_activity_login"
-            android:theme="@style/WalkntradeTheme.NoActionBar" >
+            android:theme="@style/WalkntradeTheme.NoActionBar"
+            >
         </activity>
         <activity
             android:name="com.walkntrade.RegistrationActivity"
