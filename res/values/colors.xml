@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="error_red">#FF0000</color>
+    <color name="red">#FF0000</color>
+    <color name="lighter_red">#ffff313d</color>
 
     <color name="blue">#0000FF</color>
     <color name="hover_holo_blue">#ffaee7ff</color>
     <color name="holo_blue">#ff33b5e5</color>
     <color name="darker_blue">#ff00009f</color>
+
+    <color name="yellow">#fffff942</color>
 
     <color name="walkntrade_green">#78BE19</color>
 

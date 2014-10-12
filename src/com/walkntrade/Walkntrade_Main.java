@@ -131,4 +131,9 @@ public class Walkntrade_Main extends Activity {
     }
 }
 
-//Some images were auto-generated and resized with Android Asset Studio
+/* Proverbs 3:5-6
+Trust in the Lord with all you heart
+and lean not on your own understanding;
+in all your ways submit to him
+and he will make your paths straight.
+ */

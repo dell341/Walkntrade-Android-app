@@ -167,6 +167,8 @@ public class EditPost extends Activity implements View.OnClickListener {
 
                 if (!thisPost.getPrice().equals("0"))
                     price.setText(thisPost.getPrice());
+
+                submit.setEnabled(true);
             } else //Get post from the id
                 new LaunchPostTask().execute(obsId);
 
@@ -185,7 +187,6 @@ public class EditPost extends Activity implements View.OnClickListener {
             new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
 
         }
-
 
         image1.setOnClickListener(this);
         image2.setOnClickListener(this);
@@ -535,6 +536,8 @@ public class EditPost extends Activity implements View.OnClickListener {
 
             if (!post.getPrice().equals("0"))
                 price.setText(post.getPrice());
+
+            submit.setEnabled(true);
         }
     }
 

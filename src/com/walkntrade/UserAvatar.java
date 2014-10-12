@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,8 +45,9 @@ public class UserAvatar extends Activity implements View.OnClickListener {
     private static final int GALLERY_IMAGE = 200;
 
     private Context context;
-    private ImageView avatar;
-    private TextView error;
+    private RelativeLayout imageContainerLayout;
+    private ImageView imageContainer, avatar;
+    private TextView error, noImage;
     private ProgressBar progress;
     private InputStream inputStream;
     private Uri uriStream;
@@ -58,7 +60,10 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
         context = getApplicationContext();
         progress = (ProgressBar) findViewById(R.id.progressBar);
+        imageContainerLayout = (RelativeLayout) findViewById(R.id.image_container_layout);
+        imageContainer = (ImageView) findViewById(R.id.image_container_icon);
         error = (TextView) findViewById(R.id.error_message);
+        noImage = (TextView) findViewById(R.id.no_image_uploaded);
         avatar = (ImageView) findViewById(R.id.avatar);
         Button button = (Button) findViewById(R.id.uploadButton);
 
@@ -87,6 +92,11 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             }
 
         } else {
+
+            DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
+            imageCache.clearCache();
+            imageCache.close();
+
             if(DataParser.isNetworkAvailable(this))
                 new GetAvatarTask().execute();
         }
@@ -183,6 +193,8 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         int height = (int) getResources().getDimension(R.dimen.image_size_height);
 
         if (resultCode == RESULT_OK) {
+            imageContainerLayout.setBackgroundColor(getResources().getColor(R.color.yellow));
+            noImage.setVisibility(View.INVISIBLE);
 
             if (requestCode == GALLERY_IMAGE) {
                 Uri returnUri = data.getData();
@@ -286,7 +298,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             if (bitmap != null)
                 avatar.setImageBitmap(bitmap);
             else
-                avatar.setImageDrawable(getResources().getDrawable(R.drawable.no_avatar));
+                noImage.setVisibility(View.VISIBLE);
         }
     }
 
@@ -326,6 +338,16 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         @Override
         protected void onPostExecute(String response) {
             progress.setVisibility(View.INVISIBLE);
+
+            if(!response.equals("0")) {
+                imageContainerLayout.setBackgroundColor(getResources().getColor(R.color.lighter_red));
+                error.setText(getResources().getString(R.string.error_occured));
+                error.setVisibility(View.VISIBLE);
+            }
+            else {
+                imageContainerLayout.setBackgroundColor(getResources().getColor(R.color.green_secondary));
+                imageContainer.setImageResource(R.drawable.ic_action_accept);
+            }
 
             Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
         }

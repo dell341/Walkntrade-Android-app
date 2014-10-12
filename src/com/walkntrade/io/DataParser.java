@@ -39,6 +39,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.xml.sax.Attributes;
@@ -136,6 +137,9 @@ public class DataParser {
         httpPost = new HttpPost(apiUrl);
         httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
         httpPost.setHeader("Cookie", sessionSeedCookie + ";" + sessionUidCookie + ";" + userLoginCookie + ";" + sPrefCookie);
+
+        HttpConnectionParams.setConnectionTimeout(httpClient.getParams(), 10000);
+        HttpConnectionParams.setSoTimeout(httpClient.getParams(), 10000);
     }
 
     //Called after communication is complete

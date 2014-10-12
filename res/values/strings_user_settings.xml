@@ -18,6 +18,7 @@
 
     <string name="avatar_upload">Upload Current Image</string>
     <string name="null_avatar_upload">Please select a new image</string>
+    <string name="add_image_press">Tap here to upload image</string>
 
     <string name="add_phone">Add phone number</string>
     <string name="change_password">Change password</string>

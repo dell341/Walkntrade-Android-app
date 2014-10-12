@@ -5,7 +5,7 @@
     <style name="TextViewRed">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/error_red</item>
+        <item name="android:textColor">@color/red</item>
         <item name="android:visibility">gone</item>
     </style>
 

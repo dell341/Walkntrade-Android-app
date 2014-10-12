@@ -17,18 +17,42 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:layout_gravity="center_horizontal">
 
-            <ImageView
-                android:id="@+id/avatar"
-                android:layout_width="@dimen/image_size_height"
-                android:layout_height="@dimen/image_size_height"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
-                android:adjustViewBounds="true"
-                android:background="@color/gray"
-                android:contentDescription="@string/post_image"
-                android:scaleType="centerCrop" />
+            <RelativeLayout
+                android:id="@+id/image_container_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/gray">
+
+                <ImageView
+                    android:id="@+id/image_container_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ic_action_remove"/>
+
+                <ImageView
+                    android:id="@+id/avatar"
+                    android:layout_width="@dimen/image_size_height"
+                    android:layout_height="@dimen/image_size_height"
+                    android:layout_below="@id/image_container_icon"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:adjustViewBounds="true"
+                    android:background="@color/gray"
+                    android:contentDescription="@string/post_image"
+                    android:scaleType="centerCrop"/>
+                </RelativeLayout>
+
+            <com.walkntrade.views.LightTextView
+                android:id="@+id/no_image_uploaded"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/add_image_press"
+                android:visibility="invisible"/>
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -36,13 +60,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:visibility="invisible"/>
+                android:visibility="invisible" />
 
             <Button
                 android:id="@+id/uploadButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/avatar"
+                android:layout_below="@id/image_container_layout"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
                 android:text="@string/avatar_upload" />
