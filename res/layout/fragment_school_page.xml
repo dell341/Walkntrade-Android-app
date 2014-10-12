@@ -26,18 +26,18 @@
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-        <GridView
-            android:id="@+id/gridView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:horizontalSpacing="10dp"
-            android:numColumns="1"
-            android:padding="5dp"
-            android:stretchMode="columnWidth"
-            android:clipToPadding="false"
-            android:verticalSpacing="5dp" />
+            <GridView
+                android:id="@+id/gridView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:horizontalSpacing="10dp"
+                android:numColumns="1"
+                android:padding="5dp"
+                android:stretchMode="columnWidth"
+                android:clipToPadding="false"
+                android:verticalSpacing="5dp" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
 

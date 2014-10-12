@@ -575,7 +575,7 @@ public class EditPost extends Activity implements View.OnClickListener {
                 String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
                 String key = identifier + "_" + index;
 
-                imageCache = new DiskLruImageCache(context, schoolID + DiskLruImageCache.IMAGE_DIRECTORY);
+                imageCache = new DiskLruImageCache(context, schoolID + DiskLruImageCache.DIRECTORY_POST_IMAGES);
 
                 int width;
                 int height;

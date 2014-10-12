@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Universal strings, used anywhere in the app -->
+
     <string name="app_name">Walkntrade</string>
     <string name="url_privacy">https://walkntrade.com/privacy</string>
+    <string name="images_directory">android_images/</string>
+    <string name="background_image_1">background_0.png</string>
+    <string name="background_image_2">background_1.png</string>
+
+    <!-- Universal strings, used anywhere in the app -->
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="no_connection">Network connection not found</string>

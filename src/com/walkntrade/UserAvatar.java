@@ -252,7 +252,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             //Taken directly from AvatarRetrievalTask
             DataParser database = new DataParser(context);
             Bitmap bm = null;
-            DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.USER_IMAGE);
+            DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
             try {
                 String avatarURL = database.simpleGetIntent(DataParser.INTENT_GET_AVATAR);
 
@@ -312,7 +312,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 else
                     response = database.uploadUserAvatar(inputStream);
 
-                imageCache = new DiskLruImageCache(context, DiskLruImageCache.USER_IMAGE);
+                imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
             } catch(IOException e){
                 Log.e(TAG, "Uploading user avatar", e);
             } finally {

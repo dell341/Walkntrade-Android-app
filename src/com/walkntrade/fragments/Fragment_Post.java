@@ -264,7 +264,7 @@ public class Fragment_Post extends Fragment {
                 String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
                 String key = identifier+"_"+index;
 
-                imageCache = new DiskLruImageCache(context, schoolID+DiskLruImageCache.IMAGE_DIRECTORY);
+                imageCache = new DiskLruImageCache(context, schoolID+DiskLruImageCache.DIRECTORY_POST_IMAGES);
                 bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from Cache
 
                 if(bm == null) { //If it doesn't exists, retrieve image from network

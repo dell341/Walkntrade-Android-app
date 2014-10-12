@@ -47,7 +47,7 @@ public class ThumbnailTask extends AsyncTask<String, Void, Bitmap> {
         String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
         String key = post.getIdentifier()+"_thumb";
 
-        DiskLruImageCache imageCache = new DiskLruImageCache(context, schoolID + DiskLruImageCache.IMAGE_DIRECTORY);
+        DiskLruImageCache imageCache = new DiskLruImageCache(context, schoolID + DiskLruImageCache.DIRECTORY_POST_IMAGES);
 
         try {
             bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from Cache

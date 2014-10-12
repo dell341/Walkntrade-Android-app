@@ -2,13 +2,16 @@ package com.walkntrade;
 
 //Copyright (c), All Rights Reserved, http://walkntrade.com
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
@@ -20,18 +23,21 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.walkntrade.gcm.GcmRegistration;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.DiskLruImageCache;
 
 import java.io.IOException;
 
 public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "LoginActivity";
+    private static final String SAVED_BACKGROUND = "background_image";
     private static final int REQUEST_RESOLUTION = 9000;
     private static final int REQUEST_VERIFY = 100;
     public static final int REQUEST_LOGIN = 200;
@@ -39,10 +45,13 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
     private SwipeRefreshLayout refreshLayout;
     private TextView loginError, resetPassword;
+    private ImageView imageView;
     private EditText emailAddress, password;
     private String _emailAddress, _password;
     private Context context;
     private SharedPreferences settings;
+
+    private Bitmap background;
 
     //TODO: Handle password or email changes with auto-login
     @Override
@@ -52,6 +61,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
         settings = getSharedPreferences(DataParser.PREFS_USER, 0);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
+        imageView = (ImageView) findViewById(R.id.background);
         loginError = (TextView) findViewById(R.id.loginErrorMessage);
         resetPassword = (TextView) findViewById(R.id.forgot_password);
         emailAddress = (EditText) findViewById(R.id.email);
@@ -59,6 +69,19 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         Button submitButton = (Button) findViewById(R.id.submit);
         Button registerButton = (Button) findViewById(R.id.register);
         context = getApplicationContext();
+
+        if(savedInstanceState != null) {
+            Bitmap bm = savedInstanceState.getParcelable(SAVED_BACKGROUND);
+
+            if(bm == null)
+                new DownloadBackgroundTask().execute();
+            else {
+                background = bm;
+                imageView.setImageBitmap(bm);
+            }
+        }
+        else
+            new DownloadBackgroundTask().execute();
 
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
@@ -115,6 +138,17 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.privacy_feedback, menu);
         return true;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        try {
+            outState.putParcelable(SAVED_BACKGROUND, background);
+        } catch (NullPointerException e) {
+            Log.e(TAG, "Orientation change before image downloaded");
+        }
     }
 
     @Override
@@ -287,6 +321,49 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
         }
 
+    }
+
+    private class DownloadBackgroundTask extends AsyncTask<Void, Void, Bitmap>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Bitmap doInBackground(Void... voids) {
+            Bitmap bm;
+            String key = "background_1";
+            String url = context.getResources().getString(R.string.background_image_2);
+
+            DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
+            bm = imageCache.getBitmapFromDiskCache(key);
+
+            try {
+                if (bm == null)
+                    bm = DataParser.loadBitmap(context.getResources().getString(R.string.images_directory) + url);
+
+                imageCache.addBitmapToCache(key, bm);
+            } catch(IOException e) {
+                Log.e(TAG, "Retrieving image", e);
+            }
+            finally {
+                imageCache.close();
+            }
+
+            return bm;
+        }
+
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+
+            if(bitmap != null) {
+                background = bitmap;
+                imageView.setImageBitmap(bitmap);
+            }
+
+        }
     }
 
 }

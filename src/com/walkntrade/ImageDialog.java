@@ -143,7 +143,7 @@ public class ImageDialog extends Activity {
         @Override
         protected Bitmap doInBackground(String... imgURL) {
             String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
-            DiskLruImageCache imageCache = new DiskLruImageCache(context, schoolID+DiskLruImageCache.IMAGE_DIRECTORY);
+            DiskLruImageCache imageCache = new DiskLruImageCache(context, schoolID+DiskLruImageCache.DIRECTORY_POST_IMAGES);
 
             Bitmap bm = null;
             try {

@@ -36,8 +36,8 @@ import java.io.OutputStream;
 public class DiskLruImageCache {
 	
 	private static final String TAG = "DiskLruImageCache";
-	public static final String IMAGE_DIRECTORY = "_image_posts";
-	public static final String USER_IMAGE= "userimage";
+	public static final String DIRECTORY_POST_IMAGES = "_image_posts";
+	public static final String DIRECTORY_OTHER_IMAGES = "cached_images";
 	private static final int APP_VERSION = 1;
 	private static final int VALUE_COUNT = 1;
 	private static final long MAX_LIMIT = 10485760L; //10MB, max space cache will occupy
