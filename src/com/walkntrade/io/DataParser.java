@@ -36,7 +36,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.params.HttpConnectionParams;
@@ -468,7 +467,7 @@ public class DataParser {
 
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         builder.addPart("intent", new StringBody("uploadAvatar", ContentType.TEXT_PLAIN));
-        builder.addPart("avatar", new InputStreamBody(inStream, ContentType.create("image/jpeg"), "avatar.jpg"));
+        builder.addPart("avatar", new CustomInputStreamBody(inStream, ContentType.create("image/jpeg"), "avatar.jpg"));
 
         String serverResponse = null;
 
@@ -747,7 +746,7 @@ public class DataParser {
         builder.addPart("intent", new StringBody("uploadPostImages", ContentType.TEXT_PLAIN));
         builder.addPart("iteration", new StringBody(index + "", ContentType.TEXT_PLAIN));
         builder.addPart("identifier", new StringBody(identifier, ContentType.TEXT_PLAIN));
-        builder.addPart("image", new InputStreamBody(inStream, ContentType.create("image/jpeg"), "post_image_"+index+".jpg"));
+        builder.addPart("image", new CustomInputStreamBody(inStream, ContentType.create("image/jpeg"), "post_image_"+index+".jpg"));
 
         String serverResponse = null;
 

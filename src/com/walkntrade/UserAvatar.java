@@ -325,9 +325,10 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                     response = database.uploadUserAvatar(inputStream);
 
                 imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
-            } catch(IOException e){
+            } catch(IOException e) {
                 Log.e(TAG, "Uploading user avatar", e);
-            } finally {
+            }
+             finally {
                 imageCache.clearCache(); //Clears avatar user image from cache. So new one will be uploaded.
                 imageCache.close();
             }

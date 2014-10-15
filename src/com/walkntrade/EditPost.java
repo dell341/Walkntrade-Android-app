@@ -685,7 +685,7 @@ public class EditPost extends Activity implements View.OnClickListener {
                                     responses[1] = database.uploadPostImage(identifier, photoStream, 1);
                                     currentPhotoIndex = 2;
                                 } else
-                                    responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream, currentPhotoIndex++);
+                                    responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream,currentPhotoIndex++);
                                 break;
                             case 2:
                                 if (imageCount > 1) {
