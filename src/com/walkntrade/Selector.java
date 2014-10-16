@@ -15,20 +15,22 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.walkntrade.asynctasks.SchoolNameTask;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Selector extends Activity implements OnItemClickListener {
 
@@ -56,7 +58,7 @@ public class Selector extends Activity implements OnItemClickListener {
         schoolList = (ListView) findViewById(R.id.schoolList);
         editText = (EditText) findViewById(R.id.schoolSearch);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        asyncTask = new SchoolNameTask(context, progressBar, noResults, schoolList);
+        asyncTask = new SchoolNameTask();
 
         schoolList.setOnItemClickListener(this);
 
@@ -132,7 +134,7 @@ public class Selector extends Activity implements OnItemClickListener {
 
     private void search(String query){
         if(asyncTask.cancel(true) || asyncTask.getStatus() == AsyncTask.Status.FINISHED) { //Attempts run new search by cancelling a running task or if the previous has finished
-            asyncTask = new SchoolNameTask(context, progressBar, noResults, schoolList);
+            asyncTask = new SchoolNameTask();
             asyncTask.execute(query);
         }
     }
@@ -177,6 +179,67 @@ public class Selector extends Activity implements OnItemClickListener {
                 imageView.setImageBitmap(bitmap);
             }
 
+        }
+    }
+
+    //Asynchronous Task, looks for names of schools based on query
+    public class SchoolNameTask extends AsyncTask<String, Void, ArrayList<String>> {
+
+        ArrayAdapter<String> mAdapter;
+
+        public SchoolNameTask() {
+            super();
+            mAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1) {
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    View view = convertView;
+
+                    if(convertView == null)
+                        view = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, parent, false);
+
+                    TextView schoolName = (TextView) view.findViewById(android.R.id.text1);
+
+                    schoolName.setTextColor(getResources().getColor(R.color.black));
+                    schoolName.setText(getItem(position));
+
+                    return view;
+                }
+            };
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected ArrayList<String> doInBackground(String... schoolName) {
+            ArrayList<String> schoolsList = new ArrayList<String>();
+            DataParser database = new DataParser(context);
+
+            try {
+                String name = schoolName[0];
+                schoolsList = database.getSchools(name);
+            }
+            catch(Exception e) {
+                Log.e(TAG, "Retrieving school name", e);
+            }
+            return schoolsList;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<String> names) {
+            progressBar.setVisibility(View.GONE);
+
+            mAdapter.clear();
+            if(names.size() <= 0)
+                noResults.setVisibility(View.VISIBLE);
+            else {
+                noResults.setVisibility(View.GONE);
+                mAdapter.addAll(names);
+            }
+
+            schoolList.setAdapter(mAdapter);
         }
     }
 
