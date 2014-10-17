@@ -11,19 +11,23 @@
         android:id="@+id/view_post_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:maxLines="1"
         android:focusable="false"
         android:clickable="false"
         android:textSize="@dimen/school_post_size"
         android:textColor="@android:color/black"/>
 
-    <!-- Icon to edit current post -->
-    <!--<ImageView-->
-        <!--android:id="@+id/view_post_edit"-->
-        <!--android:layout_width="32dp"-->
-        <!--android:layout_height="32dp"-->
-        <!--android:layout_alignParentRight="true"-->
-        <!--android:layout_marginRight="8dp"-->
-        <!--android:contentDescription="@string/edit_post"-->
-        <!--android:src="@drawable/ic_action_edit"/>-->
+    <TextView
+        android:id="@+id/renew_post"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:padding="2dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="bottom"
+        android:clickable="true"
+        android:textColor="@color/text_highlight_clickable"
+        android:text="@string/renew_underlined"
+        android:visibility="gone"/>
 
 </RelativeLayout>

@@ -10,8 +10,9 @@ import com.walkntrade.posts.PostReference;
 //Represents items in the listview from the view posts option in user settings
 public class ViewPostItem {
 
-    private String title;
-    private String obsId;
+    private String title, obsId;
+    private int expire;
+    private boolean expired;
     private boolean isHeader;
 
     //Header item (School)
@@ -24,6 +25,8 @@ public class ViewPostItem {
     public ViewPostItem(PostReference post){
         title = post.getTitle();
         obsId = post.getLink();
+        expire = post.getExpire();
+        expired = post.isExpired();
         isHeader = false;
     }
 
@@ -33,6 +36,14 @@ public class ViewPostItem {
 
     public String getObsId(){
         return obsId;
+    }
+
+    public int getExpire() {
+        return expire;
+    }
+
+    public boolean isExpired() {
+        return expired;
     }
 
     public boolean isHeader(){

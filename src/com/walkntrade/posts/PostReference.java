@@ -9,14 +9,18 @@ package com.walkntrade.posts;
 //Used in the ViewPost activity
 public class PostReference {
     private String school, link, category, title, date, views;
+    private int expire;
+    private boolean expired;
 
-    public PostReference(String _school, String _link, String _category, String _title, String _date, String _views) {
-        school = _school;
-        link = _link;
-        category = _category;
-        title = _title;
-        date = _date;
-        views = _views;
+    public PostReference(String school, String link, String category, String title, String date, String views, int expire, boolean expired) {
+        this.school = school;
+        this.link = link;
+        this.category = category;
+        this.title = title;
+        this.date = date;
+        this.views = views;
+        this.expire = expire;
+        this.expired = expired;
     }
 
     public String getSchool() {
@@ -41,5 +45,13 @@ public class PostReference {
 
     public String getViews() {
         return views;
+    }
+
+    public int getExpire() {
+        return expire;
+    }
+
+    public boolean isExpired() {
+        return expired;
     }
 }

@@ -760,6 +760,25 @@ public class DataParser {
 
         return serverResponse;
     }
+
+    public String renewPost(String obsId) throws IOException {
+        establishConnection();
+
+        String query = "intent=renewPost&"+obsId;
+        String serverResponse = null;
+
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        }
+        finally {
+            disconnectAll();
+        }
+
+        return serverResponse;
+    }
+
     public String removePost(String obsId) throws IOException {
         establishConnection();
 
@@ -1036,8 +1055,9 @@ public class DataParser {
                     String title = "DNE";
                     String date = "DNE";
                     String views = "DNE";
-                    String expire = "DNE";
-                    String expired = "DNE";
+                    int expire = 0;
+                    String expd = "DNE";
+                    boolean expired = false;
 
                     if (qName.equalsIgnoreCase("SCHOOL"))//At the start of this element are we parsing a new school
                         parsingSchool = true;
@@ -1057,14 +1077,19 @@ public class DataParser {
                                 date = attributes.getValue(i);
                             else if (attributes.getLocalName(i).equalsIgnoreCase("views"))
                                 views = attributes.getValue(i);
-                            else if (attributes.getLocalName(i).equalsIgnoreCase("expire"))
-                                expire = attributes.getValue(i);
-                            else if (attributes.getLocalName(i).equalsIgnoreCase("expired"))
-                                expired = attributes.getValue(i);
+                            else if (attributes.getLocalName(i).equalsIgnoreCase("expire")) {
+                                String value = attributes.getValue(i);
+                                expire = Integer.parseInt(value);
+                            }
+                            else if (attributes.getLocalName(i).equalsIgnoreCase("expired")) {
+                                expd = attributes.getValue(i);
+                                expired = Boolean.getBoolean(expd);
+                            }
 
                             //The last attribute to be initialized, views, will mark end of first post
-                            if (!expired.equals("DNE"))
-                                userPosts.add(new PostReference(currentSchool, link, category, title, date, views));
+                            if (!expd.equals("DNE"))
+                                userPosts.add(new PostReference(currentSchool, link, category, title, date, views, expire, expired));
+
                         }
                     }
                 }
@@ -1151,4 +1176,5 @@ public class DataParser {
 
         return inSampleSize;
    }
+
 }

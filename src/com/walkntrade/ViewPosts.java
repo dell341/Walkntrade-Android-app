@@ -8,22 +8,25 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.walkntrade.adapters.ViewPostAdapter;
 import com.walkntrade.adapters.item.ViewPostItem;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.posts.PostReference;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -152,6 +155,62 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
         }
     }
 
+    private class ViewPostAdapter extends ArrayAdapter<ViewPostItem> {
+        public ViewPostAdapter(Context _context, List<ViewPostItem> _items) {
+            super(_context, R.layout.item_post_content, _items);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View postItemView;
+
+            final ViewPostItem item = getItem(position);
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            //If item is header, use header layout
+            if(item.isHeader()) {
+                postItemView = inflater.inflate(R.layout.item_post_school, parent, false);
+
+                TextView header = (TextView) postItemView.findViewById(R.id.drawer_header);
+                header.setText(item.getContents());
+            }
+            else { //Item is a post, so use view post item layout
+                postItemView = inflater.inflate(R.layout.item_post_content, parent, false);
+
+                TextView postTitle = (TextView) postItemView.findViewById(R.id.view_post_title);
+                TextView renewPost = (TextView) postItemView.findViewById(R.id.renew_post);
+
+                if(item.isExpired()) {
+                    postItemView.setBackgroundColor(getContext().getResources().getColor(R.color.lighter_red));
+                    renewPost.setVisibility(View.VISIBLE);
+                }
+                else if(item.getExpire() > -1) {
+                    postItemView.setBackgroundColor(getContext().getResources().getColor(R.color.yellow));
+                    renewPost.setVisibility(View.VISIBLE);
+                }
+
+                postTitle.setText(item.getContents());
+                renewPost.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new RenewPostTask().execute(item.getObsId());
+                    }
+                });
+            }
+
+            return postItemView;
+        }
+
+        @Override //Returns true if item is not a separator (non-selectable, non-clickable)
+        //Prevents School names from being selected
+        public boolean isEnabled(int position) {
+            ViewPostItem item = getItem(position);
+
+            //If item is not a header, it is selectable
+            return !item.isHeader();
+        }
+    }
+
     private class UserPostsTask extends AsyncTask<Void, Void, ArrayList<PostReference>> {
 
         private static final String TAG = "AsyncTask:UserPosts";
@@ -201,6 +260,32 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
                 adapter = new ViewPostAdapter(context, items);
                 listOfPosts.setAdapter(adapter);
             }
+        }
+    }
+
+    private class RenewPostTask extends AsyncTask<String, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(String... obsId) {
+            DataParser database = new DataParser(context);
+
+            try {
+                database.renewPost(obsId[0]);
+            } catch(IOException e) {
+                Log.e(TAG, "Renewing post", e);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            //Repopulate with updated info
+            new UserPostsTask().execute();
         }
     }
 
