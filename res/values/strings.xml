@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-
     <string name="app_name">Walkntrade</string>
     <string name="url_privacy">https://walkntrade.com/privacy</string>
     <string name="images_directory">android_images/</string>
@@ -45,6 +44,14 @@
     <string name="server_category_service">service</string>
     <string name="server_category_misc">misc</string>
 
+    <string-array name="categories">
+        <item>All</item>
+        <item>Books</item>
+        <item>Tech/Games</item>
+        <item>Services</item>
+        <item>Misc.</item>
+    </string-array>
+
     <!-- Show Page Strings -->
     <string name="post_image">Image posted by user</string>
     <string name="email_optional">Email (Optional)</string>
@@ -61,5 +68,6 @@
     <string name="invalid_message">Message cannot be blank</string>
     <string name="title_activity_messages">Messages</string>
     <string name="title_activity_show_message">Walkntrade Message</string>
+    <string name="title_activity_search">SearchActivity</string>
 
 </resources>

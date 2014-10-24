@@ -33,22 +33,27 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
         switch(position){
             case 0:
                 args.putString(Fragment_SchoolPage.ARG_CATEGORY, context.getString(R.string.server_category_all));
+                args.putInt(Fragment_SchoolPage.INDEX, 0);
                 fragment.setArguments(args);
                 return fragment;
             case 1:
                 args.putString(Fragment_SchoolPage.ARG_CATEGORY, context.getString(R.string.server_category_book));
+                args.putInt(Fragment_SchoolPage.INDEX, 1);
                 fragment.setArguments(args);
                 return fragment;
             case 2:
                 args.putString(Fragment_SchoolPage.ARG_CATEGORY, context.getString(R.string.server_category_tech));
+                args.putInt(Fragment_SchoolPage.INDEX, 2);
                 fragment.setArguments(args);
                 return fragment;
             case 3:
                 args.putString(Fragment_SchoolPage.ARG_CATEGORY, context.getString(R.string.server_category_service));
+                args.putInt(Fragment_SchoolPage.INDEX, 3);
                 fragment.setArguments(args);
                 return fragment;
             default:
                 args.putString(Fragment_SchoolPage.ARG_CATEGORY, context.getString(R.string.server_category_misc));
+                args.putInt(Fragment_SchoolPage.INDEX, 4);
                 fragment.setArguments(args);
                 return fragment;
         }

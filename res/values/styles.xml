@@ -6,7 +6,7 @@
         <item name="android:icon">@drawable/walkntrade_icon</item>
         <item name="android:windowBackground">@color/light_gray</item>
         <item name="android:imeOptions">flagNoFullscreen</item>
-        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textColor">@color/black</item>
         <item name="android:actionBarStyle">@style/CustomActionBar</item>
         <item name="android:actionOverflowButtonStyle">@android:style/Widget.Holo.ActionButton.Overflow</item>
         <item name="android:actionBarWidgetTheme">@style/WidgetTheme</item>

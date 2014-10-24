@@ -135,7 +135,6 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
             new PollMessagesTask(this).execute(); //Check for new messages
 
         invalidateOptionsMenu(); //Refreshes the ActionBar menu when activity is resumed
-        //updateDrawer();
     }
 
     @Override

@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import com.walkntrade.R;
 import com.walkntrade.SchoolPage;
+import com.walkntrade.SearchActivity;
 import com.walkntrade.ShowPage;
 import com.walkntrade.adapters.PostAdapter;
 import com.walkntrade.asynctasks.SchoolPostsTask;
@@ -37,21 +38,22 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
 
     private String TAG = "FRAGMENT:School_Page";
     public static final String ARG_CATEGORY = "Fragment Category";
+    public static final String INDEX = "index";
     private String category;
 
     private static final String SAVED_ARRAYLIST = "saved_instance_array_list";
     private static final String SAVED_CATEGORY = "saved_instance_category";
+    private static final String SAVED_INDEX = "saved_instance_index";
 
     private SwipeRefreshLayout refreshLayout;
     private PostAdapter postsAdapter;
     private ProgressBar bigProgressBar, progressBar;
-    private GridView gridView;
     private TextView noResults;
     private String searchQuery = ""; //Search query stays the same throughout all fragments
     private ArrayList<Post> schoolPosts = new ArrayList<Post>();
+    private int index;
     private int offset = 0;
     private boolean downloadMore = true;
-    private boolean openHasFired = false;
 
     @Override //This method may be called several times
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,7 +65,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.refresh_layout);
         progressBar = (ProgressBar) rootView.findViewById(R.id.progressBarGrid);
         noResults = (TextView) rootView.findViewById(R.id.noResults);
-        gridView = (GridView) rootView.findViewById(R.id.gridView);
+        GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
         Bundle args = getArguments();
 
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
@@ -76,11 +78,14 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
             if(savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST) != null) {
                 schoolPosts = savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST);
                 category = savedInstanceState.getString(SAVED_CATEGORY);
+                index = savedInstanceState.getInt(SAVED_INDEX);
                 offset += schoolPosts.size();
             }
         }
-        else
+        else {
             category = args.getString(ARG_CATEGORY);
+            index = args.getInt(INDEX);
+        }
 
         /*On initial create, ArrayList will be empty. But onCreateView may be called several times
         Only call this method if the ArrayList is empty, which should only be during the initial creation*/
@@ -108,50 +113,23 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         searchView.setQueryHint(getString(R.string.post_search));
         searchView.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
 
-        searchView.setOnSearchClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openHasFired = true;
-                if(!searchQuery.isEmpty())
-                    searchView.setQuery(searchQuery, false);
-            }
-        });
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            int queryLength = 0;
 
             @Override
             public boolean onQueryTextSubmit(String query) {
-                openHasFired = false;
-                searchQuery = query;
-                getActivity().getActionBar().setTitle(searchQuery);
+                Intent search = new Intent(Fragment_SchoolPage.this.getActivity(), SearchActivity.class);
+                search.putExtra(SearchActivity.EXTRA_CATEGORY, category);
+                search.putExtra(SearchActivity.EXTRA_QUERY, query);
+                search.putExtra(SearchActivity.EXTRA_INDEX, index);
+                startActivity(search);
+
                 menuItem.collapseActionView();
-
-                gridView.setAdapter(null);
-                postsAdapter.clearContents();
-                offset = 0;
-                downloadMorePosts(bigProgressBar);
-
-                gridView.setAdapter(postsAdapter);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(queryLength > newText.length() && newText.length() == 0 && openHasFired) {
-                    searchQuery = "";
-                    getActivity().getActionBar().setTitle(DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
-
-                    gridView.setAdapter(null);
-                    postsAdapter.clearContents();
-                    offset = 0;
-                    downloadMorePosts(bigProgressBar);
-
-                    gridView.setAdapter(postsAdapter);
-                }
-
-                queryLength = newText.length();
-                return true;
+                return false;
             }
         });
 
@@ -199,6 +177,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(SAVED_ARRAYLIST, schoolPosts);
         outState.putString(SAVED_CATEGORY, category);
+        outState.putInt(SAVED_INDEX, index);
     }
 
     //Download more posts from the server

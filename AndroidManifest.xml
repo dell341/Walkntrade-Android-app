@@ -71,8 +71,7 @@
         <activity
             android:name="com.walkntrade.LoginActivity"
             android:label="@string/title_activity_login"
-            android:theme="@style/WalkntradeTheme.NoActionBar"
-            >
+            android:theme="@style/WalkntradeTheme.NoActionBar" >
         </activity>
         <activity
             android:name="com.walkntrade.RegistrationActivity"
@@ -204,12 +203,15 @@
             android:label="@string/privacy_and_feedback" >
         </activity>
         <activity
-            android:name=".EditPost"
-            android:label="@string/title_activity_edit_post_page"
-            android:parentActivityName="com.walkntrade.ViewPosts" >
+            android:name="com.walkntrade.EditPost"
+            android:label="@string/title_activity_edit_post_page">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.ViewPosts" />
+        </activity>
+        <activity
+            android:name="com.walkntrade.SearchActivity"
+            android:label="@string/title_activity_search" >
         </activity>
     </application>
 

@@ -5,7 +5,6 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -125,8 +124,8 @@ public class ShowPage extends Activity implements Fragment_Post.ContactUserListe
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-            case android.R.id.home: //If the up button was selected, go back to parent activity
-                NavUtils.navigateUpFromSameTask(this);
+            case android.R.id.home: //If the up button was selected, close this activity. Parent could be either search or school page
+                finish();
                 return true;
             case R.id.action_login:
                 if(!DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context))

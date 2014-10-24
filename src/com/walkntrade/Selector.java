@@ -82,9 +82,7 @@ public class Selector extends Activity implements OnItemClickListener {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     String query = editText.getText().toString();
                     search(query);
-                    return true;
                 }
-
                 return false;
             }
         });
