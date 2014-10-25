@@ -129,15 +129,12 @@ public class AddPost extends Activity implements OnClickListener {
             currentPhotoPath = savedInstanceState.getString(SAVED_CURRENT_PATH);
             photoPaths = savedInstanceState.getStringArray(SAVED_IMAGE_PATHS);
 
-            boolean hasUri = false;
+            //Each item has to be cast individually. It cannot be guaranteed that every Parcelable item is also a Uri item. [Prevents ClassCastException]
             Parcelable[] parcelables = savedInstanceState.getParcelableArray(SAVED_IMAGE_URIS);
-            for(Parcelable uri : parcelables) {
-                if(uri != null)
-                    hasUri = true;
+            for(int i=0; i<parcelables.length; i++) {
+                if(parcelables[i] != null)
+                    uriStreams[i] = (Uri) parcelables[i];
             }
-
-            if(hasUri) //Cast array only if there is a non-null value, or it may return a ClassCast exception
-            uriStreams = (Uri[]) savedInstanceState.getParcelableArray(SAVED_IMAGE_URIS);
 
             int index = 0;
 
