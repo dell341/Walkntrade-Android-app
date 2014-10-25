@@ -8,7 +8,7 @@
         android:id="@+id/error_message"
         style="@style/TextViewRed"
         android:layout_alignParentTop="true"
-        android:textSize="18sp" />
+        android:textSize="18sp"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -17,7 +17,8 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="15dp"
+            android:padding="5dp"
             android:layout_gravity="center_horizontal">
 
             <RelativeLayout

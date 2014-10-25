@@ -40,6 +40,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
     private static final String TAG = "UserAvatar";
     private static final String SAVED_IMAGE_PATH = "saved_image_path";
     private static final String SAVED_IMAGE_URI = "saved_image_uri";
+    private static final String SAVED_STATE = "saved_image_awaiting_save";
     private static final String SAVED_IMAGE = "saved_image_instance";
     private static final int CAPTURE_IMAGE = 100;
     private static final int GALLERY_IMAGE = 200;
@@ -52,6 +53,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
     private InputStream inputStream;
     private Uri uriStream;
     private String currentPhotoPath;
+    private boolean imageAwaitingSave = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +75,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
             currentPhotoPath = savedInstanceState.getString(SAVED_IMAGE_PATH);
             uriStream = savedInstanceState.getParcelable(SAVED_IMAGE_URI);
+            imageAwaitingSave = savedInstanceState.getBoolean(SAVED_STATE);
 
             if(currentPhotoPath != null) //Image from camera capture
                 avatar.setImageBitmap(ImageTool.getImageFromDevice(currentPhotoPath, width, height));
@@ -100,6 +103,9 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             if(DataParser.isNetworkAvailable(this))
                 new GetAvatarTask().execute();
         }
+
+        if(imageAwaitingSave)
+            imageContainerLayout.setBackgroundColor(getResources().getColor(R.color.yellow));
 
         avatar.setOnClickListener(this);
         button.setOnClickListener(new View.OnClickListener() {
@@ -137,9 +143,11 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
         outState.putString(SAVED_IMAGE_PATH, currentPhotoPath);
         outState.putParcelable(SAVED_IMAGE_URI, uriStream);
+        outState.putBoolean(SAVED_STATE, imageAwaitingSave);
 
         try {
-            outState.putParcelable(SAVED_IMAGE, ((BitmapDrawable) avatar.getDrawable()).getBitmap());
+            if(!imageAwaitingSave)
+                outState.putParcelable(SAVED_IMAGE, ((BitmapDrawable) avatar.getDrawable()).getBitmap());
         } catch (NullPointerException e){
             Log.e(TAG, "Orientation Change before image downloaded");
         }
@@ -193,6 +201,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         int height = (int) getResources().getDimension(R.dimen.image_size_height);
 
         if (resultCode == RESULT_OK) {
+            imageAwaitingSave = true;
             imageContainerLayout.setBackgroundColor(getResources().getColor(R.color.yellow));
             noImage.setVisibility(View.INVISIBLE);
 
