@@ -189,50 +189,52 @@ public class SearchActivity extends Activity implements AdapterView.OnItemClickL
         new SchoolPostsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
     }
 
-    private class SchoolPostsTask extends AsyncTask<String, Void, ArrayList<Post>> {
+    private class SchoolPostsTask extends AsyncTask<String, Void, Integer> {
+
+        private ArrayList<Post> posts;
+
+        public SchoolPostsTask() {
+            posts = new ArrayList<Post>();
+        }
+
         @Override
         protected void onPreExecute() {
             progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
-        protected ArrayList<Post> doInBackground(String... schoolName) {
-            String schoolID;
-            ArrayList<Post> schoolPosts = new ArrayList<Post>();
+        protected Integer doInBackground(String... schoolName) {
             DataParser database = new DataParser(context);
+            int serverResponse = -100;
 
             try {
-                schoolID = database.getSchoolId(schoolName[0]);
-
-                //Set School Preference
-                database.setSharedStringPreference(DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT, "sPref=" + schoolID);
-                schoolPosts = database.getSchoolPosts(schoolID, searchQuery, category, offset, 15);
+                String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
+                serverResponse = database.getSchoolPosts(posts, schoolID, searchQuery, category, offset, 15);
                 offset += 15;
             } catch (Exception e) {
                 Log.e(TAG, "Retrieving school post(s)", e);
             }
 
-            return schoolPosts;
+            return serverResponse;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<Post> newPosts) {
-            super.onPostExecute(newPosts);
+        protected void onPostExecute(Integer serverResponse) {
             progressBar.setVisibility(View.GONE);
 
-            if (newPosts.isEmpty()) { //If server returned empty list, don't try to download anymore
+            if (posts.isEmpty()) { //If server returned empty list, don't try to download anymore
                 downloadMore = false;
                 noResults.setVisibility(View.VISIBLE);
 
             } else {
                 noResults.setVisibility(View.GONE);
-                postsAdapter.incrementCount(newPosts);
-                for (Post i : newPosts)
+                postsAdapter.incrementCount(posts);
+                for (Post i : posts)
                     schoolPosts.add(i);
 
                 postsAdapter.notifyDataSetChanged();
 
-                for (Post post : newPosts)
+                for (Post post : posts)
                     new ThumbnailTask(SearchActivity.this, postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
             }
         }

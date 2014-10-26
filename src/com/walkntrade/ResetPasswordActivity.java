@@ -48,16 +48,16 @@ public class ResetPasswordActivity extends Activity {
         });
     }
 
-    private class ResetPasswordTask extends AsyncTask<String, Void, String>{
+    private class ResetPasswordTask extends AsyncTask<String, Void, Integer>{
         @Override
         protected void onPreExecute() {
             submit.setEnabled(false);
         }
 
         @Override
-        protected String doInBackground(String... email) {
+        protected Integer doInBackground(String... email) {
             DataParser database = new DataParser(context);
-            String serverResponse = null;
+            int serverResponse = -100;
 
             try {
                 serverResponse = database.resetPassword(email[0]);
@@ -69,16 +69,16 @@ public class ResetPasswordActivity extends Activity {
         }
 
         @Override
-        protected void onPostExecute(String response) {
+        protected void onPostExecute(Integer serverResponse) {
             submit.setEnabled(true);
 
-            if(response.equals("Thanks! Check your inbox for the new password")) {
-                setResult(Activity.RESULT_OK);
-                finish();
-            }
-            else {
+            switch (serverResponse) {
+                case 200:  setResult(Activity.RESULT_OK);
+                    finish(); break;
+                case 404: errorMessage.setText("User not found");
+                    errorMessage.setVisibility(View.VISIBLE); break;
+                default: errorMessage.setText("Something went wrong.");
                 errorMessage.setVisibility(View.VISIBLE);
-                errorMessage.setText(response);
             }
         }
     }

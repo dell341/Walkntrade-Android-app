@@ -211,10 +211,13 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
         }
     }
 
-    private class UserPostsTask extends AsyncTask<Void, Void, ArrayList<PostReference>> {
+    private class UserPostsTask extends AsyncTask<Void, Void, Integer> {
 
-        private static final String TAG = "AsyncTask:UserPosts";
+        private ArrayList<PostReference> userPosts;
 
+        public UserPostsTask() {
+            userPosts = new ArrayList<PostReference>();
+        }
 
         @Override
         protected void onPreExecute() {
@@ -222,25 +225,25 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
         }
 
         @Override
-        protected ArrayList<PostReference> doInBackground(Void... voids) {
-            ArrayList<PostReference> userPosts = new ArrayList<PostReference>();
+        protected Integer doInBackground(Void... voids) {
             DataParser database = new DataParser(context);
+            int serverResponse = -100;
 
             try {
-                userPosts = database.getUserPosts();
+                serverResponse = database.getUserPosts(userPosts);
             }
             catch(Exception e) {
                 Log.e(TAG, "Get user posts", e);
             }
-            return userPosts;
+            return serverResponse;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<PostReference> falsePosts) {
+        protected void onPostExecute(Integer serverResponse) {
             progressBar.setVisibility(View.GONE);
             listOfPosts.setAdapter(null); //Clears out any previous items
 
-            if (falsePosts.isEmpty())
+            if (userPosts.isEmpty())
                 noResults.setVisibility(View.VISIBLE);
             else {
                 noResults.setVisibility(View.GONE);
@@ -248,7 +251,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
                 String currentSchool = "";
 
-                for (PostReference p : falsePosts) {
+                for (PostReference p : userPosts) {
                     if(!p.getSchool().equalsIgnoreCase(currentSchool)) { //If this post is a new school, create a new header
                         currentSchool = p.getSchool();
                         items.add(new ViewPostItem(p.getSchool()));

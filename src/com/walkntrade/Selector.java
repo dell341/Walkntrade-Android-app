@@ -42,15 +42,15 @@ public class Selector extends Activity implements OnItemClickListener {
     private ImageView imageView;
     private EditText editText;
     private ProgressBar progressBar;
-	private Context context;
+    private Context context;
     private SchoolNameTask asyncTask;
 
     private Bitmap background;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_selector);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_selector);
         context = getApplicationContext();
 
         imageView = (ImageView) findViewById(R.id.background);
@@ -62,18 +62,17 @@ public class Selector extends Activity implements OnItemClickListener {
 
         schoolList.setOnItemClickListener(this);
 
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             Bitmap bm = savedInstanceState.getParcelable(SAVED_BACKGROUND);
 
-            if(bm == null)
+            if (bm == null)
                 new DownloadBackgroundTask().execute();
             else {
                 background = bm;
                 imageView.setImageBitmap(bm);
             }
-        }
-        else
-           new DownloadBackgroundTask().execute();
+        } else
+            new DownloadBackgroundTask().execute();
 
         //Search with a click
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -105,7 +104,7 @@ public class Selector extends Activity implements OnItemClickListener {
                 }
             }
         });
-	}
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -120,24 +119,28 @@ public class Selector extends Activity implements OnItemClickListener {
 
     //Gets the item selected from the ListView
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        String schoolName = ((TextView)view).getText().toString();
+        SchoolObject school = (SchoolObject) parent.getItemAtPosition(position);
+
+        String schoolName = school.getFullName();
+        String schoolId = school.getShortName();
 
         DataParser database = new DataParser(context);
         database.setSharedStringPreference(DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG, schoolName);
+        database.setSharedStringPreference(DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT, schoolId);
 
         Intent schoolPage = new Intent(context, SchoolPage.class);
         startActivity(schoolPage);
         finish(); //Close this activity. App will now start-up from preferred school
     }
 
-    private void search(String query){
-        if(asyncTask.cancel(true) || asyncTask.getStatus() == AsyncTask.Status.FINISHED) { //Attempts run new search by cancelling a running task or if the previous has finished
+    private void search(String query) {
+        if (asyncTask.cancel(true) || asyncTask.getStatus() == AsyncTask.Status.FINISHED) { //Attempts run new search by cancelling a running task or if the previous has finished
             asyncTask = new SchoolNameTask();
             asyncTask.execute(query);
         }
     }
 
-    private class DownloadBackgroundTask extends AsyncTask<Void, Void, Bitmap>{
+    private class DownloadBackgroundTask extends AsyncTask<Void, Void, Bitmap> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -157,10 +160,9 @@ public class Selector extends Activity implements OnItemClickListener {
                     bm = DataParser.loadBitmap(context.getResources().getString(R.string.images_directory) + url);
 
                 imageCache.addBitmapToCache(key, bm);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 Log.e(TAG, "Retrieving image", e);
-            }
-            finally {
+            } finally {
                 imageCache.close();
             }
 
@@ -172,7 +174,7 @@ public class Selector extends Activity implements OnItemClickListener {
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
 
-            if(bitmap != null) {
+            if (bitmap != null) {
                 background = bitmap;
                 imageView.setImageBitmap(bitmap);
             }
@@ -181,24 +183,27 @@ public class Selector extends Activity implements OnItemClickListener {
     }
 
     //Asynchronous Task, looks for names of schools based on query
-    public class SchoolNameTask extends AsyncTask<String, Void, ArrayList<String>> {
+    public class SchoolNameTask extends AsyncTask<String, Void, Integer> {
 
-        ArrayAdapter<String> mAdapter;
+        ArrayList<SchoolObject> schoolObjects;
+        ArrayAdapter<SchoolObject> mAdapter;
 
         public SchoolNameTask() {
             super();
-            mAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1) {
+
+            schoolObjects = new ArrayList<SchoolObject>();
+            mAdapter = new ArrayAdapter<SchoolObject>(context, android.R.layout.simple_list_item_1) {
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     View view = convertView;
 
-                    if(convertView == null)
+                    if (convertView == null)
                         view = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, parent, false);
 
                     TextView schoolName = (TextView) view.findViewById(android.R.id.text1);
 
                     schoolName.setTextColor(getResources().getColor(R.color.black));
-                    schoolName.setText(getItem(position));
+                    schoolName.setText(getItem(position).getFullName());
 
                     return view;
                 }
@@ -211,30 +216,28 @@ public class Selector extends Activity implements OnItemClickListener {
         }
 
         @Override
-        protected ArrayList<String> doInBackground(String... schoolName) {
-            ArrayList<String> schoolsList = new ArrayList<String>();
+        protected Integer doInBackground(String... schoolName) {
             DataParser database = new DataParser(context);
+            int serverResponse = -100;
 
             try {
-                String name = schoolName[0];
-                schoolsList = database.getSchools(name);
-            }
-            catch(Exception e) {
+                serverResponse = database.getSchools(schoolObjects, schoolName[0]);
+            } catch (IOException e) {
                 Log.e(TAG, "Retrieving school name", e);
             }
-            return schoolsList;
+            return serverResponse;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<String> names) {
+        protected void onPostExecute(Integer serverResponse) {
             progressBar.setVisibility(View.GONE);
 
             mAdapter.clear();
-            if(names.size() <= 0)
+            if (schoolObjects.size() <= 0)
                 noResults.setVisibility(View.VISIBLE);
             else {
                 noResults.setVisibility(View.GONE);
-                mAdapter.addAll(names);
+                mAdapter.addAll(schoolObjects);
             }
 
             schoolList.setAdapter(mAdapter);

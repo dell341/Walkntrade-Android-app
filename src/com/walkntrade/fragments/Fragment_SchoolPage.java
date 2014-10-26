@@ -45,6 +45,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     private static final String SAVED_ARRAYLIST = "saved_instance_array_list";
     private static final String SAVED_CATEGORY = "saved_instance_category";
     private static final String SAVED_INDEX = "saved_instance_index";
+    private static final int AMOUNT_OF_POSTS = 15; //Amount of posts to load
 
     private SwipeRefreshLayout refreshLayout;
     private PostAdapter postsAdapter;
@@ -201,14 +202,16 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     }
 
     //Asynchronous Task, looks for posts from the specified school
-    private class SchoolPostsTask extends AsyncTask<String, Void, ArrayList<Post>> {
+    private class SchoolPostsTask extends AsyncTask<String, Void, Integer> {
 
         private final String TAG = "ASYNCTASK:SchoolPosts";
         private ProgressBar progress;
+        ArrayList<Post> newData;
 
         public SchoolPostsTask(ProgressBar progress) {
             super();
             this.progress = progress;
+            newData = new ArrayList<Post>();
         }
 
         @Override
@@ -217,30 +220,22 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         }
 
         @Override
-        protected ArrayList<Post> doInBackground(String... schoolName) {
-            String schoolID;
-            ArrayList<Post> schoolPosts = new ArrayList<Post>();
+        protected Integer doInBackground(String... schoolName) {
             DataParser database = new DataParser(context);
-
+            int serverResponse = -100;
             try {
-                schoolID = database.getSchoolId(schoolName[0]);
-
-                //Set School Preference
-                database.setSharedStringPreference(DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT, "sPref=" + schoolID);
-
-                schoolPosts = database.getSchoolPosts(schoolID, searchQuery, category, offset, 15);
-
-
+                String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
+                serverResponse = database.getSchoolPosts(newData, schoolID, searchQuery, category, offset, AMOUNT_OF_POSTS);
             }catch(Exception e) {
                 Log.e(TAG, "Retrieving school post(s)", e);
             }
 
-            return schoolPosts;
+            return serverResponse;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<Post> newData) {
-            super.onPostExecute(newData);
+        protected void onPostExecute(Integer serverResponse) {
+            super.onPostExecute(serverResponse);
 
             offset += 15;
             progress.setVisibility(View.GONE);

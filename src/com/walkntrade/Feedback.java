@@ -92,7 +92,7 @@ public class Feedback extends Activity{
         return canContinue;
     }
 
-    private class SendFeedbackTask extends AsyncTask<Void, Void, String> {
+    private class SendFeedbackTask extends AsyncTask<Void, Void, Integer> {
 
         @Override
         protected void onPreExecute() {
@@ -101,9 +101,9 @@ public class Feedback extends Activity{
         }
 
         @Override
-        protected String doInBackground(Void... voids) {
+        protected Integer doInBackground(Void... voids) {
             DataParser database = new DataParser(context);
-            String serverResponse = null;
+            int serverResponse = -100;
 
             try {
                 serverResponse = database.sendFeedback("ANDROID USER - "+_email, _message);
@@ -115,10 +115,15 @@ public class Feedback extends Activity{
         }
 
         @Override
-        protected void onPostExecute(String response) {
+        protected void onPostExecute(Integer serverResponse) {
             progressBar.setVisibility(View.GONE);
             submit.setEnabled(true);
-            Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+
+            if(serverResponse == 200)
+                Toast.makeText(context, getString(R.string.feedback_thanks), Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(context, getString(R.string.feedback_fail), Toast.LENGTH_SHORT).show();
+
             finish();
         }
     }

@@ -511,24 +511,26 @@ public class EditPost extends Activity implements View.OnClickListener {
         context.sendBroadcast(mediaScanIntent);
     }
 
-    private class LaunchPostTask extends AsyncTask<String, Void, Post> {
+    private class LaunchPostTask extends AsyncTask<String, Void, Integer> {
+
+        private Post post;
 
         @Override
-        protected Post doInBackground(String... obsId) {
+        protected Integer doInBackground(String... obsId) {
             DataParser database = new DataParser(context);
+            int serverResponse = -100;
 
-            Post post = null;
             try {
-                post = database.getPostByIdentifier(obsId[0]);
+                serverResponse = database.getPostByIdentifier(post, obsId[0]);
             } catch (Exception e) {
                 Log.e(TAG, "Retrieving post by identifier", e);
             }
 
-            return post;
+            return serverResponse;
         }
 
         @Override
-        protected void onPostExecute(Post post) {
+        protected void onPostExecute(Integer serverResponse) {
 
             getActionBar().setTitle(post.getTitle());
             title.setText(post.getTitle());
