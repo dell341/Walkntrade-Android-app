@@ -75,9 +75,9 @@ public class ResetPasswordActivity extends Activity {
             switch (serverResponse) {
                 case 200:  setResult(Activity.RESULT_OK);
                     finish(); break;
-                case 404: errorMessage.setText("User not found");
+                case 404: errorMessage.setText(getString(R.string.user_not_found));
                     errorMessage.setVisibility(View.VISIBLE); break;
-                default: errorMessage.setText("Something went wrong.");
+                default: errorMessage.setText(getString(R.string.error_occured));
                 errorMessage.setVisibility(View.VISIBLE);
             }
         }
