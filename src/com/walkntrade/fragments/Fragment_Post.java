@@ -26,8 +26,10 @@ import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.posts.Post;
+import com.walkntrade.views.SnappingHorizontalScrollView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Copyright (c) 2014, All Rights Reserved
@@ -76,10 +78,15 @@ public class Fragment_Post extends Fragment {
         price = (TextView) rootView.findViewById(R.id.postPrice);
         contact = (Button) rootView.findViewById(R.id.postContact);
 
+        SnappingHorizontalScrollView horizontalScrollView = (SnappingHorizontalScrollView) rootView.findViewById(R.id.horizontalView);
         image = (ImageView) rootView.findViewById(R.id.postImage1);
         image2 = (ImageView) rootView.findViewById(R.id.postImage2);
         image3 = (ImageView) rootView.findViewById(R.id.postImage3);
         image4 = (ImageView) rootView.findViewById(R.id.postImage4);
+
+        ArrayList<View> images = new ArrayList<View>(4);
+        images.add(image); images.add(image2); images.add(image3); images.add(image4);
+        horizontalScrollView.addItems(images); //Add image views to view, to allow and keep track of fling gesture
 
         //Sets the size of the image views, so it looks nice
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();

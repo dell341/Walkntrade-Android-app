@@ -8,6 +8,8 @@ import android.widget.ScrollView;
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
+
+//ScrollView that built for transition animations
 public class AnimatedScrollLayout extends ScrollView {
 
     private static final String TAG = "AnimatedScrollLayout";
@@ -31,12 +33,12 @@ public class AnimatedScrollLayout extends ScrollView {
         layoutWidth = w;
     }
 
-    //Slide left into screen
+    //Slide to the left 'onto' the screen or slide to the right 'off' the screen
     public void setXTranslate(float xTranslate){
         setX(layoutWidth - xTranslate * layoutWidth);
     }
 
-    //Slide left off screen
+    //Slide to the right 'onto' the screen or slide to the left 'off' the screen
     public void setAntiXTranslate(float antiXTranslate){
         if(layoutWidth != 0)  //This will prevent the layout from being set at the default position, when the layout width hasn't yet been determined
             setX((layoutWidth - (layoutWidth + antiXTranslate * layoutWidth)));

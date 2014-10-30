@@ -26,8 +26,8 @@
                 android:padding="5dp"
                 android:textSize="@dimen/title_size" />
 
-            <HorizontalScrollView
-                android:id="@+id/multipleImages"
+            <com.walkntrade.views.SnappingHorizontalScrollView
+                android:id="@+id/horizontalView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/postTitle"
@@ -99,13 +99,13 @@
                         android:visibility="gone" />
 
                 </LinearLayout>
-            </HorizontalScrollView>
+            </com.walkntrade.views.SnappingHorizontalScrollView>
 
             <com.walkntrade.views.LightTextView
                 android:id="@+id/postPrice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/multipleImages"
+                android:layout_below="@id/horizontalView"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:background="@color/white"
