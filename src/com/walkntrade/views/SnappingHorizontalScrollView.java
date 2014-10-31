@@ -56,52 +56,29 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
         this.items = items;
     }
 
+    /* Order of touch events. Child events are called first, and then parent events. Last In First Out*/
+    //dispatchTouchEvent( --> onInterceptTouchEvent)
+    //onTouch
+    //onTouchEvent
+
     @Override //Intercept touch events before it is given to child
     public boolean onInterceptTouchEvent(MotionEvent motionEvent) {
-        boolean returning = this.onTouchEvent(motionEvent);
-        Log.v(TAG, "onIntercept: "+returning);
-        return returning;
-    }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent motionEvent) {
-        switch(motionEvent.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_UP:
-                Log.i(TAG, "onTouchEvent - Action Up. isOnClick: " + isOnClick);
-                if (isOnClick)
-                    return false; //Return false is click is detected, so child view can handle the event. Else continue
-                break;
-            case MotionEvent.ACTION_DOWN:
-                isOnClick = true; //Begin click
-                downX = motionEvent.getX();
-                downY = motionEvent.getY();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                //If user is on down click, but has moved more than 10 pixels. Click is invalidated
-                if(isOnClick && (Math.abs(downX - motionEvent.getX()) > SCROLL_THRESHOLD || Math.abs(downY - motionEvent.getY()) > SCROLL_THRESHOLD))
-                    isOnClick = false;
-                break;
-        }
-        return super.onTouchEvent(motionEvent);
+        //If gesture was a swipe, don't send event to child view
+        return gestureDetector.onTouchEvent(motionEvent) || super.onInterceptTouchEvent(motionEvent);
     }
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-        if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
-            Log.i(TAG, "onTouch - Action Up. isOnClick: " + isOnClick);
-            if (isOnClick)
-                return false; //Return false is click is detected, so child view can handle the event. Else continue
-        }
+
         if (gestureDetector.onTouchEvent(motionEvent)) //If gesture was handled by class below. Just return. Else continue processing action.
             return true;
         else if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
-            Log.d(TAG, "On Touch: "+(motionEvent.getAction() == MotionEvent.ACTION_UP ? "Action Up" : "Action Cancel"));
             int scrollX = getScrollX(); //New scrolled position of this View
             int width = view.getMeasuredWidth(); //Width of selected view
             index = (scrollX + (width / 2)) / width; //Uses int rounding to find out if new scroll position is more than half of current view.
             int scrollTo = index * width; //Position of specified index
 
-            Log.d(TAG, "ScrollX: "+scrollX+" | Width: "+width+" | index: "+index+" | scrollTo: "+scrollTo);
             smoothScrollTo(scrollTo, 0);
             return true;
         }
@@ -112,7 +89,6 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            Log.d(TAG, "Flinging");
             try {
                 int width = getMeasuredWidth();
 
