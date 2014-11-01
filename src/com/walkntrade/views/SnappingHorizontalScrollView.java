@@ -1,6 +1,7 @@
 package com.walkntrade.views;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -19,14 +20,11 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
     private static final String TAG = "SnappingHorizontalScrollView";
     private static final int MINIMUM_SWIPE_DISTANCE = 5;
     private static final int MINIMUM_REQUIRED_VELOCITY = 300;
-    private static final int SCROLL_THRESHOLD = 10; //Pixel distance defined as a move
 
     private Context context;
     private GestureDetector gestureDetector;
     private ArrayList<View> items;
     private int index = 0;
-    private boolean isOnClick;
-    private float downX, downY;
 
     public SnappingHorizontalScrollView(Context context) {
         super(context);
@@ -47,7 +45,7 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
     }
 
     private void addTouchListeners() {
-        gestureDetector = new GestureDetector(context, new CustomGestureDetector());
+        gestureDetector = new GestureDetector(context, new CustomGestureListener());
         setOnTouchListener(this);
     }
 
@@ -62,9 +60,8 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
     //onTouchEvent
 
     @Override //Intercept touch events before it is given to child
-    public boolean onInterceptTouchEvent(MotionEvent motionEvent) {
-
-        //If gesture was a swipe, don't send event to child view
+    public boolean onInterceptTouchEvent(@NonNull MotionEvent motionEvent) {
+        //If gesture was a swipe, don't send motion event to child view
         return gestureDetector.onTouchEvent(motionEvent) || super.onInterceptTouchEvent(motionEvent);
     }
 
@@ -85,7 +82,7 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
         return false;
     }
 
-    private class CustomGestureDetector extends GestureDetector.SimpleOnGestureListener {
+    private class CustomGestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {

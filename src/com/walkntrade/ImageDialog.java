@@ -7,7 +7,10 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
@@ -16,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
@@ -102,6 +106,28 @@ public class ImageDialog extends Activity {
                     ImageRetrievalTask task = new ImageRetrievalTask(index, imageView, progressBar);
                     task.execute(url);
                 }
+                else {
+                    imageView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            int viewWidth = imageView.getWidth();
+                            int viewHeight = imageView.getHeight();
+                            Drawable drawable = imageView.getDrawable();
+                            Bitmap image = ((BitmapDrawable) drawable).getBitmap();
+
+                            int imageWidth = image.getWidth();
+                            int imageHeight = image.getHeight();
+
+                            //Log.i(TAG, "onSaveInstanceState: ImageView: (" + viewWidth + "," + viewHeight + "). Image: (" + imageWidth + "," + imageHeight + ")");
+                            Matrix matrix = imageView.getImageMatrix();
+
+                            RectF source = new RectF(0,0,imageWidth,imageHeight);
+                            RectF view = new RectF(0,0,viewWidth,viewHeight);
+                            matrix.setRectToRect(source, view, Matrix.ScaleToFit.CENTER);
+                            imageView.setImageMatrix(matrix);
+                        }
+                    });
+                }
             }
             else if(DataParser.isNetworkAvailable(context)) {
                 //Calls single image to be displayed in pop-up
@@ -172,6 +198,27 @@ public class ImageDialog extends Activity {
             if(bitmap != null) {
                 imageView.setVisibility(View.VISIBLE);
                 imageView.setImageBitmap(bitmap);
+
+                imageView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        int viewWidth = imageView.getWidth();
+                        int viewHeight = imageView.getHeight();
+                        Drawable drawable = imageView.getDrawable();
+                        Bitmap image = ((BitmapDrawable) drawable).getBitmap();
+
+                        int imageWidth = image.getWidth();
+                        int imageHeight = image.getHeight();
+
+                        //Log.i(TAG, "ImageView: (" + viewWidth + "," + viewHeight + "). Image: (" + imageWidth + "," + imageHeight + ")");
+                        Matrix matrix = imageView.getImageMatrix();
+
+                        RectF source = new RectF(0,0,imageWidth,imageHeight);
+                        RectF view = new RectF(0,0,viewWidth,viewHeight);
+                        matrix.setRectToRect(source, view, Matrix.ScaleToFit.CENTER);
+                        imageView.setImageMatrix(matrix);
+                    }
+                });
             }
         }
     }
