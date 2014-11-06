@@ -2,15 +2,14 @@ package com.walkntrade.views;
 
 import android.content.Context;
 import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 /**
@@ -23,15 +22,20 @@ public class ZoomableImageView extends ImageView {
     private static final float ZOOM_MIN_SCALE = 1f; //Full image size
     private static final int MINIMUM_X_REQUIRED_VELOCITY = 500;
     private static final int MINIMUM_Y_REQUIRED_VELOCITY = 100;
+    private static final long FLING_ANIMATION_DURATION = 400L; //Duration of fling animation
+    private static final float FLING_DISTANCE_FACTOR = 0.2f; //Reduces distance travelled from fling's velocity
 
     private Context context;
     private ScaleGestureDetector scaleGestureDetector;
     private GestureDetector gestureDetector;
     private Matrix identityMatrix = new Matrix();
+    private DecelerateInterpolator interpolator;
 
     private float zoomLevel = 1f;
     private float maxXScale, maxYScale, minXScale, minYScale; //Zoom limits
     private float xTrans, yTrans; //Original translation positions
+    private long startTime, endTime; //References for fling animation
+    private boolean matrixCentered = false;
     private boolean minScaleEnabled = false;
     private boolean maxScaleEnabled = false;
 
@@ -61,16 +65,15 @@ public class ZoomableImageView extends ImageView {
         if (drawable == null)
             return;
 
-        final int imageWidth = drawable.getIntrinsicWidth();
-        final int imageHeight = drawable.getIntrinsicHeight();
+        if (!matrixCentered) {
+            final int imageWidth = drawable.getIntrinsicWidth();
+            final int imageHeight = drawable.getIntrinsicHeight();
 
-        final int viewWidth = getMeasuredWidth();
-        final int viewHeight = getMeasuredHeight();
+            final int viewWidth = getMeasuredWidth();
+            final int viewHeight = getMeasuredHeight();
 
-        RectF source = new RectF(0, 0, imageWidth, imageHeight);
-        RectF view = new RectF(0, 0, viewWidth, viewHeight);
-        identityMatrix.setRectToRect(source, view, Matrix.ScaleToFit.CENTER);
-        setImageMatrix(identityMatrix);
+            centerImageMatrix(imageWidth, imageHeight, viewWidth, viewHeight);
+        }
     }
 
     @Override
@@ -107,10 +110,13 @@ public class ZoomableImageView extends ImageView {
         return scaleGestureDetector.onTouchEvent(event);
     }
 
-    @Override
-    protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
-        Log.v(TAG, "hasFocus: " + gainFocus + ". Focus went to : " + direction);
-        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+    private void centerImageMatrix(int imageWidth, int imageHeight, int viewWidth, int viewHeight) {
+        RectF source = new RectF(0, 0, imageWidth, imageHeight);
+        RectF view = new RectF(0, 0, viewWidth, viewHeight);
+        identityMatrix.setRectToRect(source, view, Matrix.ScaleToFit.CENTER);
+        setImageMatrix(identityMatrix);
+
+        matrixCentered = true;
     }
 
     private void addTouchListeners() {
@@ -145,7 +151,7 @@ public class ZoomableImageView extends ImageView {
         //float[] m = new float[9];
         //identityMatrix.getValues(m);
 
-       //Log.v(TAG, "transX: "+m[Matrix.MTRANS_X]+" transY: "+m[Matrix.MTRANS_Y]);
+        //Log.v(TAG, "transX: "+m[Matrix.MTRANS_X]+" transY: "+m[Matrix.MTRANS_Y]);
     }
 
     public boolean imageAtLeftEdge() {
@@ -175,6 +181,53 @@ public class ZoomableImageView extends ImageView {
 
     public boolean imageZoomedIn() {
         return zoomLevel > ZOOM_MIN_SCALE;
+    }
+
+    float totalAnimDx, totalAnimDy, lastAnimDx, lastAnimDy;
+
+    /*Animation Code implemented from question on StackOverflow. Very Helpful, exactly what was on my mind.*/
+    /*I'm so happy I'm giving credit to user: Hank.*/
+
+    //Initialize animation used for fling
+    public void initAnimation(float dx, float dy, long duration) {
+        interpolator = new DecelerateInterpolator();
+        startTime = System.currentTimeMillis();
+        endTime = startTime + duration;
+        totalAnimDx = dx;
+        totalAnimDy = dy;
+        lastAnimDx = 0;
+        lastAnimDy = 0;
+
+        post(new Runnable() {
+            @Override
+            public void run() {
+                onAnimateStep();
+            }
+        });
+
+    }
+
+    private void onAnimateStep() {
+        long currentTime = System.currentTimeMillis();
+        float percentTime = (float) (currentTime - startTime) / (float) (endTime - startTime); //Elapsed time as percentage of total time. (elapsed time)/(duration
+        float percentDistance = interpolator.getInterpolation(percentTime); //Interpolation returns percentage of distance traveled in relation to amount of time passed.
+        float curDx = percentDistance * totalAnimDx;
+        float curDy = percentDistance * totalAnimDy;
+
+        float diffCurDx = curDx - lastAnimDx; //Current x distance to move
+        float diffCurDy = curDy - lastAnimDy; //Current y distance to move
+        lastAnimDx = curDx;
+        lastAnimDy = curDy;
+
+        translateImage(diffCurDx, diffCurDy);
+
+        if (percentTime < 1.0f) //As long as duration has not been reached, continue animating translation
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    onAnimateStep();
+                }
+            });
     }
 
     private class CustomScaleGestureListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
@@ -231,52 +284,54 @@ public class ZoomableImageView extends ImageView {
 
     private class CustomGestureListener extends GestureDetector.SimpleOnGestureListener {
 
-//        @Override
-//        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-//            if(Math.abs(velocityX) < MINIMUM_X_REQUIRED_VELOCITY && Math.abs(velocityY) < MINIMUM_Y_REQUIRED_VELOCITY)
-//                return false;
-//
-//            float distanceX = e1.getX() - e2.getX();
-//            float distanceY = e2.getY() - e2.getY();
-//            Log.d(TAG, "DistanceX : "+distanceX);
-//            Log.d(TAG, "DistanceY : "+distanceY);
-//            float[] m = new float[9];
-//            identityMatrix.getValues(m);
-//            float transX = m[Matrix.MTRANS_X];
-//            float transY = m[Matrix.MTRANS_Y];
-//
-//            Drawable drawable = getDrawable();
-//            int viewWidth = getMeasuredWidth();
-//            int viewHeight = getMeasuredHeight();
-//            float scaledWidth = drawable.getIntrinsicWidth() * m[Matrix.MSCALE_X];
-//            float scaledHeight = drawable.getIntrinsicHeight() * m[Matrix.MSCALE_Y];
-//
-//            if (distanceX < 0) //Panning image to the right (scrolling left to right)
-//                distanceX = ((transX - distanceX) > 0 ? transX : distanceX);
-//            else  //Panning image to the left (scrolling right to left)
-//                distanceX = ((scaledWidth + transX - distanceX) < viewWidth ? -(viewWidth - scaledWidth - transX) : distanceX);
-//
-//            if (imageLargerThanView()) {
-//                if (distanceY < 0)  //Panning down (scrolling top to bottom)
-//                    distanceY = ((transY - distanceY) > 0 ? transY : distanceY);
-//                else  //Panning up (scrolling bottom to top)
-//                    distanceY = ((scaledHeight + transY - distanceY) <= viewHeight ? -(viewHeight - scaledHeight - transY) : distanceY);
-//            } else
-//                distanceY = 0;
-//
-//            translateImage(-distanceX, -distanceY); //Translate the inverse of the distance direction to follow the user's finger
-//            return true;
-//        }
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            /*Conditions to prevent panning by flinging*/
+            // 1. X or Y velocity is too small
+            // 2. Image is normally scaled (nothing to pan, full image is displayed)
+            // 3a. Flinging from left to right, when image is already at the left edge
+            // 3b. Flinging from right to left, when image is already at the right edge
+            if (Math.abs(velocityX) < MINIMUM_X_REQUIRED_VELOCITY && Math.abs(velocityY) < MINIMUM_Y_REQUIRED_VELOCITY || !imageZoomedIn() || ( (velocityX < 0 && imageAtLeftEdge()) || (velocityX > 0 && imageAtRightEdge())))
+                return false;
+
+            float distanceX = FLING_DISTANCE_FACTOR * velocityX;
+            float distanceY = FLING_DISTANCE_FACTOR * velocityY;
+
+            float[] m = new float[9];
+            identityMatrix.getValues(m);
+            float transX = m[Matrix.MTRANS_X];
+            float transY = m[Matrix.MTRANS_Y];
+
+            Drawable drawable = getDrawable();
+            int viewWidth = getMeasuredWidth();
+            int viewHeight = getMeasuredHeight();
+            float scaledWidth = drawable.getIntrinsicWidth() * m[Matrix.MSCALE_X];
+            float scaledHeight = drawable.getIntrinsicHeight() * m[Matrix.MSCALE_Y];
+
+            if (distanceX > 0) //Panning image to the right (scrolling left to right)
+                distanceX = ((transX + distanceX) > 0 ? 0-transX : distanceX);
+            else  //Panning image to the left (scrolling right to left)
+                distanceX = ((scaledWidth + transX + distanceX) < viewWidth ? viewWidth - scaledWidth - transX : distanceX);
+
+            if (imageLargerThanView()) {
+                if (distanceY > 0)  //Panning down (scrolling top to bottom)
+                    distanceY = ((transY + distanceY) > 0 ? 0-transY : distanceY);
+                else  //Panning up (scrolling bottom to top)
+                    distanceY = ((scaledHeight + transY + distanceY) <= viewHeight ? viewHeight - scaledHeight - transY : distanceY);
+            } else
+                distanceY = 0;
+
+            initAnimation(distanceX, distanceY, FLING_ANIMATION_DURATION);
+            return true;
+        }
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            boolean zoom = imageZoomedIn();
-
-            /*Condition to prevent panning*/
+            /*Condition to prevent panning by scrolling*/
             // 1. Image not zoomed in
             // 2. Attempting to pan right when image is already at the left edge
             // 3. Attempting to pan left when image is already at the right edge
-            if (!zoom || (distanceX < 0 && imageAtLeftEdge()) || (distanceX > 0 && imageAtRightEdge()))
+            if (!imageZoomedIn() || (distanceX < 0 && imageAtLeftEdge()) || (distanceX > 0 && imageAtRightEdge()))
                 return false;
 
             float[] m = new float[9];

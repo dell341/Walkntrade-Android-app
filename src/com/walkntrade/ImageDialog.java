@@ -49,6 +49,7 @@ public class ImageDialog extends Activity {
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         ImageFragmentAdapter adapter = new ImageFragmentAdapter(getFragmentManager());
+        viewPager.setPageMargin(10);
         viewPager.setAdapter(adapter);
 
         viewPager.setCurrentItem(index);

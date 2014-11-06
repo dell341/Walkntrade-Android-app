@@ -34,7 +34,9 @@
                 android:clipToPadding="false"
                 android:fillViewport="true"
                 android:paddingLeft="@dimen/horizontal_view_padding"
-                android:paddingRight="3dp"
+                android:paddingStart="@dimen/horizontal_view_padding"
+                android:paddingRight="@dimen/horizontal_view_padding"
+                android:paddingEnd="@dimen/horizontal_view_padding"
                 android:scrollbars="none">
 
                 <LinearLayout
@@ -45,7 +47,8 @@
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="0.5dp">
+                        android:layout_marginRight="1dp"
+                        android:layout_marginEnd="1dp">
 
 
                         <!-- ImageView matches parent so single image fills the screen, but multiple
@@ -71,7 +74,8 @@
                         android:id="@+id/postImage2"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/image_size_height"
-                        android:layout_marginRight="0.5dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_marginEnd="1dp"
                         android:adjustViewBounds="true"
                         android:contentDescription="@string/post_image"
                         android:scaleType="centerCrop"
@@ -82,7 +86,8 @@
                         android:id="@+id/postImage3"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/image_size_height"
-                        android:layout_marginRight="0.5dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_marginEnd="1dp"
                         android:adjustViewBounds="true"
                         android:contentDescription="@string/post_image"
                         android:scaleType="centerCrop"
@@ -92,7 +97,8 @@
                         android:id="@+id/postImage4"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/image_size_height"
-                        android:layout_marginRight="0.5dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_marginEnd="1dp"
                         android:adjustViewBounds="true"
                         android:contentDescription="@string/post_image"
                         android:scaleType="centerCrop"
@@ -131,6 +137,7 @@
             android:layout_height="70dp"
             android:layout_below="@id/postLayout"
             android:orientation="horizontal"
+            android:baselineAligned="false"
             android:weightSum="1">
 
             <RelativeLayout
@@ -138,7 +145,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:layout_marginRight="1.5dp"
+                android:layout_marginEnd="1.5dp"
                 android:layout_weight="0.5"
                 android:background="@drawable/bottom_left_rounded_rectangle"
                 android:padding="5dp">
@@ -148,6 +157,7 @@
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:layout_marginRight="5dp"
+                    android:layout_marginEnd="5dp"
                     android:adjustViewBounds="true"
                     android:scaleType="centerCrop"
                     android:src="@drawable/avatar" />
@@ -157,6 +167,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@id/userImage"
+                    android:layout_toEndOf="@id/userImage"
                     android:ellipsize="end"
                     android:maxLines="2"
                     android:textSize="@dimen/show_page_text" />
@@ -167,6 +178,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/userName"
                     android:layout_toRightOf="@id/userImage"
+                    android:layout_toEndOf="@id/userImage"
                     android:textSize="@dimen/show_page_text" />
             </RelativeLayout>
 
