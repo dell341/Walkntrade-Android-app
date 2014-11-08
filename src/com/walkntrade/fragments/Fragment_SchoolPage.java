@@ -3,10 +3,12 @@ package com.walkntrade.fragments;
 //Copyright (c), All Rights Reserved, http://walkntrade.com
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,7 +29,6 @@ import com.walkntrade.SchoolPage;
 import com.walkntrade.SearchActivity;
 import com.walkntrade.ShowPage;
 import com.walkntrade.adapters.PostAdapter;
-import com.walkntrade.asynctasks.SchoolPostsTask;
 import com.walkntrade.asynctasks.ThumbnailTask;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.posts.Post;
@@ -48,6 +49,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     private SwipeRefreshLayout refreshLayout;
     private PostAdapter postsAdapter;
     private ProgressBar bigProgressBar, progressBar;
+    private Context context;
     private TextView noResults;
     private String searchQuery = ""; //Search query stays the same throughout all fragments
     private ArrayList<Post> schoolPosts = new ArrayList<Post>();
@@ -67,6 +69,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         noResults = (TextView) rootView.findViewById(R.id.noResults);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
         Bundle args = getArguments();
+        context = getActivity().getApplicationContext();
 
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
@@ -161,12 +164,13 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         startActivity(showPage);
     }
 
+    private boolean shouldClearContents = false;
     @Override
     public void onRefresh() {
         refreshLayout.setEnabled(false);
         offset = 0;
 
-        postsAdapter.clearContents();
+        shouldClearContents = true;
 
         bigProgressBar.setVisibility(View.VISIBLE);
         downloadMorePosts(bigProgressBar);
@@ -181,10 +185,9 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     }
 
     //Download more posts from the server
-    private void downloadMorePosts(ProgressBar progressBar) {
+    private void downloadMorePosts(ProgressBar progress) {
         noResults.setVisibility(View.GONE);
-        new SchoolPostsTask(getActivity(), this, progressBar, searchQuery, category, offset, 15).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
-        offset += 15;
+        new SchoolPostsTask(progress).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
     }
 
     //Set to false if the server returned an empty list
@@ -197,20 +200,74 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
             noResults.setVisibility(View.GONE);
     }
 
+    //Asynchronous Task, looks for posts from the specified school
+    private class SchoolPostsTask extends AsyncTask<String, Void, ArrayList<Post>> {
 
-    //Add new data from the serve to the ArrayList and update the adapter
-    public void updateData(ArrayList<Post> newData) {
-        refreshLayout.setEnabled(true);
-        refreshLayout.setRefreshing(false);
+        private final String TAG = "ASYNCTASK:SchoolPosts";
+        private ProgressBar progress;
 
-        postsAdapter.incrementCount(newData);
-        for (Post i : newData)
-            schoolPosts.add(i);
+        public SchoolPostsTask(ProgressBar progress) {
+            super();
+            this.progress = progress;
+        }
 
-        postsAdapter.notifyDataSetChanged();
+        @Override
+        protected void onPreExecute() {
+            progress.setVisibility(View.VISIBLE);
+        }
 
-        for (Post post : newData)
-            new ThumbnailTask(getActivity(), postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
+        @Override
+        protected ArrayList<Post> doInBackground(String... schoolName) {
+            String schoolID;
+            ArrayList<Post> schoolPosts = new ArrayList<Post>();
+            DataParser database = new DataParser(context);
+
+            try {
+                schoolID = database.getSchoolId(schoolName[0]);
+
+                //Set School Preference
+                database.setSharedStringPreference(DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT, "sPref=" + schoolID);
+
+                schoolPosts = database.getSchoolPosts(schoolID, searchQuery, category, offset, 15);
+
+
+            }catch(Exception e) {
+                Log.e(TAG, "Retrieving school post(s)", e);
+            }
+
+            return schoolPosts;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Post> newData) {
+            super.onPostExecute(newData);
+
+            offset += 15;
+            progress.setVisibility(View.GONE);
+
+            if(newData.isEmpty()) //If server returned empty list, don't try to download anymore from this category
+                shouldDownLoadMore(false);
+            else { //Add new data from the serve to the ArrayList and update the adapter
+
+                if(shouldClearContents) { //When doing a manual refresh, contents are overwritten not appended
+                    postsAdapter.clearContents();
+                    postsAdapter.notifyDataSetChanged();
+                }
+
+                refreshLayout.setEnabled(true);
+                refreshLayout.setRefreshing(false);
+
+                postsAdapter.incrementCount(newData);
+                for (Post i : newData)
+                    schoolPosts.add(i);
+
+                postsAdapter.notifyDataSetChanged();
+
+                for (Post post : newData)
+                    new ThumbnailTask(getActivity(), postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
+            }
+        }
     }
+
 
 }
