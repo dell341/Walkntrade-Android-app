@@ -56,6 +56,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     private int index;
     private int offset = 0;
     private boolean downloadMore = true;
+    private boolean shouldClearContents = false; //Clear current list when manually refreshing
 
     @Override //This method may be called several times
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -164,7 +165,6 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
         startActivity(showPage);
     }
 
-    private boolean shouldClearContents = false;
     @Override
     public void onRefresh() {
         refreshLayout.setEnabled(false);
@@ -191,8 +191,8 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
     }
 
     //Set to false if the server returned an empty list
-    public void shouldDownLoadMore(boolean _downloadMore) {
-        downloadMore = _downloadMore;
+    public void shouldDownLoadMore(boolean downloadMore) {
+        this.downloadMore = downloadMore;
 
         if (schoolPosts.isEmpty())
             noResults.setVisibility(View.VISIBLE);
@@ -248,23 +248,21 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
             if(newData.isEmpty()) //If server returned empty list, don't try to download anymore from this category
                 shouldDownLoadMore(false);
             else { //Add new data from the serve to the ArrayList and update the adapter
-
                 if(shouldClearContents) { //When doing a manual refresh, contents are overwritten not appended
                     postsAdapter.clearContents();
                     postsAdapter.notifyDataSetChanged();
+                    shouldClearContents = false;
                 }
-
-                refreshLayout.setEnabled(true);
-                refreshLayout.setRefreshing(false);
-
                 postsAdapter.incrementCount(newData);
                 for (Post i : newData)
                     schoolPosts.add(i);
 
                 postsAdapter.notifyDataSetChanged();
-
                 for (Post post : newData)
                     new ThumbnailTask(getActivity(), postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
+
+                refreshLayout.setEnabled(true);
+                refreshLayout.setRefreshing(false);
             }
         }
     }

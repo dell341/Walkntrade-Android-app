@@ -35,6 +35,7 @@ public class ZoomableImageView extends ImageView {
     private float maxXScale, maxYScale, minXScale, minYScale; //Zoom limits
     private float xTrans, yTrans; //Original translation positions
     private long startTime, endTime; //References for fling animation
+    float totalAnimDx, totalAnimDy, lastAnimDx, lastAnimDy;
     private boolean matrixCentered = false;
     private boolean minScaleEnabled = false;
     private boolean maxScaleEnabled = false;
@@ -110,6 +111,7 @@ public class ZoomableImageView extends ImageView {
         return scaleGestureDetector.onTouchEvent(event);
     }
 
+    //Scale image to fit exactly at the center of the screen
     private void centerImageMatrix(int imageWidth, int imageHeight, int viewWidth, int viewHeight) {
         RectF source = new RectF(0, 0, imageWidth, imageHeight);
         RectF view = new RectF(0, 0, viewWidth, viewHeight);
@@ -141,19 +143,14 @@ public class ZoomableImageView extends ImageView {
 
             maxScaleEnabled = true;
         }
-
     }
 
     private void translateImage(float xDistance, float yDistance) {
         identityMatrix.postTranslate(xDistance, yDistance);
         setImageMatrix(identityMatrix);
-
-        //float[] m = new float[9];
-        //identityMatrix.getValues(m);
-
-        //Log.v(TAG, "transX: "+m[Matrix.MTRANS_X]+" transY: "+m[Matrix.MTRANS_Y]);
     }
 
+    //Return true if image at left edge of screen
     public boolean imageAtLeftEdge() {
         float[] m = new float[9];
         identityMatrix.getValues(m);
@@ -162,6 +159,7 @@ public class ZoomableImageView extends ImageView {
         return transX == 0;
     }
 
+    //Return true if image at right edge of screen
     public boolean imageAtRightEdge() {
         float[] m = new float[9];
         identityMatrix.getValues(m);
@@ -171,7 +169,17 @@ public class ZoomableImageView extends ImageView {
         return transX == -(scaledWidth - getMeasuredWidth());
     }
 
-    public boolean imageLargerThanView() {
+    //Return true if image left or right bounds expand past the bounds of the screen
+    public boolean imageHorizontalLargerThanView() {
+        float[] m = new float[9];
+        identityMatrix.getValues(m);
+        float scaledWidth = getDrawable().getIntrinsicWidth() * m[Matrix.MSCALE_X];
+
+        return scaledWidth > getMeasuredWidth();
+    }
+
+    //Return true if image top or bottom bounds expand past the bounds of the screen
+    public boolean imageVerticalLargerThanView() {
         float[] m = new float[9];
         identityMatrix.getValues(m);
         float scaledHeight = getDrawable().getIntrinsicHeight() * m[Matrix.MSCALE_Y];
@@ -179,11 +187,10 @@ public class ZoomableImageView extends ImageView {
         return scaledHeight > getMeasuredHeight();
     }
 
+    //Return true if image is scaled up
     public boolean imageZoomedIn() {
         return zoomLevel > ZOOM_MIN_SCALE;
     }
-
-    float totalAnimDx, totalAnimDy, lastAnimDx, lastAnimDy;
 
     /*Animation Code implemented from question on StackOverflow. Very Helpful, exactly what was on my mind.*/
     /*I'm so happy I'm giving credit to user: Hank.*/
@@ -308,12 +315,15 @@ public class ZoomableImageView extends ImageView {
             float scaledWidth = drawable.getIntrinsicWidth() * m[Matrix.MSCALE_X];
             float scaledHeight = drawable.getIntrinsicHeight() * m[Matrix.MSCALE_Y];
 
-            if (distanceX > 0) //Panning image to the right (scrolling left to right)
-                distanceX = ((transX + distanceX) > 0 ? 0-transX : distanceX);
-            else  //Panning image to the left (scrolling right to left)
-                distanceX = ((scaledWidth + transX + distanceX) < viewWidth ? viewWidth - scaledWidth - transX : distanceX);
+            if(imageHorizontalLargerThanView()) {
+                if (distanceX > 0) //Panning image to the right (scrolling left to right)
+                    distanceX = ((transX + distanceX) > 0 ? 0 - transX : distanceX);
+                else  //Panning image to the left (scrolling right to left)
+                    distanceX = ((scaledWidth + transX + distanceX) < viewWidth ? viewWidth - scaledWidth - transX : distanceX);
+            } else
+                distanceX = 0;
 
-            if (imageLargerThanView()) {
+            if (imageVerticalLargerThanView()) {
                 if (distanceY > 0)  //Panning down (scrolling top to bottom)
                     distanceY = ((transY + distanceY) > 0 ? 0-transY : distanceY);
                 else  //Panning up (scrolling bottom to top)
@@ -345,12 +355,14 @@ public class ZoomableImageView extends ImageView {
             float scaledWidth = drawable.getIntrinsicWidth() * m[Matrix.MSCALE_X];
             float scaledHeight = drawable.getIntrinsicHeight() * m[Matrix.MSCALE_Y];
 
-            if (distanceX < 0) //Panning image to the right (scrolling left to right)
-                distanceX = ((transX - distanceX) > 0 ? transX : distanceX);
-            else  //Panning image to the left (scrolling right to left)
-                distanceX = ((scaledWidth + transX - distanceX) < viewWidth ? -(viewWidth - scaledWidth - transX) : distanceX);
-
-            if (imageLargerThanView()) {
+            if(imageHorizontalLargerThanView()) {
+                if (distanceX < 0) //Panning image to the right (scrolling left to right)
+                    distanceX = ((transX - distanceX) > 0 ? transX : distanceX);
+                else  //Panning image to the left (scrolling right to left)
+                    distanceX = ((scaledWidth + transX - distanceX) < viewWidth ? -(viewWidth - scaledWidth - transX) : distanceX);
+            } else
+                distanceX = 0;
+            if (imageVerticalLargerThanView()) {
                 if (distanceY < 0)  //Panning down (scrolling top to bottom)
                     distanceY = ((transY - distanceY) > 0 ? transY : distanceY);
                 else  //Panning up (scrolling bottom to top)
