@@ -33,16 +33,20 @@ public class AnimatedScrollLayout extends ScrollView {
         layoutWidth = w;
     }
 
-    //Slide to the left 'onto' the screen or slide to the right 'off' the screen
+    /* Set values used to animate object*/
+    //Slide from the left 'onto' the screen or slide to the right 'off' the screen (left to right)
     public void setXTranslate(float xTranslate){
-        setX(layoutWidth - xTranslate * layoutWidth);
+        if(layoutWidth != 0) //This will prevent the layout from being set at the default position, when the layout width hasn't yet been determined
+            setX(layoutWidth -(xTranslate * layoutWidth));
+        else
+            setX(1000);
     }
 
-    //Slide to the right 'onto' the screen or slide to the left 'off' the screen
+    //Slide from the right 'onto' the screen or slide to the left 'off' the screen (right to left)
     public void setAntiXTranslate(float antiXTranslate){
         if(layoutWidth != 0)  //This will prevent the layout from being set at the default position, when the layout width hasn't yet been determined
-            setX((layoutWidth - (layoutWidth + antiXTranslate * layoutWidth)));
+            setX((layoutWidth - (layoutWidth + (antiXTranslate * layoutWidth) )));
         else
-            setX(-600);
+            setX(-1000);
     }
 }
