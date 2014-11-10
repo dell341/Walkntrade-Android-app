@@ -27,6 +27,8 @@ public class ThinTextView extends TextView {
     }
 
     public void setLightFont(){
+        if(isInEditMode())
+            return;
         Typeface font = Typeface.createFromAsset(getContext().getAssets(), "Roboto-Thin.ttf");
         setTypeface(font);
     }

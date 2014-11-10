@@ -15,6 +15,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.walkntrade.EditPost;
@@ -76,7 +78,10 @@ public class Fragment_Post extends Fragment {
         user = (TextView) rootView.findViewById(R.id.userName);
         date = (TextView) rootView.findViewById(R.id.postDate);
         price = (TextView) rootView.findViewById(R.id.postPrice);
-        contact = (Button) rootView.findViewById(R.id.postContact);
+        contact = (Button) rootView.findViewById(R.id.post_contact);
+        final ScrollView scrollView = (ScrollView) rootView.findViewById(R.id.scroll_view);
+        RelativeLayout userLayout = (RelativeLayout) rootView.findViewById(R.id.user_layout);
+        final RelativeLayout userProfile = (RelativeLayout) rootView.findViewById(R.id.user_profile);
 
         SnappingHorizontalScrollView horizontalScrollView = (SnappingHorizontalScrollView) rootView.findViewById(R.id.horizontalView);
         image = (ImageView) rootView.findViewById(R.id.postImage1);
@@ -187,6 +192,14 @@ public class Fragment_Post extends Fragment {
         }
         else
             contact.setText(getString(R.string.contact_login));
+
+        userLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int height = userProfile.getMeasuredHeight();
+                scrollView.smoothScrollTo(0, height+userProfile.getPaddingBottom());
+            }
+        });
 
         return rootView;
     }

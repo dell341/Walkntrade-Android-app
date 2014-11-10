@@ -103,7 +103,7 @@ public class AddPost extends Activity implements OnClickListener {
         if (!DataParser.isUserLoggedIn(context))
             startLoginActivity();
 
-        scrollView = (ScrollView) findViewById(R.id.scrollView);
+        scrollView = (ScrollView) findViewById(R.id.scroll_view);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         postError = (TextView) findViewById(R.id.post_error);
         title = (EditText) findViewById(R.id.post_title);

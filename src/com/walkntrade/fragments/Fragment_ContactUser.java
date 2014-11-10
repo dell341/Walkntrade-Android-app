@@ -47,7 +47,7 @@ public class Fragment_ContactUser extends Fragment {
 
         messageFeedback = (TextView) rootView.findViewById(R.id.message_error);
         TextView contactUser = (TextView) rootView.findViewById(R.id.contactUser);
-        messageContents = (EditText) rootView.findViewById(R.id.message_contents);
+        messageContents = (EditText) rootView.findViewById(R.id.edit_message_contents);
         CheckBox checkBox = (CheckBox) rootView.findViewById(R.id.checkBoz);
         button = (Button) rootView.findViewById(R.id.button);
 
@@ -77,29 +77,34 @@ public class Fragment_ContactUser extends Fragment {
             }
         });
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                message = messageContents.getText().toString();
+        if(DataParser.isUserLoggedIn(context)) { //If user is logged in
 
-                //Confirms if user wants to send a message
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(getString(R.string.send_message))
-                        .setMessage(R.string.send_message_quest)
-                        .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                new SendMessageTask().execute();
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        }).create().show();
-            }
-        });
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    message = messageContents.getText().toString();
+
+                    //Confirms if user wants to send a message
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(getString(R.string.send_message))
+                            .setMessage(R.string.send_message_quest)
+                            .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    new SendMessageTask().execute();
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            }).create().show();
+                }
+            });
+        }
+        else
+            button.setEnabled(false);
 
         return rootView;
     }

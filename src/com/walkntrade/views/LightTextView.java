@@ -27,6 +27,8 @@ public class LightTextView extends TextView {
     }
 
     public void setLightFont(){
+        if(isInEditMode())
+            return;
         Typeface font = Typeface.createFromAsset(getContext().getAssets(), "Roboto-Light.ttf");
         setTypeface(font);
     }

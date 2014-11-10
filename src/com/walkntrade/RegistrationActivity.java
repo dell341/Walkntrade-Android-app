@@ -39,7 +39,7 @@ public class RegistrationActivity extends Activity {
         setContentView(R.layout.activity_registration);
 
         context = getApplicationContext();
-        scrollView = (ScrollView) findViewById(R.id.scrollView);
+        scrollView = (ScrollView) findViewById(R.id.scroll_view);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         error = (TextView) findViewById(R.id.register_error);
         userName = (EditText) findViewById(R.id.register_username);
