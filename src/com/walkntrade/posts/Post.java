@@ -14,6 +14,7 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 	public static final String CATEGORY_TECH = "Tech";
 	public static final String CATEGORY_SERVICE = "Services";
 	public static final String CATEGORY_MISC = "Miscellaneous";
+    public static final String CATEGORY_UNKNOWN = "Unknown";
 	
 	private String obsId, identifier, title, details, user, imgURL, date, views;
 	private String price = "";

@@ -25,6 +25,7 @@ import com.walkntrade.posts.Post_Book;
 import com.walkntrade.posts.Post_Misc;
 import com.walkntrade.posts.Post_Service;
 import com.walkntrade.posts.Post_Tech;
+import com.walkntrade.posts.Post_Wildcard;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -870,6 +871,7 @@ public class DataParser {
             }
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
+
         } finally { //If anything happens above, at least disconnect the HttpClient
             disconnectAll();
         }
