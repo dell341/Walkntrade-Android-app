@@ -48,6 +48,8 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
     private Context context;
 
     private boolean hasAvatar;
+    private boolean hasPausedActivity = false;
+    private boolean isLoggedIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,13 +130,27 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+
+        hasPausedActivity = true;
+        isLoggedIn = DataParser.isUserLoggedIn(context);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
-        if (DataParser.isUserLoggedIn(context))
+        boolean currentlyLoggedIn = DataParser.isUserLoggedIn(context);
+
+        if(hasPausedActivity && isLoggedIn != currentlyLoggedIn) //If user changed login status, from the last time page was visited. Update the drawer.
+            updateDrawer();
+
+        if (currentlyLoggedIn)
             new PollMessagesTask(this).execute(); //Check for new messages
 
         invalidateOptionsMenu(); //Refreshes the ActionBar menu when activity is resumed
+        hasPausedActivity = false;
     }
 
     @Override

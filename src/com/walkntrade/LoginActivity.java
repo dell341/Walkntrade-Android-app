@@ -235,7 +235,6 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
                 database.setSharedStringPreference(DataParser.PREFS_USER, DataParser.KEY_USER_EMAIL, _emailAddress);
                 DataParser.StringResult result = database.getUserName();
                 userName = result.getValue();
-                Log.v(TAG, "Username: "+userName);
                 database.simpleGetIntent(DataParser.INTENT_GET_PHONENUM);
             } catch (Exception e) {
                 Log.e(TAG, "Logging in", e);
