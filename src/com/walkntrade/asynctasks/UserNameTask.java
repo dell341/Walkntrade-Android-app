@@ -33,7 +33,10 @@ public class UserNameTask extends AsyncTask<Void, Void, String> {
         {
             DataParser database = new DataParser(context);
             try {
-                userName = database.simpleGetIntent(DataParser.INTENT_GET_USERNAME);
+                DataParser.StringResult result = database.getUserName();
+                userName = result.getValue();
+
+                Log.d(TAG, "Username: "+userName);
             } catch (IOException e) {
                 Log.e(TAG, "Get username", e);
             }

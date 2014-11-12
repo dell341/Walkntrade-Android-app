@@ -25,7 +25,6 @@ import com.walkntrade.posts.Post_Book;
 import com.walkntrade.posts.Post_Misc;
 import com.walkntrade.posts.Post_Service;
 import com.walkntrade.posts.Post_Tech;
-import com.walkntrade.posts.Post_Wildcard;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -68,6 +67,7 @@ public class DataParser {
     private static final String apiUrl = "https://walkntrade.com/api2/";
     private static final String TAG = "DATAPARSER";
     private static final String STATUS = "status"; //name:"value" pair for JSON request status
+    private static final String MESSAGE = "message"; //name:"value" pair for JSON returned message
     private static final String PAYLOAD = "payload"; //name:"value" pair for JSON payload (actual data)
     public static final String LOGIN_SUCCESS = "success";
 
@@ -102,8 +102,6 @@ public class DataParser {
     public static final String BLANK = " ";
 
     //Server commands & intent names
-    public static final String INTENT_GET_USERNAME = "getUserName";
-    public static final String INTENT_GET_AVATAR = "getAvatar";
     public static final String INTENT_GET_EMAILPREF = "getEmailPref";
     public static final String INTENT_GET_PHONENUM = "getPhoneNum";
     public static final String INTENT_GET_NEWMESSAGE = "pollNewWebmail";
@@ -122,6 +120,35 @@ public class DataParser {
 
     public DataParser(Context _context) {
         context = _context;
+    }
+
+    public class StringResult {
+        private int status = 0;
+        private String value;
+
+        public StringResult(int status, String value) {
+            this.status = status;
+            this.value = value;
+        }
+
+        public void setStatus(int status) {
+            this.status = status;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public int getStatus(){
+            return status;
+        }
+
+        public String getValue() {
+            if(value == null)
+                throw new NullPointerException("Value is null");
+
+            return value;
+        }
     }
 
     //First call whenever connecting across the user's network
@@ -402,6 +429,52 @@ public class DataParser {
         disconnectAll();
     }
 
+    public StringResult getUserName() throws IOException {
+        establishConnection();
+
+        String query = "intent=getUserName";
+        int requestStatus = -100;
+
+        StringResult result = new StringResult(requestStatus, null);
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+
+            result.setStatus(jsonObject.getInt(STATUS));
+            result.setValue(jsonObject.getString(MESSAGE));
+            //Stores username locally to device
+            setSharedStringPreference(PREFS_USER, KEY_USER_NAME, result.getValue()); //Stores username locally to device
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        } finally {
+            disconnectAll();
+        }
+        return result;
+    }
+
+    public StringResult getAvatarUrl() throws IOException {
+        establishConnection();
+
+        String query = "intent=getAvatar";
+        int requestStatus = -100;
+
+        StringResult result = new StringResult(requestStatus, null);
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+
+            result.setStatus(jsonObject.getInt(STATUS));
+            result.setValue(jsonObject.getString(MESSAGE));
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        } finally {
+            disconnectAll();
+        }
+        return result;
+    }
+
     //Used for repetitious intents like get username, phone number, email preference etc.
     public String simpleGetIntent(String intentValue) throws IOException {
         establishConnection();
@@ -417,9 +490,7 @@ public class DataParser {
             disconnectAll();
         }
 
-        if (intentValue.equals(INTENT_GET_USERNAME))
-            setSharedStringPreference(PREFS_USER, KEY_USER_NAME, serverResponse); //Stores username locally to device
-        else if (intentValue.equals(INTENT_GET_PHONENUM))
+        if (intentValue.equals(INTENT_GET_PHONENUM))
             setSharedStringPreference(PREFS_USER, KEY_USER_PHONE, serverResponse); //Stores phone number locally to device
         else if (intentValue.equals(INTENT_GET_NEWMESSAGE))
             setSharedIntPreferences(PREFS_USER, KEY_USER_MESSAGES, Integer.parseInt(serverResponse)); //Stores amount of unread messages here
@@ -940,14 +1011,14 @@ public class DataParser {
             JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
             requestStatus = jsonObject.getInt(STATUS);
 
-            for(int i=0; i<payload.length(); i++) {
+            for (int i = 0; i < payload.length(); i++) {
                 JSONObject jsonSchool = payload.getJSONObject(i);
                 JSONArray jsonPosts = jsonSchool.getJSONArray("post");
 
                 String shortName = jsonSchool.getString("shortName");
                 String longName = jsonSchool.getString("longName");
 
-                for(int j=0; j<jsonPosts.length(); j++) {
+                for (int j = 0; j < jsonPosts.length(); j++) {
                     JSONObject jsonPost = jsonPosts.getJSONObject(j);
 
                     String link = jsonPost.getString("link");
@@ -962,7 +1033,7 @@ public class DataParser {
                 }
             }
 
-        } catch (JSONException e){
+        } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
         } finally {
             disconnectAll();

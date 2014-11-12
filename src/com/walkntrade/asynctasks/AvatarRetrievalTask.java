@@ -37,9 +37,13 @@ public class AvatarRetrievalTask extends AsyncTask<Void, Void, Bitmap> {
         Bitmap bm = null;
         DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
         try {
-            String avatarURL = database.simpleGetIntent(DataParser.INTENT_GET_AVATAR);
+            String avatarURL;
 
-            if(avatarURL == null)
+            DataParser.StringResult result = database.getAvatarUrl();
+            avatarURL = result.getValue();
+            Log.d(TAG, "Avatar: "+avatarURL);
+
+            if (avatarURL == null)
                 return null;
 
             String splitURL[] = avatarURL.split("_");

@@ -275,7 +275,10 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             Bitmap bm = null;
             DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
             try {
-                String avatarURL = database.simpleGetIntent(DataParser.INTENT_GET_AVATAR);
+                String avatarURL;
+
+                DataParser.StringResult result = database.getAvatarUrl();
+                avatarURL = result.getValue();
 
                 if (avatarURL == null)
                     return null;
