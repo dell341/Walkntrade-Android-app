@@ -20,8 +20,14 @@ import android.widget.Toast;
 
 import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.objects.MessageObject;
 
 import java.io.IOException;
+
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
 
 public class ShowMessage extends Activity {
 

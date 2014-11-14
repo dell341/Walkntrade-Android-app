@@ -12,10 +12,11 @@ import android.view.ScaleGestureDetector;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
+
 public class ZoomableImageView extends ImageView {
     private static final String TAG = "ZoomableImageView";
     private static final float ZOOM_MAX_SCALE = 3f; //3x times the size of the image

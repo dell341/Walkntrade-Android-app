@@ -12,7 +12,7 @@ import com.walkntrade.io.DiskLruImageCache;
 
 import java.io.IOException;
 
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */

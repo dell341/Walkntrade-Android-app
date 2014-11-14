@@ -1,10 +1,13 @@
-package com.walkntrade.posts;
-
-//Copyright (c), All Rights Reserved, http://walkntrade.com
+package com.walkntrade.objects;
 
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
 
 //Object representation for Walkntrade posts. Holds all information about the post
 public abstract class Post implements Parcelable{ //Implements Parcelable for ability to send through intents and different activities

@@ -1,6 +1,20 @@
 package com.walkntrade.io;
 
-//Copyright (c), All Rights Reserved, http://walkntrade.com
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
+import android.util.Log;
+
+import com.jakewharton.disklrucache.DiskLruCache;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+//Copyright 2014, All Rights Reserved, Walkntrade
 //Copyright 2012 Jake Wharton
 //Copyright 2011 The Android Open Source Project
 
@@ -20,20 +34,6 @@ package com.walkntrade.io;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Environment;
-import android.util.Log;
-
-import com.jakewharton.disklrucache.DiskLruCache;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 //Caches all images to reduce loading time
 public class DiskLruImageCache {

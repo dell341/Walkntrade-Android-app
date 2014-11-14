@@ -25,7 +25,7 @@ import android.widget.Toast;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ImageTool;
-import com.walkntrade.posts.Post;
+import com.walkntrade.objects.Post;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,6 +34,11 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
+
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
 
 public class EditPost extends Activity implements View.OnClickListener {
 

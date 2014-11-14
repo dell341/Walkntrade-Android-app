@@ -1,7 +1,5 @@
 package com.walkntrade.fragments;
 
-//Copyright (c), All Rights Reserved, http://walkntrade.com
-
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -31,11 +29,16 @@ import com.walkntrade.ShowPage;
 import com.walkntrade.adapters.PostAdapter;
 import com.walkntrade.asynctasks.ThumbnailTask;
 import com.walkntrade.io.DataParser;
-import com.walkntrade.posts.Post;
+import com.walkntrade.objects.Post;
 
 import java.util.ArrayList;
 
-public class Fragment_SchoolPage extends Fragment implements OnItemClickListener, AbsListView.OnScrollListener, SwipeRefreshLayout.OnRefreshListener {
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
+
+public class SchoolPostsFragment extends Fragment implements OnItemClickListener, AbsListView.OnScrollListener, SwipeRefreshLayout.OnRefreshListener {
 
     private String TAG = "FRAGMENT:School_Page";
     public static final String ARG_CATEGORY = "Fragment Category";
@@ -122,7 +125,7 @@ public class Fragment_SchoolPage extends Fragment implements OnItemClickListener
 
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Intent search = new Intent(Fragment_SchoolPage.this.getActivity(), SearchActivity.class);
+                Intent search = new Intent(SchoolPostsFragment.this.getActivity(), SearchActivity.class);
                 search.putExtra(SearchActivity.EXTRA_CATEGORY, category);
                 search.putExtra(SearchActivity.EXTRA_QUERY, query);
                 search.putExtra(SearchActivity.EXTRA_INDEX, index);

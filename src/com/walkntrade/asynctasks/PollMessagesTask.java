@@ -8,10 +8,11 @@ import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
 
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
+
 public class PollMessagesTask extends AsyncTask<Void, Void, String> {
 
     private static final String TAG = "ASYNCTASK:PollMessages";

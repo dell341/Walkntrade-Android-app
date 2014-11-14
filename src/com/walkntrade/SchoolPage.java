@@ -1,7 +1,5 @@
 package com.walkntrade;
 
-//Copyright (c), All Rights Reserved, http://walkntrade.com
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
@@ -32,6 +30,11 @@ import com.walkntrade.io.DataParser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
 
 public class SchoolPage extends Activity implements ExpandableListView.OnGroupClickListener, ExpandableListView.OnChildClickListener {
 

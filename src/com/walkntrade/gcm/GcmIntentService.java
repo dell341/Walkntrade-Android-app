@@ -12,7 +12,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
-import com.walkntrade.MessageObject;
+import com.walkntrade.objects.MessageObject;
 import com.walkntrade.Messages;
 import com.walkntrade.R;
 import com.walkntrade.ShowMessage;
@@ -22,12 +22,12 @@ import com.walkntrade.io.DataParser;
 import java.io.IOException;
 import java.util.ArrayList;
 
-
-/**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p/>
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
  */
+
+//Handles notification events received from broadcast receiver
 public class GcmIntentService extends IntentService {
 
     private static final String TAG = "GcmIntentService";

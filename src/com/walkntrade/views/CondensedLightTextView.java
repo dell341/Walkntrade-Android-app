@@ -4,12 +4,11 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 
-import com.walkntrade.views.LightTextView;
-
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
+
 public class CondensedLightTextView extends LightTextView {
     public CondensedLightTextView(Context context) {
         super(context);

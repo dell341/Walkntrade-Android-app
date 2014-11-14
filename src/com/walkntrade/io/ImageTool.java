@@ -8,7 +8,7 @@ import android.net.Uri;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */

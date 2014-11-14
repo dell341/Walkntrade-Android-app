@@ -1,12 +1,13 @@
-package com.walkntrade;
+package com.walkntrade.objects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Copyright (c) 2014, All Rights Reserved
- * http://walkntrade.com
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
  */
+
 public class MessageObject implements Parcelable{
 
     private String id, user, subject, contents, date, read;

@@ -39,6 +39,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
+
 public class AddPost extends Activity implements OnClickListener {
 
     private static final String TAG = "AddPost";

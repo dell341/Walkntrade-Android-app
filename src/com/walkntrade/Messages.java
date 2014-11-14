@@ -21,9 +21,15 @@ import android.widget.TextView;
 import com.walkntrade.adapters.MessageAdapter;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.objects.MessageObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
 
 public class Messages extends Activity implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener{
 

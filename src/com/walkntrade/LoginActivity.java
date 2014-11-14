@@ -1,7 +1,5 @@
 package com.walkntrade;
 
-//Copyright (c), All Rights Reserved, http://walkntrade.com
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -33,6 +31,11 @@ import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 
 import java.io.IOException;
+
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
 
 public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener {
 

@@ -5,10 +5,11 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
+
 public class LightTextView extends TextView {
 
     public LightTextView(Context context) {

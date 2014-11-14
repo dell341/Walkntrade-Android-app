@@ -14,10 +14,11 @@ import com.walkntrade.io.DataParser;
 
 import java.util.ArrayList;
 
-/**
- * Copyright (c) 2014, All Rights Reserved
- * http://walkntrade.com
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
  */
+
 public class AccountSettings extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {

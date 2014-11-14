@@ -8,10 +8,11 @@ import org.apache.http.entity.mime.content.InputStreamBody;
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * Copyright (c) 2014, All Rights Reserved
- * http://walkntrade.com
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
  */
+
 public class CustomInputStreamBody extends InputStreamBody {
     private static final String TAG = "CustomInputStreamBody";
     private InputStream in;

@@ -1,7 +1,5 @@
 package com.walkntrade;
 
-//Copyright (c), All Rights Reserved, http://walkntrade.com
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +18,11 @@ import com.walkntrade.gcm.GcmRegistration;
 import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
+
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
 
 public class Walkntrade_Main extends Activity {
 

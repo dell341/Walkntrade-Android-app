@@ -11,10 +11,11 @@ import android.widget.HorizontalScrollView;
 
 import java.util.ArrayList;
 
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
+
 public class SnappingHorizontalScrollView extends HorizontalScrollView implements View.OnTouchListener {
 
     private static final String TAG = "SnappingHorizontalScrollView";

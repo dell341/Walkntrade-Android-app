@@ -21,11 +21,12 @@ import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
 
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
-public class Fragment_ContactUser extends Fragment {
+
+public class ContactUserFragment extends Fragment {
 
     private static final String TAG = "FRAGMENT:ContactUser";
     public static final String USER = "user_to_message";

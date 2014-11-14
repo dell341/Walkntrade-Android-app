@@ -22,16 +22,16 @@ import android.widget.TextView;
 
 import com.walkntrade.adapters.item.ViewPostItem;
 import com.walkntrade.io.DataParser;
-import com.walkntrade.posts.PostReference;
+import com.walkntrade.objects.ReferencedPost;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Copyright (c) 2014, All Rights Reserved
- * http://walkntrade.com
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
  */
 
 public class ViewPosts extends Activity implements AdapterView.OnItemClickListener{
@@ -213,10 +213,10 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
     private class UserPostsTask extends AsyncTask<Void, Void, Integer> {
 
-        private ArrayList<PostReference> userPosts;
+        private ArrayList<ReferencedPost> userPosts;
 
         public UserPostsTask() {
-            userPosts = new ArrayList<PostReference>();
+            userPosts = new ArrayList<ReferencedPost>();
         }
 
         @Override
@@ -251,7 +251,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
                 String currentSchool = "";
 
-                for (PostReference p : userPosts) {
+                for (ReferencedPost p : userPosts) {
                     if(!p.getSchool().equalsIgnoreCase(currentSchool)) { //If this post is a new school, create a new header
                         currentSchool = p.getSchool();
                         items.add(new ViewPostItem(p.getSchool()));

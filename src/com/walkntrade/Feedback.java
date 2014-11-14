@@ -20,6 +20,11 @@ import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
 
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
+
 public class Feedback extends Activity{
 
     private static final String TAG = "FeedbackActivity";

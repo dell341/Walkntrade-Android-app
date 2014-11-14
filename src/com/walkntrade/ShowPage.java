@@ -9,12 +9,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.walkntrade.asynctasks.LogoutTask;
-import com.walkntrade.fragments.Fragment_ContactUser;
-import com.walkntrade.fragments.Fragment_Post;
+import com.walkntrade.fragments.ContactUserFragment;
+import com.walkntrade.fragments.PostFragment;
 import com.walkntrade.io.DataParser;
-import com.walkntrade.posts.Post;
+import com.walkntrade.objects.Post;
 
-public class ShowPage extends Activity implements Fragment_Post.ContactUserListener {
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
+
+public class ShowPage extends Activity implements PostFragment.ContactUserListener {
 
     private String TAG = "ShowPage";
     private static final String TWOPANEBOOL = "saved_instance_two_pane";
@@ -35,7 +40,7 @@ public class ShowPage extends Activity implements Fragment_Post.ContactUserListe
         Post thisPost = getIntent().getParcelableExtra(SchoolPage.SELECTED_POST);
         Bundle args = new Bundle();
         args.putParcelable(SchoolPage.SELECTED_POST, thisPost);
-        args.putBoolean(Fragment_Post.TWO_PANE, false);
+        args.putBoolean(PostFragment.TWO_PANE, false);
 
         if(savedInstanceState != null){
             twoPaneUsedFirst = savedInstanceState.getBoolean(TWOPANEBOOL);
@@ -48,7 +53,7 @@ public class ShowPage extends Activity implements Fragment_Post.ContactUserListe
 
                 if(twoPaneUsedFirst && !onePaneCreated) { //If layout started in two-pane, one-pane doesn't yet exist. Create it.
                     onePaneCreated = true;
-                    Fragment_Post postFragment = new Fragment_Post();
+                    PostFragment postFragment = new PostFragment();
                     postFragment.setArguments(args);
 
                     getFragmentManager().beginTransaction().add(R.id.frame_layout, postFragment).commit();
@@ -57,7 +62,7 @@ public class ShowPage extends Activity implements Fragment_Post.ContactUserListe
                 return;
             }
 
-            Fragment_Post postFragment = new Fragment_Post();
+            PostFragment postFragment = new PostFragment();
             postFragment.setArguments(args);
 
             getFragmentManager().beginTransaction().add(R.id.frame_layout, postFragment).commit();
@@ -67,12 +72,12 @@ public class ShowPage extends Activity implements Fragment_Post.ContactUserListe
             if(!twoPaneUsedFirst && !onePaneCreated)
                 twoPaneUsedFirst = true;
 
-            args.putString(Fragment_ContactUser.TITLE, thisPost.getTitle());
-            args.putString(Fragment_ContactUser.USER, thisPost.getUser());
-            args.putBoolean(Fragment_Post.TWO_PANE, true);
+            args.putString(ContactUserFragment.TITLE, thisPost.getTitle());
+            args.putString(ContactUserFragment.USER, thisPost.getUser());
+            args.putBoolean(PostFragment.TWO_PANE, true);
 
-            Fragment_Post postFragment = new Fragment_Post();
-            Fragment_ContactUser contactFragment = new Fragment_ContactUser();
+            PostFragment postFragment = new PostFragment();
+            ContactUserFragment contactFragment = new ContactUserFragment();
 
             postFragment.setArguments(args);
             contactFragment.setArguments(args);
@@ -163,11 +168,11 @@ public class ShowPage extends Activity implements Fragment_Post.ContactUserListe
 
     @Override
     public void contactUser(String user, String title) {
-        Fragment_ContactUser fragment = new Fragment_ContactUser();
+        ContactUserFragment fragment = new ContactUserFragment();
 
         Bundle args = new Bundle();
-        args.putString(Fragment_ContactUser.USER, user);
-        args.putString(Fragment_ContactUser.TITLE, title);
+        args.putString(ContactUserFragment.USER, user);
+        args.putString(ContactUserFragment.TITLE, title);
         fragment.setArguments(args);
 
         FragmentTransaction transaction = getFragmentManager().beginTransaction();

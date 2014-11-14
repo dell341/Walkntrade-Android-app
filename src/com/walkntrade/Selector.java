@@ -1,7 +1,5 @@
 package com.walkntrade;
 
-//Copyright (c), All Rights Reserved, http://walkntrade.com
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -28,9 +26,15 @@ import android.widget.TextView;
 
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
+import com.walkntrade.objects.SchoolObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
 
 public class Selector extends Activity implements OnItemClickListener {
 

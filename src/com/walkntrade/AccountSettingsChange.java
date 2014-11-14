@@ -23,10 +23,11 @@ import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
 
-/**
- * Copyright (c) 2014, All Rights Reserved
- * http://walkntrade.com
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
  */
+
 public class AccountSettingsChange extends Activity implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "AccountSettingsChange";
@@ -190,7 +191,12 @@ public class AccountSettingsChange extends Activity implements SwipeRefreshLayou
             String serverResponse = null;
 
             try {
-                serverResponse = database.changeSetting(oldPassword[0], newSetting.getText().toString(), setting);
+                switch (setting) {
+                    case SETTING_EMAIL: serverResponse = database.changeEmail(oldPassword[0], newSetting.getText().toString()); break;
+                    case SETTING_PASSWORD: serverResponse = database.changePassword(oldPassword[0], newSetting.getText().toString()); break;
+                    case SETTING_PHONE: serverResponse = database.changePhoneNumber(oldPassword[0], newSetting.getText().toString()); break;
+                    default: return "null";
+                }
             } catch (IOException e) {
                 Log.e(TAG, "Changing setting", e);
             }

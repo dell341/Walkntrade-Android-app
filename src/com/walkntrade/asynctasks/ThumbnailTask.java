@@ -10,11 +10,11 @@ import com.walkntrade.R;
 import com.walkntrade.adapters.PostAdapter;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
-import com.walkntrade.posts.Post;
+import com.walkntrade.objects.Post;
 
 import java.io.IOException;
 
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */

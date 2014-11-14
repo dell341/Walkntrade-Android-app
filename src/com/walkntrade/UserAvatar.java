@@ -35,6 +35,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
+
 public class UserAvatar extends Activity implements View.OnClickListener {
 
     private static final String TAG = "UserAvatar";

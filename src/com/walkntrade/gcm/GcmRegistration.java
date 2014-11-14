@@ -12,10 +12,11 @@ import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
 
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
+
 public class GcmRegistration {
     private static final String TAG = "GCMRegistration";
     private static final String PROPERTY_REG_ID = "gcm_registration_id";

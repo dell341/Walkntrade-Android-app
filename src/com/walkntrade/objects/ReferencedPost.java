@@ -1,18 +1,18 @@
-package com.walkntrade.posts;
+package com.walkntrade.objects;
 
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
 
 //Does not hold all post information, so is not a complete Post object.
 //Used in the ViewPost activity
-public class PostReference {
+public class ReferencedPost {
     private String school, link, category, title, date, views;
     private int expire;
     private boolean expired;
 
-    public PostReference(String school, String link, String category, String title, String date, String views, int expire, boolean expired) {
+    public ReferencedPost(String school, String link, String category, String title, String date, String views, int expire, boolean expired) {
         this.school = school;
         this.link = link;
         this.category = category;

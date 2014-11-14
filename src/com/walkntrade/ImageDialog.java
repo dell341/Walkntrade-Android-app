@@ -1,7 +1,5 @@
 package com.walkntrade;
 
-//Copyright (c), All Rights Reserved, http://walkntrade.com
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -19,11 +17,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.walkntrade.fragments.Fragment_Post;
+import com.walkntrade.fragments.PostFragment;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 
 import java.io.IOException;
+
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
 
 //Swipes through images of post
 public class ImageDialog extends Activity {
@@ -43,9 +46,9 @@ public class ImageDialog extends Activity {
 		setContentView(R.layout.activity_image_dialog);
 
         context = getApplicationContext();
-		imgURLs = getIntent().getStringArrayExtra(Fragment_Post.IMGSRC);
-		identifier = getIntent().getStringExtra(Fragment_Post.IDENTIFIER);
-        int index = getIntent().getIntExtra(Fragment_Post.INDEX, 0);
+		imgURLs = getIntent().getStringArrayExtra(PostFragment.IMGSRC);
+		identifier = getIntent().getStringExtra(PostFragment.IDENTIFIER);
+        int index = getIntent().getIntExtra(PostFragment.INDEX, 0);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         ImageFragmentAdapter adapter = new ImageFragmentAdapter(getFragmentManager());

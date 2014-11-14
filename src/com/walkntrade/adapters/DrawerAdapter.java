@@ -19,6 +19,11 @@ import com.walkntrade.io.DataParser;
 import java.util.HashMap;
 import java.util.List;
 
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
+
 public class DrawerAdapter extends BaseExpandableListAdapter {
 
     private static final String TAG = "DrawerAdapter";

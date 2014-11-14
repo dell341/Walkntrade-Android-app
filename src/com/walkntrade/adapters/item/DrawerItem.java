@@ -2,6 +2,11 @@ package com.walkntrade.adapters.item;
 
 import android.graphics.Bitmap;
 
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
+
 //Represents the actual menu option in the Navigation Drawer
 public class DrawerItem {
 	private int iconResource, expandResource;

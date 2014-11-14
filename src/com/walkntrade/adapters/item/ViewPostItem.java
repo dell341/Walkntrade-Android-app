@@ -1,8 +1,8 @@
 package com.walkntrade.adapters.item;
 
-import com.walkntrade.posts.PostReference;
+import com.walkntrade.objects.ReferencedPost;
 
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
@@ -22,7 +22,7 @@ public class ViewPostItem {
     }
 
     //Post Item
-    public ViewPostItem(PostReference post){
+    public ViewPostItem(ReferencedPost post){
         title = post.getTitle();
         obsId = post.getLink();
         expire = post.getExpire();

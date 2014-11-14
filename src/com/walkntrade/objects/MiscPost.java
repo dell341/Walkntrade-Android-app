@@ -1,12 +1,16 @@
-package com.walkntrade.posts;
+package com.walkntrade.objects;
 
-//Copyright (c), All Rights Reserved, http://walkntrade.com
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Post_Misc extends Post {
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
+
+public class MiscPost extends Post {
 	
-	public Post_Misc(String obsId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views) {
+	public MiscPost(String obsId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views) {
 		super(obsId, identifier, title, details, user, imgURL,date, price, views);
 	}
 	
@@ -16,13 +20,13 @@ public class Post_Misc extends Post {
 	
 	/*Parcelable implementation*/
 	
-	private Post_Misc(Parcel in) {
+	private MiscPost(Parcel in) {
 		super(in);
 	}
 	
 	public static final Parcelable.Creator<Post> CREATOR = new Parcelable.Creator<Post>() {
-		public Post_Misc createFromParcel(Parcel in) {
-			return new Post_Misc(in);
+		public MiscPost createFromParcel(Parcel in) {
+			return new MiscPost(in);
 		}
 		
 		public Post[] newArray(int size) {

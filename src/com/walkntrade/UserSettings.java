@@ -13,7 +13,10 @@ import android.widget.ListView;
 
 import com.walkntrade.io.DataParser;
 
-//Copyright (c), All Rights Reserved, http://walkntrade.com
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
 
 public class UserSettings extends Activity implements AdapterView.OnItemClickListener{
 

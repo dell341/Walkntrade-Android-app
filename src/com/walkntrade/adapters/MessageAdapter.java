@@ -7,15 +7,16 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.walkntrade.MessageObject;
+import com.walkntrade.objects.MessageObject;
 import com.walkntrade.R;
 
 import java.util.List;
 
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
+
 public class MessageAdapter extends ArrayAdapter<MessageObject>{
 
     public MessageAdapter(Context context, List<MessageObject> messages){

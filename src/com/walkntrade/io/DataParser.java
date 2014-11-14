@@ -1,7 +1,5 @@
 package com.walkntrade.io;
 
-//Copyright (c), All Rights Reserved, http://walkntrade.com
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -14,17 +12,16 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
-import com.walkntrade.AccountSettingsChange;
-import com.walkntrade.MessageObject;
+import com.walkntrade.objects.BookPost;
+import com.walkntrade.objects.MessageObject;
 import com.walkntrade.Messages;
 import com.walkntrade.R;
-import com.walkntrade.SchoolObject;
-import com.walkntrade.posts.Post;
-import com.walkntrade.posts.PostReference;
-import com.walkntrade.posts.Post_Book;
-import com.walkntrade.posts.Post_Misc;
-import com.walkntrade.posts.Post_Service;
-import com.walkntrade.posts.Post_Tech;
+import com.walkntrade.objects.MiscPost;
+import com.walkntrade.objects.ReferencedPost;
+import com.walkntrade.objects.SchoolObject;
+import com.walkntrade.objects.Post;
+import com.walkntrade.objects.ServicePost;
+import com.walkntrade.objects.TechPost;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -60,6 +57,11 @@ import java.util.Locale;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
 
 //Handles almost all necessary network communications
 public class DataParser {
@@ -139,12 +141,12 @@ public class DataParser {
             this.value = value;
         }
 
-        public int getStatus(){
+        public int getStatus() {
             return status;
         }
 
         public String getValue() {
-            if(value == null)
+            if (value == null)
                 throw new NullPointerException("Value is null");
 
             return value;
@@ -224,6 +226,16 @@ public class DataParser {
         settings.edit().clear().apply();
     }
 
+    //Sends out POST_OBJECT request and returns an InputStream
+    private InputStream processRequest(HttpEntity entity) throws IOException {
+        httpPost.setEntity(entity);
+        HttpResponse response = httpClient.execute(httpPost, httpContext); //Executes the request along with the cookie store
+
+        updateCookies();
+        return response.getEntity().getContent();
+    }
+
+    //Read String from InputStream and return the result
     private String readInputAsString(InputStream inStream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
         StringBuilder builder = new StringBuilder();
@@ -237,13 +249,22 @@ public class DataParser {
         return builder.toString();
     }
 
-    //Sends out POST_OBJECT request and returns an InputStream
-    private InputStream processRequest(HttpEntity entity) throws IOException {
-        httpPost.setEntity(entity);
-        HttpResponse response = httpClient.execute(httpPost, httpContext); //Executes the request along with the cookie store
+    private StringResult getIntentResult(String query) throws IOException {
 
-        updateCookies();
-        return response.getEntity().getContent();
+        StringResult result = new StringResult(-100, null);
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+
+            result.setStatus(jsonObject.getInt(STATUS));
+            result.setValue(jsonObject.getString(MESSAGE));
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        } finally {
+            disconnectAll();
+        }
+        return result;
     }
 
     //Checks network availability before performing actions
@@ -433,23 +454,10 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=getUserName";
-        int requestStatus = -100;
+        StringResult result = getIntentResult(query);
 
-        StringResult result = new StringResult(requestStatus, null);
-        try {
-            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-            InputStream inputStream = processRequest(entity);
-            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
-
-            result.setStatus(jsonObject.getInt(STATUS));
-            result.setValue(jsonObject.getString(MESSAGE));
-            //Stores username locally to device
-            setSharedStringPreference(PREFS_USER, KEY_USER_NAME, result.getValue()); //Stores username locally to device
-        } catch (JSONException e) {
-            Log.e(TAG, "Parsing JSON", e);
-        } finally {
-            disconnectAll();
-        }
+        //Stores username locally to device
+        setSharedStringPreference(PREFS_USER, KEY_USER_NAME, result.getValue()); //Stores username locally to device
         return result;
     }
 
@@ -457,22 +465,126 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=getAvatar";
-        int requestStatus = -100;
+        return getIntentResult(query);
+    }
 
-        StringResult result = new StringResult(requestStatus, null);
+    public StringResult getUserPhoneNumber() throws IOException {
+        establishConnection();
+
+        String query = "getPhoneNum";
+        StringResult result = getIntentResult(query);
+
+        //Stores phone number locally to device
+        setSharedStringPreference(PREFS_USER, KEY_USER_PHONE, result.getValue());
+        return result;
+    }
+
+    public StringResult getEmailPreference() throws IOException {
+        establishConnection();
+
+        String query = "getEmailPref";
+        StringResult result = getIntentResult(query);
+
+        //Stores email contact preference locally
+        setSharedStringPreference(PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, result.getValue());
+        return result;
+    }
+
+    public StringResult getAmountOfNewMessages() throws IOException {
+        establishConnection();
+
+        String query = "pollNewWebmail";
+        StringResult result = getIntentResult(query);
+
+        //Stores amount of unread messages here
+        setSharedIntPreferences(PREFS_USER, KEY_USER_MESSAGES, Integer.parseInt(result.getValue()));
+        return result;
+    }
+
+    public String setEmailPreference(String preference) throws IOException {
+        establishConnection();
+
+        String query = "intent=setEmailPref&pref=" + preference;
+        setSharedStringPreference(PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, preference); //Stores email contact preference
+        String serverResponse = null;
+
         try {
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inputStream = processRequest(entity);
-            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
-
-            result.setStatus(jsonObject.getInt(STATUS));
-            result.setValue(jsonObject.getString(MESSAGE));
-        } catch (JSONException e) {
-            Log.e(TAG, "Parsing JSON", e);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
         } finally {
             disconnectAll();
         }
-        return result;
+        return serverResponse;
+    }
+
+    //Sends the registration id, which will be used to receive push notifications, to the server
+    public String setRegistrationId(String deviceToken) throws IOException {
+        establishConnection();
+
+        String query = "intent=addAndroidDeviceId&deviceId=" + deviceToken;
+        String serverResponse = null;
+
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        } finally {
+            disconnectAll();
+        }
+
+        return serverResponse;
+    }
+
+    public String changeEmail(String password, String email) throws IOException {
+        establishConnection();
+
+        String query = "intent=controlPanel&oldPw=" + password + "&email=" + email;
+        String serverResponse = null;
+
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        } finally {
+            disconnectAll();
+        }
+        return serverResponse;
+    }
+
+    public String changePhoneNumber(String password, String phoneNumber) throws IOException {
+        establishConnection();
+
+        String query = "intent=controlPanel&oldPw=" + password + "&phone=" + phoneNumber;
+        String serverResponse = null;
+
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        } finally {
+            disconnectAll();
+        }
+        return serverResponse;
+    }
+
+    public String changePassword(String password, String newPassword) throws IOException {
+        establishConnection();
+
+        String query = "intent=controlPanel&oldPw=" + password + "&newPw=" + newPassword;
+        String serverResponse = null;
+
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        } finally {
+            clearUserInfo();
+            clearCookies();
+            disconnectAll();
+        }
+
+        return serverResponse;
     }
 
     //Used for repetitious intents like get username, phone number, email preference etc.
@@ -548,94 +660,6 @@ public class DataParser {
             disconnectAll();
         }
 
-        return serverResponse;
-    }
-
-    public String setEmailPreference(String preference) throws IOException {
-        establishConnection();
-
-        String query = "intent=setEmailPref&pref=" + preference;
-        setSharedStringPreference(PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, preference); //Stores email contact preference
-        String serverResponse = null;
-
-        try {
-            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-            InputStream inputStream = processRequest(entity);
-            serverResponse = readInputAsString(inputStream); //Reads message response from server
-        } finally {
-            disconnectAll();
-        }
-        return serverResponse;
-    }
-
-    //Sends the registration id, which will be used to receive push notifications, to the server
-    public String setRegistrationId(String deviceToken) throws IOException {
-        establishConnection();
-
-        String query = "intent=addAndroidDeviceId&deviceId=" + deviceToken;
-        String serverResponse = null;
-
-        try {
-            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-            InputStream inputStream = processRequest(entity);
-            serverResponse = readInputAsString(inputStream); //Reads message response from server
-        } finally {
-            disconnectAll();
-        }
-
-        return serverResponse;
-    }
-
-
-    public String changeSetting(String password, String settingValue, int setting) throws IOException {
-        establishConnection();
-
-        String query;
-
-        switch (setting) {
-            case AccountSettingsChange.SETTING_EMAIL:
-                query = "intent=controlPanel&oldPw=" + password + "&email=" + settingValue;
-                setSharedStringPreference(PREFS_USER, KEY_USER_EMAIL, settingValue);
-                break;
-            case AccountSettingsChange.SETTING_PHONE:
-                query = "intent=controlPanel&oldPw=" + password + "&phone=" + settingValue;
-                setSharedStringPreference(PREFS_USER, KEY_USER_PHONE, settingValue);
-                break;
-            case AccountSettingsChange.SETTING_PASSWORD:
-                query = "intent=controlPanel&oldPw=" + password + "&newPw=" + settingValue;
-                clearUserInfo();
-                clearCookies();
-                break;
-            default:
-                disconnectAll();
-                return "Setting not selected";
-        }
-
-        String serverResponse = null;
-
-        try {
-            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-            InputStream inputStream = processRequest(entity);
-            serverResponse = readInputAsString(inputStream); //Reads message response from server
-        } finally {
-            disconnectAll();
-        }
-        return serverResponse;
-    }
-
-    public String messageUser(String userName, String title, String message) throws IOException {
-        establishConnection();
-
-        String query = "intent=messageUser&uuid=&userName=" + userName + "&title=" + title + "&message=" + message;
-        String serverResponse = null;
-
-        try {
-            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-            InputStream inputStream = processRequest(entity);
-            serverResponse = readInputAsString(inputStream); //Reads message response from server
-        } finally {
-            disconnectAll();
-        }
         return serverResponse;
     }
 
@@ -731,13 +755,10 @@ public class DataParser {
         return serverResponse;
     }
 
-    //Add Post to Walkntrade
-    public String addPostBook(String category, String school, String title, String author, String description,
-                              float price, String tags, int isbn) throws IOException {
+    public String messageUser(String userName, String title, String message) throws IOException {
         establishConnection();
 
-        String query = "intent=addPost&cat=" + category + "&school=" + school + "&title=" + title +
-                "&author=" + author + "&details=" + description + "&price=" + price + "&tags=" + tags + "&isbn=" + isbn;
+        String query = "intent=messageUser&uuid=&userName=" + userName + "&title=" + title + "&message=" + message;
         String serverResponse = null;
 
         try {
@@ -747,78 +768,100 @@ public class DataParser {
         } finally {
             disconnectAll();
         }
-        return serverResponse; //Returns post identifier or error message
+        return serverResponse;
     }
 
-    public String addPostOther(String category, String school, String title, String description,
-                               float price, String tags) throws IOException {
+    public int getPostByIdentifier(Post post, String id) throws IOException {
         establishConnection();
-        String query = "intent=addPost&cat=" + category + "&school=" + school + "&title=" + title + "&details=" + description + "&price=" + price + "&tags=" + tags;
-        String serverResponse = null;
+        int requestStatus = -100;
 
         try {
+            String query = "intent=getPostByIdentifier&" + id + "==";
+            HttpEntity entity = new StringEntity(query);
+            InputStream inputStream = processRequest(entity);
+
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+            JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
+            requestStatus = jsonObject.getInt(STATUS);
+
+            //Retrieve all post attributes from JSONObject
+            for (int i = 0; i < payload.length(); i++) {
+
+                JSONObject jsonPost = payload.getJSONObject(i);
+
+                String category = jsonPost.getString("category");
+                String obsId = jsonPost.getString("obsId");
+                String identifier = obsId.split(":")[1].toLowerCase(Locale.US); //Identifier only holds the unique generated number for the post. Used in image url
+                String title = jsonPost.getString("title");
+                String author = jsonPost.getString("author");
+                String isbn = jsonPost.getString("isbn");
+                String details = jsonPost.getString("details");
+                String user = jsonPost.getString("username");
+                String imgURL = jsonPost.getString("image");
+                String date = jsonPost.getString("date");
+                String price = jsonPost.getString("price");
+                String views = jsonPost.getString("views");
+
+                if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
+                    post = new BookPost(obsId, identifier, title, details, user, imgURL, date, price, views);
+                else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
+                    post = new TechPost(obsId, identifier, title, details, user, imgURL, date, price, views);
+                else if (category.equalsIgnoreCase(context.getString(R.string.server_category_service)))
+                    post = new ServicePost(obsId, identifier, title, details, user, imgURL, date, price, views);
+                else
+                    post = new MiscPost(obsId, identifier, title, details, user, imgURL, date, price, views);
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        } finally { //If anything happens above, at least disconnect the HttpClient
+            disconnectAll();
+        }
+
+        return requestStatus;
+    }
+
+    public int getUserPosts(ArrayList<ReferencedPost> referencedPosts) throws IOException {
+        establishConnection();
+        int requestStatus = -100;
+
+        try {
+            String query = "intent=getPostsCurrentUser";
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inputStream = processRequest(entity);
-            serverResponse = readInputAsString(inputStream); //Reads message response from server
-        } finally {
-            disconnectAll();
-        }
-        return serverResponse; //Returns post identifier or error message
-    }
 
-    //Adds image to post corresponding to the appropriate identifier
-    public String uploadPostImage(String identifier, String imagePath, int index) throws IOException {
-        establishConnection();
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+            JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
+            requestStatus = jsonObject.getInt(STATUS);
 
-        httpPost.removeHeaders("Content-Type"); //Handled by MultipartEntityBuilder, cause conflictions
+            for (int i = 0; i < payload.length(); i++) {
+                JSONObject jsonSchool = payload.getJSONObject(i);
+                JSONArray jsonPosts = jsonSchool.getJSONArray("post");
 
-        File file = new File(imagePath);
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+                String shortName = jsonSchool.getString("shortName");
+                String longName = jsonSchool.getString("longName");
 
-        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        builder.addPart("intent", new StringBody("uploadPostImages", ContentType.TEXT_PLAIN));
-        builder.addPart("iteration", new StringBody(index + "", ContentType.TEXT_PLAIN));
-        builder.addPart("identifier", new StringBody(identifier, ContentType.TEXT_PLAIN));
-        builder.addPart("image", new FileBody(file));
+                for (int j = 0; j < jsonPosts.length(); j++) {
+                    JSONObject jsonPost = jsonPosts.getJSONObject(j);
 
-        String serverResponse = null;
+                    String link = jsonPost.getString("link");
+                    String category = jsonPost.getString("category");
+                    String title = jsonPost.getString("title");
+                    String date = jsonPost.getString("date");
+                    String views = jsonPost.getString("views");
+                    int expire = jsonPost.getInt("expire");
+                    boolean expired = jsonPost.getBoolean("expired");
 
-        try {
-            HttpEntity entity = builder.build();
-            InputStream inputStream = processRequest(entity);
-            serverResponse = readInputAsString(inputStream);
-        } finally {
-            disconnectAll();
-        }
+                    referencedPosts.add(new ReferencedPost(longName, link, category, title, date, views, expire, expired));
+                }
+            }
 
-        return serverResponse;
-    }
-
-    //Adds image to post corresponding to the appropriate identifier
-    public String uploadPostImage(String identifier, InputStream inStream, int index) throws IOException {
-        establishConnection();
-
-        httpPost.removeHeaders("Content-Type"); //Handled by MultipartEntityBuilder, cause conflictions
-
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-
-        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        builder.addPart("intent", new StringBody("uploadPostImages", ContentType.TEXT_PLAIN));
-        builder.addPart("iteration", new StringBody(index + "", ContentType.TEXT_PLAIN));
-        builder.addPart("identifier", new StringBody(identifier, ContentType.TEXT_PLAIN));
-        builder.addPart("image", new CustomInputStreamBody(inStream, ContentType.create("image/jpeg"), "post_image_" + index + ".jpg"));
-
-        String serverResponse = null;
-
-        try {
-            HttpEntity entity = builder.build();
-            InputStream inputStream = processRequest(entity);
-            serverResponse = readInputAsString(inputStream);
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
         } finally {
             disconnectAll();
         }
 
-        return serverResponse;
+        return requestStatus;
     }
 
     public String renewPost(String obsId) throws IOException {
@@ -932,13 +975,13 @@ public class DataParser {
                 String views = jsonPost.getString("views");
 
                 if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
-                    posts.add(new Post_Book(obsId, identifier, title, details, user, imgURL, date, price, views));
+                    posts.add(new BookPost(obsId, identifier, title, details, user, imgURL, date, price, views));
                 else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
-                    posts.add(new Post_Tech(obsId, identifier, title, details, user, imgURL, date, price, views));
+                    posts.add(new TechPost(obsId, identifier, title, details, user, imgURL, date, price, views));
                 else if (category.equalsIgnoreCase(context.getString(R.string.server_category_service)))
-                    posts.add(new Post_Service(obsId, identifier, title, details, user, imgURL, date, price, views));
+                    posts.add(new ServicePost(obsId, identifier, title, details, user, imgURL, date, price, views));
                 else
-                    posts.add(new Post_Misc(obsId, identifier, title, details, user, imgURL, date, price, views));
+                    posts.add(new MiscPost(obsId, identifier, title, details, user, imgURL, date, price, views));
             }
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
@@ -949,97 +992,94 @@ public class DataParser {
         return requestStatus;
     }
 
-    public int getPostByIdentifier(Post post, String id) throws IOException {
+    //Add Post to Walkntrade
+    public String addPostBook(String category, String school, String title, String author, String description,
+                              float price, String tags, int isbn) throws IOException {
         establishConnection();
-        int requestStatus = -100;
+
+        String query = "intent=addPost&cat=" + category + "&school=" + school + "&title=" + title +
+                "&author=" + author + "&details=" + description + "&price=" + price + "&tags=" + tags + "&isbn=" + isbn;
+        String serverResponse = null;
 
         try {
-            String query = "intent=getPostByIdentifier&" + id + "==";
-            HttpEntity entity = new StringEntity(query);
-            InputStream inputStream = processRequest(entity);
-
-            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
-            JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
-            requestStatus = jsonObject.getInt(STATUS);
-
-            //Retrieve all post attributes from JSONObject
-            for (int i = 0; i < payload.length(); i++) {
-
-                JSONObject jsonPost = payload.getJSONObject(i);
-
-                String category = jsonPost.getString("category");
-                String obsId = jsonPost.getString("obsId");
-                String identifier = obsId.split(":")[1].toLowerCase(Locale.US); //Identifier only holds the unique generated number for the post. Used in image url
-                String title = jsonPost.getString("title");
-                String author = jsonPost.getString("author");
-                String isbn = jsonPost.getString("isbn");
-                String details = jsonPost.getString("details");
-                String user = jsonPost.getString("username");
-                String imgURL = jsonPost.getString("image");
-                String date = jsonPost.getString("date");
-                String price = jsonPost.getString("price");
-                String views = jsonPost.getString("views");
-
-                if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
-                    post = new Post_Book(obsId, identifier, title, details, user, imgURL, date, price, views);
-                else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
-                    post = new Post_Tech(obsId, identifier, title, details, user, imgURL, date, price, views);
-                else if (category.equalsIgnoreCase(context.getString(R.string.server_category_service)))
-                    post = new Post_Service(obsId, identifier, title, details, user, imgURL, date, price, views);
-                else
-                    post = new Post_Misc(obsId, identifier, title, details, user, imgURL, date, price, views);
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "Parsing JSON", e);
-        } finally { //If anything happens above, at least disconnect the HttpClient
-            disconnectAll();
-        }
-
-        return requestStatus;
-    }
-
-    public int getUserPosts(ArrayList<PostReference> postReferences) throws IOException {
-        establishConnection();
-        int requestStatus = -100;
-
-        try {
-            String query = "intent=getPostsCurrentUser";
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        } finally {
+            disconnectAll();
+        }
+        return serverResponse; //Returns post identifier or error message
+    }
 
-            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
-            JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
-            requestStatus = jsonObject.getInt(STATUS);
+    public String addPostOther(String category, String school, String title, String description,
+                               float price, String tags) throws IOException {
+        establishConnection();
+        String query = "intent=addPost&cat=" + category + "&school=" + school + "&title=" + title + "&details=" + description + "&price=" + price + "&tags=" + tags;
+        String serverResponse = null;
 
-            for (int i = 0; i < payload.length(); i++) {
-                JSONObject jsonSchool = payload.getJSONObject(i);
-                JSONArray jsonPosts = jsonSchool.getJSONArray("post");
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream); //Reads message response from server
+        } finally {
+            disconnectAll();
+        }
+        return serverResponse; //Returns post identifier or error message
+    }
 
-                String shortName = jsonSchool.getString("shortName");
-                String longName = jsonSchool.getString("longName");
+    //Adds image to post corresponding to the appropriate identifier
+    public String uploadPostImage(String identifier, String imagePath, int index) throws IOException {
+        establishConnection();
 
-                for (int j = 0; j < jsonPosts.length(); j++) {
-                    JSONObject jsonPost = jsonPosts.getJSONObject(j);
+        httpPost.removeHeaders("Content-Type"); //Handled by MultipartEntityBuilder, cause conflictions
 
-                    String link = jsonPost.getString("link");
-                    String category = jsonPost.getString("category");
-                    String title = jsonPost.getString("title");
-                    String date = jsonPost.getString("date");
-                    String views = jsonPost.getString("views");
-                    int expire = jsonPost.getInt("expire");
-                    boolean expired = jsonPost.getBoolean("expired");
+        File file = new File(imagePath);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 
-                    postReferences.add(new PostReference(longName, link, category, title, date, views, expire, expired));
-                }
-            }
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        builder.addPart("intent", new StringBody("uploadPostImages", ContentType.TEXT_PLAIN));
+        builder.addPart("iteration", new StringBody(index + "", ContentType.TEXT_PLAIN));
+        builder.addPart("identifier", new StringBody(identifier, ContentType.TEXT_PLAIN));
+        builder.addPart("image", new FileBody(file));
 
-        } catch (JSONException e) {
-            Log.e(TAG, "Parsing JSON", e);
+        String serverResponse = null;
+
+        try {
+            HttpEntity entity = builder.build();
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream);
         } finally {
             disconnectAll();
         }
 
-        return requestStatus;
+        return serverResponse;
+    }
+
+    //Adds image to post corresponding to the appropriate identifier
+    public String uploadPostImage(String identifier, InputStream inStream, int index) throws IOException {
+        establishConnection();
+
+        httpPost.removeHeaders("Content-Type"); //Handled by MultipartEntityBuilder, cause conflictions
+
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        builder.addPart("intent", new StringBody("uploadPostImages", ContentType.TEXT_PLAIN));
+        builder.addPart("iteration", new StringBody(index + "", ContentType.TEXT_PLAIN));
+        builder.addPart("identifier", new StringBody(identifier, ContentType.TEXT_PLAIN));
+        builder.addPart("image", new CustomInputStreamBody(inStream, ContentType.create("image/jpeg"), "post_image_" + index + ".jpg"));
+
+        String serverResponse = null;
+
+        try {
+            HttpEntity entity = builder.build();
+            InputStream inputStream = processRequest(entity);
+            serverResponse = readInputAsString(inputStream);
+        } finally {
+            disconnectAll();
+        }
+
+        return serverResponse;
     }
 
     //Can be called from anywhere without creating a DataParser object

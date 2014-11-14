@@ -17,6 +17,11 @@ import android.widget.TextView;
 
 import com.walkntrade.io.DataParser;
 
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
+
 public class NotificationSettings extends Activity implements CompoundButton.OnCheckedChangeListener, View.OnClickListener{
 
     private static final String TAG = "NotificationSettings";

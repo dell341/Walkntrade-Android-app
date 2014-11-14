@@ -1,7 +1,5 @@
 package com.walkntrade.adapters;
 
-//Copyright (c), All Rights Reserved, http://walkntrade.com
-
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,9 +10,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.walkntrade.R;
-import com.walkntrade.posts.Post;
+import com.walkntrade.objects.Post;
 
 import java.util.List;
+
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
 
 //Holds all post information for each specific grid
 public class PostAdapter extends BaseAdapter {

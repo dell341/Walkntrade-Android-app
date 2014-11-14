@@ -22,10 +22,14 @@ import android.widget.TextView;
 import com.walkntrade.adapters.PostAdapter;
 import com.walkntrade.asynctasks.ThumbnailTask;
 import com.walkntrade.io.DataParser;
-import com.walkntrade.posts.Post;
+import com.walkntrade.objects.Post;
 
 import java.util.ArrayList;
 
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
+ */
 
 public class SearchActivity extends Activity implements AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
 

@@ -27,17 +27,18 @@ import com.walkntrade.SchoolPage;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
-import com.walkntrade.posts.Post;
+import com.walkntrade.objects.Post;
 import com.walkntrade.views.SnappingHorizontalScrollView;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-/**
+/*
  * Copyright (c) 2014, All Rights Reserved
  * http://walkntrade.com
  */
-public class Fragment_Post extends Fragment {
+
+public class PostFragment extends Fragment {
 
     public static final String TAG = "FRAGMENT:Post";
     public static String IMGSRC = "Link_For_Images";

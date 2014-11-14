@@ -1,8 +1,10 @@
-package com.walkntrade;
+package com.walkntrade.objects;
 
-/**
- * Created by Nate on 10/25/2014.
+/*
+ * Copyright (c) 2014. All Rights Reserved. Walkntrade
+ * https://walkntrade.com
  */
+
 public class SchoolObject {
 
     private String fullName, shortName;
