@@ -130,7 +130,7 @@ public class Selector extends Activity implements OnItemClickListener {
 
         DataParser database = new DataParser(context);
         database.setSharedStringPreference(DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG, schoolName);
-        database.setSharedStringPreference(DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT, schoolId);
+        database.setSharedStringPreference(DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT, "sPref="+schoolId);
 
         Intent schoolPage = new Intent(context, SchoolPage.class);
         startActivity(schoolPage);

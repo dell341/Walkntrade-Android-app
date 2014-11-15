@@ -184,7 +184,7 @@ public class DataParser {
 
         //Short name of school will be used in the cookies
         settings = context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);
-        sPrefCookie = "sPref= " + settings.getString(KEY_SCHOOL_SHORT, "sPref=" + BLANK); //Set sPref cookie in 'sPref=[value]' form or leave value as blank
+        sPrefCookie = settings.getString(KEY_SCHOOL_SHORT, "sPref=" + BLANK); //Set sPref cookie in 'sPref=[value]' form or leave value as blank
     }
 
     //Update all cookies with new values from Cookie Store
@@ -204,7 +204,7 @@ public class DataParser {
                 Log.e(TAG, "Found Extra Cookie: " + cookie.getName());
         }
         settings = context.getSharedPreferences(PREFS_SCHOOL, Context.MODE_PRIVATE);
-        sPrefCookie = "sPref= " + settings.getString(KEY_SCHOOL_SHORT, "sPref=" + BLANK); //Set sPref cookie in 'sPref=[value]' form or leave value as blank
+        sPrefCookie = settings.getString(KEY_SCHOOL_SHORT, "sPref=" + BLANK); //Set sPref cookie in 'sPref=[value]' form or leave value as blank
 
         editor.apply(); //Save changes to the SharedPreferences
     }
@@ -309,6 +309,10 @@ public class DataParser {
     //Gets values stored on device
     public static String getSharedStringPreference(Context _context, String preferenceName, String key) {
         SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
+
+        if(key.equals(KEY_SCHOOL_SHORT))
+            return settings.getString(KEY_SCHOOL_SHORT, null).split("=")[1]; //sPref=[school] is split and the second index [school] is returned
+
         return settings.getString(key, null);
     }
 
