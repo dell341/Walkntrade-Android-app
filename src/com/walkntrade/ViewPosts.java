@@ -91,6 +91,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
             editPost.putExtra(EditPost.POST_ID, obsId);
             editPost.putExtra(EditPost.POST_IDENTIFIER, identifier);
+            editPost.putExtra(EditPost.POST_SCHOOL, item.getSchoolAbbv());
             startActivityForResult(editPost, REQUEST_EDIT_POST);
         }
     }

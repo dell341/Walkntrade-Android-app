@@ -41,7 +41,6 @@ public class AvatarRetrievalTask extends AsyncTask<Void, Void, Bitmap> {
 
             DataParser.StringResult result = database.getAvatarUrl();
             avatarURL = result.getValue();
-            Log.d(TAG, "Avatar: "+avatarURL);
 
             if (avatarURL == null)
                 return null;

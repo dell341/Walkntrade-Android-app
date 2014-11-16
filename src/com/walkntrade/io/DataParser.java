@@ -153,6 +153,35 @@ public class DataParser {
         }
     }
 
+    public class ObjectResult {
+        private int status = 0;
+        private Object object;
+
+        public ObjectResult(int status, Object object) {
+            this.status = status;
+            this.object = object;
+        }
+
+        public void setStatus(int status) {
+            this.status = status;
+        }
+
+        public void setObject(Object object) {
+            this.object = object;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public Object getValue() {
+            if (object == null)
+                throw new NullPointerException("Object is null");
+
+            return object;
+        }
+    }
+
     //First call whenever connecting across the user's network
     private void establishConnection() {
         cookieStore = new BasicCookieStore();
@@ -775,18 +804,19 @@ public class DataParser {
         return serverResponse;
     }
 
-    public int getPostByIdentifier(Post post, String id) throws IOException {
+    public ObjectResult getPostByIdentifier(String id) throws IOException {
         establishConnection();
-        int requestStatus = -100;
+        ObjectResult result = new ObjectResult(-100, null);
 
         try {
             String query = "intent=getPostByIdentifier&" + id + "==";
             HttpEntity entity = new StringEntity(query);
             InputStream inputStream = processRequest(entity);
 
+            Post post;
             JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
             JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
-            requestStatus = jsonObject.getInt(STATUS);
+            int requestStatus = jsonObject.getInt(STATUS);
 
             //Retrieve all post attributes from JSONObject
             for (int i = 0; i < payload.length(); i++) {
@@ -794,26 +824,26 @@ public class DataParser {
                 JSONObject jsonPost = payload.getJSONObject(i);
 
                 String category = jsonPost.getString("category");
-                String obsId = jsonPost.getString("obsId");
-                String identifier = obsId.split(":")[1].toLowerCase(Locale.US); //Identifier only holds the unique generated number for the post. Used in image url
+                String identifier = id.split(":")[1].toLowerCase(Locale.US); //Identifier only holds the unique generated number for the post. Used in image url
                 String title = jsonPost.getString("title");
                 String author = jsonPost.getString("author");
                 String isbn = jsonPost.getString("isbn");
                 String details = jsonPost.getString("details");
                 String user = jsonPost.getString("username");
-                String imgURL = jsonPost.getString("image");
                 String date = jsonPost.getString("date");
                 String price = jsonPost.getString("price");
                 String views = jsonPost.getString("views");
 
                 if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
-                    post = new BookPost(obsId, identifier, title, details, user, imgURL, date, price, views);
+                    post = new BookPost(id, identifier, title, details, user, null, date, price, views);
                 else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
-                    post = new TechPost(obsId, identifier, title, details, user, imgURL, date, price, views);
+                    post = new TechPost(id, identifier, title, details, user, null, date, price, views);
                 else if (category.equalsIgnoreCase(context.getString(R.string.server_category_service)))
-                    post = new ServicePost(obsId, identifier, title, details, user, imgURL, date, price, views);
+                    post = new ServicePost(id, identifier, title, details, user, null, date, price, views);
                 else
-                    post = new MiscPost(obsId, identifier, title, details, user, imgURL, date, price, views);
+                    post = new MiscPost(id, identifier, title, details, user, null, date, price, views);
+
+                result = new ObjectResult(requestStatus, post);
             }
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
@@ -821,7 +851,7 @@ public class DataParser {
             disconnectAll();
         }
 
-        return requestStatus;
+        return result;
     }
 
     public int getUserPosts(ArrayList<ReferencedPost> referencedPosts) throws IOException {
@@ -855,7 +885,7 @@ public class DataParser {
                     int expire = jsonPost.getInt("expire");
                     boolean expired = jsonPost.getBoolean("expired");
 
-                    referencedPosts.add(new ReferencedPost(longName, link, category, title, date, views, expire, expired));
+                    referencedPosts.add(new ReferencedPost(longName, shortName, link, category, title, date, views, expire, expired));
                 }
             }
 

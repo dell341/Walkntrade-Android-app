@@ -8,12 +8,13 @@ package com.walkntrade.objects;
 //Does not hold all post information, so is not a complete Post object.
 //Used in the ViewPost activity
 public class ReferencedPost {
-    private String school, link, category, title, date, views;
+    private String school, schoolAbbv, link, category, title, date, views;
     private int expire;
     private boolean expired;
 
-    public ReferencedPost(String school, String link, String category, String title, String date, String views, int expire, boolean expired) {
+    public ReferencedPost(String school, String schoolAbbv, String link, String category, String title, String date, String views, int expire, boolean expired) {
         this.school = school;
+        this.schoolAbbv = schoolAbbv;
         this.link = link;
         this.category = category;
         this.title = title;
@@ -25,6 +26,10 @@ public class ReferencedPost {
 
     public String getSchool() {
         return school;
+    }
+
+    public String getSchoolAbbv() {
+        return schoolAbbv;
     }
 
     public String getLink(){

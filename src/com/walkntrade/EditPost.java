@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -44,11 +45,14 @@ public class EditPost extends Activity implements View.OnClickListener {
 
     private static final String TAG = "EditPost";
     private static final String SAVED_CURRENT_PATH = "saved_instance_current_path";
+    private static final String SAVED_CURRENT_SCHOOLID = "saved_instance_current_school";
+    private static final String SAVED_CURRENT_INDEX = "saved_instance_current_index";
     private static final String SAVED_IMAGE_PATHS = "saved_instance_image_paths";
     private static final String SAVED_IMAGE_URIS = "saved_instance_image_uri";
     public static final String POST_OBJECT = "post_object";
     public static final String POST_ID = "post_obs_id";
     public static final String POST_IDENTIFIER = "post_identifier";
+    public static final String POST_SCHOOL = "post_school";
 
     private static final int CAPTURE_IMAGE_ONE = 100;
     private static final int CAPTURE_IMAGE_TWO = 200;
@@ -66,20 +70,23 @@ public class EditPost extends Activity implements View.OnClickListener {
     private ImageView image1, image2, image3, image4;
     private Button submit;
 
-    public int imageCount = 0;
+    private String schoolId; //School id might change for each post being edited
+    public int originalImageCount = 0;
+    private int imageIndex = -1; //Index of current image that is being edited
     private String selectedCategory;
     private String currentPhotoPath;
-    private Uri[] uriStreams = new Uri[4];
-    private String[] photoPaths = new String[4];
+    private Uri[] uriStreams = new Uri[4]; //Uri (addresses) for images located on device or cloud storage
+    private String[] photoPaths = new String[4]; //File paths for pictures taken with camera, or located on device
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.edit_post);
+        setContentView(R.layout.activity_edit_post);
 
         Post thisPost = getIntent().getParcelableExtra(POST_OBJECT);
         obsId = getIntent().getStringExtra(POST_ID);
         identifier = getIntent().getStringExtra(POST_IDENTIFIER);
+        schoolId = getIntent().getStringExtra(POST_SCHOOL);
 
         context = getApplicationContext();
         progress1 = (ProgressBar) findViewById(R.id.progressBar1);
@@ -104,9 +111,20 @@ public class EditPost extends Activity implements View.OnClickListener {
         image4.getLayoutParams().width = (int) (displayMetrics.widthPixels * .50);
 
         if (savedInstanceState != null) {
+            image1.setImageResource(R.drawable.ic_action_new_picture);
+            image2.setImageResource(R.drawable.ic_action_new_picture);
+            image3.setImageResource(R.drawable.ic_action_new_picture);
+            image4.setImageResource(R.drawable.ic_action_new_picture);
+
+            schoolId = savedInstanceState.getString(SAVED_CURRENT_SCHOOLID);
+            imageIndex = savedInstanceState.getInt(SAVED_CURRENT_INDEX);
             currentPhotoPath = savedInstanceState.getString(SAVED_CURRENT_PATH);
             photoPaths = savedInstanceState.getStringArray(SAVED_IMAGE_PATHS);
-            uriStreams = (Uri[]) savedInstanceState.getParcelableArray(SAVED_IMAGE_URIS);
+            Parcelable[] parcelables = savedInstanceState.getParcelableArray(SAVED_IMAGE_URIS);
+            for (int i = 0; i < parcelables.length; i++) { //Each item has to be cast individually. It cannot be guaranteed that every Parcelable item is also a Uri item. [Prevents ClassCastException]
+                if (parcelables[i] != null)
+                    uriStreams[i] = (Uri) parcelables[i];
+            }
 
             int width = image1.getLayoutParams().width;
             int height = image1.getLayoutParams().height;
@@ -117,20 +135,11 @@ public class EditPost extends Activity implements View.OnClickListener {
                 if (photoPath != null) {
                     Bitmap bm = ImageTool.getImageFromDevice(photoPaths[index], width, height);
                     switch (index) {
-                        case 0:
-                            image1.setImageBitmap(bm);
-                            break;
-                        case 1:
-                            image2.setImageBitmap(bm);
-                            break;
-                        case 2:
-                            image3.setImageBitmap(bm);
-                            break;
-                        case 3:
-                            image4.setImageBitmap(bm);
-                            break;
-                        default:
-                            break;
+                        case 0: image1.setImageBitmap(bm); break;
+                        case 1: image2.setImageBitmap(bm); break;
+                        case 2: image3.setImageBitmap(bm); break;
+                        case 3: image4.setImageBitmap(bm); break;
+                        default: break;
                     }
                 }
                 index++;
@@ -143,20 +152,11 @@ public class EditPost extends Activity implements View.OnClickListener {
                     try {
                         Bitmap bm = ImageTool.getImageFromDevice(context, uri, width, height);
                         switch (index) {
-                            case 0:
-                                image1.setImageBitmap(bm);
-                                break;
-                            case 1:
-                                image2.setImageBitmap(bm);
-                                break;
-                            case 2:
-                                image3.setImageBitmap(bm);
-                                break;
-                            case 3:
-                                image4.setImageBitmap(bm);
-                                break;
-                            default:
-                                break;
+                            case 0: image1.setImageBitmap(bm); break;
+                            case 1: image2.setImageBitmap(bm); break;
+                            case 2: image3.setImageBitmap(bm); break;
+                            case 3: image4.setImageBitmap(bm); break;
+                            default: break;
                         }
                     } catch (FileNotFoundException e) {
                         Log.e(TAG, "File not found", e);
@@ -164,8 +164,20 @@ public class EditPost extends Activity implements View.OnClickListener {
                 }
                 index++;
             }
+
+            //Get original images if their position was not replaced
+            if (photoPaths[0] == null && uriStreams[0] == null && imageIndex != 0)
+                new SpecialImageRetrievalTask(image1, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, generateImgURL(0));
+            if (photoPaths[1] == null && uriStreams[1] == null && imageIndex != 1)
+                new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, generateImgURL(1));
+            if (photoPaths[2] == null && uriStreams[2] == null && imageIndex != 2)
+                new SpecialImageRetrievalTask(image3, 2).execute(generateImgURL(2));
+            if (photoPaths[3] == null && uriStreams[3] == null && imageIndex != 3)
+                new SpecialImageRetrievalTask(image4, 3).execute(generateImgURL(3));
+
         } else {
             if (thisPost != null) { //If post object was sent from the ShowPage
+                schoolId = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
                 identifier = thisPost.getIdentifier();
                 title.setText(thisPost.getTitle());
                 details.setText(thisPost.getDetails());
@@ -173,7 +185,6 @@ public class EditPost extends Activity implements View.OnClickListener {
                 if (!thisPost.getPrice().equals("0"))
                     price.setText(thisPost.getPrice());
 
-                submit.setEnabled(true);
             } else //Get post from the id
                 new LaunchPostTask().execute(obsId);
 
@@ -181,16 +192,18 @@ public class EditPost extends Activity implements View.OnClickListener {
             //First Image
             String imgUrl = generateImgURL(0);
             new SpecialImageRetrievalTask(image1, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+
             //Second Image
             imgUrl = generateImgURL(1);
             new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+
             //Third Image
             imgUrl = generateImgURL(2);
             new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
+
             //Fourth Image
             imgUrl = generateImgURL(3);
             new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
-
         }
 
         image1.setOnClickListener(this);
@@ -249,9 +262,18 @@ public class EditPost extends Activity implements View.OnClickListener {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        outState.putString(SAVED_CURRENT_SCHOOLID, schoolId);
         outState.putString(SAVED_CURRENT_PATH, currentPhotoPath);
+        outState.putInt(SAVED_CURRENT_INDEX, imageIndex);
         outState.putStringArray(SAVED_IMAGE_PATHS, photoPaths);
         outState.putParcelableArray(SAVED_IMAGE_URIS, uriStreams);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        uriStreams = null;
+        photoPaths = null;
     }
 
     @Override
@@ -263,22 +285,22 @@ public class EditPost extends Activity implements View.OnClickListener {
         switch (currentView.getId()) {
             case R.id.postImage1:
                 index = 0;
-                if (uriStreams[index] != null || photoPaths[index] != null || imageCount > 0)
+                if (uriStreams[index] != null || photoPaths[index] != null)
                     viewHasImage = true;
                 break;
             case R.id.postImage2:
                 index = 1;
-                if (uriStreams[index] != null || photoPaths[index] != null || imageCount > 1)
+                if (uriStreams[index] != null || photoPaths[index] != null)
                     viewHasImage = true;
                 break;
             case R.id.postImage3:
                 index = 2;
-                if (uriStreams[index] != null || photoPaths[index] != null || imageCount > 3)
+                if (uriStreams[index] != null || photoPaths[index] != null)
                     viewHasImage = true;
                 break;
             case R.id.postImage4:
                 index = 3;
-                if (uriStreams[index] != null || photoPaths[index] != null || imageCount > 1)
+                if (uriStreams[index] != null || photoPaths[index] != null)
                     viewHasImage = true;
                 break;
         }
@@ -301,8 +323,8 @@ public class EditPost extends Activity implements View.OnClickListener {
                             dialogInterface.dismiss();
                             break;
                         case 2: //Remove photo
-                            dialogInterface.dismiss();
                             removeImage(currentView);
+                            dialogInterface.dismiss();
                             break;
                     }
                 }
@@ -342,15 +364,19 @@ public class EditPost extends Activity implements View.OnClickListener {
             switch (currentView.getId()) {
                 case R.id.postImage1:
                     startActivityForResult(cameraIntent, CAPTURE_IMAGE_ONE);
+                    imageIndex = 0;
                     break;
                 case R.id.postImage2:
                     startActivityForResult(cameraIntent, CAPTURE_IMAGE_TWO);
+                    imageIndex = 1;
                     break;
                 case R.id.postImage3:
                     startActivityForResult(cameraIntent, CAPTURE_IMAGE_THREE);
+                    imageIndex = 2;
                     break;
                 case R.id.postImage4:
                     startActivityForResult(cameraIntent, CAPTURE_IMAGE_FOUR);
+                    imageIndex = 3;
                     break;
             }
         }
@@ -364,15 +390,19 @@ public class EditPost extends Activity implements View.OnClickListener {
         switch (currentView.getId()) {
             case R.id.postImage1:
                 startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_ONE);
+                imageIndex = 0;
                 break;
             case R.id.postImage2:
                 startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_TWO);
+                imageIndex = 1;
                 break;
             case R.id.postImage3:
                 startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_THREE);
+                imageIndex = 2;
                 break;
             case R.id.postImage4:
                 startActivityForResult(galleryPhotoIntent, GALLERY_IMAGE_FOUR);
+                imageIndex = 3;
                 break;
         }
     }
@@ -476,11 +506,12 @@ public class EditPost extends Activity implements View.OnClickListener {
                 imageView.setImageBitmap(ImageTool.getImageFromDevice(currentPhotoPath, width, height));
             }
         }
+
+        imageIndex = -1;
     }
 
     private String generateImgURL(int index) {
-        String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
-        String imgUrl = "post_images/" + schoolID + "/";
+        String imgUrl = "post_images/" + schoolId + "/";
         imgUrl = imgUrl + identifier + "-" + index + ".jpeg";
 
         return imgUrl;
@@ -526,7 +557,9 @@ public class EditPost extends Activity implements View.OnClickListener {
             int serverResponse = -100;
 
             try {
-                serverResponse = database.getPostByIdentifier(post, obsId[0]);
+                DataParser.ObjectResult result = database.getPostByIdentifier(obsId[0]);
+                serverResponse = result.getStatus();
+                post = (Post) result.getValue();
             } catch (Exception e) {
                 Log.e(TAG, "Retrieving post by identifier", e);
             }
@@ -544,13 +577,11 @@ public class EditPost extends Activity implements View.OnClickListener {
             if (!post.getPrice().equals("0"))
                 price.setText(post.getPrice());
 
-            submit.setEnabled(true);
         }
     }
 
     //TODO: In the future receive amount of images belonging to current post. Then use that to predict amount of image urls to generate. Then delete this class
     public class SpecialImageRetrievalTask extends AsyncTask<String, Void, Bitmap> {
-        private final String TAG = "ASYNCTASK:SPECIALImageRetrieval";
         private ImageView imgView;
         private int index;
         private DiskLruImageCache imageCache;
@@ -582,10 +613,9 @@ public class EditPost extends Activity implements View.OnClickListener {
         protected Bitmap doInBackground(String... imgURL) {
             Bitmap bm = null;
             try {
-                String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
                 String key = identifier + "_" + index;
 
-                imageCache = new DiskLruImageCache(context, schoolID + DiskLruImageCache.DIRECTORY_POST_IMAGES);
+                imageCache = new DiskLruImageCache(context, schoolId + DiskLruImageCache.DIRECTORY_POST_IMAGES);
 
                 int width;
                 int height;
@@ -612,7 +642,7 @@ public class EditPost extends Activity implements View.OnClickListener {
         protected void onPostExecute(Bitmap bitmap) {
             if (bitmap != null) {
                 imgView.setImageBitmap(bitmap);
-                imageCount++;
+                originalImageCount++;
             } else
                 imgView.setImageResource(R.drawable.ic_action_new_picture);
 
@@ -652,32 +682,33 @@ public class EditPost extends Activity implements View.OnClickListener {
             try {
                 //Add any images with photo paths. Pictures taken with the device's camera
                 for (int i = 0; i < photoPaths.length; i++) {
-                    if (photoPaths[i] != null && !photoPaths[i].isEmpty())
+                    if (photoPaths[i] != null && !photoPaths[i].isEmpty()) {
                         switch (i) {
                             case 0:
                                 responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoPaths[i], currentPhotoIndex++);
                                 break;
                             case 1:
-                                if (imageCount > 0) {
+                                if (originalImageCount > 0) {
                                     responses[1] = database.uploadPostImage(identifier, photoPaths[i], 1);
                                     currentPhotoIndex = 2;
                                 } else
                                     responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoPaths[i], currentPhotoIndex++);
                                 break;
                             case 2:
-                                if (imageCount > 1) {
+                                if (originalImageCount > 1) {
                                     responses[2] = database.uploadPostImage(identifier, photoPaths[i], 2);
                                     currentPhotoIndex = 3;
                                 } else
                                     responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoPaths[i], currentPhotoIndex++);
                                 break;
                             case 3:
-                                if (imageCount > 2)
+                                if (originalImageCount > 2)
                                     responses[3] = database.uploadPostImage(identifier, photoPaths[i], 3);
                                 else
                                     responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoPaths[i], currentPhotoIndex++);
                                 break;
                         }
+                    }
                 }
                 //Add any images from input streams. Existing images from device
                 for (int i = 0; i < uriStreams.length; i++) {
@@ -688,21 +719,21 @@ public class EditPost extends Activity implements View.OnClickListener {
                                 responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream, currentPhotoIndex++);
                                 break;
                             case 1:
-                                if (imageCount > 0) {
+                                if (originalImageCount > 0) {
                                     responses[1] = database.uploadPostImage(identifier, photoStream, 1);
                                     currentPhotoIndex = 2;
                                 } else
-                                    responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream,currentPhotoIndex++);
+                                    responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream, currentPhotoIndex++);
                                 break;
                             case 2:
-                                if (imageCount > 1) {
+                                if (originalImageCount > 1) {
                                     responses[2] = database.uploadPostImage(identifier, photoStream, 2);
                                     currentPhotoIndex = 3;
                                 } else
                                     responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream, currentPhotoIndex++);
                                 break;
                             case 3:
-                                if (imageCount > 2) {
+                                if (originalImageCount > 2) {
                                     responses[3] = database.uploadPostImage(identifier, photoStream, 3);
                                 } else
                                     responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream, currentPhotoIndex++);

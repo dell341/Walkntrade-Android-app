@@ -59,7 +59,8 @@
                         android:background="@drawable/dashed_border_selectable"
                         android:clickable="true"
                         android:contentDescription="@string/post_image"
-                        android:scaleType="centerInside"/>
+                        android:padding="3dp"
+                        android:scaleType="centerInside" />
 
                     <ProgressBar
                         android:id="@+id/progressBar1"
@@ -86,7 +87,8 @@
                         android:background="@drawable/dashed_border_selectable"
                         android:clickable="true"
                         android:contentDescription="@string/post_image"
-                        android:scaleType="centerInside"/>
+                        android:padding="3dp"
+                        android:scaleType="centerInside" />
 
                     <ProgressBar
                         android:id="@+id/progressBar2"
@@ -120,7 +122,8 @@
                         android:background="@drawable/dashed_border_selectable"
                         android:clickable="true"
                         android:contentDescription="@string/post_image"
-                        android:scaleType="centerInside"/>
+                        android:padding="3dp"
+                        android:scaleType="centerInside" />
 
                     <ProgressBar
                         android:id="@+id/progressBar3"
@@ -146,7 +149,8 @@
                         android:background="@drawable/dashed_border_selectable"
                         android:clickable="true"
                         android:contentDescription="@string/post_image"
-                        android:scaleType="centerInside"/>
+                        android:padding="3dp"
+                        android:scaleType="centerInside" />
 
                     <ProgressBar
                         android:id="@+id/progressBar4"
@@ -214,7 +218,6 @@
                 android:id="@+id/button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:enabled="false"
                 android:text="@string/save_changes" />
         </LinearLayout>
 
