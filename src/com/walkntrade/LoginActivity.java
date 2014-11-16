@@ -139,7 +139,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.privacy_feedback, menu);
+        getMenuInflater().inflate(R.menu.feedback, menu);
         return true;
     }
 

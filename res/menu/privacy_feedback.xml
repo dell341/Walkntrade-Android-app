@@ -1,7 +1,0 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item android:id="@+id/action_privacy_feedback"
-        android:title="@string/privacy_and_feedback"
-        android:titleCondensed="@string/privacy_and_feedback_short"
-        android:orderInCategory="100"/>
-</menu>

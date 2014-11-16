@@ -146,7 +146,7 @@ public class ShowPage extends Activity implements PostFragment.ContactUserListen
             case R.id.action_sign_out:
                 signOut();
                 return true;
-            case R.id.action_privacy_feedback:
+            case R.id.action_feedback:
                 startActivity(new Intent(this, Privacy_Feedback.class));
                 return true;
             default: return super.onOptionsItemSelected(item);

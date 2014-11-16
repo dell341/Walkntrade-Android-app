@@ -42,7 +42,7 @@ public class UserSettings extends Activity implements AdapterView.OnItemClickLis
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.privacy_feedback, menu);
+        getMenuInflater().inflate(R.menu.feedback, menu);
         return true;
     }
 
@@ -54,7 +54,7 @@ public class UserSettings extends Activity implements AdapterView.OnItemClickLis
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
                 NavUtils.navigateUpTo(this, upIntent);
                 return true;
-            case R.id.action_privacy_feedback:
+            case R.id.action_feedback:
                 startActivity(new Intent(this, Privacy_Feedback.class));
                 return true;
             default:
