@@ -267,27 +267,28 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
         }
     }
 
-    private class RenewPostTask extends AsyncTask<String, Void, Void> {
+    private class RenewPostTask extends AsyncTask<String, Void, String> {
         @Override
         protected void onPreExecute() {
             progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
-        protected Void doInBackground(String... obsId) {
+        protected String doInBackground(String... obsId) {
             DataParser database = new DataParser(context);
+            String response = null;
 
             try {
-                database.renewPost(obsId[0]);
+                response = database.renewPost(obsId[0]);
             } catch(IOException e) {
                 Log.e(TAG, "Renewing post", e);
             }
 
-            return null;
+            return response;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
+        protected void onPostExecute(String response) {
             //Repopulate with updated info
             new UserPostsTask().execute();
         }

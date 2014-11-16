@@ -901,7 +901,7 @@ public class DataParser {
     public String renewPost(String obsId) throws IOException {
         establishConnection();
 
-        String query = "intent=renewPost&" + obsId;
+        String query = "intent=renewPost&" + obsId+"==";
         String serverResponse = null;
 
         try {
