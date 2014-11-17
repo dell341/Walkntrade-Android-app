@@ -126,7 +126,7 @@ public class DrawerAdapter extends BaseExpandableListAdapter {
             TextView header = (TextView) drawerItemView.findViewById(R.id.drawer_header);
             ImageView expander = (ImageView) drawerItemView.findViewById(R.id.drawer_expand);
 
-            drawerItemView.setBackgroundResource(R.drawable.list_selector);
+            drawerItemView.setBackgroundResource(R.drawable.list_selector_0);
             expander.setImageResource(item.getExpandResource());
             header.setText(item.getTitle());
 
@@ -157,7 +157,7 @@ public class DrawerAdapter extends BaseExpandableListAdapter {
                     counter.setVisibility(View.GONE);
             }
 
-            drawerItemView.setBackgroundResource(R.drawable.list_selector);
+            drawerItemView.setBackgroundResource(R.drawable.list_selector_0);
             icon.setImageResource(item.getIconResource());
             content.setText(item.getTitle());
         }

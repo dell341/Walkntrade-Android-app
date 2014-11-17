@@ -3,6 +3,7 @@ package com.walkntrade;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -16,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -178,16 +180,12 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
             else { //Item is a post, so use view post item layout
                 postItemView = inflater.inflate(R.layout.item_post_content, parent, false);
 
+                ImageView renewPost = (ImageView) postItemView.findViewById(R.id.renew_post);
                 TextView postTitle = (TextView) postItemView.findViewById(R.id.view_post_title);
-                TextView renewPost = (TextView) postItemView.findViewById(R.id.renew_post);
 
-                if(item.isExpired()) {
-                    postItemView.setBackgroundColor(getContext().getResources().getColor(R.color.lighter_red));
+                if(item.isExpired() || item.getExpire() > -1) {
                     renewPost.setVisibility(View.VISIBLE);
-                }
-                else if(item.getExpire() > -1) {
-                    postItemView.setBackgroundColor(getContext().getResources().getColor(R.color.yellow));
-                    renewPost.setVisibility(View.VISIBLE);
+                    postTitle.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
                 }
 
                 postTitle.setText(item.getContents());

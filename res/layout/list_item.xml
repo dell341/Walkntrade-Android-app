@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2014. All Rights Reserved. Walkntrade
+  ~ https://walkntrade.com
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@drawable/list_selector_1">
+
+    <TextView
+        android:id="@+id/text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textSize="18sp"
+        android:padding="10dp"
+        android:textColor="@color/black" />
+
+</LinearLayout>

@@ -12,7 +12,9 @@
 
     <color name="walkntrade_green">#78BE19</color>
 
-    <color name="opaque_white">#e0fffbf4</color>
+    <color name="opaque_white_0">#e0fffbf4</color>
+    <color name="opaque_white_1">#8CFFFFFF</color>
+    <color name="opaque_white_2">#b4ffffff</color>
     <color name="white">#ffffff</color>
 
     <color name="light_gray">#ffdbdbdb</color>

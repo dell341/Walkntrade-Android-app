@@ -196,17 +196,16 @@ public class Selector extends Activity implements OnItemClickListener {
             super();
 
             schoolObjects = new ArrayList<SchoolObject>();
-            mAdapter = new ArrayAdapter<SchoolObject>(context, android.R.layout.simple_list_item_1) {
+            mAdapter = new ArrayAdapter<SchoolObject>(context, R.layout.list_item) {
+
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     View view = convertView;
 
                     if (convertView == null)
-                        view = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, parent, false);
+                        view = getLayoutInflater().inflate(R.layout.list_item, parent, false);
 
-                    TextView schoolName = (TextView) view.findViewById(android.R.id.text1);
-
-                    schoolName.setTextColor(getResources().getColor(R.color.black));
+                    TextView schoolName = (TextView) view.findViewById(R.id.text_view);
                     schoolName.setText(getItem(position).getFullName());
 
                     return view;

@@ -18,7 +18,7 @@
     <dimen name="login_box_padding">16dp</dimen>
 
     <!-- User Settings -->
-    <dimen name="school_header_size">16sp</dimen>
+    <dimen name="school_header_size">18sp</dimen>
     <dimen name="school_post_size">14sp</dimen>
 
     <!-- School Page posts sizes -->
