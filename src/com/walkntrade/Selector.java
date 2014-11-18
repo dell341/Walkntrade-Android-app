@@ -70,13 +70,13 @@ public class Selector extends Activity implements OnItemClickListener {
             Bitmap bm = savedInstanceState.getParcelable(SAVED_BACKGROUND);
 
             if (bm == null)
-                new DownloadBackgroundTask().execute();
+                new DownloadBackgroundTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             else {
                 background = bm;
                 imageView.setImageBitmap(bm);
             }
         } else
-            new DownloadBackgroundTask().execute();
+            new DownloadBackgroundTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         //Search with a click
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -140,8 +140,10 @@ public class Selector extends Activity implements OnItemClickListener {
     private void search(String query) {
         if (asyncTask.cancel(true) || asyncTask.getStatus() == AsyncTask.Status.FINISHED) { //Attempts run new search by cancelling a running task or if the previous has finished
             asyncTask = new SchoolNameTask();
-            asyncTask.execute(query);
+            asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, query);
         }
+
+//        new SchoolNameTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, query);
     }
 
     private class DownloadBackgroundTask extends AsyncTask<Void, Void, Bitmap> {
@@ -155,6 +157,7 @@ public class Selector extends Activity implements OnItemClickListener {
             Bitmap bm;
             String key = "background_0";
             String url = context.getResources().getString(R.string.background_image_1);
+        //    Log.i(TAG, "Downloading background");
 
             DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
             bm = imageCache.getBitmapFromDiskCache(key);
@@ -178,6 +181,7 @@ public class Selector extends Activity implements OnItemClickListener {
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
 
+        //    Log.i(TAG, "Downloading background complete");
             if (bitmap != null) {
                 background = bitmap;
                 imageView.setImageBitmap(bitmap);
@@ -215,6 +219,7 @@ public class Selector extends Activity implements OnItemClickListener {
 
         @Override
         protected void onPreExecute() {
+        //    Log.d(TAG, "PRE-EXECUTE: Downloading school name: ");
             progressBar.setVisibility(View.VISIBLE);
         }
 
@@ -235,6 +240,7 @@ public class Selector extends Activity implements OnItemClickListener {
         protected void onPostExecute(Integer serverResponse) {
             progressBar.setVisibility(View.GONE);
 
+        //    Log.d(TAG, "Done downloading school name");
             mAdapter.clear();
             if (schoolObjects.size() <= 0)
                 noResults.setVisibility(View.VISIBLE);

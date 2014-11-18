@@ -12,14 +12,14 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
-import com.walkntrade.objects.BookPost;
-import com.walkntrade.objects.MessageObject;
 import com.walkntrade.Messages;
 import com.walkntrade.R;
+import com.walkntrade.objects.BookPost;
+import com.walkntrade.objects.MessageObject;
 import com.walkntrade.objects.MiscPost;
+import com.walkntrade.objects.Post;
 import com.walkntrade.objects.ReferencedPost;
 import com.walkntrade.objects.SchoolObject;
-import com.walkntrade.objects.Post;
 import com.walkntrade.objects.ServicePost;
 import com.walkntrade.objects.TechPost;
 
@@ -36,7 +36,6 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.json.JSONArray;
@@ -195,8 +194,8 @@ public class DataParser {
         httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
         httpPost.setHeader("Cookie", sessionSeedCookie + ";" + sessionUidCookie + ";" + userLoginCookie + ";" + sPrefCookie);
 
-        HttpConnectionParams.setConnectionTimeout(httpClient.getParams(), 10000);
-        HttpConnectionParams.setSoTimeout(httpClient.getParams(), 10000);
+        //HttpConnectionParams.setConnectionTimeout(httpClient.getParams(), 10000);
+        //HttpConnectionParams.setSoTimeout(httpClient.getParams(), 10000);
     }
 
     //Called after communication is complete
@@ -458,6 +457,7 @@ public class DataParser {
         String query = "intent=login&password=" + password + "&email=" + email + "&rememberMe=true";
         String serverResponse = null;
 
+    //    Log.d(TAG, "Logging in");
         try {
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inputStream = processRequest(entity);
@@ -956,6 +956,7 @@ public class DataParser {
         establishConnection();
         int requestStatus = -100;
 
+    //    Log.d(TAG, "Downloading school name: "+search);
         try {
             String query = "intent=getSchools&query=" + search;
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity

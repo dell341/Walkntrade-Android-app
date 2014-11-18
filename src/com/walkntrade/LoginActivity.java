@@ -77,14 +77,14 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
             Bitmap bm = savedInstanceState.getParcelable(SAVED_BACKGROUND);
 
             if(bm == null)
-                new DownloadBackgroundTask().execute();
+                new DownloadBackgroundTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             else {
                 background = bm;
                 imageView.setImageBitmap(bm);
             }
         }
         else
-            new DownloadBackgroundTask().execute();
+            new DownloadBackgroundTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
@@ -133,7 +133,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         String[] userCredentials = {_emailAddress, _password};
 
         if (canLogin() && DataParser.isNetworkAvailable(context))
-            new LoginTask().execute(userCredentials);
+            new LoginTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, userCredentials);
     }
 
     @Override
@@ -223,6 +223,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
         @Override
         protected void onPreExecute() {
+        //    Log.d(TAG, "PRE-EXECUTE - Login");
             refreshLayout.setRefreshing(true);
         }
 
@@ -249,6 +250,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         @Override
         protected void onPostExecute(String response) {
             refreshLayout.setRefreshing(false);
+        //    Log.d(TAG, "Login complete");
 
             if (response.equals(DataParser.LOGIN_SUCCESS)) {
                 loginError.setVisibility(View.GONE);
@@ -340,6 +342,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
             String key = "background_1";
             String url = context.getResources().getString(R.string.background_image_2);
 
+        //    Log.i(TAG, "Downloading background image");
             DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
             bm = imageCache.getBitmapFromDiskCache(key);
 
@@ -363,6 +366,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
 
+        //    Log.i(TAG, "Background image complete");
             if(bitmap != null) {
                 background = bitmap;
                 imageView.setImageBitmap(bitmap);
