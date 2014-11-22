@@ -581,7 +581,7 @@ public class EditPost extends Activity implements View.OnClickListener {
     }
 
     //TODO: In the future receive amount of images belonging to current post. Then use that to predict amount of image urls to generate. Then delete this class
-    public class SpecialImageRetrievalTask extends AsyncTask<String, Void, Bitmap> {
+    private class SpecialImageRetrievalTask extends AsyncTask<String, Void, Bitmap> {
         private ImageView imgView;
         private int index;
         private DiskLruImageCache imageCache;
@@ -664,7 +664,7 @@ public class EditPost extends Activity implements View.OnClickListener {
     }
 
     //Asynchronous Task: Sends images after successfully adding a post
-    public class AddImagesTask extends AsyncTask<Void, String, String[]> {
+    private class AddImagesTask extends AsyncTask<Void, String, String[]> {
 
         private int currentPhotoIndex = 0;
 

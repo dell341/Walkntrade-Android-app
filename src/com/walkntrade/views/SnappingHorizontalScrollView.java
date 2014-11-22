@@ -94,13 +94,11 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
                     index = (index <= items.size() ? ++index : items.size() - 1); //onFling, increment index if current index is not the last item. Else set index to last item
                     int scrollTo = index * width;
                     smoothScrollTo(scrollTo, 0);
-
                     return true;
                 } else if (e2.getX() - e1.getX() > MINIMUM_SWIPE_DISTANCE && Math.abs(velocityX) > MINIMUM_REQUIRED_VELOCITY) { //Swipe from left to right
                     index = (index > 0 ? --index : 0); //onFling, decrement index if current index is not the first item. Else set index to first item
                     int scrollTo = index * width;
                     smoothScrollTo(scrollTo, 0);
-
                     return true;
                 }
 

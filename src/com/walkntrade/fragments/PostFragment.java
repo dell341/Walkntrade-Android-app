@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -62,15 +63,17 @@ public class PostFragment extends Fragment {
     private Button contact;
     private String[] imgURLs;
 
+    private AsyncTask asyncTask1, asyncTask2, asyncTask3, asyncTask4;
     public int imageCount = 0;
     private boolean currentUserPost = false;
+    private boolean twoPane;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_post, container, false);
 
         thisPost = getArguments().getParcelable(SchoolPage.SELECTED_POST);
-        boolean twoPane = getArguments().getBoolean(TWO_PANE);
+        twoPane = getArguments().getBoolean(TWO_PANE);
 
         context = getActivity().getApplicationContext();
         progressImage = (ProgressBar) rootView.findViewById(R.id.progressBar);
@@ -121,16 +124,16 @@ public class PostFragment extends Fragment {
 
         //First Image
         String imgUrl = generateImgURL(0);
-        new SpecialImageRetrievalTask(image, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+        asyncTask1 = new SpecialImageRetrievalTask(image, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
         //Second Image
         imgUrl = generateImgURL(1);
-        new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+        asyncTask2 = new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
         //Third Image
         imgUrl = generateImgURL(2);
-        new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
+        asyncTask3 = new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
         //Fourth Image
         imgUrl = generateImgURL(3);
-        new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
+        asyncTask4 = new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
 
         //Set OnClick Listeners for each image
         image.setOnClickListener(new View.OnClickListener() {
@@ -217,6 +220,16 @@ public class PostFragment extends Fragment {
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+
+        asyncTask1.cancel(true);
+        asyncTask2.cancel(true);
+        asyncTask3.cancel(true);
+        asyncTask4.cancel(true);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 
@@ -261,8 +274,7 @@ public class PostFragment extends Fragment {
     }
 
     //TODO: In the future receive amount of images belonging to current post. Then use that to predict amount of image urls to generate. Then delete this class
-    public class SpecialImageRetrievalTask extends AsyncTask<String, Void, Bitmap>{
-        private final String TAG = "ASYNCTASK:SPECIALImageRetrieval";
+    private class SpecialImageRetrievalTask extends AsyncTask<String, Void, Bitmap>{
         private ImageView imgView;
         private int index;
         private DiskLruImageCache imageCache;
@@ -303,20 +315,49 @@ public class PostFragment extends Fragment {
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {
                 Log.e(TAG, "Image does not exist");
+                return null;
             }
             finally{
                 imageCache.close();
             }
+
+            if(isCancelled())
+                return null;
 
             return bm;
         }
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
+            if(isCancelled())
+                return;
             if(bitmap != null) {
+
                 imgView.setVisibility(View.VISIBLE);
                 imgView.setImageBitmap(bitmap);
                 imageCount++;
+
+                if(imageCount > 1) { //If there are more than 1 images, Adjust the image widths
+
+                    DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+                    RelativeLayout.LayoutParams relativeLayoutParams = (RelativeLayout.LayoutParams) image.getLayoutParams();
+                    LinearLayout.LayoutParams linearLayoutParams = (LinearLayout.LayoutParams) image2.getLayoutParams();
+
+                    if(!twoPane) { //this is not a two-pane view.
+                        relativeLayoutParams.width = (int) (displayMetrics.widthPixels * .95);
+                        linearLayoutParams.width = (int) (displayMetrics.widthPixels * .95);
+                    }
+                    else {
+                        relativeLayoutParams.width = (int) (displayMetrics.widthPixels * .6666667 * .95);
+                        linearLayoutParams.width = (int) (displayMetrics.widthPixels * .6666667 * .95);
+                    }
+
+                    image.setLayoutParams(relativeLayoutParams);
+                    image2.setLayoutParams(linearLayoutParams);
+                    image3.setLayoutParams(linearLayoutParams);
+                    image4.setLayoutParams(linearLayoutParams);
+
+                }
             }
             else if(index == 0) { //If no images exist. Put the default image for the first image.
                 imgView.setImageDrawable(getResources().getDrawable(R.drawable.post_image));

@@ -269,8 +269,9 @@ public class DataParser {
         StringBuilder builder = new StringBuilder();
 
         String line;
-        while ((line = reader.readLine()) != null)
+        while ((line = reader.readLine()) != null) {
             builder.append(line);
+        }
 
         inStream.close();
 
