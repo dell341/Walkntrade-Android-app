@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.StatusCodeParser;
 
 import java.io.IOException;
 
@@ -108,7 +109,7 @@ public class Feedback extends Activity{
         @Override
         protected Integer doInBackground(Void... voids) {
             DataParser database = new DataParser(context);
-            int serverResponse = -100;
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
                 serverResponse = database.sendFeedback("ANDROID USER - "+_email, _message);
@@ -124,10 +125,10 @@ public class Feedback extends Activity{
             progressBar.setVisibility(View.GONE);
             submit.setEnabled(true);
 
-            if(serverResponse == 200)
+            if(serverResponse == StatusCodeParser.STATUS_OK)
                 Toast.makeText(context, getString(R.string.feedback_thanks), Toast.LENGTH_SHORT).show();
             else
-                Toast.makeText(context, getString(R.string.feedback_fail), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, getString(R.string.feedback_fail)+" - "+StatusCodeParser.getStatusString(context, serverResponse), Toast.LENGTH_SHORT).show();
 
             finish();
         }

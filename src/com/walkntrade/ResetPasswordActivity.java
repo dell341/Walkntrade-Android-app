@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.StatusCodeParser;
 
 import java.io.IOException;
 
@@ -61,7 +62,7 @@ public class ResetPasswordActivity extends Activity {
         @Override
         protected Integer doInBackground(String... email) {
             DataParser database = new DataParser(context);
-            int serverResponse = -100;
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
                 serverResponse = database.resetPassword(email[0]);
@@ -77,11 +78,13 @@ public class ResetPasswordActivity extends Activity {
             submit.setEnabled(true);
 
             switch (serverResponse) {
-                case 200:  setResult(Activity.RESULT_OK);
-                    finish(); break;
-                case 404: errorMessage.setText(getString(R.string.user_not_found));
+                case StatusCodeParser.CONNECT_FAILED: errorMessage.setText(getString(R.string.status_connection_failed));
                     errorMessage.setVisibility(View.VISIBLE); break;
-                default: errorMessage.setText(getString(R.string.error_occured));
+                case StatusCodeParser.STATUS_OK:  setResult(Activity.RESULT_OK);
+                    finish(); break;
+                case StatusCodeParser.STATUS_NOT_FOUND: errorMessage.setText(getString(R.string.user_not_found));
+                    errorMessage.setVisibility(View.VISIBLE); break;
+                default: errorMessage.setText(getString(R.string.status_internal_server_error));
                 errorMessage.setVisibility(View.VISIBLE);
             }
         }

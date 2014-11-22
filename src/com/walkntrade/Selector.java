@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
+import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.SchoolObject;
 
 import java.io.IOException;
@@ -49,6 +50,8 @@ public class Selector extends Activity implements OnItemClickListener {
     private Context context;
     private SchoolNameTask asyncTask;
 
+    private ArrayList<SchoolObject> schoolObjects;
+    private ArrayAdapter<SchoolObject> mAdapter;
     private Bitmap background;
 
     @Override
@@ -62,9 +65,6 @@ public class Selector extends Activity implements OnItemClickListener {
         schoolList = (ListView) findViewById(R.id.schoolList);
         editText = (EditText) findViewById(R.id.schoolSearch);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        asyncTask = new SchoolNameTask();
-
-        schoolList.setOnItemClickListener(this);
 
         if (savedInstanceState != null) {
             Bitmap bm = savedInstanceState.getParcelable(SAVED_BACKGROUND);
@@ -78,11 +78,32 @@ public class Selector extends Activity implements OnItemClickListener {
         } else
             new DownloadBackgroundTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
+        schoolObjects = new ArrayList<SchoolObject>();
+        asyncTask = new SchoolNameTask();
+        schoolList.setOnItemClickListener(this);
+        mAdapter = new ArrayAdapter<SchoolObject>(context, R.layout.list_item) {
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = convertView;
+
+                if (convertView == null)
+                    view = getLayoutInflater().inflate(R.layout.list_item, parent, false);
+
+                TextView schoolName = (TextView) view.findViewById(R.id.text_view);
+                schoolName.setText(getItem(position).getFullName());
+
+                return view;
+            }
+        };
+
         //Search with a click
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    mAdapter.clear();
+                    schoolList.setAdapter(mAdapter);
                     String query = editText.getText().toString();
                     search(query);
                 }
@@ -138,11 +159,11 @@ public class Selector extends Activity implements OnItemClickListener {
     }
 
     private void search(String query) {
+        noResults.setVisibility(View.GONE);
         if (asyncTask.cancel(true) || asyncTask.getStatus() == AsyncTask.Status.FINISHED) { //Attempts run new search by cancelling a running task or if the previous has finished
             asyncTask = new SchoolNameTask();
             asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, query);
         }
-
 //        new SchoolNameTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, query);
     }
 
@@ -193,30 +214,6 @@ public class Selector extends Activity implements OnItemClickListener {
     //Asynchronous Task, looks for names of schools based on query
     public class SchoolNameTask extends AsyncTask<String, Void, Integer> {
 
-        ArrayList<SchoolObject> schoolObjects;
-        ArrayAdapter<SchoolObject> mAdapter;
-
-        public SchoolNameTask() {
-            super();
-
-            schoolObjects = new ArrayList<SchoolObject>();
-            mAdapter = new ArrayAdapter<SchoolObject>(context, R.layout.list_item) {
-
-                @Override
-                public View getView(int position, View convertView, ViewGroup parent) {
-                    View view = convertView;
-
-                    if (convertView == null)
-                        view = getLayoutInflater().inflate(R.layout.list_item, parent, false);
-
-                    TextView schoolName = (TextView) view.findViewById(R.id.text_view);
-                    schoolName.setText(getItem(position).getFullName());
-
-                    return view;
-                }
-            };
-        }
-
         @Override
         protected void onPreExecute() {
         //    Log.d(TAG, "PRE-EXECUTE: Downloading school name: ");
@@ -226,10 +223,13 @@ public class Selector extends Activity implements OnItemClickListener {
         @Override
         protected Integer doInBackground(String... schoolName) {
             DataParser database = new DataParser(context);
-            int serverResponse = -100;
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
-                serverResponse = database.getSchools(schoolObjects, schoolName[0]);
+                schoolObjects = new ArrayList<SchoolObject>();
+                DataParser.ObjectResult<ArrayList<SchoolObject>> result = database.getSchools(schoolName[0]);
+                serverResponse = result.getStatus();
+                schoolObjects = result.getValue();
             } catch (IOException e) {
                 Log.e(TAG, "Retrieving school name", e);
             }
@@ -239,14 +239,21 @@ public class Selector extends Activity implements OnItemClickListener {
         @Override
         protected void onPostExecute(Integer serverResponse) {
             progressBar.setVisibility(View.GONE);
-
-        //    Log.d(TAG, "Done downloading school name");
             mAdapter.clear();
-            if (schoolObjects.size() <= 0)
-                noResults.setVisibility(View.VISIBLE);
+
+            if(serverResponse == StatusCodeParser.STATUS_OK) {
+                if (schoolObjects.size() <= 0) {
+                    noResults.setText(context.getString(R.string.no_results));
+                    noResults.setVisibility(View.VISIBLE);
+                }
+                else {
+                    noResults.setVisibility(View.GONE);
+                    mAdapter.addAll(schoolObjects);
+                }
+            }
             else {
-                noResults.setVisibility(View.GONE);
-                mAdapter.addAll(schoolObjects);
+                noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
+                noResults.setVisibility(View.VISIBLE);
             }
 
             schoolList.setAdapter(mAdapter);

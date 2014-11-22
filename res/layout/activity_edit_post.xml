@@ -1,13 +1,23 @@
 <com.walkntrade.views.AnimatedScrollLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scroll_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
     android:scrollbars="none">
-
+<!-- Animated Scroll Layout is used just for aesthetic purposes (Android Studio layout preview)-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/error_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:textColor="#FF0000"
+            android:textSize="14sp"
+            android:visibility="gone" />
 
         <EditText
             android:id="@+id/postTitle"

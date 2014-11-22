@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2014. All Rights Reserved. Walkntrade
+  ~ https://walkntrade.com
+  -->
+
+<resources>
+    <string name="status_connection_failed">Connection failed, please try again.</string>
+    <string name="status_ok">Request Successful</string>
+    <string name="status_not_authorized">Not Authorized</string>
+    <string name="status_not_found">Code 404. Could not be found!</string>
+    <string name="status_request_invalid">Request invalid</string>
+    <string name="status_internal_server_error">An internal server error has occurred</string>
+    <string name="status_profanity">Sorry, we don\'t allow profanity!</string>
+</resources>

@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.walkntrade.adapters.PostAdapter;
 import com.walkntrade.asynctasks.ThumbnailTask;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
 
 import java.util.ArrayList;
@@ -209,12 +210,13 @@ public class SearchActivity extends Activity implements AdapterView.OnItemClickL
         @Override
         protected Integer doInBackground(String... schoolName) {
             DataParser database = new DataParser(context);
-            int serverResponse = -100;
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
                 String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
-                serverResponse = database.getSchoolPosts(posts, schoolID, searchQuery, category, offset, 15);
-                offset += 15;
+                DataParser.ObjectResult<ArrayList<Post>> result = database.getSchoolPosts(schoolID, searchQuery, category, offset, 15);
+                serverResponse = result.getStatus();
+                posts = result.getValue();
             } catch (Exception e) {
                 Log.e(TAG, "Retrieving school post(s)", e);
             }
@@ -226,20 +228,30 @@ public class SearchActivity extends Activity implements AdapterView.OnItemClickL
         protected void onPostExecute(Integer serverResponse) {
             progressBar.setVisibility(View.GONE);
 
-            if (posts.isEmpty()) { //If server returned empty list, don't try to download anymore
-                downloadMore = false;
-                noResults.setVisibility(View.VISIBLE);
+            offset += 15;
+            if(serverResponse == StatusCodeParser.STATUS_OK) {
+                if (posts.isEmpty()) { //If server returned empty list, don't try to download anymore
+                    downloadMore = false;
+                    noResults.setText(context.getString(R.string.no_results));
+                    noResults.setVisibility(View.VISIBLE);
 
-            } else {
-                noResults.setVisibility(View.GONE);
-                postsAdapter.incrementCount(posts);
-                for (Post i : posts)
-                    schoolPosts.add(i);
+                } else {
+                    noResults.setVisibility(View.GONE);
+                    postsAdapter.incrementCount(posts);
+                    for (Post i : posts)
+                        schoolPosts.add(i);
 
+                    postsAdapter.notifyDataSetChanged();
+
+                    for (Post post : posts)
+                        new ThumbnailTask(SearchActivity.this, postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
+                }
+            }
+            else {
+                postsAdapter.clearContents();
                 postsAdapter.notifyDataSetChanged();
-
-                for (Post post : posts)
-                    new ThumbnailTask(SearchActivity.this, postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
+                noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
+                noResults.setVisibility(View.VISIBLE);
             }
         }
     }

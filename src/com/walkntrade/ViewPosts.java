@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import com.walkntrade.adapters.item.ViewPostItem;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.ReferencedPost;
 
 import java.io.IOException;
@@ -226,10 +227,12 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
         @Override
         protected Integer doInBackground(Void... voids) {
             DataParser database = new DataParser(context);
-            int serverResponse = -100;
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
-                serverResponse = database.getUserPosts(userPosts);
+                DataParser.ObjectResult<ArrayList<ReferencedPost>> result = database.getUserPosts();
+                serverResponse = result.getStatus();
+                userPosts = result.getValue();
             }
             catch(Exception e) {
                 Log.e(TAG, "Get user posts", e);
@@ -242,25 +245,33 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
             progressBar.setVisibility(View.GONE);
             listOfPosts.setAdapter(null); //Clears out any previous items
 
-            if (userPosts.isEmpty())
-                noResults.setVisibility(View.VISIBLE);
-            else {
-                noResults.setVisibility(View.GONE);
-                ArrayList<ViewPostItem> items = new ArrayList<ViewPostItem>();
+            if(serverResponse == StatusCodeParser.STATUS_OK) {
+                if (userPosts.isEmpty()) {
+                    noResults.setText(context.getString(R.string.no_results));
+                    noResults.setVisibility(View.VISIBLE);
+                }
+                else {
+                    noResults.setVisibility(View.GONE);
+                    ArrayList<ViewPostItem> items = new ArrayList<ViewPostItem>();
 
-                String currentSchool = "";
+                    String currentSchool = "";
 
-                for (ReferencedPost p : userPosts) {
-                    if(!p.getSchool().equalsIgnoreCase(currentSchool)) { //If this post is a new school, create a new header
-                        currentSchool = p.getSchool();
-                        items.add(new ViewPostItem(p.getSchool()));
+                    for (ReferencedPost p : userPosts) {
+                        if (!p.getSchool().equalsIgnoreCase(currentSchool)) { //If this post is a new school, create a new header
+                            currentSchool = p.getSchool();
+                            items.add(new ViewPostItem(p.getSchool()));
+                        }
+
+                        items.add(new ViewPostItem(p)); //Then continue adding posts
                     }
 
-                    items.add(new ViewPostItem(p)); //Then continue adding posts
+                    adapter = new ViewPostAdapter(context, items);
+                    listOfPosts.setAdapter(adapter);
                 }
-
-                adapter = new ViewPostAdapter(context, items);
-                listOfPosts.setAdapter(adapter);
+            }
+            else {
+                noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
+                noResults.setVisibility(View.VISIBLE);
             }
         }
     }

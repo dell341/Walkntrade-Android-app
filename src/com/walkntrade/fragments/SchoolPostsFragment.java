@@ -29,6 +29,7 @@ import com.walkntrade.ShowPage;
 import com.walkntrade.adapters.PostAdapter;
 import com.walkntrade.asynctasks.ThumbnailTask;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
 
 import java.util.ArrayList;
@@ -198,8 +199,10 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
     public void shouldDownLoadMore(boolean downloadMore) {
         this.downloadMore = downloadMore;
 
-        if (schoolPosts.isEmpty())
+        if (schoolPosts.isEmpty()) {
+            noResults.setText(context.getString(R.string.no_results));
             noResults.setVisibility(View.VISIBLE);
+        }
         else
             noResults.setVisibility(View.GONE);
     }
@@ -209,12 +212,12 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
 
         private final String TAG = "ASYNCTASK:SchoolPosts";
         private ProgressBar progress;
-        ArrayList<Post> newData;
+        ArrayList<Post> newPosts;
 
         public SchoolPostsTask(ProgressBar progress) {
             super();
             this.progress = progress;
-            newData = new ArrayList<Post>();
+            newPosts = new ArrayList<Post>();
         }
 
         @Override
@@ -225,10 +228,12 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         @Override
         protected Integer doInBackground(String... schoolName) {
             DataParser database = new DataParser(context);
-            int serverResponse = -100;
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
             try {
                 String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
-                serverResponse = database.getSchoolPosts(newData, schoolID, searchQuery, category, offset, AMOUNT_OF_POSTS);
+                DataParser.ObjectResult<ArrayList<Post>> result = database.getSchoolPosts(schoolID, searchQuery, category, offset, 15);
+                serverResponse = result.getStatus();
+                newPosts = result.getValue();
             }catch(Exception e) {
                 Log.e(TAG, "Retrieving school post(s)", e);
             }
@@ -243,25 +248,33 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
             offset += 15;
             progress.setVisibility(View.GONE);
 
-            if(newData.isEmpty()) //If server returned empty list, don't try to download anymore from this category
-                shouldDownLoadMore(false);
-            else { //Add new data from the serve to the ArrayList and update the adapter
-                if(shouldClearContents) { //When doing a manual refresh, contents are overwritten not appended
-                    postsAdapter.clearContents();
+            if(serverResponse == StatusCodeParser.STATUS_OK) {
+                if (newPosts.isEmpty()) //If server returned empty list, don't try to download anymore from this category
+                    shouldDownLoadMore(false);
+                else { //Add new data from the serve to the ArrayList and update the adapter
+                    if (shouldClearContents) { //When doing a manual refresh, contents are overwritten not appended
+                        postsAdapter.clearContents();
+                        postsAdapter.notifyDataSetChanged();
+                        shouldClearContents = false;
+                    }
+                    postsAdapter.incrementCount(newPosts);
+                    for (Post i : newPosts)
+                        schoolPosts.add(i);
+
                     postsAdapter.notifyDataSetChanged();
-                    shouldClearContents = false;
+                    for (Post post : newPosts)
+                        new ThumbnailTask(getActivity(), postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
                 }
-                postsAdapter.incrementCount(newData);
-                for (Post i : newData)
-                    schoolPosts.add(i);
-
-                postsAdapter.notifyDataSetChanged();
-                for (Post post : newData)
-                    new ThumbnailTask(getActivity(), postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
-
-                refreshLayout.setEnabled(true);
-                refreshLayout.setRefreshing(false);
             }
+            else {
+                postsAdapter.clearContents();
+                postsAdapter.notifyDataSetChanged();
+                noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
+                noResults.setVisibility(View.VISIBLE);
+            }
+
+            refreshLayout.setEnabled(true);
+            refreshLayout.setRefreshing(false);
         }
     }
 

@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ImageTool;
+import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
 
 import java.io.File;
@@ -66,7 +67,7 @@ public class EditPost extends Activity implements View.OnClickListener {
     private Context context;
     private String obsId, identifier;
     private ProgressBar progress1, progress2, progress3, progress4, saveProgressBar;
-    private TextView title, details, price;
+    private TextView title, details, price, errorMessage;
     private ImageView image1, image2, image3, image4;
     private Button submit;
 
@@ -94,6 +95,7 @@ public class EditPost extends Activity implements View.OnClickListener {
         progress3 = (ProgressBar) findViewById(R.id.progressBar3);
         progress4 = (ProgressBar) findViewById(R.id.progressBar4);
         saveProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        errorMessage = (TextView) findViewById(R.id.error_message);
         title = (TextView) findViewById(R.id.postTitle);
         details = (TextView) findViewById(R.id.postDescr);
         price = (TextView) findViewById(R.id.postPrice);
@@ -432,6 +434,7 @@ public class EditPost extends Activity implements View.OnClickListener {
         }
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
@@ -554,13 +557,17 @@ public class EditPost extends Activity implements View.OnClickListener {
         @Override
         protected Integer doInBackground(String... obsId) {
             DataParser database = new DataParser(context);
-            int serverResponse = -100;
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
-                DataParser.ObjectResult result = database.getPostByIdentifier(obsId[0]);
+                DataParser.ObjectResult<Post> result = database.getPostByIdentifier(obsId[0]);
                 serverResponse = result.getStatus();
-                post = (Post) result.getValue();
-            } catch (Exception e) {
+                post = result.getValue();
+            } catch (NullPointerException e) {
+                Log.e(TAG, "Post does not exist");
+                return StatusCodeParser.STATUS_NOT_FOUND;
+            }
+            catch (IOException e) {
                 Log.e(TAG, "Retrieving post by identifier", e);
             }
 
@@ -570,13 +577,18 @@ public class EditPost extends Activity implements View.OnClickListener {
         @Override
         protected void onPostExecute(Integer serverResponse) {
 
-            getActionBar().setTitle(post.getTitle());
-            title.setText(post.getTitle());
-            details.setText(post.getDetails());
+            if(serverResponse == StatusCodeParser.STATUS_OK) {
+                getActionBar().setTitle(post.getTitle());
+                title.setText(post.getTitle());
+                details.setText(post.getDetails());
 
-            if (!post.getPrice().equals("0"))
-                price.setText(post.getPrice());
-
+                if (!post.getPrice().equals("0"))
+                    price.setText(post.getPrice());
+            }
+            else { //If connection failed or post does not exist, just exit edit post activity.
+                Toast.makeText(context, StatusCodeParser.getStatusString(context, serverResponse), Toast.LENGTH_SHORT).show();
+                finish();
+            }
         }
     }
 
