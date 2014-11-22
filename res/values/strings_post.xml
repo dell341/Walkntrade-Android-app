@@ -73,5 +73,6 @@
     <string name="send_message">Sending Message Confirmation</string>
     <string name="send_message_quest">Do you want to send this message?</string>
 
+    <string name="message_success">Message sent successfully</string>
     <string name="message_failed">Could not send message</string>
 </resources>

@@ -278,6 +278,7 @@ public class DataParser {
         return builder.toString();
     }
 
+    //Used for JSONObjects that just return a String
     private StringResult getIntentResult(String query) throws IOException {
 
         StringResult result = new StringResult(StatusCodeParser.CONNECT_FAILED, null);
@@ -527,7 +528,7 @@ public class DataParser {
     public StringResult getAmountOfNewMessages() throws IOException {
         establishConnection();
 
-        String query = "pollNewWebmail";
+        String query = "intent=pollNewWebmail";
         StringResult result = getIntentResult(query);
 
         //Stores amount of unread messages here
@@ -789,16 +790,21 @@ public class DataParser {
         return serverResponse;
     }
 
-    public String messageUser(String userName, String title, String message) throws IOException {
+    public int messageUser(String userName, String title, String message) throws IOException {
         establishConnection();
 
-        String query = "intent=messageUser&uuid=&userName=" + userName + "&title=" + title + "&message=" + message;
-        String serverResponse = null;
+        int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
         try {
+            String query = "intent=messageUser&uuid=&userName=" + userName + "&title=" + title + "&message=" + message;
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inputStream = processRequest(entity);
-            serverResponse = readInputAsString(inputStream); //Reads message response from server
+
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream)); //Reads message response from server
+            serverResponse = jsonObject.getInt(STATUS);
+
+        } catch(JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
         } finally {
             disconnectAll();
         }

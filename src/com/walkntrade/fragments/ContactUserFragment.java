@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.walkntrade.R;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.StatusCodeParser;
 
 import java.io.IOException;
 
@@ -83,6 +84,7 @@ public class ContactUserFragment extends Fragment {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    messageFeedback.setVisibility(View.INVISIBLE);
                     message = messageContents.getText().toString();
 
                     //Confirms if user wants to send a message
@@ -111,7 +113,7 @@ public class ContactUserFragment extends Fragment {
     }
 
     //Sends message to user
-    private class SendMessageTask extends AsyncTask<Void, Void, String> {
+    private class SendMessageTask extends AsyncTask<Void, Void, Integer> {
         private DataParser database;
 
         @Override
@@ -120,29 +122,31 @@ public class ContactUserFragment extends Fragment {
         }
 
         @Override
-        protected String doInBackground(Void... voids) {
+        protected Integer doInBackground(Void... voids) {
             database = new DataParser(context);
-            String response = context.getString(R.string.message_failed);
+            Integer serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
-                response = database.messageUser(user, subject, message);
+                serverResponse = database.messageUser(user, subject, message);
             } catch (IOException e) {
                 Log.e(TAG, "Messaging user", e);
             }
-            return response;
+            return serverResponse;
         }
 
         @Override
-        protected void onPostExecute(String response) {
+        protected void onPostExecute(Integer response) {
 
-            if(response.equals("success")){
+            if(response == StatusCodeParser.STATUS_OK){
                 messageFeedback.setTextColor(getResources().getColor(R.color.holo_blue));
-                messageFeedback.setText(response);
+                messageFeedback.setText(context.getString(R.string.message_success));
             }
             else {
-                messageFeedback.setText(response);
+                messageFeedback.setTextColor(getResources().getColor(R.color.red));
+                messageFeedback.setText(StatusCodeParser.getStatusString(context, response));
             }
 
+            messageFeedback.setVisibility(View.VISIBLE);
             button.setEnabled(true);
         }
     }

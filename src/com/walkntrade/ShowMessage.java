@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.MessageObject;
 
 import java.io.IOException;
@@ -166,25 +167,28 @@ public class ShowMessage extends Activity {
     }
 
     //Sends message to user
-    private class SendMessageTask extends AsyncTask<String, Void, String> {
+    private class SendMessageTask extends AsyncTask<String, Void, Integer> {
         private DataParser database;
 
         @Override
-        protected String doInBackground(String... message) {
+        protected Integer doInBackground(String... message) {
             database = new DataParser(context);
-            String response = context.getString(R.string.message_failed);
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
-                response = database.messageUser(user.getText().toString(), "RE:" + subject.getText().toString(), message[0]);
+                serverResponse = database.messageUser(user.getText().toString(), "RE:" + subject.getText().toString(), message[0]);
             } catch (IOException e) {
                 Log.e(TAG, "Messaging user", e);
             }
-            return response;
+            return serverResponse;
         }
 
         @Override
-        protected void onPostExecute(String response) {
-            Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+        protected void onPostExecute(Integer response) {
+            if(response == StatusCodeParser.STATUS_OK)
+                Toast.makeText(context, context.getString(R.string.message_success), Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(context, StatusCodeParser.getStatusString(context, response), Toast.LENGTH_SHORT).show();
         }
     }
 }
