@@ -54,6 +54,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
     private SwipeRefreshLayout refreshLayout;
     private PostAdapter postsAdapter;
     private ProgressBar bigProgressBar, progressBar;
+    private SchoolPostsTask schoolPostsTask;
     private Context context;
     private TextView noResults;
     private String searchQuery = ""; //Search query stays the same throughout all fragments
@@ -84,14 +85,13 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
 
         //Recalls data from onSaveState. Prevents network calls for a simple orientation change
         if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
-            if(savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST) != null) {
+            if (savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST) != null) {
                 schoolPosts = savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST);
                 category = savedInstanceState.getString(SAVED_CATEGORY);
                 index = savedInstanceState.getInt(SAVED_INDEX);
                 offset += schoolPosts.size();
             }
-        }
-        else {
+        } else {
             category = args.getString(ARG_CATEGORY);
             index = args.getInt(INDEX);
         }
@@ -189,10 +189,19 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         outState.putInt(SAVED_INDEX, index);
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        if (schoolPostsTask != null)
+            schoolPostsTask.abort(true);
+    }
+
     //Download more posts from the server
     private void downloadMorePosts(ProgressBar progress) {
         noResults.setVisibility(View.GONE);
-        new SchoolPostsTask(progress).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
+        schoolPostsTask = new SchoolPostsTask(progress);
+        schoolPostsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
     }
 
     //Set to false if the server returned an empty list
@@ -202,22 +211,27 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         if (schoolPosts.isEmpty()) {
             noResults.setText(context.getString(R.string.no_results));
             noResults.setVisibility(View.VISIBLE);
-        }
-        else
+        } else
             noResults.setVisibility(View.GONE);
     }
 
     //Asynchronous Task, looks for posts from the specified school
     private class SchoolPostsTask extends AsyncTask<String, Void, Integer> {
 
-        private final String TAG = "ASYNCTASK:SchoolPosts";
         private ProgressBar progress;
+        private DataParser database;
         ArrayList<Post> newPosts;
 
         public SchoolPostsTask(ProgressBar progress) {
             super();
             this.progress = progress;
             newPosts = new ArrayList<Post>();
+            database = new DataParser(context);
+        }
+
+        public boolean abort(boolean mayInterruptIfRunning) {
+            database.abortOperation();
+            return cancel(mayInterruptIfRunning);
         }
 
         @Override
@@ -227,14 +241,17 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
 
         @Override
         protected Integer doInBackground(String... schoolName) {
-            DataParser database = new DataParser(context);
             int serverResponse = StatusCodeParser.CONNECT_FAILED;
+
+            if (isCancelled())
+                return null;
+
             try {
                 String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
-                DataParser.ObjectResult<ArrayList<Post>> result = database.getSchoolPosts(schoolID, searchQuery, category, offset, 15);
+                DataParser.ObjectResult<ArrayList<Post>> result = database.getSchoolPosts(schoolID, searchQuery, category, offset, AMOUNT_OF_POSTS);
                 serverResponse = result.getStatus();
                 newPosts = result.getValue();
-            }catch(Exception e) {
+            } catch (Exception e) {
                 Log.e(TAG, "Retrieving school post(s)", e);
             }
 
@@ -248,7 +265,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
             offset += 15;
             progress.setVisibility(View.GONE);
 
-            if(serverResponse == StatusCodeParser.STATUS_OK) {
+            if (serverResponse == StatusCodeParser.STATUS_OK) {
                 if (newPosts.isEmpty()) //If server returned empty list, don't try to download anymore from this category
                     shouldDownLoadMore(false);
                 else { //Add new data from the serve to the ArrayList and update the adapter
@@ -265,8 +282,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
                     for (Post post : newPosts)
                         new ThumbnailTask(getActivity(), postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
                 }
-            }
-            else {
+            } else {
                 postsAdapter.clearContents();
                 postsAdapter.notifyDataSetChanged();
                 noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));

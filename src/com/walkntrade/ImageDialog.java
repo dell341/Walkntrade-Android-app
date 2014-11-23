@@ -87,6 +87,7 @@ public class ImageDialog extends Activity {
 
     public static class ImageFragment extends Fragment{
         private ImageView imageView;
+        private ImageRetrievalTask imageRetrievalTask;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -103,15 +104,15 @@ public class ImageDialog extends Activity {
                 imageView.setImageBitmap(bitmap);
 
                 if(bitmap == null) {
-                    ImageRetrievalTask task = new ImageRetrievalTask(index, imageView, progressBar);
-                    task.execute(url);
+                    imageRetrievalTask = new ImageRetrievalTask(index, imageView, progressBar);
+                    imageRetrievalTask.execute(url);
                 }
 
             }
             else if(DataParser.isNetworkAvailable(context)) {
                 //Calls single image to be displayed in pop-up
-                ImageRetrievalTask task = new ImageRetrievalTask(index, imageView, progressBar);
-                task.execute(url);
+                imageRetrievalTask = new ImageRetrievalTask(index, imageView, progressBar);
+                imageRetrievalTask.execute(url);
             }
 
             return rootView;
@@ -125,6 +126,12 @@ public class ImageDialog extends Activity {
             } catch (NullPointerException e){
                 Log.e(TAG, "Orientation Change before image downloaded");
             }
+        }
+
+        @Override
+        public void onDetach() {
+            super.onDetach();
+            imageRetrievalTask.cancel(true);
         }
     }
 
@@ -151,6 +158,10 @@ public class ImageDialog extends Activity {
             DiskLruImageCache imageCache = new DiskLruImageCache(context, schoolID+DiskLruImageCache.DIRECTORY_POST_IMAGES);
 
             Bitmap bm = null;
+
+            if(isCancelled())
+                return null;
+
             try {
 
                 String key = identifier+"_"+index;

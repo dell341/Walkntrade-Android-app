@@ -293,6 +293,10 @@ public class PostFragment extends Fragment {
         @Override
         protected Bitmap doInBackground(String... imgURL) {
             Bitmap bm = null;
+
+            if(isCancelled())
+                return null;
+
             try {
                 String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
                 String key = identifier+"_"+index;
@@ -321,16 +325,11 @@ public class PostFragment extends Fragment {
                 imageCache.close();
             }
 
-            if(isCancelled())
-                return null;
-
             return bm;
         }
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            if(isCancelled())
-                return;
             if(bitmap != null) {
 
                 imgView.setVisibility(View.VISIBLE);

@@ -34,6 +34,7 @@ public class ContactUserFragment extends Fragment {
     public static final String TITLE = "title_of_message";
 
     private Context context;
+    private AsyncTask sendMessageTask;
     private TextView messageFeedback;
     private String user, subject, message;
     private EditText messageContents;
@@ -94,7 +95,7 @@ public class ContactUserFragment extends Fragment {
                             .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    new SendMessageTask().execute();
+                                    sendMessageTask = new SendMessageTask().execute();
                                 }
                             })
                             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -112,6 +113,12 @@ public class ContactUserFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        sendMessageTask.cancel(true);
+    }
+
     //Sends message to user
     private class SendMessageTask extends AsyncTask<Void, Void, Integer> {
         private DataParser database;
@@ -125,6 +132,9 @@ public class ContactUserFragment extends Fragment {
         protected Integer doInBackground(Void... voids) {
             database = new DataParser(context);
             Integer serverResponse = StatusCodeParser.CONNECT_FAILED;
+
+            if(isCancelled())
+                return null;
 
             try {
                 serverResponse = database.messageUser(user, subject, message);

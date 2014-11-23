@@ -233,6 +233,7 @@ public class Selector extends Activity implements OnItemClickListener {
             } catch (IOException e) {
                 Log.e(TAG, "Retrieving school name", e);
             }
+
             return serverResponse;
         }
 

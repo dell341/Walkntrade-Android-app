@@ -203,6 +203,12 @@ public class DataParser {
         httpClient.close();
     }
 
+    //Abort current POST operation
+    public void abortOperation() {
+        Log.i(TAG, "Aborting POST operation");
+        httpPost.abort();
+    }
+
     //Get Cookies already stored on device
     private void getCookies() {
         SharedPreferences settings = context.getSharedPreferences(PREFS_COOKIES, Context.MODE_PRIVATE);
@@ -256,6 +262,9 @@ public class DataParser {
 
     //Sends out POST_OBJECT request and returns an InputStream
     private InputStream processRequest(HttpEntity entity) throws IOException {
+        if(httpPost.isAborted())
+            return null;
+
         httpPost.setEntity(entity);
         HttpResponse response = httpClient.execute(httpPost, httpContext); //Executes the request along with the cookie store
 
