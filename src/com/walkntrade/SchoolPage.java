@@ -291,7 +291,7 @@ public class SchoolPage extends Activity {
 
         if(DataParser.isUserLoggedIn(context)){
             //User is signed in
-            items.add(new DrawerItem(0, R.drawable.avatar, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), true)); //User Item
+            items.add(new DrawerItem(0, R.drawable.ic_action_person, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), true)); //User Item
             items.add(new DrawerItem(100, R.drawable.ic_book, getString(R.string.drawer_book))); //Books
             items.add(new DrawerItem(101, R.drawable.ic_tech, getString(R.string.drawer_tech))); //Tech
             items.add(new DrawerItem(102, R.drawable.ic_service, getString(R.string.drawer_service))); //Services
@@ -302,7 +302,7 @@ public class SchoolPage extends Activity {
         }
         else if(!DataParser.isUserLoggedIn(context)){
             //User is signed out
-            items.add(new DrawerItem(0, R.drawable.avatar, getString(R.string.user_name_no_login), true));
+            items.add(new DrawerItem(0, R.drawable.ic_action_person, getString(R.string.user_name_no_login), true));
             items.add(new DrawerItem(400, R.drawable.ic_location, getString(R.string.drawer_change_school))); //Select School
         }
 

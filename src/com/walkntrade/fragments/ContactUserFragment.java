@@ -116,7 +116,9 @@ public class ContactUserFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        sendMessageTask.cancel(true);
+
+        if(sendMessageTask != null && sendMessageTask.getStatus().equals(AsyncTask.Status.RUNNING))
+            sendMessageTask.cancel(true);
     }
 
     //Sends message to user

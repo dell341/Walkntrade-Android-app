@@ -21,26 +21,26 @@ public class DrawerItem {
     private boolean hasCounter = false;
 	
 	//Constructor for user item
-	public DrawerItem(long id, int _iconResource, String _title, boolean isUser) {
+	public DrawerItem(long id, int iconResource, String title, boolean isUser) {
         this.id = id;
-		iconResource = _iconResource;
-		title = _title;
+		this.iconResource = iconResource;
+		this.title = title;
 		isUserItem = true;
 	}
 	
 	//Regular menu item
-	public DrawerItem(long id, int _iconResource, String _title) {
+	public DrawerItem(long id, int iconResource, String title) {
         this.id = id;
-		iconResource = _iconResource;
-		title = _title;
+		this.iconResource = iconResource;
+		this.title = title;
 	}
 
     //Regular menu item with a counter
-    public DrawerItem(long id, int _iconResource, String _title, int _counter) {
+    public DrawerItem(long id, int iconResource, String title, int counter) {
         this.id = id;
-        iconResource = _iconResource;
-        title = _title;
-        counter = _counter;
+        this.iconResource = iconResource;
+        this.title = title;
+        this.counter = counter;
         hasCounter = true;
     }
 

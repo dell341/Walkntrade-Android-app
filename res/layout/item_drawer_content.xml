@@ -38,6 +38,7 @@
         android:background="@drawable/square_counter"
         android:visibility="gone"
         android:textColor="@android:color/white"
+        android:textSize="18sp"
         android:gravity="center"/>
 
     <!-- Divider -->
