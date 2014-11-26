@@ -71,5 +71,6 @@
     <string name="title_activity_messages">Messages</string>
     <string name="title_activity_show_message">Walkntrade Message</string>
     <string name="title_activity_search">SearchActivity</string>
+    <string name="title_activity_message_conversation">MessageConversation</string>
 
 </resources>

@@ -23,7 +23,7 @@
 
 	<!-- Navigation Drawer layout (sidebar menu) -->
 	    
-	    <ExpandableListView android:id="@+id/navigation_drawer_list"
+	    <ListView android:id="@+id/navigation_drawer_list"
 	        android:layout_width="@dimen/navigation_drawer_width"
 	        android:layout_height="match_parent"
 	        android:layout_gravity="start"

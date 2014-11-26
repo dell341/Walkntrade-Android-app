@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:background="@drawable/list_selector_1">
+    android:background="@drawable/list_selector_pressed_0">
 
     <TextView
         android:id="@+id/text_view"

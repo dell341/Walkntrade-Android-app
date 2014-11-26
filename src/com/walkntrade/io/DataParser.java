@@ -12,10 +12,10 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
-import com.walkntrade.Messages;
 import com.walkntrade.R;
 import com.walkntrade.objects.BookPost;
-import com.walkntrade.objects.MessageObject;
+import com.walkntrade.objects.ChatObject;
+import com.walkntrade.objects.MessageThread;
 import com.walkntrade.objects.MiscPost;
 import com.walkntrade.objects.Post;
 import com.walkntrade.objects.ReferencedPost;
@@ -41,9 +41,6 @@ import org.apache.http.protocol.HttpContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -53,9 +50,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 /*
  * Copyright (c) 2014. All Rights Reserved. Walkntrade
@@ -89,6 +83,7 @@ public class DataParser {
     public static final String KEY_USER_NAME = "user_name"; //User-Pref title
     public static final String KEY_USER_PHONE = "phone_number"; //User-Pref title
     public static final String KEY_USER_EMAIL = "user_email"; //User-Pref title
+    public static final String KEY_USER_AVATAR_URL = "user_avatar_url"; //User-pref title
     public static final String KEY_USER_MESSAGES = "user_messages"; //User-Pref title
     public static final String KEY_CURRENTLY_LOGGED_IN = "userLoggedIn"; //User-Pref title
     public static final String KEY_SCHOOL_SHORT = "sPrefShort"; //School Preference title
@@ -114,7 +109,7 @@ public class DataParser {
     private final String USER_AGENT = System.getProperty("http.agent"); //Unique User-Agent of current device
 
     //Initialized here to enable usage within Handler classes
-    private ArrayList<MessageObject> messages;
+    private ArrayList<MessageThread> messages;
 
     private String userLoginCookie, sessionSeedCookie, sessionUidCookie, sPrefCookie;
     private Context context;
@@ -173,7 +168,7 @@ public class DataParser {
             return status;
         }
 
-        public T getValue() {
+        public T getObject() {
             if (object == null)
                 throw new NullPointerException("Object is null");
 
@@ -262,7 +257,7 @@ public class DataParser {
 
     //Sends out POST_OBJECT request and returns an InputStream
     private InputStream processRequest(HttpEntity entity) throws IOException {
-        if(httpPost.isAborted())
+        if (httpPost.isAborted())
             return null;
 
         httpPost.setEntity(entity);
@@ -509,7 +504,11 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=getAvatar";
-        return getIntentResult(query);
+        StringResult result = getIntentResult(query);
+
+        //Stores user's avatar url
+        setSharedStringPreference(PREFS_USER, KEY_USER_AVATAR_URL, result.getValue());
+        return result;
     }
 
     public StringResult getUserPhoneNumber() throws IOException {
@@ -707,66 +706,83 @@ public class DataParser {
         return serverResponse;
     }
 
-    public ArrayList<MessageObject> getMessages(int _messageType) throws Exception {
-        establishConnection();
+    public ObjectResult<ArrayList<MessageThread>> getMessageThreads() throws IOException{
+        ObjectResult<ArrayList<MessageThread>> result = new ObjectResult<ArrayList<MessageThread>>(StatusCodeParser.CONNECT_FAILED, null);
 
         try {
-            messages = new ArrayList<MessageObject>();
-            final int messageType = _messageType;
-            String query;
+            JSONObject jsonObject = new JSONObject("{\"payload\": ["
+                    + "{ \"unique_thread_id\":\"16gd2468dgf\", \"post_identifier\":\"spsu:45923f654b2fds\", \"post_title\":\"Title of what I'm selling\", \"user_image_url\":\"/user_images/uid_1.jpg\", \"last_message\": { \"id\":\"21\", \"user\":\"walkntrade\", \"contents\":\"Ok, see you soon.\", \"datetime\":\"2014-05-20 19:51\", \"read\":\"false\"} }]}");
+//        +"{..}, {..} ] "}
 
-            if (messageType == Messages.RECEIVED_MESSAGES)
-                query = "intent=getWebmail";
-            else
-                query = "intent=getSentWebmail";
+            JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
+            ArrayList<MessageThread> messageThreads = new ArrayList<MessageThread>();
 
-            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-            InputStream inStream = processRequest(entity);
+            for (int i = 0; i < payload.length(); i++) {
+                JSONObject messageThread = payload.getJSONObject(i);
 
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            SAXParser saxParser = factory.newSAXParser();
+                String uniqueThreadId = messageThread.getString("unique_thread_id");
+                String postIdentifier = messageThread.getString("post_identifier");
+                String postTitle = messageThread.getString("post_title");
+                String userImageUrl = messageThread.getString("user_image_url");
 
-            DefaultHandler xmlHandler = new DefaultHandler() {
-                @Override
-                public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-                    String id = "DNE";
-                    String user = "DNE";
-                    String subject = "DNE";
-                    String contents = "DNE";
-                    String date = "DNE";
-                    String read = "DNE";
+                JSONObject lastMessage = messageThread.getJSONObject("last_message");
+                int messageId = lastMessage.getInt("id");
+                String user = lastMessage.getString("user");
+                String contents = lastMessage.getString("contents");
+                String dateTime = lastMessage.getString("datetime");
+                boolean lastMessageRead = lastMessage.getBoolean("read");
 
-                    for (int i = 0; i < attributes.getLength(); i++) {
-                        if (attributes.getLocalName(i).equalsIgnoreCase("id"))
-                            id = attributes.getValue(i);
-                        else if (attributes.getLocalName(i).equalsIgnoreCase("to") && messageType == Messages.SENT_MESSAGES)
-                            user = attributes.getValue(i);
-                        else if (attributes.getLocalName(i).equalsIgnoreCase("from") && messageType == Messages.RECEIVED_MESSAGES)
-                            user = attributes.getValue(i);
-                        else if (attributes.getLocalName(i).equalsIgnoreCase("subject"))
-                            subject = attributes.getValue(i);
-                        else if (attributes.getLocalName(i).equalsIgnoreCase("message"))
-                            contents = attributes.getValue(i);
-                        else if (attributes.getLocalName(i).equalsIgnoreCase("datetime"))
-                            date = attributes.getValue(i);
-                        else if (attributes.getLocalName(i).equalsIgnoreCase("read"))
-                            read = attributes.getValue(i);
-                    }
+                messageThreads.add(new MessageThread(uniqueThreadId, postIdentifier, postTitle, userImageUrl, messageId, user, contents, dateTime, lastMessageRead));
+            }
 
-                    //The last attribute to be initialized is the date, end of message
-                    if (messageType == Messages.RECEIVED_MESSAGES) { //Received messages need the read attribute
-                        if (!read.equals("DNE"))
-                            messages.add(new MessageObject(id, user, subject, contents, date, read));
-                    } else if (!date.equals("DNE")) //Sent messages do not have the read attribute
-                        messages.add(new MessageObject(id, user, subject, contents, date, read));
-                }
-            };
-            saxParser.parse(inStream, xmlHandler);
-        } finally {
-            disconnectAll();
+            result = new ObjectResult<ArrayList<MessageThread>>(StatusCodeParser.STATUS_OK, messageThreads);
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
         }
 
-        return messages;
+        return result;
+    }
+
+    public ObjectResult<ArrayList<ChatObject>> getMessageThread(String uniqueThreadId, int amount) throws IOException{
+        ObjectResult<ArrayList<ChatObject>> result = new ObjectResult<ArrayList<ChatObject>>(StatusCodeParser.CONNECT_FAILED, null);
+        try {
+
+            String username = DataParser.getSharedStringPreference(context, PREFS_USER, KEY_USER_NAME);
+            JSONObject jsonObject = new JSONObject("{\"payload\": ["
+                    + "{\"post_identifier\":\"spsu:45923f654b2fds\", \"user_image_url\":\"/user_images/uid_1.jpg\", \"messages\": [{\"id\":\"18\", \"user\":\"walkntrade\", \"contents\":\"Hey, I just saw your post. I'm interested in buying. How long have you had it?\", \"datetime\":\"2014-05-20 19:51\", \"read\":\"false\"}, " +
+                    "{\"id\":\"19\", \"user\":\""+username+"\", \"contents\":\"Awesome! Well, I've had it for about a year. So it's still in pretty good condition.\", \"datetime\":\"2014-05-20 19:51\", \"read\":\"false\"}," +
+                    "{\"id\":\"20\", \"user\":\"walkntrade\", \"contents\":\"Cool. Would you be available to sell it later on today?\", \"datetime\":\"2014-05-20 19:51\", \"read\":\"false\"}," +
+                    "{\"id\":\"21\", \"user\":\""+username+"\", \"contents\":\"Sure, if you want we can meet at the Atrium at 2pm. I'll be wearing a blue shirt and black jeans.\", \"datetime\":\"2014-05-20 19:51\", \"read\":\"false\"},"+
+                    "{\"id\":\"20\", \"user\":\"walkntrade\", \"contents\":\"Ok, see you soon.\", \"datetime\":\"2014-05-20 19:51\", \"read\":\"false\"}] }]}");
+
+            JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
+            ArrayList<ChatObject> chatObjects = new ArrayList<ChatObject>();
+
+            JSONObject chatThread = payload.getJSONObject(0);
+            JSONArray messages = chatThread.getJSONArray("messages");
+
+            String postIdentifer = chatThread.getString("post_identifier");
+            String userImageUrl = chatThread.getString("user_image_url");
+
+            for(int i=0; i<messages.length(); i++) {
+                JSONObject currentMessage = messages.getJSONObject(i);
+
+                int id = currentMessage.getInt("id");
+                String user = currentMessage.getString("user");
+                String contents = currentMessage.getString("contents");
+                String dateTime = currentMessage.getString("datetime");
+                boolean read = currentMessage.getBoolean("read");
+
+                chatObjects.add(new ChatObject(postIdentifer, userImageUrl, id, user, contents, dateTime, read));
+            }
+
+            result = new ObjectResult<ArrayList<ChatObject>>(StatusCodeParser.STATUS_OK, chatObjects);
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        }
+
+        return result;
     }
 
     //Currently not used to retrieve message, but just mark it as read. Server marks a message as read, when this intent is called.
@@ -812,7 +828,7 @@ public class DataParser {
             JSONObject jsonObject = new JSONObject(readInputAsString(inputStream)); //Reads message response from server
             serverResponse = jsonObject.getInt(STATUS);
 
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
         } finally {
             disconnectAll();

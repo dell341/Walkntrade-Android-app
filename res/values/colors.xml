@@ -20,6 +20,7 @@
     <color name="light_gray">#ffdbdbdb</color>
     <color name="gray">#ffcacaca</color>
     <color name="darker_gray">#aaaaaa</color>
+    <color name="dark_gray_text">#ff717171</color>
     <color name="start_gray">#ffffffff</color>
     <color name="end_gray">#ffbbbbbb</color>
     <color name="black">#000000</color>

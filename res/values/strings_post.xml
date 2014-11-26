@@ -67,7 +67,7 @@
 
     <!-- MessageDialog Strings -->
     <string name="contact_title">Contact User: <b>%1$s</b> </string>
-    <string name="enter_message">Insert message here</string>
+    <string name="enter_message">Enter message here</string>
     <string name="post_message_content_phone">Hi, I would like to find out more about your post, please call me at %1$s or contact me on Walkntrade. Thanks!</string>
     <string name="post_message_content_no_phone">Hi, I would like to find out more about your post, please contact me on Walkntrade. Thanks!</string>
     <string name="send_message">Sending Message Confirmation</string>

@@ -50,7 +50,7 @@ public class AddPost extends Activity implements OnClickListener {
     private static final String SAVED_CURRENT_PATH = "saved_instance_current_path";
     private static final String SAVED_IMAGE_PATHS = "saved_instance_image_paths";
     private static final String SAVED_IMAGE_URIS = "saved_instance_image_uri";
-    public static final String CATEGORY_POSITION = "category_position";
+    public static final String CATEGORY_ID = "category_position";
 
     private static final int CAPTURE_IMAGE_ONE = 100;
     private static final int CAPTURE_IMAGE_TWO = 200;
@@ -80,24 +80,24 @@ public class AddPost extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        int position = getIntent().getIntExtra(AddPost.CATEGORY_POSITION, 2);
+        int categoryId = getIntent().getIntExtra(AddPost.CATEGORY_ID, 100);
         context = getApplicationContext();
         setContentView(R.layout.activity_add_post);
 
-        switch (position) {
-            case 0:
+        switch (categoryId) {
+            case 100:
                 selectedCategory = getString(R.string.server_category_book);
                 getActionBar().setTitle(getString(R.string.add_book));
                 break;
-            case 1:
+            case 101:
                 selectedCategory = getString(R.string.server_category_tech);
                 getActionBar().setTitle(getString(R.string.add_tech));
                 break;
-            case 2:
+            case 102:
                 selectedCategory = getString(R.string.server_category_service);
                 getActionBar().setTitle(getString(R.string.add_service));
                 break;
-            case 3:
+            case 103:
                 selectedCategory = getString(R.string.server_category_misc);
                 getActionBar().setTitle(getString(R.string.add_misc));
                 break;

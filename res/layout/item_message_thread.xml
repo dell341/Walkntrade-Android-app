@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2014. All Rights Reserved. Walkntrade
+  ~ https://walkntrade.com
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp">
+
+    <ImageView
+        android:id="@+id/user_image"
+        android:layout_width="56dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="3dp"
+        android:scaleType="centerInside"
+        android:adjustViewBounds="true"
+        android:src="@drawable/avatar"/>
+
+    <TextView
+        android:id="@+id/message_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/user_image"
+        android:layout_toRightOf="@id/user_image"
+        android:layout_toEndOf="@id/user_image"
+        android:textColor="@color/black"
+        android:textSize="18sp"/>
+
+    <TextView
+        android:id="@+id/message_last"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/message_title"
+        android:layout_toLeftOf="@+id/message_last_date"
+        android:layout_toStartOf="@+id/message_last_date"
+        android:layout_toRightOf="@id/user_image"
+        android:layout_toEndOf="@id/user_image"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:textColor="@color/dark_gray_text"/>
+
+    <TextView
+        android:id="@id/message_last_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/message_title"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:textColor="@color/dark_gray_text"/>
+
+</RelativeLayout>

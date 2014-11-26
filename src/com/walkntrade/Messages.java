@@ -3,47 +3,51 @@ package com.walkntrade;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.walkntrade.adapters.MessageAdapter;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
-import com.walkntrade.objects.MessageObject;
+import com.walkntrade.io.DiskLruImageCache;
+import com.walkntrade.io.StatusCodeParser;
+import com.walkntrade.objects.MessageThread;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /*
  * Copyright (c) 2014. All Rights Reserved. Walkntrade
  * https://walkntrade.com
  */
 
-public class Messages extends Activity implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener{
+public class Messages extends Activity implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "Messages";
-    public static final String MESSAGE_TYPE = "reading_inbox_or_sent";
-    public static final int RECEIVED_MESSAGES = 0;
-    public static final int SENT_MESSAGES = 1;
 
     private Context context;
     private ProgressBar progressBar;
     private SwipeRefreshLayout refreshLayout;
     private TextView noResults;
     private ListView messageList;
-    private int messageType;
+    private MessageThreadAdapter threadAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,13 +64,10 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
-        messageType = getIntent().getIntExtra(MESSAGE_TYPE, 0);
 
-        if(messageType == RECEIVED_MESSAGES)
-            getActionBar().setTitle(getString(R.string.received_messages));
-        else
-            getActionBar().setTitle(getString(R.string.sent_messages));
+        getActionBar().setTitle(getString(R.string.received_messages));
 
+        threadAdapter = new MessageThreadAdapter(context, R.layout.item_message_thread, new ArrayList<MessageThread>());
         new PollMessagesTask(this).execute();
         new GetMessagesTask().execute();
 
@@ -83,7 +84,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
     @Override
     protected void onResume() {
-        if(messageList.getAdapter() != null)
+        if (messageList.getAdapter() != null)
             new GetMessagesTask().execute();
 
         super.onResume();
@@ -112,15 +113,15 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        MessageObject message = (MessageObject)parent.getItemAtPosition(position);
+        MessageThread message = (MessageThread) parent.getItemAtPosition(position);
 
-        Intent showMessageIntent = new Intent(this, ShowMessage.class);
-        showMessageIntent.putExtra(ShowMessage.MESSAGE_OBJECT, message);
-        showMessageIntent.putExtra(MESSAGE_TYPE, messageType);
+        Intent showMessageIntent = new Intent(this, ChatThread.class);
+//        showMessageIntent.putExtra(ShowMessage.MESSAGE_OBJECT, message);
+//        showMessageIntent.putExtra(MESSAGE_TYPE, messageType);
         startActivity(showMessageIntent);
     }
 
-    private class MultiChoiceListener implements AbsListView.MultiChoiceModeListener{
+    private class MultiChoiceListener implements AbsListView.MultiChoiceModeListener {
         ArrayList<String> messageIds = new ArrayList<String>();
         private int count = 0;
 
@@ -132,19 +133,18 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         @Override
         public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean selected) {
-            MessageAdapter adapter = (MessageAdapter) messageList.getAdapter();
-            MessageObject item = adapter.getItem(position);
+            MessageThreadAdapter adapter = (MessageThreadAdapter) messageList.getAdapter();
+            MessageThread item = adapter.getItem(position);
 
-            if(selected) {
-                messageIds.add(item.getId());
+            if (selected) {
+                messageIds.add(item.getUniqueThreadId());
                 count++;
-            }
-            else {
-                messageIds.remove(item.getId());
+            } else {
+                messageIds.remove(item.getUniqueThreadId());
                 count--;
             }
 
-            mode.setTitle(count+" message(s) selected");
+            mode.setTitle(count + " message(s) selected");
         }
 
         @Override
@@ -170,38 +170,142 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         }
     }
 
-    private class GetMessagesTask extends AsyncTask<Void, Void, ArrayList<MessageObject>> {
+    private class MessageThreadAdapter extends ArrayAdapter<MessageThread> {
+        public MessageThreadAdapter(Context context, int resource, List<MessageThread> objects) {
+            super(context, resource, objects);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View messageView;
+
+            if (convertView != null)
+                messageView = convertView;
+            else
+                messageView = inflater.inflate(R.layout.item_message_thread, parent, false);
+
+            MessageThread item = getItem(position);
+
+            ImageView userImage = (ImageView) messageView.findViewById(R.id.user_image);
+            TextView postTitle = (TextView) messageView.findViewById(R.id.message_title);
+            TextView lastMessage = (TextView) messageView.findViewById(R.id.message_last);
+            TextView lastMessageDate = (TextView) messageView.findViewById(R.id.message_last_date);
+
+            if(item.hasImage())
+                userImage.setImageBitmap(item.getUserImage());
+            postTitle.setText(item.getPostTitle());
+            lastMessage.setText(item.getLastContent());
+            lastMessageDate.setText(item.getLastDateTime());
+
+//            if(!item.isLastMessageRead()) {
+//                postTitle.setTypeface(postTitle.getTypeface(), Typeface.BOLD);
+//                lastMessage.setTypeface(lastMessage.getTypeface(), Typeface.BOLD);
+//                lastMessageDate.setTypeface(lastMessageDate.getTypeface(), Typeface.BOLD);
+//            }
+
+            return messageView;
+        }
+    }
+
+    private class GetMessagesTask extends AsyncTask<Void, Void, Integer> {
+
+        private ArrayList<MessageThread> messageThreads;
+
+        public GetMessagesTask() {
+            super();
+            messageThreads = new ArrayList<MessageThread>();
+        }
+
         @Override
         protected void onPreExecute() {
             refreshLayout.setRefreshing(true);
         }
 
         @Override
-        protected ArrayList<MessageObject> doInBackground(Void... params) {
+        protected Integer doInBackground(Void... params) {
             DataParser database = new DataParser(context);
-            ArrayList<MessageObject> messages = new ArrayList<MessageObject>();
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
-                messages = database.getMessages(messageType);
-            } catch (Exception e) {
-                Log.e(TAG, "Get Messages", e);
+                DataParser.ObjectResult<ArrayList<MessageThread>> result = database.getMessageThreads();
+                serverResponse = result.getStatus();
+                messageThreads = result.getObject();
+            } catch (IOException e) {
+                Log.e(TAG, "Get MessageThreads", e);
             }
 
-            return messages;
+            return serverResponse;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<MessageObject> messageObjects) {
+        protected void onPostExecute(Integer serverResponse) {
             progressBar.setVisibility(View.GONE);
-            refreshLayout.setRefreshing(false);
             messageList.setAdapter(null);
+            threadAdapter.clear();
 
-            if(messageObjects.isEmpty())
+            if (messageThreads.isEmpty())
                 noResults.setVisibility(View.VISIBLE);
             else {
                 noResults.setVisibility(View.GONE);
-                messageList.setAdapter(new MessageAdapter(context, messageObjects));
+                threadAdapter.addAll(messageThreads);
+                messageList.setAdapter(threadAdapter);
                 messageList.setOnItemClickListener(Messages.this);
+
+                for(MessageThread m : messageThreads)
+                    new UserAvatarRetrievalTask(m).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m.getUserImageUrl());
+            }
+
+            refreshLayout.setRefreshing(false);
+        }
+    }
+
+    private class UserAvatarRetrievalTask extends AsyncTask<String, Void, Bitmap> {
+
+        private MessageThread messageThread;
+
+        public UserAvatarRetrievalTask(MessageThread messageThread) {
+            super();
+            this.messageThread = messageThread;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... avatarURL) {
+            Bitmap bm = null;
+            DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
+            try {
+                String splitURL[] = avatarURL[0].split("_");
+                String key = splitURL[2]; //The URL will also be used as the key to cache their avatar image
+
+                bm = imageCache.getBitmapFromDiskCache(key.substring(0, 1)); //Try to retrieve image from cache
+
+                if (bm == null) //If it doesn't exists, retrieve image from network
+                    bm = DataParser.loadBitmap(avatarURL[0]);
+
+                imageCache.addBitmapToCache(key.substring(0, 1), bm); //Finally cache bitmap. Will override cache if already exists or write new cache
+            } catch (IOException e) {
+                Log.e(TAG, "Retrieving user avatar", e);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                Log.e(TAG, "Image does not exist", e);
+                //If user has not uploaded an image, leave Bitmap as null
+            } finally {
+                imageCache.close();
+            }
+            return bm;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+
+            if (bitmap != null) {
+                messageThread.setBitmap(bitmap);
+                threadAdapter.notifyDataSetChanged();
             }
         }
     }
@@ -214,14 +318,14 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         @Override
         protected Void doInBackground(ArrayList<String>... messagesToDelete) {
-            DataParser database = new DataParser(context);
-
-            try {
-                for(String s : messagesToDelete[0])
-                    database.removeMessage(s);
-            } catch (IOException e) {
-                Log.e(TAG, "Deleting message(s)", e);
-            }
+//            DataParser database = new DataParser(context);
+//
+//            try {
+//                for(String s : messagesToDelete[0])
+//                    database.removeMessage(s);
+//            } catch (IOException e) {
+//                Log.e(TAG, "Deleting message(s)", e);
+//            }
 
             return null;
         }

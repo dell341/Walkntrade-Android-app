@@ -109,10 +109,10 @@ public class ShowPage extends Activity implements PostFragment.ContactUserListen
             inboxItem.setEnabled(true);
             inboxItem.setVisible(true);
 
-            if(DataParser.getMessagesAmount(context) > 0)
-                inboxItem.setIcon(R.drawable.ic_action_unread);
-            else
-                inboxItem.setIcon(R.drawable.ic_action_email);
+//            if(DataParser.getMessagesAmount(context) > 0)
+//                inboxItem.setIcon(R.drawable.ic_action_unread);
+//            else
+                inboxItem.setIcon(R.drawable.ic_chat_white);
         }
         else if(!DataParser.isUserLoggedIn(context)) {
             //User logged out, disable sign out option
@@ -139,7 +139,6 @@ public class ShowPage extends Activity implements PostFragment.ContactUserListen
             case R.id.action_inbox:
                 if(DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context)) {
                     Intent getMessageIntent = new Intent(this, Messages.class);
-                    getMessageIntent.putExtra(Messages.MESSAGE_TYPE, Messages.RECEIVED_MESSAGES);
                     startActivity(getMessageIntent);
                 }
                 return true;

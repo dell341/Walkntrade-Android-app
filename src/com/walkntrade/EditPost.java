@@ -562,7 +562,7 @@ public class EditPost extends Activity implements View.OnClickListener {
             try {
                 DataParser.ObjectResult<Post> result = database.getPostByIdentifier(obsId[0]);
                 serverResponse = result.getStatus();
-                post = result.getValue();
+                post = result.getObject();
             } catch (NullPointerException e) {
                 Log.e(TAG, "Post does not exist");
                 return StatusCodeParser.STATUS_NOT_FOUND;

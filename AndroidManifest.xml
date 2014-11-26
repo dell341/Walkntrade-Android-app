@@ -204,7 +204,7 @@
         </activity>
         <activity
             android:name="com.walkntrade.EditPost"
-            android:label="@string/title_activity_edit_post_page">
+            android:label="@string/title_activity_edit_post_page" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.ViewPosts" />
@@ -212,6 +212,14 @@
         <activity
             android:name="com.walkntrade.SearchActivity"
             android:label="@string/title_activity_search" >
+        </activity>
+        <activity
+            android:name=".ChatThread"
+            android:label="@string/title_activity_message_conversation"
+            android:windowSoftInputMode="stateHidden|adjustPan">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walkntrade.Messages" />
         </activity>
     </application>
 

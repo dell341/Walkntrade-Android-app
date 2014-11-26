@@ -229,7 +229,7 @@ public class Selector extends Activity implements OnItemClickListener {
                 schoolObjects = new ArrayList<SchoolObject>();
                 DataParser.ObjectResult<ArrayList<SchoolObject>> result = database.getSchools(schoolName[0]);
                 serverResponse = result.getStatus();
-                schoolObjects = result.getValue();
+                schoolObjects = result.getObject();
             } catch (IOException e) {
                 Log.e(TAG, "Retrieving school name", e);
             }

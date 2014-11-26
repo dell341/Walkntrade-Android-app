@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="3dp"
-    android:background="@drawable/list_selector_0">
+    android:background="@drawable/list_selector_activated">
 
     <ImageView
         android:id="@+id/renew_post"
