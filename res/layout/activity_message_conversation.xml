@@ -60,7 +60,7 @@
             android:scaleType="centerInside"
             android:clickable="true"
             android:src="@drawable/ic_send_grey"
-            android:background="@drawable/list_selector_pressed_1"/>
+            android:background="@drawable/list_selector_pressed_2"/>
 
     </RelativeLayout>
 

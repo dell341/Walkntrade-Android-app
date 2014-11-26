@@ -59,6 +59,22 @@ public class ChatThread extends Activity {
 
         chatAdapter = new ChatThreadAdapter(context, R.layout.item_message_thread, new ArrayList<ChatObject>());
         new GetChatThreadTask().execute("k3lrlk23nd2");
+
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String text = newMessage.getText().toString();
+
+                ChatObject chatObject = new ChatObject("jksndkadan", "ihakhskjahsk",99, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), text, "[current time]", false);
+                chatAdapter.add(chatObject);
+                chatAdapter.notifyDataSetChanged();
+                chatList.setSelection(chatAdapter.getCount()-1);
+                newMessage.setText("");
+                ArrayList<ChatObject> c = new ArrayList<ChatObject>();
+                c.add(chatObject);
+                new UserAvatarRetrievalTask(c, true).execute(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL));
+            }
+        });
     }
 
 
