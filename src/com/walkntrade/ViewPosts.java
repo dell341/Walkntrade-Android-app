@@ -1,5 +1,6 @@
 package com.walkntrade;
 
+import android.animation.Animator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -14,9 +15,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -37,7 +41,7 @@ import java.util.Locale;
  * https://walkntrade.com
  */
 
-public class ViewPosts extends Activity implements AdapterView.OnItemClickListener{
+public class ViewPosts extends Activity implements AdapterView.OnItemClickListener {
 
     private static final String TAG = "ViewPost";
     private static final int REQUEST_EDIT_POST = 100;
@@ -48,6 +52,9 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
     private TextView noResults;
     private ListView listOfPosts;
     private ViewPostAdapter adapter;
+    private MultiChoiceListener multiChoiceListener;
+    private boolean actionModeActivated = false;
+    private boolean checkBoxClicked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,11 +66,23 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
         noResults = (TextView) findViewById(R.id.noPosts);
         progressBar = (ProgressBar) findViewById(R.id.progressBarViewPosts);
 
+        multiChoiceListener = new MultiChoiceListener();
         new UserPostsTask().execute();
 
         listOfPosts.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        listOfPosts.setMultiChoiceModeListener(new MultiChoiceListener());
+        listOfPosts.setMultiChoiceModeListener(multiChoiceListener);
         listOfPosts.setOnItemClickListener(this);
+        listOfPosts.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                Log.v(TAG, "Item Selected");
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                Log.v(TAG, "Nothing selected");
+            }
+        });
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -84,7 +103,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         ViewPostItem item = (ViewPostItem) parent.getItemAtPosition(position);
 
-        if(!item.isHeader()) {
+        if (!item.isHeader()) {
             Intent editPost = new Intent(ViewPosts.this, EditPost.class);
 
             String obsId = item.getObsId();
@@ -103,35 +122,77 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_EDIT_POST:
-                if(resultCode == RESULT_REPOPULATE)
+                if (resultCode == RESULT_REPOPULATE)
                     //Repopulate list
-                    new UserPostsTask().execute(); break;
+                    new UserPostsTask().execute();
+                break;
         }
     }
 
-    private class MultiChoiceListener implements AbsListView.MultiChoiceModeListener{
+    private View selectedView;
+
+    private void removeView(final View view, final ViewPostItem item) {
+        ViewPropertyAnimator animator = selectedView.animate();
+        animator.setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+//                Log.v(TAG, "Position of view: "+listOfPosts.getPositionForView(selectedView));
+                adapter.remove(item);
+                adapter.notifyDataSetChanged();
+                selectedView.setAlpha(1);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+            }
+        });
+        animator.setDuration(1000).alpha(0);
+    }
+
+
+    private class MultiChoiceListener implements AbsListView.MultiChoiceModeListener {
         ArrayList<String> listOfPostId = new ArrayList<String>();
         private int count = 0;
+        private boolean checkBoxCounted = false; //Prevents count from being counted twice, when checkBox is checked
+        private ViewPostItem selectedItem;
+        //private View selectedV;
 
         @Override
-        public void onItemCheckedStateChanged(ActionMode actionMode, int position, long id, boolean selected) {
+        public void onItemCheckedStateChanged(ActionMode actionMode, int position, long id, boolean isChecked) {
+            Log.v(TAG, "onItemCheckedStateChanged | count : " + count + " | isChecked : " + isChecked);
             ViewPostAdapter adapter = (ViewPostAdapter) listOfPosts.getAdapter();
             ViewPostItem item = adapter.getItem(position);
 
-            if(selected) {
-                listOfPostId.add(item.getObsId());
-                count++;
-            }
-            else {
-                listOfPostId.remove(item.getObsId());
-                count--;
+            selectedView = item.getItemView();
+            selectedItem = item;
+
+            ((CheckBox) selectedView.findViewById(R.id.checkBox)).setChecked(isChecked);
+            if (!checkBoxCounted || checkBoxClicked) {
+                if (isChecked) {
+                    listOfPostId.add(item.getObsId());
+                    count++;
+                } else {
+                    listOfPostId.remove(item.getObsId());
+                    count--;
+                }
             }
 
-            actionMode.setTitle(count+" post(s) selected");
+            actionMode.setTitle(count + " post(s) selected");
+            checkBoxCounted = !checkBoxCounted;
+            checkBoxClicked = false;
         }
 
         @Override
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            actionModeActivated = true;
             actionMode.getMenuInflater().inflate(R.menu.context_menu_post, menu);
             return true;
         }
@@ -143,9 +204,10 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
         @Override
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-            switch(menuItem.getItemId()){
+            switch (menuItem.getItemId()) {
                 case R.id.action_delete:
-                    new RemovePostTask().execute(listOfPostId);
+                    removeView(selectedView, selectedItem);
+                    //new RemovePostTask().execute(listOfPostId);
                     actionMode.finish(); //Close the Contextual Action Bar
                     return true;
                 default:
@@ -155,6 +217,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
         @Override
         public void onDestroyActionMode(ActionMode actionMode) {
+            actionModeActivated = false;
             count = 0;
         }
     }
@@ -166,29 +229,48 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            View postItemView;
+            final View postItemView;
 
             final ViewPostItem item = getItem(position);
-            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            if (convertView != null)
+                postItemView = convertView;
+            else {
+                LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+                if (item.isHeader())
+                    postItemView = inflater.inflate(R.layout.item_post_school, parent, false);
+                else
+                    postItemView = inflater.inflate(R.layout.item_post_content, parent, false);
+            }
 
             //If item is header, use header layout
-            if(item.isHeader()) {
-                postItemView = inflater.inflate(R.layout.item_post_school, parent, false);
-
+            if (item.isHeader()) {
                 TextView header = (TextView) postItemView.findViewById(R.id.drawer_header);
                 header.setText(item.getContents());
-            }
-            else { //Item is a post, so use view post item layout
-                postItemView = inflater.inflate(R.layout.item_post_content, parent, false);
-
+            } else { //Item is a post, so use view post item layout
                 ImageView renewPost = (ImageView) postItemView.findViewById(R.id.renew_post);
                 TextView postTitle = (TextView) postItemView.findViewById(R.id.view_post_title);
+                CheckBox checkBox = (CheckBox) postItemView.findViewById(R.id.checkBox);
 
-                if(item.isExpired() || item.getExpire() > -1) {
+                if (item.isExpired() || item.getExpire() > -1) {
                     renewPost.setVisibility(View.VISIBLE);
                     postTitle.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
                 }
 
+                item.setItemView(postItemView);
+                final int p = position;
+                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean value) {
+                        Log.v(TAG, "isChecked: " + value + ". Position: " + p);
+
+                        checkBoxClicked = true;
+                        selectedView = postItemView;
+                        listOfPosts.setItemChecked(p, value);
+                        //removeView(null, item);
+                    }
+                });
                 postTitle.setText(item.getContents());
                 renewPost.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -196,6 +278,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
                         new RenewPostTask().execute(item.getObsId());
                     }
                 });
+
             }
 
             return postItemView;
@@ -233,8 +316,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
                 DataParser.ObjectResult<ArrayList<ReferencedPost>> result = database.getUserPosts();
                 serverResponse = result.getStatus();
                 userPosts = result.getValue();
-            }
-            catch(Exception e) {
+            } catch (Exception e) {
                 Log.e(TAG, "Get user posts", e);
             }
             return serverResponse;
@@ -245,12 +327,11 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
             progressBar.setVisibility(View.GONE);
             listOfPosts.setAdapter(null); //Clears out any previous items
 
-            if(serverResponse == StatusCodeParser.STATUS_OK) {
+            if (serverResponse == StatusCodeParser.STATUS_OK) {
                 if (userPosts.isEmpty()) {
                     noResults.setText(context.getString(R.string.no_results));
                     noResults.setVisibility(View.VISIBLE);
-                }
-                else {
+                } else {
                     noResults.setVisibility(View.GONE);
                     ArrayList<ViewPostItem> items = new ArrayList<ViewPostItem>();
 
@@ -259,7 +340,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
                     for (ReferencedPost p : userPosts) {
                         if (!p.getSchool().equalsIgnoreCase(currentSchool)) { //If this post is a new school, create a new header
                             currentSchool = p.getSchool();
-                            items.add(new ViewPostItem(p.getSchool()));
+                            items.add(new ViewPostItem(p.getSchool(), p.getSchoolAbbv()));
                         }
 
                         items.add(new ViewPostItem(p)); //Then continue adding posts
@@ -268,8 +349,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
                     adapter = new ViewPostAdapter(context, items);
                     listOfPosts.setAdapter(adapter);
                 }
-            }
-            else {
+            } else {
                 noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
                 noResults.setVisibility(View.VISIBLE);
             }
@@ -289,7 +369,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
             try {
                 response = database.renewPost(obsId[0]);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 Log.e(TAG, "Renewing post", e);
             }
 
@@ -314,7 +394,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
             DataParser database = new DataParser(context);
 
             try {
-                for(String s : postToDelete[0])
+                for (String s : postToDelete[0])
                     database.removePost(s);
             } catch (IOException e) {
                 Log.e(TAG, "Deleting post(s)", e);

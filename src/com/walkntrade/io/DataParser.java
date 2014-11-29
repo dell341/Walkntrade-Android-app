@@ -204,7 +204,7 @@ public class DataParser {
     }
 
     //Abort current POST operation
-    public void abortOperation() {
+    public synchronized void abortOperation() {
         Log.i(TAG, "Aborting POST operation");
         httpPost.abort();
     }

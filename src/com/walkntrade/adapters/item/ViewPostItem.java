@@ -1,5 +1,7 @@
 package com.walkntrade.adapters.item;
 
+import android.view.View;
+
 import com.walkntrade.objects.ReferencedPost;
 
 /*
@@ -10,20 +12,22 @@ import com.walkntrade.objects.ReferencedPost;
 //Represents items in the listview from the view posts option in user settings
 public class ViewPostItem {
 
-    private String title, obsId, schoolAbbv;
+    private String contents, obsId, schoolAbbv;
     private int expire;
     private boolean expired;
     private boolean isHeader;
+    private View itemView;
 
     //Header item (School)
-    public ViewPostItem(String title) {
-        this.title = title;
+    public ViewPostItem(String school, String schoolAbbv) {
+        contents = school;
+        this.schoolAbbv = schoolAbbv;
         isHeader = true;
     }
 
     //Post Item
     public ViewPostItem(ReferencedPost post){
-        title = post.getTitle();
+        contents = post.getTitle();
         obsId = post.getLink();
         schoolAbbv = post.getSchoolAbbv();
         expire = post.getExpire();
@@ -31,8 +35,17 @@ public class ViewPostItem {
         isHeader = false;
     }
 
+    //View in adapter that holds this object's infomation
+    public void setItemView(View itemView) {
+        this.itemView = itemView;
+    }
+
+    public View getItemView() {
+        return itemView;
+    }
+
     public String getContents() {
-        return title;
+        return contents;
     }
 
     public String getObsId(){

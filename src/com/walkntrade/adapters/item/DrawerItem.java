@@ -19,30 +19,30 @@ public class DrawerItem {
     private boolean hasCounter = false;
 	
 	//Constructor for user item
-	public DrawerItem(int _iconResource, String _title, boolean isUser) {
-		iconResource = _iconResource;
-		title = _title;
+	public DrawerItem(int iconResource, String title, boolean isUser) {
+		this.iconResource = iconResource;
+		this.title = title;
 		isUserItem = true;
 	}
 	
 	//Header item
-	public DrawerItem(String _title, int expandResource) {
-		title = _title;
+	public DrawerItem(String title, int expandResource) {
+		this.title = title;
 		isHeader = true;
         this.expandResource = expandResource;
 	}
 	
 	//Regular menu item
-	public DrawerItem(int _iconResource, String _title) {
-		iconResource = _iconResource;
-		title = _title;
+	public DrawerItem(int iconResource, String title) {
+		this.iconResource = iconResource;
+		this.title = title;
 	}
 
     //Regular menu item with a counter
-    public DrawerItem(int _iconResource, String _title, int _counter) {
-        iconResource = _iconResource;
-        title = _title;
-        counter = _counter;
+    public DrawerItem(int iconResource, String title, int counter) {
+        this.iconResource = iconResource;
+        this.title = title;
+        this.counter = counter;
         hasCounter = true;
     }
 	

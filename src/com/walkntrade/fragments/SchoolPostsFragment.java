@@ -193,7 +193,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
     public void onDetach() {
         super.onDetach();
 
-        if (schoolPostsTask != null)
+        if (schoolPostsTask != null && schoolPostsTask.getStatus().equals(AsyncTask.Status.RUNNING))
             schoolPostsTask.abort(true);
     }
 
@@ -230,7 +230,11 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         }
 
         public boolean abort(boolean mayInterruptIfRunning) {
-            database.abortOperation();
+            new Runnable() {
+                public void run() {
+                    database.abortOperation();
+                }
+            }.run();
             return cancel(mayInterruptIfRunning);
         }
 
