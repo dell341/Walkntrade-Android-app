@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="3dp"
-    android:background="@drawable/list_selector_0">
+    android:background="@drawable/list_selector_2">
 
     <CheckBox
         android:id="@+id/checkBox"
@@ -16,8 +16,8 @@
         android:id="@+id/renew_post"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_marginRight="3dp"
         android:layout_marginEnd="3dp"
         android:visibility="invisible"
@@ -29,10 +29,13 @@
         android:id="@+id/content_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/renew_post"
-        android:layout_toEndOf="@id/renew_post"
+        android:layout_toRightOf="@id/checkBox"
+        android:layout_toEndOf="@id/checkBox"
+        android:layout_toLeftOf="@id/renew_post"
+        android:layout_toStartOf="@id/renew_post"
         android:layout_centerVertical="true"
         android:maxLines="1"
+        android:ellipsize="end"
         android:focusable="false"
         android:clickable="false"
         android:textSize="@dimen/school_post_size"

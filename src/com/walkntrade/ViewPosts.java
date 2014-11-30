@@ -34,7 +34,6 @@ import com.walkntrade.objects.ReferencedPost;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 /*
@@ -45,6 +44,7 @@ import java.util.Locale;
 public class ViewPosts extends Activity implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "ViewPost";
+    private static final String SAVED_LIST = "saved_list_of_items";
     private static final int REQUEST_EDIT_POST = 100;
     public static final int RESULT_REPOPULATE = 200;
 
@@ -73,7 +73,14 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
         refreshLayout.setOnRefreshListener(this);
         refreshLayout.setEnabled(false);
         multiChoiceListener = new MultiChoiceListener();
-        new UserPostsTask().execute();
+
+        if(savedInstanceState != null) {
+            ArrayList<ViewPostItem> items = savedInstanceState.getParcelableArrayList(SAVED_LIST);
+            adapter = new ViewPostAdapter(context, items);
+            listView.setAdapter(adapter);
+        }
+        else
+            new UserPostsTask().execute();
 
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         listView.setMultiChoiceModeListener(multiChoiceListener);
@@ -124,6 +131,16 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
         }
     }
 
+    @Override
+    public void onRefresh() {
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(SAVED_LIST, adapter.getAllItems());
+    }
+
     private void removeView(final View view, final ViewPostItem item) {
         ViewPropertyAnimator animator = view.animate();
         animator.setListener(new Animator.AnimatorListener() {
@@ -137,7 +154,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
                 adapter.notifyDataSetChanged();
                 view.setAlpha(1);
                 try {
-                    ((CheckBox) view.findViewById(R.id.checkBox)).setChecked(false); //Set checked to false, so it's initially checked when the view is reused
+                    ((CheckBox) view.findViewById(R.id.checkBox)).setChecked(false); //Set checked to false, so it's not initially checked when the view is reused
                 } catch (NullPointerException e) {
                     Log.e(TAG, "CheckBox doesn't exist for this view");
                 } finally {
@@ -157,10 +174,6 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
             }
         });
         animator.setDuration(500).alpha(0);
-    }
-
-    @Override
-    public void onRefresh() {
     }
 
     private class MultiChoiceListener implements AbsListView.MultiChoiceModeListener, View.OnClickListener {
@@ -239,9 +252,9 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
     private class ViewPostAdapter extends ArrayAdapter<ViewPostItem> {
         private static final String HEADER = "header_item";
         private static final String CONTENT = "content_item";
-        private List<ViewPostItem> items;
+        private ArrayList<ViewPostItem> items;
 
-        public ViewPostAdapter(Context _context, List<ViewPostItem> _items) {
+        public ViewPostAdapter(Context _context, ArrayList<ViewPostItem> _items) {
             super(_context, R.layout.item_post_content, _items);
             items = _items;
         }
@@ -325,6 +338,10 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
         public int getSize() {
             return items.size();
+        }
+
+        public ArrayList<ViewPostItem> getAllItems() {
+            return items;
         }
 
     }
