@@ -211,7 +211,6 @@ public class PostFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-
         try { //Make sure that activity has implemented the listener
             contactListener = (ContactUserListener) activity;
         } catch (ClassCastException e){
@@ -222,11 +221,6 @@ public class PostFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-
-        asyncTask1.cancel(true);
-        asyncTask2.cancel(true);
-        asyncTask3.cancel(true);
-        asyncTask4.cancel(true);
     }
 
     @Override

@@ -116,7 +116,6 @@ public class ContactUserFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        sendMessageTask.cancel(true);
     }
 
     //Sends message to user
