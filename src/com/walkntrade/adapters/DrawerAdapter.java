@@ -123,7 +123,7 @@ public class DrawerAdapter extends BaseExpandableListAdapter {
         else if(item.isHeader()) {
             drawerItemView = inflater.inflate(R.layout.item_drawer_header, parent, false);
 
-            TextView header = (TextView) drawerItemView.findViewById(R.id.drawer_header);
+            TextView header = (TextView) drawerItemView.findViewById(R.id.content_title);
             ImageView expander = (ImageView) drawerItemView.findViewById(R.id.drawer_expand);
 
             drawerItemView.setBackgroundResource(R.drawable.list_selector_0);

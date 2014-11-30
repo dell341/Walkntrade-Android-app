@@ -26,7 +26,7 @@
 
     <!-- Title of Post-->
     <TextView
-        android:id="@+id/view_post_title"
+        android:id="@+id/content_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/renew_post"

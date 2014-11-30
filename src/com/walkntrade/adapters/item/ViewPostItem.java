@@ -16,6 +16,7 @@ public class ViewPostItem {
     private int expire;
     private boolean expired;
     private boolean isHeader;
+    private boolean isContent;
     private View itemView;
 
     //Header item (School)
@@ -23,6 +24,7 @@ public class ViewPostItem {
         contents = school;
         this.schoolAbbv = schoolAbbv;
         isHeader = true;
+        isContent = false;
     }
 
     //Post Item
@@ -33,6 +35,7 @@ public class ViewPostItem {
         expire = post.getExpire();
         expired = post.isExpired();
         isHeader = false;
+        isContent = true;
     }
 
     //View in adapter that holds this object's infomation
@@ -66,5 +69,9 @@ public class ViewPostItem {
 
     public boolean isHeader(){
         return isHeader;
+    }
+
+    public boolean isContent() {
+        return isContent;
     }
 }

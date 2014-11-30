@@ -6,7 +6,7 @@
     <!-- Title header in Navigation Drawer -->
 
 	    <TextView
-	        android:id="@+id/drawer_header"
+	        android:id="@+id/content_title"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_alignParentBottom="true"
