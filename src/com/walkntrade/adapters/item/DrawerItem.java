@@ -27,10 +27,16 @@ public class DrawerItem {
 		this.title = title;
 		isUserItem = true;
 	}
-	
+
 	//Regular menu item
 	public DrawerItem(long id, int iconResource, String title) {
         this.id = id;
+		this.title = title;
+		isHeader = true;
+	}
+	
+	//Regular menu item
+	public DrawerItem(int iconResource, String title) {
 		this.iconResource = iconResource;
 		this.title = title;
 	}

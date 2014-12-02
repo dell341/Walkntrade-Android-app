@@ -192,9 +192,6 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
     @Override
     public void onDetach() {
         super.onDetach();
-
-        if (schoolPostsTask != null && (schoolPostsTask.getStatus().equals(AsyncTask.Status.RUNNING) || schoolPostsTask.getStatus().equals(AsyncTask.Status.PENDING)))
-            schoolPostsTask.abort(true);
     }
 
     //Download more posts from the server
@@ -227,17 +224,6 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
             this.progress = progress;
             newPosts = new ArrayList<Post>();
             database = new DataParser(context);
-        }
-
-        public boolean abort(boolean mayInterruptIfRunning) {
-            new Runnable() {
-                @Override
-                public void run() {
-                    database.abortOperation();
-                }
-            }.run();
-
-            return cancel(mayInterruptIfRunning);
         }
 
         @Override

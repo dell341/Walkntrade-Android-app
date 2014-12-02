@@ -51,7 +51,7 @@ public class ContactUserFragment extends Fragment {
         messageFeedback = (TextView) rootView.findViewById(R.id.message_error);
         TextView contactUser = (TextView) rootView.findViewById(R.id.contactUser);
         messageContents = (EditText) rootView.findViewById(R.id.edit_message_contents);
-        CheckBox checkBox = (CheckBox) rootView.findViewById(R.id.checkBoz);
+        CheckBox checkBox = (CheckBox) rootView.findViewById(R.id.checkBox);
         button = (Button) rootView.findViewById(R.id.button);
 
         //If user has no phone number on their account. Include a message without the phone number
@@ -116,9 +116,6 @@ public class ContactUserFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-
-        if(sendMessageTask != null && sendMessageTask.getStatus().equals(AsyncTask.Status.RUNNING))
-            sendMessageTask.cancel(true);
     }
 
     //Sends message to user

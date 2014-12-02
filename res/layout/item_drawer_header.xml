@@ -5,8 +5,13 @@
     
     <!-- Title header in Navigation Drawer -->
 
+<<<<<<< HEAD
 	    <com.walkntrade.views.LightTextView
 	        android:id="@+id/drawer_header"
+=======
+	    <TextView
+	        android:id="@+id/content_title"
+>>>>>>> master
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_alignParentBottom="true"
