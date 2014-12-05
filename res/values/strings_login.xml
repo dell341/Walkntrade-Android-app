@@ -8,6 +8,7 @@
     <string name="register">Register</string>
     <string name="forgot_password">Forgot your password?</string>
     <string name="sign_in">Sign in</string>
+    <string name="log_in">Log in</string>
 
     <!-- Login Errors -->
     <string name="login_error">Could not Log-in</string>
