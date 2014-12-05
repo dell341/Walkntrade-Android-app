@@ -73,13 +73,6 @@ public class DrawerAdapter extends ArrayAdapter<DrawerItem>{
 			
 			content.setText(item.getTitle());
 		}
-		//If drawer header is being created, call appropriate layout inflater
-		else if(item.isHeader()) { 
-			drawerItemView = inflater.inflate(R.layout.item_drawer_header, parent, false);
-			
-			TextView header = (TextView) drawerItemView.findViewById(R.id.drawer_header);
-			header.setText(item.getTitle());
-		}
 		//Else create a regular menu option
 		else {
 			drawerItemView = inflater.inflate(R.layout.item_drawer_content, parent, false);
