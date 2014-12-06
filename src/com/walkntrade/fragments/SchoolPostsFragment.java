@@ -1,5 +1,6 @@
 package com.walkntrade.fragments;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -52,11 +53,12 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
     private static final int AMOUNT_OF_POSTS = 15; //Amount of posts to load
 
     private SwipeRefreshLayout refreshLayout;
+    private ConnectionFailedListener connectionListener;
     private PostAdapter postsAdapter;
     private ProgressBar bigProgressBar, progressBar;
     private SchoolPostsTask schoolPostsTask;
     private Context context;
-    private TextView noResults;
+    private TextView noResults, swipeToRefresh, swipeToRefreshBottom;
     private String searchQuery = ""; //Search query stays the same throughout all fragments
     private ArrayList<Post> schoolPosts = new ArrayList<Post>();
     private int index;
@@ -74,6 +76,8 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.refresh_layout);
         progressBar = (ProgressBar) rootView.findViewById(R.id.progressBarGrid);
         noResults = (TextView) rootView.findViewById(R.id.noResults);
+        swipeToRefresh = (TextView) rootView.findViewById(R.id.text_swipe_refresh);
+        swipeToRefreshBottom = (TextView) rootView.findViewById(R.id.text_swipe_refresh_error);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
         Bundle args = getArguments();
         context = getActivity().getApplicationContext();
@@ -190,13 +194,21 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        try {
+            connectionListener = (ConnectionFailedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement ConnectionFailedListener");
+        }
+
     }
 
     //Download more posts from the server
     private void downloadMorePosts(ProgressBar progress) {
-        noResults.setVisibility(View.GONE);
+        noResults.setVisibility(View.INVISIBLE);
+        swipeToRefresh.setVisibility(View.GONE);
         schoolPostsTask = new SchoolPostsTask(progress);
         schoolPostsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
     }
@@ -206,10 +218,16 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         this.downloadMore = downloadMore;
 
         if (schoolPosts.isEmpty()) {
-            noResults.setText(context.getString(R.string.no_results));
             noResults.setVisibility(View.VISIBLE);
-        } else
-            noResults.setVisibility(View.GONE);
+            swipeToRefresh.setVisibility(View.VISIBLE);
+        } else {
+            noResults.setVisibility(View.INVISIBLE);
+            swipeToRefresh.setVisibility(View.GONE);
+        }
+    }
+
+    public interface ConnectionFailedListener {
+        public void hasConnection(boolean isConnected, String message);
     }
 
     //Asynchronous Task, looks for posts from the specified school
@@ -229,6 +247,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         @Override
         protected void onPreExecute() {
             progress.setVisibility(View.VISIBLE);
+            swipeToRefreshBottom.setVisibility(View.INVISIBLE);
         }
 
         @Override
@@ -258,6 +277,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
             progress.setVisibility(View.GONE);
 
             if (serverResponse == StatusCodeParser.STATUS_OK) {
+                connectionListener.hasConnection(true, StatusCodeParser.getStatusString(context, StatusCodeParser.STATUS_OK));
                 if (newPosts.isEmpty()) //If server returned empty list, don't try to download anymore from this category
                     shouldDownLoadMore(false);
                 else { //Add new data from the serve to the ArrayList and update the adapter
@@ -275,12 +295,15 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
                         new ThumbnailTask(getActivity(), postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
                 }
             } else {
-                postsAdapter.clearContents();
-                postsAdapter.notifyDataSetChanged();
-                noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
-                noResults.setVisibility(View.VISIBLE);
-            }
+                connectionListener.hasConnection(false, StatusCodeParser.getStatusString(context, serverResponse));
 
+                //Show different refresh options based on number of already-visible posts.
+                if (postsAdapter.isEmpty()) {
+                    noResults.setVisibility(View.VISIBLE);
+                    swipeToRefresh.setVisibility(View.VISIBLE);
+                } else
+                    swipeToRefreshBottom.setVisibility(View.VISIBLE);
+            }
             refreshLayout.setEnabled(true);
             refreshLayout.setRefreshing(false);
         }

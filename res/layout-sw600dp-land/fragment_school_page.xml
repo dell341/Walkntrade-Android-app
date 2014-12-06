@@ -13,8 +13,17 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="@string/no_results"
-        android:textSize="30sp"
-        android:textStyle="bold"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/text_swipe_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/noResults"
+        android:layout_centerHorizontal="true"
+        android:text="@string/swipe_down_refresh"
+        android:textSize="22sp"
         android:visibility="gone" />
 
     <ProgressBar
@@ -53,5 +62,17 @@
         android:layout_alignParentBottom="true"
         android:background="#8CFFFFFF"
         android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/text_swipe_refresh_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@color/green_tertiary"
+        android:gravity="center_horizontal"
+        android:text="@string/swipe_down_refresh"
+        android:textSize="22sp"
+        android:visibility="gone"/>
 
 </RelativeLayout>

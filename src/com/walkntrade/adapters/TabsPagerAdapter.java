@@ -17,12 +17,11 @@ import com.walkntrade.fragments.SchoolPostsFragment;
 //Creates category-specific fragments
 public class TabsPagerAdapter extends FragmentPagerAdapter {
 	private Context context;
-
 	private String[] tabTitles;
 
-	public TabsPagerAdapter(FragmentManager fm, Context _context) {
+	public TabsPagerAdapter(FragmentManager fm, Context context) {
 		super(fm);
-		context = _context;
+		this.context = context;
 		//String titles pulled from resources to allow easy language translation
 		tabTitles = new String[] {context.getString(R.string.category_all) , context.getString(R.string.category_book),
                 context.getString(R.string.category_tech), context.getString(R.string.category_service), context.getString(R.string.category_misc)};

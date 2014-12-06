@@ -10,8 +10,17 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="@string/no_results"
-        android:textSize="30sp"
-        android:textStyle="bold"
+        android:textSize="16sp"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/text_swipe_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/noResults"
+        android:layout_centerHorizontal="true"
+        android:text="@string/swipe_down_refresh"
+        android:textSize="22sp"
         android:visibility="gone" />
 
     <ProgressBar
@@ -28,19 +37,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-            <GridView
-                android:id="@+id/gridView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:horizontalSpacing="10dp"
-                android:numColumns="1"
-                android:padding="5dp"
-                android:stretchMode="columnWidth"
-                android:clipToPadding="false"
-                android:verticalSpacing="5dp" />
-
+        <GridView
+            android:id="@+id/gridView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:horizontalSpacing="10dp"
+            android:numColumns="1"
+            android:padding="5dp"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="5dp" />
     </android.support.v4.widget.SwipeRefreshLayout>
-
 
     <ProgressBar
         android:id="@+id/progressBarGrid"
@@ -50,6 +57,18 @@
         android:layout_alignParentBottom="true"
         android:background="#8CFFFFFF"
         android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/text_swipe_refresh_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@color/green_tertiary"
+        android:gravity="center_horizontal"
+        android:text="@string/swipe_down_refresh"
+        android:textSize="22sp"
+        android:visibility="gone"/>
 
 </RelativeLayout>
 

@@ -16,7 +16,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ExpandableListView;
+import android.widget.TextView;
 
 import com.walkntrade.adapters.DrawerAdapter;
 import com.walkntrade.adapters.TabsPagerAdapter;
@@ -25,6 +27,7 @@ import com.walkntrade.asynctasks.AvatarRetrievalTask;
 import com.walkntrade.asynctasks.LogoutTask;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.asynctasks.UserNameTask;
+import com.walkntrade.fragments.SchoolPostsFragment;
 import com.walkntrade.io.DataParser;
 
 import java.util.ArrayList;
@@ -36,7 +39,7 @@ import java.util.List;
  * https://walkntrade.com
  */
 
-public class SchoolPage extends Activity implements ExpandableListView.OnGroupClickListener, ExpandableListView.OnChildClickListener {
+public class SchoolPage extends Activity implements ExpandableListView.OnGroupClickListener, ExpandableListView.OnChildClickListener, SchoolPostsFragment.ConnectionFailedListener {
 
     private final String TAG = "SchoolPage";
     private static final String SAVED_AVATAR_IMAGE = "saved_instance_avatar";
@@ -44,6 +47,7 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
 
     private String[] drawerOptions;
     private DrawerLayout mDrawerLayout;
+    private TextView textView;
     private ExpandableListView navigationDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -53,6 +57,7 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
     private boolean hasAvatar;
     private boolean hasPausedActivity = false;
     private boolean isLoggedIn;
+    private boolean lastConnectedValue = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +74,7 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
         navigationDrawerList = (ExpandableListView) findViewById(R.id.navigation_drawer_list);
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         PagerTabStrip pagerTab = (PagerTabStrip) findViewById(R.id.pager_tab);
+        textView = (TextView) findViewById(R.id.text_view);
         TabsPagerAdapter tabsAdapter = new TabsPagerAdapter(getFragmentManager(), this);
         hasAvatar = false;
 
@@ -130,6 +136,16 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         navigationDrawerList.setOnGroupClickListener(this);
         navigationDrawerList.setOnChildClickListener(this);
+
+        textView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() { //Set position of text view whenever layout is updated. (Only really need to run one time)
+                if(lastConnectedValue)
+                    textView.setY(0-textView.getHeight());
+                else
+                    textView.setY(0);
+            }
+        });
     }
 
     @Override
@@ -265,6 +281,21 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override //Creates an animated TextView when there is no connection, or for any other error.
+    public void hasConnection(boolean isConnected, String message) {
+        textView.setText(message);
+
+        if(isConnected == lastConnectedValue) //If connection status has not changed, do not perform another animation
+            return;
+
+        if(!isConnected)
+            textView.animate().setDuration(500).translationY(0);
+        else
+            textView.setY(0);
+
+        lastConnectedValue = isConnected;
     }
 
     @Override
