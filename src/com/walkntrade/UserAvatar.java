@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +52,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
     private static final int GALLERY_IMAGE = 200;
 
     private Context context;
+    private ScrollView scrollView;
     private RelativeLayout imageContainerLayout;
     private ImageView imageContainer, avatar;
     private TextView error, noImage;
@@ -67,6 +69,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
         context = getApplicationContext();
         progress = (ProgressBar) findViewById(R.id.progressBar);
+        scrollView = (ScrollView) findViewById(R.id.scroll_view);
         imageContainerLayout = (RelativeLayout) findViewById(R.id.image_container_layout);
         imageContainer = (ImageView) findViewById(R.id.image_container_icon);
         error = (TextView) findViewById(R.id.error_message);
@@ -87,17 +90,14 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             else if (uriStream != null) { //Image from existing upload
                 try {
                     avatar.setImageBitmap(ImageTool.getImageFromDevice(context, uriStream, width, height));
+                    inputStream = getContentResolver().openInputStream(uriStream);
                 } catch (FileNotFoundException e) {
                     Log.e(TAG, "File Not Found", e);
                 }
             }
-            else { //Current avatar image
-               Bitmap bitmap = savedInstanceState.getParcelable(SAVED_IMAGE);
-               avatar.setImageBitmap(bitmap);
+            else //Current avatar image
+                new GetAvatarTask().execute();
 
-                if(bitmap == null && DataParser.isNetworkAvailable(this))
-                    new GetAvatarTask().execute();
-            }
 
         } else {
 
@@ -361,6 +361,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 imageContainerLayout.setBackgroundColor(getResources().getColor(R.color.lighter_red));
                 error.setText(getResources().getString(R.string.error_occured));
                 error.setVisibility(View.VISIBLE);
+                scrollView.fullScroll(ScrollView.FOCUS_UP);
             }
             else {
                 imageContainerLayout.setBackgroundColor(getResources().getColor(R.color.green_secondary));

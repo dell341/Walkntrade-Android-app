@@ -8,9 +8,12 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -66,8 +69,22 @@ public class RegistrationActivity extends Activity {
                 _passwordVerf = passwordVerf.getText().toString();
 
                 if (canRegister() && DataParser.isNetworkAvailable(context)) {
+                    //Hide keyboard if submit button was pressed
+                    InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(password.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                     new RegistrationTask().execute();
                 }
+            }
+        });
+
+        passwordVerf.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                //If user presses 'Done' register the account, but return false so the keyboard goes away
+                if(actionId == EditorInfo.IME_ACTION_DONE && canRegister() && DataParser.isNetworkAvailable(context))
+                    new RegistrationTask().execute();
+
+                return false;
             }
         });
 

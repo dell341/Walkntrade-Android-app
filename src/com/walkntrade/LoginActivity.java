@@ -102,7 +102,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId == EditorInfo.IME_ACTION_DONE) //If user presses 'Done' login, but return false so the keyboard goes away
+                if(actionId == EditorInfo.IME_ACTION_DONE) //If user presses 'Done', continue to log-in, but return false so the keyboard goes away
                     login();
 
                 return false;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="title_activity_registration">RegistrationActivity</string>
+    <string name="title_activity_registration">Account Registration</string>
 
     <!-- RegistrationActivity Strings-->
     <string name="register_username">Username</string>

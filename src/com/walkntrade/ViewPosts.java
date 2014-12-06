@@ -381,7 +381,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
             if (serverResponse == StatusCodeParser.STATUS_OK) {
                 if (userPosts.isEmpty()) {
-                    noResults.setText(context.getString(R.string.no_results));
+                    noResults.setText(context.getString(R.string.no_posts));
                     noResults.setVisibility(View.VISIBLE);
                 } else {
                     noResults.setVisibility(View.GONE);
