@@ -40,16 +40,26 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <GridView
-            android:id="@+id/gridView"
-            android:layout_width="match_parent"
+        <RelativeLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:verticalSpacing="5dp"
-            android:horizontalSpacing="10dp"
-            android:numColumns="2"
-            android:padding="5dp"
-            android:stretchMode="columnWidth"
-            android:clipToPadding="false"/>
+            android:gravity="center_horizontal">
+
+            <GridView
+                android:id="@+id/gridView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:clipToPadding="false"
+                android:horizontalSpacing="10dp"
+                android:numColumns="1"
+                android:padding="5dp"
+                android:stretchMode="columnWidth"
+                android:scrollbars="none"
+                android:verticalSpacing="5dp" />
+        </RelativeLayout>
+
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
@@ -73,6 +83,6 @@
         android:gravity="center_horizontal"
         android:text="@string/swipe_down_refresh"
         android:textSize="22sp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 </RelativeLayout>
