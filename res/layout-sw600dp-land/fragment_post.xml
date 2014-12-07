@@ -1,9 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2014. All Rights Reserved. Walkntrade
+  ~ https://walkntrade.com
+  -->
+
 <com.walkntrade.views.AnimatedScrollLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/light_gray"
+    android:orientation="vertical"
     android:scrollbars="none">
 
     <RelativeLayout
@@ -12,130 +17,145 @@
 
         <View
             android:id="@+id/postLayout"
-            android:layout_width="match_parent"
+            android:layout_width="700dp"
             android:layout_height="0dip"
-            android:layout_alignParentTop="true"
             android:layout_above="@+id/user_block"
-            android:layout_marginTop="5dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="1.5dp"
+            android:layout_marginTop="1.5dp"
+            android:background="@drawable/rounded_rectangle_no_shadow" />
+
+        <com.walkntrade.views.LightTextView
+            android:id="@+id/postTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/postLayout"
+            android:layout_alignStart="@id/postLayout"
+            android:layout_alignRight="@id/postLayout"
+            android:layout_alignEnd="@id/postLayout"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:layout_marginBottom="1.5dp"
-            android:background="@drawable/rounded_rectangle_no_shadow"/>
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
+            android:textSize="@dimen/title_size" />
 
-            <com.walkntrade.views.LightTextView
-                android:id="@+id/postTitle"
-                android:layout_width="match_parent"
+        <com.walkntrade.views.SnappingHorizontalScrollView
+            android:id="@+id/horizontalView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/postTitle"
+            android:clipToPadding="false"
+            android:paddingLeft="120dp"
+            android:paddingRight="120dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/linear_layout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_marginTop="5dp"
-                android:padding="5dp"
-                android:textSize="@dimen/title_size" />
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
 
-            <com.walkntrade.views.SnappingHorizontalScrollView
-                android:id="@+id/horizontalView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/postTitle"
-                android:clipToPadding="false"
-                android:paddingEnd="@dimen/horizontal_view_padding"
-                android:paddingLeft="@dimen/horizontal_view_padding"
-                android:paddingRight="@dimen/horizontal_view_padding"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:id="@+id/linear_layout"
+                <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:orientation="horizontal">
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginRight="5dp">
 
-                    <RelativeLayout
+                    <!-- ImageView matches parent so single image fills the screen, but multiple
+                    images still scroll perfectly fine-->
+                    <ImageView
+                        android:id="@+id/postImage1"
+                        android:layout_width="@dimen/post_image_width"
+                        android:layout_height="@dimen/post_image_height"
+                        android:adjustViewBounds="true"
+                        android:background="@color/gray"
+                        android:contentDescription="@string/post_image"
+                        android:scaleType="centerCrop" />
+
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        style="?android:attr/progressBarStyleInverse"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="3dp"
-                        android:layout_marginRight="3dp">
+                        android:layout_centerInParent="true" />
+                </RelativeLayout>
 
-                        <!-- ImageView matches parent so single image fills the screen, but multiple
-                        images still scroll perfectly fine-->
-                        <ImageView
-                            android:id="@+id/postImage1"
-                            android:layout_width="@dimen/post_image_width"
-                            android:layout_height="@dimen/post_image_height"
-                            android:background="@color/gray"
-                            android:contentDescription="@string/post_image"
-                            android:scaleType="centerCrop" />
-
-                        <ProgressBar
-                            android:id="@+id/progressBar"
-                            style="?android:attr/progressBarStyleInverse"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true" />
-                    </RelativeLayout>
-
-                    <ImageView
-                        android:id="@+id/postImage2"
-                        android:layout_width="@dimen/post_image_width"
-                        android:layout_height="@dimen/post_image_height"
-                        android:layout_marginEnd="3dp"
-                        android:layout_marginRight="3dp"
-                        android:background="@color/gray"
-                        android:contentDescription="@string/post_image"
-                        android:scaleType="centerCrop"
-                        android:visibility="gone"/>
+                <ImageView
+                    android:id="@+id/postImage2"
+                    android:layout_width="@dimen/post_image_width"
+                    android:layout_height="@dimen/post_image_height"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginRight="5dp"
+                    android:adjustViewBounds="true"
+                    android:background="@color/gray"
+                    android:contentDescription="@string/post_image"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
 
 
-                    <ImageView
-                        android:id="@+id/postImage3"
-                        android:layout_width="@dimen/post_image_width"
-                        android:layout_height="@dimen/post_image_height"
-                        android:layout_marginEnd="3dp"
-                        android:layout_marginRight="3dp"
-                        android:background="@color/gray"
-                        android:contentDescription="@string/post_image"
-                        android:scaleType="centerCrop"
-                        android:visibility="gone"/>
+                <ImageView
+                    android:id="@+id/postImage3"
+                    android:layout_width="@dimen/post_image_width"
+                    android:layout_height="@dimen/post_image_height"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginRight="5dp"
+                    android:adjustViewBounds="true"
+                    android:background="@color/gray"
+                    android:contentDescription="@string/post_image"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
 
-                    <ImageView
-                        android:id="@+id/postImage4"
-                        android:layout_width="@dimen/post_image_width"
-                        android:layout_height="@dimen/post_image_height"
-                        android:layout_marginEnd="3dp"
-                        android:layout_marginRight="3dp"
-                        android:background="@color/gray"
-                        android:contentDescription="@string/post_image"
-                        android:scaleType="centerCrop"
-                        android:visibility="gone"/>
-                </LinearLayout>
-            </com.walkntrade.views.SnappingHorizontalScrollView>
+                <ImageView
+                    android:id="@+id/postImage4"
+                    android:layout_width="@dimen/post_image_width"
+                    android:layout_height="@dimen/post_image_height"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginRight="5dp"
+                    android:adjustViewBounds="true"
+                    android:background="@color/gray"
+                    android:contentDescription="@string/post_image"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </com.walkntrade.views.SnappingHorizontalScrollView>
 
-            <com.walkntrade.views.LightTextView
-                android:id="@+id/postPrice"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/horizontalView"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:padding="3dp"
-                android:textSize="@dimen/price_size"
-                android:textStyle="bold" />
+        <com.walkntrade.views.LightTextView
+            android:id="@+id/postPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/horizontalView"
+            android:layout_alignLeft="@id/postLayout"
+            android:layout_alignStart="@id/postLayout"
+            android:layout_alignRight="@id/postLayout"
+            android:layout_alignEnd="@id/postLayout"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:padding="5dp"
+            android:textSize="@dimen/price_size"
+            android:textStyle="bold" />
 
-            <com.walkntrade.views.LightTextView
-                android:id="@+id/postDescr"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/postPrice"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:padding="5dp"
-                android:textSize="@dimen/show_page_text" />
+        <com.walkntrade.views.LightTextView
+            android:id="@+id/postDescr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/postPrice"
+            android:layout_alignLeft="@id/postLayout"
+            android:layout_alignStart="@id/postLayout"
+            android:layout_alignRight="@id/postLayout"
+            android:layout_alignEnd="@id/postLayout"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:padding="5dp"
+            android:textSize="@dimen/show_page_text" />
 
         <LinearLayout
-            android:id="@+id/user_block"
-            android:layout_width="match_parent"
+            android:id="@id/user_block"
+            android:layout_width="700dp"
             android:layout_height="70dp"
             android:layout_below="@id/postDescr"
+            android:layout_centerHorizontal="true"
             android:baselineAligned="false"
             android:orientation="horizontal"
             android:weightSum="1">
@@ -145,9 +165,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="1.5dp"
-                android:layout_marginLeft="5dp"
                 android:layout_marginRight="1.5dp"
-                android:layout_marginStart="5dp"
                 android:layout_weight="0.5"
                 android:background="@drawable/bottom_left_rounded_rectangle"
                 android:padding="5dp">
@@ -187,7 +205,6 @@
                 android:id="@+id/contactLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginRight="5dp"
                 android:layout_weight="0.5"
                 android:background="@drawable/bottom_right_rounded_rectangle"
                 android:padding="5dp">
@@ -246,28 +263,28 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
                 android:layout_below="@id/user_posts"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="5dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="2dp"
-                    android:textSize="22sp"
-                    android:text="Southern Polytechnic State University" />
+                    android:text="Southern Polytechnic State University"
+                    android:textSize="22sp" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="2dp"
-                    android:text="Filler 1\t\t\t\t\t\t\t\t\t\t\t\tDate"  />
+                    android:text="Filler 1\t\t\t\t\t\t\t\t\t\t\t\tDate" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="2dp"
-                    android:text="Filler 2\t\t\t\t\t\t\t\t\t\t\t\tDate"  />
+                    android:text="Filler 2\t\t\t\t\t\t\t\t\t\t\t\tDate" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -279,31 +296,32 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="2dp"
-                    android:text="Filler 4\t\t\t\t\t\t\t\t\t\t\t\tDate"  />
+                    android:text="Filler 4\t\t\t\t\t\t\t\t\t\t\t\tDate" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="2dp"
-                    android:textSize="22sp"
-                    android:text="Kennesaw State University" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="2dp"
-                    android:text="Filler 5\t\t\t\t\t\t\t\t\t\t\t\tDate"  />
+                    android:text="Kennesaw State University"
+                    android:textSize="22sp" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="2dp"
-                    android:text="Filler 6\t\t\t\t\t\t\t\t\t\t\t\tDate"  />
+                    android:text="Filler 5\t\t\t\t\t\t\t\t\t\t\t\tDate" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="2dp"
-                    android:text="Filler 7\t\t\t\t\t\t\t\t\t\t\t\tDate"  />
+                    android:text="Filler 6\t\t\t\t\t\t\t\t\t\t\t\tDate" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="2dp"
+                    android:text="Filler 7\t\t\t\t\t\t\t\t\t\t\t\tDate" />
             </LinearLayout>
 
 

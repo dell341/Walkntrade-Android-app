@@ -14,7 +14,7 @@
         android:layout_centerInParent="true"
         android:text="@string/no_results"
         android:textSize="16sp"
-        android:visibility="gone" />
+        android:visibility="invisible" />
 
     <TextView
         android:id="@+id/text_swipe_refresh"
@@ -38,28 +38,19 @@
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal">
+        android:layout_height="wrap_content">
 
             <GridView
                 android:id="@+id/gridView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                android:layout_marginRight="@dimen/activity_horizontal_margin"
                 android:clipToPadding="false"
                 android:horizontalSpacing="10dp"
                 android:numColumns="1"
-                android:padding="5dp"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
                 android:stretchMode="columnWidth"
-                android:scrollbars="none"
                 android:verticalSpacing="5dp" />
-        </RelativeLayout>
-
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
