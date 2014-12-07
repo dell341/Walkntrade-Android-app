@@ -85,8 +85,10 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
             int width = viewContent.getMeasuredWidth(); //Width of selected view (In this example, they are all the same size)
 
             index = (scrollX + (width / 2)) / width; //Uses int rounding to find out if new scroll position is more than half of current view.
-            int scrollTo = index * width; //Position of specified index
+            int scrollTo = (index * width)+getPaddingLeft(); //Position of specified index
 
+            Log.v(TAG, "ScrollX : "+scrollX+". Width : "+width);
+            Log.d(TAG, "Index : "+index+". ScrollTo :"+scrollTo);
             smoothScrollTo(scrollTo, 0);
             return true;
         }
@@ -104,12 +106,16 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
 
                 if (e1.getX() - e2.getX() > MINIMUM_SWIPE_DISTANCE && Math.abs(velocityX) > MINIMUM_REQUIRED_VELOCITY) { //Swipe from right to left
                     index = (index <= items.size() ? ++index : items.size() - 1); //onFling, increment index if current index is not the last item. Else set index to last item
-                    int scrollTo = index * width;
+                    int scrollTo = (index * width)+getPaddingLeft();
+                    Log.v(TAG, "Width : "+width);
+                    Log.d(TAG, "Fling. Index : "+index+". ScrollTo :"+scrollTo);
                     smoothScrollTo(scrollTo, 0);
                     return true;
                 } else if (e2.getX() - e1.getX() > MINIMUM_SWIPE_DISTANCE && Math.abs(velocityX) > MINIMUM_REQUIRED_VELOCITY) { //Swipe from left to right
                     index = (index > 0 ? --index : 0); //onFling, decrement index if current index is not the first item. Else set index to first item
-                    int scrollTo = index * width;
+                    int scrollTo = (index * width)+getPaddingLeft();
+                    Log.v(TAG, "Width : "+width);
+                    Log.d(TAG, "Fling. Index : "+index+". ScrollTo :"+scrollTo);
                     smoothScrollTo(scrollTo, 0);
                     return true;
                 }
