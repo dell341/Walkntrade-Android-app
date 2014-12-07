@@ -68,7 +68,7 @@ public class PostFragment extends Fragment {
     private AsyncTask asyncTask1, asyncTask2, asyncTask3, asyncTask4;
     public int imageCount = 0;
     private boolean currentUserPost = false;
-    private boolean imageOne, imageTwo, imageThree, imageFour = false; //Looks to see whether these images were already retrieved from the server (whether they exist or not)
+    private boolean imageOne, imageTwo, imageThree, imageFour; //Looks to see whether these images were already retrieved from the server (whether they exist or not)
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -85,7 +85,7 @@ public class PostFragment extends Fragment {
         price = (TextView) rootView.findViewById(R.id.postPrice);
         contact = (Button) rootView.findViewById(R.id.post_contact);
         final ScrollView scrollView = (ScrollView) rootView.findViewById(R.id.scroll_view);
-        final View postLayout = (View) rootView.findViewById(R.id.postLayout);
+        final View postLayout = rootView.findViewById(R.id.postLayout);
         linearLayout = (LinearLayout) rootView.findViewById(R.id.linear_layout);
         RelativeLayout userLayout = (RelativeLayout) rootView.findViewById(R.id.user_layout);
         final RelativeLayout userProfile = (RelativeLayout) rootView.findViewById(R.id.user_profile);
@@ -114,6 +114,7 @@ public class PostFragment extends Fragment {
             price.setVisibility(View.GONE);
 
         //Calls images to be displayed on show page
+        imageOne = false; imageTwo = false; imageThree = false; imageFour = false;
 
         //First Image
         image.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -350,7 +351,7 @@ public class PostFragment extends Fragment {
                 case 0 : imageOne = true; break;
                 case 1 : imageTwo = true; break;
                 case 2: imageThree = true; break;
-                case 3 : imageThree = true; break;
+                case 3 : imageFour = true; break;
             }
 
             if (bitmap != null) {
