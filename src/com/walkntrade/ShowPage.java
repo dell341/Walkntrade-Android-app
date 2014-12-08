@@ -139,6 +139,5 @@ public class ShowPage extends Activity implements PostFragment.ContactUserListen
             new LogoutTask(this).execute(); //Starts asynchronous sign out
 
         invalidateOptionsMenu();
-        //contact.setText(getString(R.string.contact_login));
     }
 }

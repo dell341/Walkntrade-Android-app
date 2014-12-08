@@ -27,7 +27,6 @@
             android:layout_centerInParent="true"
             android:visibility="invisible"/>
 
-
         <ListView
             android:id="@+id/postsList"
             android:layout_width="match_parent"

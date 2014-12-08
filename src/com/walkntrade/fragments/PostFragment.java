@@ -27,10 +27,14 @@ import com.walkntrade.ImageDialog;
 import com.walkntrade.LoginActivity;
 import com.walkntrade.R;
 import com.walkntrade.SchoolPage;
+import com.walkntrade.adapters.item.ViewPostItem;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
+import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
+import com.walkntrade.objects.ReferencedPost;
+import com.walkntrade.objects.UserProfileObject;
 import com.walkntrade.views.SnappingHorizontalScrollView;
 
 import java.io.IOException;
@@ -53,16 +57,19 @@ public class PostFragment extends Fragment {
     private static final String SAVED_IMAGE_2 = "saved_instance_image_2";
     private static final String SAVED_IMAGE_3 = "saved_instance_image_3";
     private static final String SAVED_IMAGE_4 = "saved_instance_image_4";
+    private static final String SAVED_POST_ITEMS = "saved_instance_post_items";
 
     private ContactUserListener contactListener;
     private Context context;
     private String identifier;
     private Post thisPost;
-    private ProgressBar progressImage;
+    private ProgressBar progressImage, progressProfile;
     private LinearLayout linearLayout;
-    private TextView title, details, user, date, price;
+    private TextView title, details, user, date, price, profileUserName;
     private ImageView image, image2, image3, image4;
     private Button contact;
+    ArrayList<ViewPostItem> profilePostItems;
+    private LinearLayout profilePosts;
     private String[] imgURLs;
 
     private AsyncTask asyncTask1, asyncTask2, asyncTask3, asyncTask4;
@@ -77,6 +84,11 @@ public class PostFragment extends Fragment {
         thisPost = getArguments().getParcelable(SchoolPage.SELECTED_POST);
 
         context = getActivity().getApplicationContext();
+        final ScrollView scrollView = (ScrollView) rootView.findViewById(R.id.scroll_view);
+        final View postLayout = rootView.findViewById(R.id.postLayout);
+        linearLayout = (LinearLayout) rootView.findViewById(R.id.linear_layout);
+        RelativeLayout userLayout = (RelativeLayout) rootView.findViewById(R.id.user_layout);
+        final RelativeLayout userProfile = (RelativeLayout) rootView.findViewById(R.id.user_profile);
         progressImage = (ProgressBar) rootView.findViewById(R.id.progressBar);
         title = (TextView) rootView.findViewById(R.id.postTitle);
         details = (TextView) rootView.findViewById(R.id.postDescr);
@@ -84,17 +96,35 @@ public class PostFragment extends Fragment {
         date = (TextView) rootView.findViewById(R.id.postDate);
         price = (TextView) rootView.findViewById(R.id.postPrice);
         contact = (Button) rootView.findViewById(R.id.post_contact);
-        final ScrollView scrollView = (ScrollView) rootView.findViewById(R.id.scroll_view);
-        final View postLayout = rootView.findViewById(R.id.postLayout);
-        linearLayout = (LinearLayout) rootView.findViewById(R.id.linear_layout);
-        RelativeLayout userLayout = (RelativeLayout) rootView.findViewById(R.id.user_layout);
-        final RelativeLayout userProfile = (RelativeLayout) rootView.findViewById(R.id.user_profile);
+        profileUserName = (TextView) rootView.findViewById(R.id.user_name);
+        profilePosts = (LinearLayout) rootView.findViewById(R.id.profile_posts);
+        progressProfile = (ProgressBar) rootView.findViewById(R.id.profile_progress_bar);
 
         SnappingHorizontalScrollView horizontalScrollView = (SnappingHorizontalScrollView) rootView.findViewById(R.id.horizontalView);
         image = (ImageView) rootView.findViewById(R.id.postImage1);
         image2 = (ImageView) rootView.findViewById(R.id.postImage2);
         image3 = (ImageView) rootView.findViewById(R.id.postImage3);
         image4 = (ImageView) rootView.findViewById(R.id.postImage4);
+
+        if(savedInstanceState != null) {
+            profilePostItems = savedInstanceState.getParcelableArrayList(SAVED_POST_ITEMS);
+
+            for(ViewPostItem item : profilePostItems) {
+                if(item.isHeader()) {
+                    View school = LayoutInflater.from(context).inflate(R.layout.item_post_school, profilePosts, false);
+                    ((TextView)school.findViewById(R.id.content_title)).setText(item.getContents());
+                    profilePosts.addView(school);
+                }
+                else {
+                    View post = LayoutInflater.from(context).inflate(R.layout.item_profile_post, profilePosts, false);
+                    ((TextView)post.findViewById(R.id.content_date)).setText(item.getDate());
+                    ((TextView)post.findViewById(R.id.content_title)).setText(item.getContents());
+                    profilePosts.addView(post);
+                }
+            }
+        }
+        else
+            new UserProfileRetrievalTask().execute("1");
 
         ArrayList<View> images = new ArrayList<View>(4);
         images.add(image);
@@ -113,18 +143,23 @@ public class PostFragment extends Fragment {
         else
             price.setVisibility(View.GONE);
 
+        profileUserName.setText(thisPost.getUser()+"'s posts");
+
         //Calls images to be displayed on show page
-        imageOne = false; imageTwo = false; imageThree = false; imageFour = false;
+        imageOne = false;
+        imageTwo = false;
+        imageThree = false;
+        imageFour = false;
 
         //First Image
         image.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 //Only perform an image retrieval if the image is no longer there, a search hasn't been performed yet, and a search isn't currently running
-                if(image.getDrawable() == null && (asyncTask1 == null || asyncTask1.getStatus() != AsyncTask.Status.RUNNING) && !imageOne) {
+                if (image.getDrawable() == null && (asyncTask1 == null || asyncTask1.getStatus() != AsyncTask.Status.RUNNING) && !imageOne) {
 
                     //Adjust the first image (just in case there are no other images added)
-                    image.getLayoutParams().width = (int) (postLayout.getMeasuredWidth()*.98);
+                    image.getLayoutParams().width = (int) (postLayout.getMeasuredWidth() * .98);
 
                     String imgUrl = generateImgURL(0);
                     asyncTask1 = new SpecialImageRetrievalTask(image, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
@@ -136,7 +171,7 @@ public class PostFragment extends Fragment {
         image.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if(image2.getDrawable() == null && (asyncTask2 == null || asyncTask2.getStatus() != AsyncTask.Status.RUNNING) && !imageTwo) {
+                if (image2.getDrawable() == null && (asyncTask2 == null || asyncTask2.getStatus() != AsyncTask.Status.RUNNING) && !imageTwo) {
                     String imgUrl = generateImgURL(1);
                     asyncTask2 = new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
                 }
@@ -147,7 +182,7 @@ public class PostFragment extends Fragment {
         image.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if(image3.getDrawable() == null && (asyncTask3 == null || asyncTask3.getStatus() != AsyncTask.Status.RUNNING) && !imageThree) {
+                if (image3.getDrawable() == null && (asyncTask3 == null || asyncTask3.getStatus() != AsyncTask.Status.RUNNING) && !imageThree) {
                     String imgUrl = generateImgURL(2);
                     asyncTask3 = new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
                 }
@@ -158,7 +193,7 @@ public class PostFragment extends Fragment {
         image.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if(image4.getDrawable() == null && (asyncTask4 == null || asyncTask4.getStatus() != AsyncTask.Status.RUNNING) && !imageFour) {
+                if (image4.getDrawable() == null && (asyncTask4 == null || asyncTask4.getStatus() != AsyncTask.Status.RUNNING) && !imageFour) {
                     String imgUrl = generateImgURL(3);
                     asyncTask4 = new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
                 }
@@ -226,12 +261,20 @@ public class PostFragment extends Fragment {
         userLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int height = userProfile.getMeasuredHeight();
-                scrollView.smoothScrollTo(0, height + userProfile.getPaddingBottom());
+                RelativeLayout.LayoutParams layout = (RelativeLayout.LayoutParams) userProfile.getLayoutParams();
+                int topMargin = layout.topMargin;
+
+                scrollView.smoothScrollTo(0, (int) userProfile.getY() - topMargin); //Scroll to user profile when user name is clicked
             }
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(SAVED_POST_ITEMS, profilePostItems);
     }
 
     @Override
@@ -242,11 +285,6 @@ public class PostFragment extends Fragment {
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement ContactUserListener");
         }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
     @Override
@@ -289,6 +327,10 @@ public class PostFragment extends Fragment {
 
     private void generateValidImgURL(int index) {
         imgURLs[index] = generateImgURL(index);
+    }
+
+    public interface ContactUserListener {
+        public void contactUser(String user, String title);
     }
 
     //TODO: In the future receive amount of images belonging to current post. Then use that to predict amount of image urls to generate. Then delete this class
@@ -347,11 +389,15 @@ public class PostFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            switch(index) { //Do not search for these images again
-                case 0 : imageOne = true; break;
-                case 1 : imageTwo = true; break;
-                case 2: imageThree = true; break;
-                case 3 : imageFour = true; break;
+            switch (index) { //Do not search for these images again
+                case 0:
+                    imageOne = true; break;
+                case 1:
+                    imageTwo = true; break;
+                case 2:
+                    imageThree = true; break;
+                case 3:
+                    imageFour = true; break;
             }
 
             if (bitmap != null) {
@@ -364,9 +410,9 @@ public class PostFragment extends Fragment {
                     linearLayoutParams.gravity = Gravity.NO_GRAVITY;
                     linearLayout.setLayoutParams(linearLayoutParams);
 
-                    if(index == 0)
+                    if (index == 0)
                         imgView.getLayoutParams().width = (int) getResources().getDimension(R.dimen.post_image_width);
-               }
+                }
             } else {
                 if (index == 0)  //If no images exist. Set the first image as default post image.
                     imgView.setImageDrawable(getResources().getDrawable(R.drawable.post_image));
@@ -376,7 +422,57 @@ public class PostFragment extends Fragment {
         }
     }
 
-    public interface ContactUserListener {
-        public void contactUser(String user, String title);
+    private class UserProfileRetrievalTask extends AsyncTask<String, Void, Integer> {
+        private UserProfileObject userProfile;
+
+        @Override
+        protected void onPreExecute() {
+            progressProfile.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Integer doInBackground(String... strings) {
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
+            DataParser database = new DataParser(context);
+
+            try {
+                DataParser.ObjectResult<UserProfileObject> result = database.getUserProfile(strings[0]);
+                serverResponse = result.getStatus();
+                userProfile = result.getValue();
+            } catch (Exception e) {
+                Log.e(TAG, "Downloading User Profile ", e);
+            }
+
+            return serverResponse;
+        }
+
+        @Override
+        protected void onPostExecute(Integer serverResponse) {
+            progressProfile.setVisibility(View.INVISIBLE);
+
+            if(serverResponse == StatusCodeParser.STATUS_OK) {
+                profileUserName.setText(userProfile.getUserName()+"'s posts");
+
+                ArrayList<ReferencedPost> userPosts = userProfile.getUserPosts();
+                profilePostItems = new ArrayList<ViewPostItem>();
+                String currentSchool = "";
+
+                for (ReferencedPost p : userPosts) {
+                    if (!p.getSchool().equalsIgnoreCase(currentSchool)) { //If this post is a new school, create a new header
+                        currentSchool = p.getSchool();
+                        profilePostItems.add(new ViewPostItem(p.getSchool(), p.getSchoolAbbv()));
+                        View school = LayoutInflater.from(context).inflate(R.layout.item_post_school, profilePosts, false);
+                        ((TextView)school.findViewById(R.id.content_title)).setText(p.getSchool());
+                        profilePosts.addView(school);
+                    }
+                    profilePostItems.add(new ViewPostItem(p)); //Then continue adding posts
+                    View post = LayoutInflater.from(context).inflate(R.layout.item_profile_post, profilePosts, false);
+                    ((TextView)post.findViewById(R.id.content_date)).setText(p.getDate());
+                    ((TextView)post.findViewById(R.id.content_title)).setText(p.getTitle());
+                    profilePosts.addView(post);
+                }
+            }
+        }
     }
+
 }

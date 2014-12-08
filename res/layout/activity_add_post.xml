@@ -18,7 +18,7 @@
                 android:textSize="18sp" />
 
             <EditText
-                android:id="@+id/post_title"
+                android:id="@+id/content_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"

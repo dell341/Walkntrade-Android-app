@@ -22,6 +22,7 @@ import com.walkntrade.objects.ReferencedPost;
 import com.walkntrade.objects.SchoolObject;
 import com.walkntrade.objects.ServicePost;
 import com.walkntrade.objects.TechPost;
+import com.walkntrade.objects.UserProfileObject;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -818,6 +819,92 @@ public class DataParser {
             disconnectAll();
         }
         return serverResponse;
+    }
+
+    //public ObjectResult<UserProfile> getUserProfile(String )
+
+    private UserProfileObject userProfile;
+    public ObjectResult<UserProfileObject> getUserProfile(String uid) throws Exception{
+        establishConnection();
+        userProfile = null;
+
+        try {
+            String query = "intent=getUserProfile&uid="+uid;
+            HttpEntity entity = new StringEntity(query);
+            InputStream inStream = processRequest(entity);
+
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+
+            DefaultHandler xmlHandler = new DefaultHandler() {
+                String userName = "";
+                String userImageUrl = "";
+                ArrayList<ReferencedPost> userPosts = new ArrayList<ReferencedPost>();
+
+                private String currentElement;
+                private String schoolName, schoolShortName;
+
+                @Override
+                public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+                    currentElement = localName;
+
+                    if(currentElement.equalsIgnoreCase("school")) {
+                        schoolShortName = attributes.getValue(0);
+                        schoolName = attributes.getValue(1);
+                    }
+                    else if(currentElement.equalsIgnoreCase("post")) {
+                        String id = "DNE";
+                        String link = "DNE";
+                        String category = "DNE";
+                        String title = "DNE";
+                        String date = "DNE";
+                        String views = null;
+
+                        for(int i=0; i<attributes.getLength(); i++) {
+                            if(attributes.getLocalName(i).equalsIgnoreCase("id"))
+                                id = attributes.getValue(i);
+                            else if(attributes.getLocalName(i).equalsIgnoreCase("link"))
+                                link = attributes.getValue(i);
+                            else if(attributes.getLocalName(i).equalsIgnoreCase("category"))
+                                category = attributes.getValue(i);
+                            else if(attributes.getLocalName(i).equalsIgnoreCase("title"))
+                                title = attributes.getValue(i);
+                            else if(attributes.getLocalName(i).equalsIgnoreCase("date"))
+                                date = attributes.getValue(i);
+                            else if(attributes.getLocalName(i).equalsIgnoreCase("views"))
+                                views = attributes.getValue(i);
+                        }
+
+                        if(views != null)
+                            userPosts.add(new ReferencedPost(schoolName, schoolShortName, link, category, title, date, views, 0, false));
+                    }
+                }
+
+                @Override
+                public void characters(char[] ch, int start, int length) throws SAXException {
+                    if(currentElement.equalsIgnoreCase("username")) {
+                        userName = userName + new String(ch, start, length);
+                        userName = userName.replaceAll("\\s","");
+                    }
+                    else if (currentElement.equalsIgnoreCase("avatarUrl")) {
+                        userImageUrl = userImageUrl + new String(ch, start, length);
+                        userImageUrl = userImageUrl.replaceAll("\\s","");
+                    }
+                }
+
+                @Override
+                public void endElement(String uri, String localName, String qName) throws SAXException {
+                    if(localName.equalsIgnoreCase("userprofile"))
+                        userProfile = new UserProfileObject(userName, userImageUrl, userPosts);
+                }
+            };
+            saxParser.parse(inStream, xmlHandler);
+        }
+        finally {
+            disconnectAll();
+        }
+
+        return new ObjectResult<UserProfileObject>(200, userProfile);
     }
 
     public ObjectResult<Post> getPostByIdentifier(String id) throws IOException {
