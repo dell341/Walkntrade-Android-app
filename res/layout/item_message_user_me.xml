@@ -6,8 +6,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/list_selector_pressed_1"
-    android:clickable="true"
     android:padding="5dp">
 
     <ImageView
@@ -19,7 +17,7 @@
         android:layout_alignParentRight="true"
         android:layout_margin="3dp"
         android:scaleType="centerInside"
-        android:src="@drawable/avatar" />
+        android:background="@color/gray"/>
 
     <TextView
         android:id="@+id/message_contents"
@@ -29,9 +27,19 @@
         android:layout_toLeftOf="@id/user_image"
         android:layout_toStartOf="@id/user_image"
         android:background="@drawable/chat_bubble_me_selector"
+        android:clickable="true"
         android:padding="5dp"
         android:textColor="@color/black"
         android:textSize="18sp" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/message_contents"
+        android:layout_toLeftOf="@id/message_contents"
+        android:layout_toStartOf="@id/message_contents" />
 
     <TextView
         android:id="@+id/user"
@@ -40,8 +48,8 @@
         android:layout_alignEnd="@id/message_contents"
         android:layout_alignRight="@id/message_contents"
         android:layout_below="@id/message_contents"
-        android:textSize="12sp"
-        android:textColor="@color/dark_gray_text" />
+        android:textColor="@color/dark_gray_text"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/date"
@@ -50,7 +58,7 @@
         android:layout_alignEnd="@id/message_contents"
         android:layout_alignRight="@id/message_contents"
         android:layout_below="@id/user"
-        android:textSize="12sp"
-        android:textColor="@color/dark_gray_text"/>
+        android:textColor="@color/dark_gray_text"
+        android:textSize="12sp" />
 
 </RelativeLayout>

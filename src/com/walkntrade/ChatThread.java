@@ -7,12 +7,16 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -38,6 +42,7 @@ import java.util.List;
 public class ChatThread extends Activity {
 
     private static final String TAG = "ChatThread";
+    public static final String POST_TITLE = "title_of_current_post";
 
     private Context context;
     private ProgressBar progressBar;
@@ -45,6 +50,7 @@ public class ChatThread extends Activity {
     private ChatThreadAdapter chatAdapter;
     private EditText newMessage;
     private ImageView send;
+    boolean canSendMessage = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,24 +63,49 @@ public class ChatThread extends Activity {
         newMessage = (EditText) findViewById(R.id.edit_text);
         send = (ImageView) findViewById(R.id.send_message);
 
+        getActionBar().setTitle(getIntent().getStringExtra(POST_TITLE));
+
         chatAdapter = new ChatThreadAdapter(context, R.layout.item_message_thread, new ArrayList<ChatObject>());
         new GetChatThreadTask().execute("k3lrlk23nd2");
+
+        newMessage.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                boolean hasText = editable.length() > 0;
+
+                canSendMessage = hasText;
+                send.setVisibility(hasText ? View.VISIBLE : View.INVISIBLE);
+            }
+        });
+
+        newMessage.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                switch (actionId) {
+                    case EditorInfo.IME_ACTION_SEND: sendMessage(textView.getText().toString());
+                        textView.setText("");
+                }
+
+                return false;
+            }
+        });
 
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String text = newMessage.getText().toString();
-
-                ChatObject chatObject = new ChatObject("jksndkadan", "ihakhskjahsk",99, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), text, "[current time]", false);
-                chatAdapter.add(chatObject);
-                chatAdapter.notifyDataSetChanged();
-                chatList.setSelection(chatAdapter.getCount()-1);
-                newMessage.setText("");
-                ArrayList<ChatObject> c = new ArrayList<ChatObject>();
-                c.add(chatObject);
-                new UserAvatarRetrievalTask(c, true).execute(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL));
+                sendMessage(newMessage.getText().toString());
             }
         });
+
+        getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
 
@@ -98,6 +129,17 @@ public class ChatThread extends Activity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void sendMessage(String message) {
+        ChatObject chatObject = new ChatObject("jksndkadan", "ihakhskjahsk",99, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), message, "[current time]", false);
+        chatAdapter.add(chatObject);
+        chatAdapter.notifyDataSetChanged();
+        chatList.setSelection(chatAdapter.getCount() - 1);
+        newMessage.setText("");
+        ArrayList<ChatObject> c = new ArrayList<ChatObject>();
+        c.add(chatObject);
+        new UserAvatarRetrievalTask(c, true).execute(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL));
     }
 
     private class ChatThreadAdapter extends ArrayAdapter<ChatObject> {
@@ -208,8 +250,16 @@ public class ChatThread extends Activity {
 
                 bm = imageCache.getBitmapFromDiskCache(key.substring(0, 1)); //Try to retrieve image from cache
 
-                if (bm == null) //If it doesn't exists, retrieve image from network
-                    bm = DataParser.loadBitmap(avatarURL[0]);
+                if (bm == null) { //If it doesn't exists, retrieve image from network
+
+                    //Get width and height of image view, so it returns a more-optimized image. Save memory and fits better
+                    ImageView userImageView = (ImageView) LayoutInflater.from(context).inflate(R.layout.item_message_user_me, chatList).findViewById(R.id.user_image);
+                    int width = userImageView.getWidth();
+                    int height = userImageView.getHeight();
+
+                    Log.v(TAG, "User Image View: width - "+width+" height - "+height);
+                    bm = DataParser.loadOptBitmap(avatarURL[0], width, height);
+                }
 
                 imageCache.addBitmapToCache(key.substring(0, 1), bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {

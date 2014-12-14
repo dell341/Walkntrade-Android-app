@@ -116,8 +116,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         MessageThread message = (MessageThread) parent.getItemAtPosition(position);
 
         Intent showMessageIntent = new Intent(this, ChatThread.class);
-//        showMessageIntent.putExtra(ShowMessage.MESSAGE_OBJECT, message);
-//        showMessageIntent.putExtra(MESSAGE_TYPE, messageType);
+        showMessageIntent.putExtra(ChatThread.POST_TITLE, message.getPostTitle());
         startActivity(showMessageIntent);
     }
 
