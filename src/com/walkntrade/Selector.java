@@ -24,6 +24,10 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.walkntrade.gcm.Analytics;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.StatusCodeParser;
@@ -224,10 +228,13 @@ public class Selector extends Activity implements OnItemClickListener {
         protected Integer doInBackground(String... schoolName) {
             DataParser database = new DataParser(context);
             int serverResponse = StatusCodeParser.CONNECT_FAILED;
+            String schoolQuery = schoolName[0];
 
+            Tracker t = ((Analytics)getApplication()).getTracker(Analytics.TrackerName.APP_TRACKER);
+            t.send(new HitBuilders.EventBuilder("User Input", "School Search").setLabel(schoolQuery).build());
             try {
                 schoolObjects = new ArrayList<SchoolObject>();
-                DataParser.ObjectResult<ArrayList<SchoolObject>> result = database.getSchools(schoolName[0]);
+                DataParser.ObjectResult<ArrayList<SchoolObject>> result = database.getSchools(schoolQuery);
                 serverResponse = result.getStatus();
                 schoolObjects = result.getValue();
             } catch (IOException e) {
@@ -241,6 +248,8 @@ public class Selector extends Activity implements OnItemClickListener {
         protected void onPostExecute(Integer serverResponse) {
             progressBar.setVisibility(View.GONE);
             mAdapter.clear();
+
+            GoogleAnalytics.getInstance(getBaseContext()).dispatchLocalHits();
 
             if(serverResponse == StatusCodeParser.STATUS_OK) {
                 if (schoolObjects.size() <= 0) {
