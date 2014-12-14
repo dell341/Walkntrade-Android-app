@@ -31,7 +31,7 @@ public class AccountSettings extends Activity {
         String phone = DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE);
         String password = getString(R.string.change_password);
 
-        if(phone == null || phone.equals("0"))
+        if(phone == null || phone.equals("0") || phone.isEmpty())
             phone = getString(R.string.add_phone);
 
         ArrayList<String> settings = new ArrayList<String>(3);
