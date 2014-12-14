@@ -1,3 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2014. All Rights Reserved. Walkntrade
+  ~ https://walkntrade.com
+  -->
+
 <com.walkntrade.views.AnimatedScrollLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scroll_view"
     android:layout_width="match_parent"
@@ -12,20 +17,23 @@
 
         <View
             android:id="@+id/postLayout"
-            android:layout_width="match_parent"
+            android:layout_width="700dp"
             android:layout_height="0dip"
             android:layout_above="@+id/user_block"
             android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
             android:layout_marginBottom="1.5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="1.5dp"
             android:background="@drawable/rounded_rectangle_no_shadow" />
 
         <com.walkntrade.views.LightTextView
             android:id="@+id/postTitle"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignEnd="@id/postLayout"
+            android:layout_alignLeft="@id/postLayout"
+            android:layout_alignRight="@id/postLayout"
+            android:layout_alignStart="@id/postLayout"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginTop="5dp"
@@ -38,8 +46,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/postTitle"
             android:clipToPadding="false"
-            android:paddingLeft="@dimen/horizontal_view_padding"
-            android:paddingRight="@dimen/horizontal_view_padding"
+            android:paddingLeft="120dp"
+            android:paddingRight="120dp"
             android:scrollbars="none">
 
             <LinearLayout
@@ -52,10 +60,10 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginLeft="3dp"
-                    android:layout_marginRight="3dp"
-                    android:layout_marginStart="3dp">
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginStart="5dp">
 
                     <!-- ImageView matches parent so single image fills the screen, but multiple
                     images still scroll perfectly fine-->
@@ -63,6 +71,7 @@
                         android:id="@+id/postImage1"
                         android:layout_width="@dimen/post_image_width"
                         android:layout_height="@dimen/post_image_height"
+                        android:adjustViewBounds="true"
                         android:background="@color/gray"
                         android:contentDescription="@string/post_image"
                         android:scaleType="centerCrop" />
@@ -79,8 +88,9 @@
                     android:id="@+id/postImage2"
                     android:layout_width="@dimen/post_image_width"
                     android:layout_height="@dimen/post_image_height"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginRight="3dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginRight="5dp"
+                    android:adjustViewBounds="true"
                     android:background="@color/gray"
                     android:contentDescription="@string/post_image"
                     android:scaleType="centerCrop"
@@ -91,8 +101,9 @@
                     android:id="@+id/postImage3"
                     android:layout_width="@dimen/post_image_width"
                     android:layout_height="@dimen/post_image_height"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginRight="3dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginRight="5dp"
+                    android:adjustViewBounds="true"
                     android:background="@color/gray"
                     android:contentDescription="@string/post_image"
                     android:scaleType="centerCrop"
@@ -102,8 +113,9 @@
                     android:id="@+id/postImage4"
                     android:layout_width="@dimen/post_image_width"
                     android:layout_height="@dimen/post_image_height"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginRight="3dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginRight="5dp"
+                    android:adjustViewBounds="true"
                     android:background="@color/gray"
                     android:contentDescription="@string/post_image"
                     android:scaleType="centerCrop"
@@ -113,19 +125,27 @@
 
         <com.walkntrade.views.LightTextView
             android:id="@+id/postPrice"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignEnd="@id/postLayout"
+            android:layout_alignLeft="@id/postLayout"
+            android:layout_alignRight="@id/postLayout"
+            android:layout_alignStart="@id/postLayout"
             android:layout_below="@id/horizontalView"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:padding="3dp"
+            android:padding="5dp"
             android:textSize="@dimen/price_size"
             android:textStyle="bold" />
 
         <com.walkntrade.views.LightTextView
             android:id="@+id/postDescr"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignEnd="@id/postLayout"
+            android:layout_alignLeft="@id/postLayout"
+            android:layout_alignRight="@id/postLayout"
+            android:layout_alignStart="@id/postLayout"
             android:layout_below="@id/postPrice"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
@@ -133,10 +153,11 @@
             android:textSize="@dimen/show_page_text" />
 
         <LinearLayout
-            android:id="@+id/user_block"
-            android:layout_width="match_parent"
+            android:id="@id/user_block"
+            android:layout_width="700dp"
             android:layout_height="70dp"
             android:layout_below="@id/postDescr"
+            android:layout_centerHorizontal="true"
             android:baselineAligned="false"
             android:orientation="horizontal"
             android:weightSum="1">
@@ -146,9 +167,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="1.5dp"
-                android:layout_marginLeft="5dp"
                 android:layout_marginRight="1.5dp"
-                android:layout_marginStart="5dp"
                 android:layout_weight="0.5"
                 android:background="@drawable/bottom_left_rounded_rectangle"
                 android:padding="5dp">
@@ -188,7 +207,6 @@
                 android:id="@+id/contactLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginRight="5dp"
                 android:layout_weight="0.5"
                 android:background="@drawable/bottom_right_rounded_rectangle"
                 android:padding="5dp">
@@ -206,6 +224,10 @@
             android:id="@+id/user_profile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignEnd="@id/postLayout"
+            android:layout_alignLeft="@id/postLayout"
+            android:layout_alignRight="@id/postLayout"
+            android:layout_alignStart="@id/postLayout"
             android:layout_below="@id/user_block"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
@@ -221,7 +243,7 @@
                 android:layout_marginRight="5dp"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/avatar" />
+                android:src="@drawable/avatar_background" />
 
             <com.walkntrade.views.LightTextView
                 android:id="@+id/user_name"
@@ -232,7 +254,7 @@
                 android:layout_toRightOf="@id/user_image"
                 android:gravity="center_horizontal"
                 android:padding="2dp"
-                android:textSize="@dimen/show_page_text"/>
+                android:textSize="@dimen/show_page_text" />
 
             <ProgressBar
                 android:id="@+id/profile_progress_bar"
@@ -249,7 +271,6 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/user_image"
                 android:padding="5dp" />
-
         </RelativeLayout>
 
     </RelativeLayout>

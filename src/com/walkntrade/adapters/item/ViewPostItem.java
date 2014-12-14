@@ -12,9 +12,9 @@ import com.walkntrade.objects.ReferencedPost;
  */
 
 //Represents items in the listview from the view posts option in user settings
-public class ViewPostItem implements Parcelable{
+public class ViewPostItem implements Parcelable {
 
-    private String contents, obsId, schoolAbbv;
+    private String contents, obsId, schoolAbbv, date;
     private int expire;
     private boolean expired;
     private boolean isHeader;
@@ -30,10 +30,11 @@ public class ViewPostItem implements Parcelable{
     }
 
     //Post Item
-    public ViewPostItem(ReferencedPost post){
+    public ViewPostItem(ReferencedPost post) {
         contents = post.getTitle();
         obsId = post.getLink();
         schoolAbbv = post.getSchoolAbbv();
+        date = post.getDate();
         expire = post.getExpire();
         expired = post.isExpired();
         isHeader = false;
@@ -45,6 +46,7 @@ public class ViewPostItem implements Parcelable{
         obsId = in.readString();
         schoolAbbv = in.readString();
         expire = in.readInt();
+        date = in.readString();
 
         boolean array[] = new boolean[3];
         in.readBooleanArray(array);
@@ -64,6 +66,7 @@ public class ViewPostItem implements Parcelable{
         parcel.writeString(obsId);
         parcel.writeString(schoolAbbv);
         parcel.writeInt(expire);
+        parcel.writeString(date);
         boolean array[] = {expired, isHeader, isContent};
         parcel.writeBooleanArray(array);
     }
@@ -81,12 +84,16 @@ public class ViewPostItem implements Parcelable{
         return contents;
     }
 
-    public String getObsId(){
+    public String getObsId() {
         return obsId;
     }
 
     public String getSchoolAbbv() {
         return schoolAbbv;
+    }
+
+    public String getDate() {
+        return date;
     }
 
     public int getExpire() {
@@ -97,7 +104,7 @@ public class ViewPostItem implements Parcelable{
         return expired;
     }
 
-    public boolean isHeader(){
+    public boolean isHeader() {
         return isHeader;
     }
 

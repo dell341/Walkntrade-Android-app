@@ -75,7 +75,7 @@ public class PostAdapter extends BaseAdapter {
             holder = new ViewHolder();
             //Get the text views and image views and assign the proper one
             holder.image = (ImageView) postGridView.findViewById(R.id.post_image);
-            holder.title = (TextView) postGridView.findViewById(R.id.post_title);
+            holder.title = (TextView) postGridView.findViewById(R.id.content_title);
             holder.details = (TextView) postGridView.findViewById(R.id.post_details);
             holder.author = (TextView) postGridView.findViewById(R.id.post_author);
             holder.price = (TextView) postGridView.findViewById(R.id.post_price);

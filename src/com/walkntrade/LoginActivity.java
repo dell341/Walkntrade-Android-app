@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -101,10 +102,8 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId == EditorInfo.IME_ACTION_DONE) {
+                if(actionId == EditorInfo.IME_ACTION_DONE) //If user presses 'Done', continue to log-in, but return false so the keyboard goes away
                     login();
-                    return true;
-                }
 
                 return false;
             }
@@ -113,6 +112,9 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         submitButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Hide keyboard if submit button was pressed
+                InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputMethodManager.hideSoftInputFromWindow(password.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                 login();
             }
         });

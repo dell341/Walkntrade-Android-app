@@ -33,11 +33,13 @@
     <dimen name="title_size">22sp</dimen>
     <dimen name="price_size">26sp</dimen>
     <dimen name="show_page_text">16sp</dimen>
-    <dimen name="image_size_width">320dp</dimen>
-    <dimen name="image_size_height">220dp</dimen>
+    <dimen name="post_image_width">300dp</dimen>
+    <dimen name="post_image_height">220dp</dimen>
     <dimen name="horizontal_view_padding">3dp</dimen>
 
     <!-- Add Post-->
     <dimen name="photo_width">60dp</dimen>
+
+    <dimen name="image_size_height">220dp</dimen>
 
 </resources>

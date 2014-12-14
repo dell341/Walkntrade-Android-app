@@ -7,12 +7,14 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -25,10 +27,14 @@ import com.walkntrade.ImageDialog;
 import com.walkntrade.LoginActivity;
 import com.walkntrade.R;
 import com.walkntrade.SchoolPage;
+import com.walkntrade.adapters.item.ViewPostItem;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
+import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
+import com.walkntrade.objects.ReferencedPost;
+import com.walkntrade.objects.UserProfileObject;
 import com.walkntrade.views.SnappingHorizontalScrollView;
 
 import java.io.IOException;
@@ -45,37 +51,44 @@ public class PostFragment extends Fragment {
     public static String IMGSRC = "Link_For_Images";
     public static String IDENTIFIER = "Unique_Post_Id";
     public static String INDEX = "Image_Index";
-    public static final String TWO_PANE = "layout_of_show_page";
 
     private static final String SAVED_POST = "saved_instance_post";
     private static final String SAVED_IMAGE_1 = "saved_instance_image_1";
     private static final String SAVED_IMAGE_2 = "saved_instance_image_2";
     private static final String SAVED_IMAGE_3 = "saved_instance_image_3";
     private static final String SAVED_IMAGE_4 = "saved_instance_image_4";
+    private static final String SAVED_POST_ITEMS = "saved_instance_post_items";
 
     private ContactUserListener contactListener;
     private Context context;
     private String identifier;
     private Post thisPost;
-    private ProgressBar progressImage;
-    private TextView title, details, user, date, price;
+    private ProgressBar progressImage, progressProfile;
+    private LinearLayout linearLayout;
+    private TextView title, details, user, date, price, profileUserName;
     private ImageView image, image2, image3, image4;
     private Button contact;
+    ArrayList<ViewPostItem> profilePostItems;
+    private LinearLayout profilePosts;
     private String[] imgURLs;
 
     private AsyncTask asyncTask1, asyncTask2, asyncTask3, asyncTask4;
     public int imageCount = 0;
     private boolean currentUserPost = false;
-    private boolean twoPane;
+    private boolean imageOne, imageTwo, imageThree, imageFour; //Looks to see whether these images were already retrieved from the server (whether they exist or not)
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_post, container, false);
 
         thisPost = getArguments().getParcelable(SchoolPage.SELECTED_POST);
-        twoPane = getArguments().getBoolean(TWO_PANE);
 
         context = getActivity().getApplicationContext();
+        final ScrollView scrollView = (ScrollView) rootView.findViewById(R.id.scroll_view);
+        final View postLayout = rootView.findViewById(R.id.postLayout);
+        linearLayout = (LinearLayout) rootView.findViewById(R.id.linear_layout);
+        RelativeLayout userLayout = (RelativeLayout) rootView.findViewById(R.id.user_layout);
+        final RelativeLayout userProfile = (RelativeLayout) rootView.findViewById(R.id.user_profile);
         progressImage = (ProgressBar) rootView.findViewById(R.id.progressBar);
         title = (TextView) rootView.findViewById(R.id.postTitle);
         details = (TextView) rootView.findViewById(R.id.postDescr);
@@ -83,9 +96,9 @@ public class PostFragment extends Fragment {
         date = (TextView) rootView.findViewById(R.id.postDate);
         price = (TextView) rootView.findViewById(R.id.postPrice);
         contact = (Button) rootView.findViewById(R.id.post_contact);
-        final ScrollView scrollView = (ScrollView) rootView.findViewById(R.id.scroll_view);
-        RelativeLayout userLayout = (RelativeLayout) rootView.findViewById(R.id.user_layout);
-        final RelativeLayout userProfile = (RelativeLayout) rootView.findViewById(R.id.user_profile);
+        profileUserName = (TextView) rootView.findViewById(R.id.user_name);
+        profilePosts = (LinearLayout) rootView.findViewById(R.id.profile_posts);
+        progressProfile = (ProgressBar) rootView.findViewById(R.id.profile_progress_bar);
 
         SnappingHorizontalScrollView horizontalScrollView = (SnappingHorizontalScrollView) rootView.findViewById(R.id.horizontalView);
         image = (ImageView) rootView.findViewById(R.id.postImage1);
@@ -93,47 +106,99 @@ public class PostFragment extends Fragment {
         image3 = (ImageView) rootView.findViewById(R.id.postImage3);
         image4 = (ImageView) rootView.findViewById(R.id.postImage4);
 
-        ArrayList<View> images = new ArrayList<View>(4);
-        images.add(image); images.add(image2); images.add(image3); images.add(image4);
-        horizontalScrollView.addItems(images); //Add image views to view, to allow and keep track of fling gesture
+        if(savedInstanceState != null) {
+            profilePostItems = savedInstanceState.getParcelableArrayList(SAVED_POST_ITEMS);
 
-        //Sets the size of the image views, so it looks nice
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        if(!twoPane) {
-            image.getLayoutParams().width = (int) (displayMetrics.widthPixels* .98);
-            image2.getLayoutParams().width = (int) (displayMetrics.widthPixels* .98);
-            image3.getLayoutParams().width = (int) (displayMetrics.widthPixels* .98);
-            image4.getLayoutParams().width = (int) (displayMetrics.widthPixels* .98);
-        } else {
-            image.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667 * .99));
-            image2.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667 * .99));
-            image3.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667 * .99));
-            image4.getLayoutParams().width = (int) (displayMetrics.widthPixels * (.6666667 * .99));
+            for(ViewPostItem item : profilePostItems) {
+                if(item.isHeader()) {
+                    View school = LayoutInflater.from(context).inflate(R.layout.item_post_school, profilePosts, false);
+                    ((TextView)school.findViewById(R.id.content_title)).setText(item.getContents());
+                    profilePosts.addView(school);
+                }
+                else {
+                    View post = LayoutInflater.from(context).inflate(R.layout.item_profile_post, profilePosts, false);
+                    ((TextView)post.findViewById(R.id.content_date)).setText(item.getDate());
+                    ((TextView)post.findViewById(R.id.content_title)).setText(item.getContents());
+                    profilePosts.addView(post);
+                }
+            }
         }
+        else
+            new UserProfileRetrievalTask().execute("1");
+
+        ArrayList<View> images = new ArrayList<View>(4);
+        images.add(image);
+        images.add(image2);
+        images.add(image3);
+        images.add(image4);
+        horizontalScrollView.addItems(images); //Add image views to view, to allow and keep track of fling gesture
 
         identifier = thisPost.getIdentifier();
         title.setText(thisPost.getTitle());
         details.setText(thisPost.getDetails());
         user.setText(thisPost.getUser());
         date.setText(thisPost.getDate());
-        if(!thisPost.getPrice().equals(""))
+        if (!thisPost.getPrice().equals(""))
             price.setText(thisPost.getPrice());
         else
             price.setVisibility(View.GONE);
-  //Calls images to be displayed on show page
+
+        profileUserName.setText(thisPost.getUser()+"'s posts");
+
+        //Calls images to be displayed on show page
+        imageOne = false;
+        imageTwo = false;
+        imageThree = false;
+        imageFour = false;
 
         //First Image
-        String imgUrl = generateImgURL(0);
-        asyncTask1 = new SpecialImageRetrievalTask(image, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+        image.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                //Only perform an image retrieval if the image is no longer there, a search hasn't been performed yet, and a search isn't currently running
+                if (image.getDrawable() == null && (asyncTask1 == null || asyncTask1.getStatus() != AsyncTask.Status.RUNNING) && !imageOne) {
+
+                    //Adjust the first image (just in case there are no other images added)
+                    image.getLayoutParams().width = (int) (postLayout.getMeasuredWidth() * .98);
+
+                    String imgUrl = generateImgURL(0);
+                    asyncTask1 = new SpecialImageRetrievalTask(image, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+                }
+            }
+        });
+
         //Second Image
-        imgUrl = generateImgURL(1);
-        asyncTask2 = new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+        image.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (image2.getDrawable() == null && (asyncTask2 == null || asyncTask2.getStatus() != AsyncTask.Status.RUNNING) && !imageTwo) {
+                    String imgUrl = generateImgURL(1);
+                    asyncTask2 = new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+                }
+            }
+        });
+
         //Third Image
-        imgUrl = generateImgURL(2);
-        asyncTask3 = new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
+        image.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (image3.getDrawable() == null && (asyncTask3 == null || asyncTask3.getStatus() != AsyncTask.Status.RUNNING) && !imageThree) {
+                    String imgUrl = generateImgURL(2);
+                    asyncTask3 = new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
+                }
+            }
+        });
+
         //Fourth Image
-        imgUrl = generateImgURL(3);
-        asyncTask4 = new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
+        image.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (image4.getDrawable() == null && (asyncTask4 == null || asyncTask4.getStatus() != AsyncTask.Status.RUNNING) && !imageFour) {
+                    String imgUrl = generateImgURL(3);
+                    asyncTask4 = new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
+                }
+            }
+        });
 
         //Set OnClick Listeners for each image
         image.setOnClickListener(new View.OnClickListener() {
@@ -163,10 +228,10 @@ public class PostFragment extends Fragment {
         contact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(DataParser.isUserLoggedIn(context)){
-                    if(currentUserPost) { //Edit Post
+                if (DataParser.isUserLoggedIn(context)) {
+                    if (currentUserPost) { //Edit Post
                         String schoolId = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
-                        String obsId = schoolId+":"+thisPost.getIdentifier();
+                        String obsId = schoolId + ":" + thisPost.getIdentifier();
 
                         Intent editPost = new Intent(context, EditPost.class);
 
@@ -174,34 +239,32 @@ public class PostFragment extends Fragment {
                         editPost.putExtra(EditPost.POST_ID, obsId);
                         editPost.putExtra(EditPost.POST_IDENTIFIER, identifier);
                         startActivity(editPost);
-                    }
-                    else
+                    } else
                         contactListener.contactUser(thisPost.getUser(), thisPost.getTitle());
-                }
-                else
+                } else
                     startActivity(new Intent(context, LoginActivity.class));
             }
         });
 
-        if(DataParser.isUserLoggedIn(context)) { //If user is logged in
+        if (DataParser.isUserLoggedIn(context)) { //If user is logged in
             new PollMessagesTask(context).execute();
-            if(thisPost.getUser().equals(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME))) { //If this is the current user's post
+            if (thisPost.getUser().equals(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME))) { //If this is the current user's post
                 currentUserPost = true;
                 contact.setText(getString(R.string.edit_post));
-            }
-            else {
+            } else {
                 currentUserPost = false;
                 contact.setText(getString(R.string.contact));
             }
-        }
-        else
+        } else
             contact.setText(getString(R.string.contact_login));
 
         userLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int height = userProfile.getMeasuredHeight();
-                scrollView.smoothScrollTo(0, height+userProfile.getPaddingBottom());
+                RelativeLayout.LayoutParams layout = (RelativeLayout.LayoutParams) userProfile.getLayoutParams();
+                int topMargin = layout.topMargin;
+
+                scrollView.smoothScrollTo(0, (int) userProfile.getY() - topMargin); //Scroll to user profile when user name is clicked
             }
         });
 
@@ -209,44 +272,43 @@ public class PostFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(SAVED_POST_ITEMS, profilePostItems);
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try { //Make sure that activity has implemented the listener
             contactListener = (ContactUserListener) activity;
-        } catch (ClassCastException e){
-            throw new  ClassCastException(activity.toString() + " must implement ContactUserListener");
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement ContactUserListener");
         }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        if(DataParser.isUserLoggedIn(context)) {
+        if (DataParser.isUserLoggedIn(context)) {
             new PollMessagesTask(context).execute();
-            if(thisPost.getUser().equals(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME))) {
+            if (thisPost.getUser().equals(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME))) {
                 currentUserPost = true;
                 contact.setText(getString(R.string.edit_post));
-            }
-            else {
+            } else {
                 currentUserPost = false;
                 contact.setText(getString(R.string.contact));
             }
-        }
-        else
+        } else
             contact.setText(getString(R.string.contact_login));
     }
 
-    private void processClick(int index){
+    private void processClick(int index) {
         imgURLs = new String[imageCount];
-        for(int i=0; i < imageCount; i++)
+        for (int i = 0; i < imageCount; i++)
             generateValidImgURL(i);
-        if(imgURLs.length > 0) {
+        if (imgURLs.length > 0) {
             Intent imgDialog = new Intent(context, ImageDialog.class);
             imgDialog.putExtra(IMGSRC, imgURLs);
             imgDialog.putExtra(INDEX, index);
@@ -255,32 +317,36 @@ public class PostFragment extends Fragment {
         }
     }
 
-    private String generateImgURL(int index){
+    private String generateImgURL(int index) {
         String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
-        String imgUrl = "post_images/"+schoolID+"/";
-        imgUrl = imgUrl+identifier+"-"+index+".jpeg";
+        String imgUrl = "post_images/" + schoolID + "/";
+        imgUrl = imgUrl + identifier + "-" + index + ".jpeg";
 
         return imgUrl;
     }
 
-    private void generateValidImgURL(int index){
+    private void generateValidImgURL(int index) {
         imgURLs[index] = generateImgURL(index);
     }
 
+    public interface ContactUserListener {
+        public void contactUser(String user, String title);
+    }
+
     //TODO: In the future receive amount of images belonging to current post. Then use that to predict amount of image urls to generate. Then delete this class
-    private class SpecialImageRetrievalTask extends AsyncTask<String, Void, Bitmap>{
+    private class SpecialImageRetrievalTask extends AsyncTask<String, Void, Bitmap> {
         private ImageView imgView;
         private int index;
         private DiskLruImageCache imageCache;
 
-        public SpecialImageRetrievalTask(ImageView _imgView, int _index){
+        public SpecialImageRetrievalTask(ImageView _imgView, int _index) {
             imgView = _imgView;
             index = _index;
         }
 
         @Override
         protected void onPreExecute() {
-            if(index == 0) //Show progress only on the first big image
+            if (index == 0) //Show progress only on the first big image
                 progressImage.setVisibility(View.VISIBLE);
         }
 
@@ -288,23 +354,23 @@ public class PostFragment extends Fragment {
         protected Bitmap doInBackground(String... imgURL) {
             Bitmap bm = null;
 
-            if(isCancelled())
+            if (isCancelled())
                 return null;
 
             try {
                 String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
-                String key = identifier+"_"+index;
+                String key = identifier + "_" + index;
 
-                imageCache = new DiskLruImageCache(context, schoolID+DiskLruImageCache.DIRECTORY_POST_IMAGES);
+                imageCache = new DiskLruImageCache(context, schoolID + DiskLruImageCache.DIRECTORY_POST_IMAGES);
                 bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from Cache
 
-                if(bm == null) { //If it doesn't exists, retrieve image from network
+                if (bm == null) { //If it doesn't exists, retrieve image from network
                     int width;
                     int height;
 
                     do { //Keep measuring the width of the ImageView if it's zero
-                    width = image.getWidth();
-                    height = image.getHeight();
+                        width = image.getWidth();
+                        height = image.getHeight();
                     } while (width == 0 || height == 0);
 
                     bm = DataParser.loadOptBitmap(imgURL[0], width, height);
@@ -314,8 +380,7 @@ public class PostFragment extends Fragment {
             } catch (IOException e) {
                 Log.e(TAG, "Image does not exist");
                 return null;
-            }
-            finally{
+            } finally {
                 imageCache.close();
             }
 
@@ -324,43 +389,90 @@ public class PostFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            if(bitmap != null) {
+            switch (index) { //Do not search for these images again
+                case 0:
+                    imageOne = true; break;
+                case 1:
+                    imageTwo = true; break;
+                case 2:
+                    imageThree = true; break;
+                case 3:
+                    imageFour = true; break;
+            }
 
+            if (bitmap != null) {
                 imgView.setVisibility(View.VISIBLE);
                 imgView.setImageBitmap(bitmap);
                 imageCount++;
 
-                if(imageCount > 1) { //If there are more than 1 images, Adjust the image widths
+                if (imageCount > 1) { //If there are more than 1 images, Adjust the image widths
+                    FrameLayout.LayoutParams linearLayoutParams = (FrameLayout.LayoutParams) linearLayout.getLayoutParams();
+                    linearLayoutParams.gravity = Gravity.NO_GRAVITY;
+                    linearLayout.setLayoutParams(linearLayoutParams);
 
-                    DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-                    RelativeLayout.LayoutParams relativeLayoutParams = (RelativeLayout.LayoutParams) image.getLayoutParams();
-                    LinearLayout.LayoutParams linearLayoutParams = (LinearLayout.LayoutParams) image2.getLayoutParams();
-
-                    if(!twoPane) { //this is not a two-pane view.
-                        relativeLayoutParams.width = (int) (displayMetrics.widthPixels * .95);
-                        linearLayoutParams.width = (int) (displayMetrics.widthPixels * .95);
-                    }
-                    else {
-                        relativeLayoutParams.width = (int) (displayMetrics.widthPixels * .6666667 * .95);
-                        linearLayoutParams.width = (int) (displayMetrics.widthPixels * .6666667 * .95);
-                    }
-
-                    image.setLayoutParams(relativeLayoutParams);
-                    image2.setLayoutParams(linearLayoutParams);
-                    image3.setLayoutParams(linearLayoutParams);
-                    image4.setLayoutParams(linearLayoutParams);
-
+                    if (index == 0)
+                        imgView.getLayoutParams().width = (int) getResources().getDimension(R.dimen.post_image_width);
                 }
-            }
-            else if(index == 0) { //If no images exist. Put the default image for the first image.
-                imgView.setImageDrawable(getResources().getDrawable(R.drawable.post_image));
+            } else {
+                if (index == 0)  //If no images exist. Set the first image as default post image.
+                    imgView.setImageDrawable(getResources().getDrawable(R.drawable.post_image));
             }
 
             progressImage.setVisibility(View.INVISIBLE);
         }
     }
 
-    public interface ContactUserListener {
-        public void contactUser(String user, String title);
+    private class UserProfileRetrievalTask extends AsyncTask<String, Void, Integer> {
+        private UserProfileObject userProfile;
+
+        @Override
+        protected void onPreExecute() {
+            progressProfile.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Integer doInBackground(String... strings) {
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
+            DataParser database = new DataParser(context);
+
+            try {
+                DataParser.ObjectResult<UserProfileObject> result = database.getUserProfile(strings[0]);
+                serverResponse = result.getStatus();
+                userProfile = result.getObject();
+            } catch (Exception e) {
+                Log.e(TAG, "Downloading User Profile ", e);
+            }
+
+            return serverResponse;
+        }
+
+        @Override
+        protected void onPostExecute(Integer serverResponse) {
+            progressProfile.setVisibility(View.INVISIBLE);
+
+            if(serverResponse == StatusCodeParser.STATUS_OK) {
+                profileUserName.setText(userProfile.getUserName()+"'s posts");
+
+                ArrayList<ReferencedPost> userPosts = userProfile.getUserPosts();
+                profilePostItems = new ArrayList<ViewPostItem>();
+                String currentSchool = "";
+
+                for (ReferencedPost p : userPosts) {
+                    if (!p.getSchool().equalsIgnoreCase(currentSchool)) { //If this post is a new school, create a new header
+                        currentSchool = p.getSchool();
+                        profilePostItems.add(new ViewPostItem(p.getSchool(), p.getSchoolAbbv()));
+                        View school = LayoutInflater.from(context).inflate(R.layout.item_post_school, profilePosts, false);
+                        ((TextView)school.findViewById(R.id.content_title)).setText(p.getSchool());
+                        profilePosts.addView(school);
+                    }
+                    profilePostItems.add(new ViewPostItem(p)); //Then continue adding posts
+                    View post = LayoutInflater.from(context).inflate(R.layout.item_profile_post, profilePosts, false);
+                    ((TextView)post.findViewById(R.id.content_date)).setText(p.getDate());
+                    ((TextView)post.findViewById(R.id.content_title)).setText(p.getTitle());
+                    profilePosts.addView(post);
+                }
+            }
+        }
     }
+
 }

@@ -111,7 +111,7 @@ public class AddPost extends Activity implements OnClickListener {
         scrollView = (ScrollView) findViewById(R.id.scroll_view);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         postError = (TextView) findViewById(R.id.post_error);
-        title = (EditText) findViewById(R.id.post_title);
+        title = (EditText) findViewById(R.id.content_title);
         description = (EditText) findViewById(R.id.post_description);
         price = (EditText) findViewById(R.id.post_price);
         tags = (EditText) findViewById(R.id.post_tags);

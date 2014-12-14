@@ -40,6 +40,7 @@
     <string name="delete_post_quest">Do you want to delete this post?</string>
 
     <!-- Renew Post-->
+    <string name="no_posts">You don\'t have any posts!</string>
     <string name="renew_underlined"><u>renew</u></string>
     <string name="renew_post">Renew this Post</string>
     

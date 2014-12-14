@@ -18,6 +18,7 @@
     <string name="signin">Sign In</string>
     <string name="signout">Sign Out</string>
     <string name="no_results">No Results Found</string>
+    <string name="swipe_down_refresh">Swipe down to refresh</string>
     <string name="in_progress">Coming Soon - In Progress</string>
     <string name="no_login">Must be logged in</string>
     <string name="login_failed">Could not login</string>
