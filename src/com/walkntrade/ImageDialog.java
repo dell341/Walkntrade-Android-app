@@ -127,12 +127,6 @@ public class ImageDialog extends Activity {
                 Log.e(TAG, "Orientation Change before image downloaded");
             }
         }
-
-        @Override
-        public void onDetach() {
-            super.onDetach();
-            imageRetrievalTask.cancel(true);
-        }
     }
 
     private static class ImageRetrievalTask extends AsyncTask<String, Void, Bitmap>{
