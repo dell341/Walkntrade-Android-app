@@ -52,12 +52,12 @@ public class PostFragment extends Fragment {
     public static String IDENTIFIER = "Unique_Post_Id";
     public static String INDEX = "Image_Index";
 
-    private static final String SAVED_POST = "saved_instance_post";
-    private static final String SAVED_IMAGE_1 = "saved_instance_image_1";
-    private static final String SAVED_IMAGE_2 = "saved_instance_image_2";
-    private static final String SAVED_IMAGE_3 = "saved_instance_image_3";
-    private static final String SAVED_IMAGE_4 = "saved_instance_image_4";
+//    private static final String SAVED_IMAGE_1 = "saved_instance_image_1";
+//    private static final String SAVED_IMAGE_2 = "saved_instance_image_2";
+//    private static final String SAVED_IMAGE_3 = "saved_instance_image_3";
+//    private static final String SAVED_IMAGE_4 = "saved_instance_image_4";
     private static final String SAVED_POST_ITEMS = "saved_instance_post_items";
+    private static final String SAVED_USER_IMAGE = "saved_instance_user_image";
 
     private ContactUserListener contactListener;
     private Context context;
@@ -66,11 +66,12 @@ public class PostFragment extends Fragment {
     private ProgressBar progressImage, progressProfile;
     private LinearLayout linearLayout;
     private TextView title, details, user, date, price, profileUserName;
-    private ImageView image, image2, image3, image4;
+    private ImageView image, image2, image3, image4, userImage, userImage2;
     private Button contact;
-    ArrayList<ViewPostItem> profilePostItems;
+    private ArrayList<ViewPostItem> profilePostItems;
     private LinearLayout profilePosts;
     private String[] imgURLs;
+    private String avatarUrl;
 
     private AsyncTask asyncTask1, asyncTask2, asyncTask3, asyncTask4;
     public int imageCount = 0;
@@ -79,16 +80,19 @@ public class PostFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.i(TAG, "OnCreateView");
         View rootView = inflater.inflate(R.layout.fragment_post, container, false);
 
         thisPost = getArguments().getParcelable(SchoolPage.SELECTED_POST);
-
         context = getActivity().getApplicationContext();
+
         final ScrollView scrollView = (ScrollView) rootView.findViewById(R.id.scroll_view);
         final View postLayout = rootView.findViewById(R.id.postLayout);
-        linearLayout = (LinearLayout) rootView.findViewById(R.id.linear_layout);
-        RelativeLayout userLayout = (RelativeLayout) rootView.findViewById(R.id.user_layout);
         final RelativeLayout userProfile = (RelativeLayout) rootView.findViewById(R.id.user_profile);
+        RelativeLayout userLayout = (RelativeLayout) rootView.findViewById(R.id.user_layout);
+        SnappingHorizontalScrollView horizontalScrollView = (SnappingHorizontalScrollView) rootView.findViewById(R.id.horizontalView);
+        linearLayout = (LinearLayout) rootView.findViewById(R.id.linear_layout);
+        profilePosts = (LinearLayout) rootView.findViewById(R.id.profile_posts);
         progressImage = (ProgressBar) rootView.findViewById(R.id.progressBar);
         title = (TextView) rootView.findViewById(R.id.postTitle);
         details = (TextView) rootView.findViewById(R.id.postDescr);
@@ -97,10 +101,9 @@ public class PostFragment extends Fragment {
         price = (TextView) rootView.findViewById(R.id.postPrice);
         contact = (Button) rootView.findViewById(R.id.post_contact);
         profileUserName = (TextView) rootView.findViewById(R.id.user_name);
-        profilePosts = (LinearLayout) rootView.findViewById(R.id.profile_posts);
         progressProfile = (ProgressBar) rootView.findViewById(R.id.profile_progress_bar);
-
-        SnappingHorizontalScrollView horizontalScrollView = (SnappingHorizontalScrollView) rootView.findViewById(R.id.horizontalView);
+        userImage = (ImageView) rootView.findViewById(R.id.userImage);
+        userImage2 = (ImageView) rootView.findViewById(R.id.user_image);
         image = (ImageView) rootView.findViewById(R.id.postImage1);
         image2 = (ImageView) rootView.findViewById(R.id.postImage2);
         image3 = (ImageView) rootView.findViewById(R.id.postImage3);
@@ -108,6 +111,7 @@ public class PostFragment extends Fragment {
 
         if(savedInstanceState != null) {
             profilePostItems = savedInstanceState.getParcelableArrayList(SAVED_POST_ITEMS);
+            String avatarUrl = savedInstanceState.getString(SAVED_USER_IMAGE);
 
             for(ViewPostItem item : profilePostItems) {
                 if(item.isHeader()) {
@@ -122,6 +126,11 @@ public class PostFragment extends Fragment {
                     profilePosts.addView(post);
                 }
             }
+
+            if(avatarUrl != null && !avatarUrl.isEmpty())
+                new UserAvatarRetrievalTask().execute(avatarUrl);
+            else
+                new UserProfileRetrievalTask().execute("1");
         }
         else
             new UserProfileRetrievalTask().execute("1");
@@ -275,6 +284,7 @@ public class PostFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(SAVED_POST_ITEMS, profilePostItems);
+        outState.putString(SAVED_USER_IMAGE, avatarUrl);
     }
 
     @Override
@@ -451,6 +461,8 @@ public class PostFragment extends Fragment {
             progressProfile.setVisibility(View.INVISIBLE);
 
             if(serverResponse == StatusCodeParser.STATUS_OK) {
+                avatarUrl = userProfile.getUserImageUrl();
+                new UserAvatarRetrievalTask().execute(avatarUrl);
                 profileUserName.setText(userProfile.getUserName()+"'s posts");
 
                 ArrayList<ReferencedPost> userPosts = userProfile.getUserPosts();
@@ -472,6 +484,50 @@ public class PostFragment extends Fragment {
                     profilePosts.addView(post);
                 }
             }
+        }
+    }
+
+    private class UserAvatarRetrievalTask extends AsyncTask<String, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(String... url) {
+            DataParser database = new DataParser(context);
+            Bitmap bm = null;
+            DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
+
+            try {
+                String avatarURL = url[0];
+                Log.d(TAG, "Avatar URL: "+avatarURL);
+
+                String[] splitURL = avatarURL.split("_");
+                String key = splitURL[2]; //The URL will also be used as the key to cache their avatar image
+
+                bm = imageCache.getBitmapFromDiskCache(key.substring(0, 1)); //Try to retrieve image from cache
+
+                if(bm == null) //If it doesn't exists, retrieve image from network
+                    bm = DataParser.loadBitmap(avatarURL);
+
+                imageCache.addBitmapToCache(key.substring(0, 1), bm); //Finally cache bitmap. Will override cache if already exists or write new cache
+            }
+            catch(IOException e) {
+                Log.e(TAG, "Retrieving user avatar", e);
+            }
+            catch(ArrayIndexOutOfBoundsException e) {
+                Log.e(TAG, "Image does not exist", e);
+                //If user has not uploaded an image, leave Bitmap as null
+            }
+            finally {
+                imageCache.close();
+            }
+            return bm;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if(bitmap != null) {
+                userImage.setImageBitmap(bitmap);
+                userImage2.setImageBitmap(bitmap);
+            }
+
         }
     }
 

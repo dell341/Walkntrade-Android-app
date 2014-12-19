@@ -821,90 +821,45 @@ public class DataParser {
         return serverResponse;
     }
 
-    //public ObjectResult<UserProfile> getUserProfile(String )
-
-    private UserProfileObject userProfile;
     public ObjectResult<UserProfileObject> getUserProfile(String uid) throws Exception{
         establishConnection();
-        userProfile = null;
+        ObjectResult<UserProfileObject> result = new ObjectResult<UserProfileObject>(StatusCodeParser.CONNECT_FAILED, null);
 
         try {
             String query = "intent=getUserProfile&uid="+uid;
             HttpEntity entity = new StringEntity(query);
-            InputStream inStream = processRequest(entity);
+            InputStream inputStream = processRequest(entity);
 
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            SAXParser saxParser = factory.newSAXParser();
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
 
-            DefaultHandler xmlHandler = new DefaultHandler() {
-                String userName = "";
-                String userImageUrl = "";
-                ArrayList<ReferencedPost> userPosts = new ArrayList<ReferencedPost>();
+            JSONObject payload = jsonObject.getJSONObject(PAYLOAD);
+            int serverResponse = jsonObject.getInt(STATUS);
 
-                private String currentElement;
-                private String schoolName, schoolShortName;
+            ArrayList<ReferencedPost> postList = new ArrayList<ReferencedPost>();
+            String userName = payload.getString("username");
+            String userImgUrl = payload.getString("avatarUrl");
+            JSONArray userPosts = payload.getJSONArray("posts");
 
-                @Override
-                public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-                    currentElement = localName;
+            for(int i=0; i<userPosts.length(); i++) {
+                JSONObject post = userPosts.getJSONObject(i);
 
-                    if(currentElement.equalsIgnoreCase("school")) {
-                        schoolShortName = attributes.getValue(0);
-                        schoolName = attributes.getValue(1);
-                    }
-                    else if(currentElement.equalsIgnoreCase("post")) {
-                        String id = "DNE";
-                        String link = "DNE";
-                        String category = "DNE";
-                        String title = "DNE";
-                        String date = "DNE";
-                        String views = null;
+                String link = post.getString("post_identifier");
+                String title = post.getString("title");
+                String date = post.getString("date");
+                String category = post.getString("category");
 
-                        for(int i=0; i<attributes.getLength(); i++) {
-                            if(attributes.getLocalName(i).equalsIgnoreCase("id"))
-                                id = attributes.getValue(i);
-                            else if(attributes.getLocalName(i).equalsIgnoreCase("link"))
-                                link = attributes.getValue(i);
-                            else if(attributes.getLocalName(i).equalsIgnoreCase("category"))
-                                category = attributes.getValue(i);
-                            else if(attributes.getLocalName(i).equalsIgnoreCase("title"))
-                                title = attributes.getValue(i);
-                            else if(attributes.getLocalName(i).equalsIgnoreCase("date"))
-                                date = attributes.getValue(i);
-                            else if(attributes.getLocalName(i).equalsIgnoreCase("views"))
-                                views = attributes.getValue(i);
-                        }
+                postList.add(new ReferencedPost("Unknown School", "US", link, category, title, date, "0", 0, false));
+            }
 
-                        if(views != null)
-                            userPosts.add(new ReferencedPost(schoolName, schoolShortName, link, category, title, date, views, 0, false));
-                    }
-                }
+            result = new ObjectResult<UserProfileObject>(serverResponse, new UserProfileObject(userName, userImgUrl, postList));
 
-                @Override
-                public void characters(char[] ch, int start, int length) throws SAXException {
-                    if(currentElement.equalsIgnoreCase("username")) {
-                        userName = userName + new String(ch, start, length);
-                        userName = userName.replaceAll("\\s","");
-                    }
-                    else if (currentElement.equalsIgnoreCase("avatarUrl")) {
-                        userImageUrl = userImageUrl + new String(ch, start, length);
-                        userImageUrl = userImageUrl.replaceAll("\\s","");
-                    }
-                }
-
-                @Override
-                public void endElement(String uri, String localName, String qName) throws SAXException {
-                    if(localName.equalsIgnoreCase("userprofile"))
-                        userProfile = new UserProfileObject(userName, userImageUrl, userPosts);
-                }
-            };
-            saxParser.parse(inStream, xmlHandler);
-        }
-        finally {
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        }finally {
             disconnectAll();
         }
 
-        return new ObjectResult<UserProfileObject>(200, userProfile);
+        return result;
     }
 
     public ObjectResult<Post> getPostByIdentifier(String id) throws IOException {
