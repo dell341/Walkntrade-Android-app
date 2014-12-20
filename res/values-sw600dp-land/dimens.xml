@@ -5,4 +5,8 @@
 
     <dimen name="post_image_width">460dp</dimen>
     <dimen name="post_image_height">300dp</dimen>
+
+    <!-- AddPost-->
+    <dimen name="add_post_image_width">240dp</dimen>
+    <dimen name="add_post_image_height">200dp</dimen>
 </resources>

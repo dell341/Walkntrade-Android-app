@@ -1,5 +1,8 @@
 <resources>
 
+    <dimen name="photo_width">60dp</dimen>
+    <dimen name="image_size_height">220dp</dimen>
+
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
@@ -37,9 +40,7 @@
     <dimen name="post_image_height">220dp</dimen>
     <dimen name="horizontal_view_padding">3dp</dimen>
 
-    <!-- Add Post-->
-    <dimen name="photo_width">60dp</dimen>
-
-    <dimen name="image_size_height">220dp</dimen>
-
+    <!-- AddPost-->
+    <dimen name="add_post_image_width">150dp</dimen>
+    <dimen name="add_post_image_height">110dp</dimen>
 </resources>

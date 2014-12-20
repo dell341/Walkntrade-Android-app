@@ -136,10 +136,7 @@ public class PostFragment extends Fragment {
             new UserProfileRetrievalTask().execute("1");
 
         ArrayList<View> images = new ArrayList<View>(4);
-        images.add(image);
-        images.add(image2);
-        images.add(image3);
-        images.add(image4);
+        images.add(image); images.add(image2); images.add(image3); images.add(image4);
         horizontalScrollView.addItems(images); //Add image views to view, to allow and keep track of fling gesture
 
         identifier = thisPost.getIdentifier();

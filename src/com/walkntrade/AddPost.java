@@ -30,12 +30,14 @@ import android.widget.Toast;
 
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.ImageTool;
+import com.walkntrade.views.SnappingHorizontalScrollView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
@@ -121,11 +123,16 @@ public class AddPost extends Activity implements OnClickListener {
             author.setVisibility(View.VISIBLE);
             isbn.setVisibility(View.VISIBLE);
         }
+        SnappingHorizontalScrollView horizontalScrollView = (SnappingHorizontalScrollView) findViewById(R.id.horizontalView);
         image1 = (ImageView) findViewById(R.id.add_image_1);
         image2 = (ImageView) findViewById(R.id.add_image_2);
         image3 = (ImageView) findViewById(R.id.add_image_3);
         image4 = (ImageView) findViewById(R.id.add_image_4);
         submit = (Button) findViewById(R.id.post_submit);
+
+        ArrayList<View> views = new ArrayList<View>();
+        views.add(image1); views.add(image2); views.add(image3); views.add(image4);
+        horizontalScrollView.addItems(views);
 
         if(savedInstanceState != null) {
             int width = (int) context.getResources().getDimension(R.dimen.photo_width);
@@ -148,10 +155,18 @@ public class AddPost extends Activity implements OnClickListener {
                 if(photoPath != null) {
                     Bitmap bm = ImageTool.getImageFromDevice(photoPaths[index], width, height);
                     switch(index) {
-                        case 0: image1.setImageBitmap(bm); break;
-                        case 1: image2.setImageBitmap(bm); break;
-                        case 2: image3.setImageBitmap(bm); break;
-                        case 3: image4.setImageBitmap(bm); break;
+                        case 0:
+                            image1.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                            image1.setImageBitmap(bm); break;
+                        case 1:
+                            image2.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                            image2.setImageBitmap(bm); break;
+                        case 2:
+                            image3.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                            image3.setImageBitmap(bm); break;
+                        case 3:
+                            image4.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                            image4.setImageBitmap(bm); break;
                         default: break;
                     }
                 }
@@ -166,10 +181,18 @@ public class AddPost extends Activity implements OnClickListener {
                         Bitmap bm = ImageTool.getImageFromDevice(context, uri, width, height);
 
                         switch (index) {
-                            case 0: image1.setImageBitmap(bm); break;
-                            case 1: image2.setImageBitmap(bm); break;
-                            case 2: image3.setImageBitmap(bm); break;
-                            case 3: image4.setImageBitmap(bm); break;
+                            case 0:
+                                image1.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                                image1.setImageBitmap(bm); break;
+                            case 1:
+                                image2.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                                image2.setImageBitmap(bm); break;
+                            case 2:
+                                image3.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                                image3.setImageBitmap(bm); break;
+                            case 3:
+                                image4.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                                image4.setImageBitmap(bm); break;
                             default: break;
                         }
                     } catch (FileNotFoundException e) {
@@ -371,21 +394,25 @@ public class AddPost extends Activity implements OnClickListener {
                 uriStreams[0] = null;
                 photoPaths[0] = null;
                 image1.setImageResource(R.drawable.ic_action_new_picture);
+                image1.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 break;
             case R.id.add_image_2:
                 uriStreams[1] = null;
                 photoPaths[1] = null;
                 image2.setImageResource(R.drawable.ic_action_new_picture);
+                image2.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 break;
             case R.id.add_image_3:
                 uriStreams[3] = null;
                 photoPaths[3] = null;
                 image3.setImageResource(R.drawable.ic_action_new_picture);
+                image3.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 break;
             case R.id.add_image_4:
                 uriStreams[3] = null;
                 photoPaths[3] = null;
                 image4.setImageResource(R.drawable.ic_action_new_picture);
+                image4.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 break;
         }
     }
@@ -429,6 +456,7 @@ public class AddPost extends Activity implements OnClickListener {
                     if(returnUri == null)
                         return;
 
+                    imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                     imageView.setImageBitmap(ImageTool.getImageFromDevice(context, returnUri, width, height));
                 } catch (FileNotFoundException e) {
                     Log.e(TAG, "File not found", e);
@@ -462,6 +490,7 @@ public class AddPost extends Activity implements OnClickListener {
                         return;
                 }
                 addPicToGallery();
+                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 imageView.setImageBitmap(ImageTool.getImageFromDevice(currentPhotoPath, width, height));
             }
         }

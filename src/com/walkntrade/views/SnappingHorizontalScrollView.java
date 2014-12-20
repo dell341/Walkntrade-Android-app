@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /*
  * Copyright (c) 2014, All Rights Reserved
@@ -25,7 +25,7 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
 
     private Context context;
     private GestureDetector gestureDetector;
-    private ArrayList<View> items;
+    private List<View> items;
     private int index = 0;
 
     public SnappingHorizontalScrollView(Context context) {
@@ -57,7 +57,7 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
     }
 
     //Required to allow fling. Keeps track of current item
-    public void addItems(ArrayList<View> items) {
+    public void addItems(List<View> items) {
         this.items = items;
     }
 
@@ -87,8 +87,6 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
             index = (scrollX + (width / 2)) / width; //Uses int rounding to find out if new scroll position is more than half of current view.
             int scrollTo = (index * width)+getPaddingLeft(); //Position of specified index
 
-            Log.v(TAG, "ScrollX : "+scrollX+". Width : "+width);
-            Log.d(TAG, "Index : "+index+". ScrollTo :"+scrollTo);
             smoothScrollTo(scrollTo, 0);
             return true;
         }
@@ -100,6 +98,7 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             try {
+
                 ViewGroup childView = (ViewGroup) getChildAt(0); //Use this view, it has the actual width of the scrolling content
                 View viewContent = childView.getChildAt(0);
                 int width = viewContent.getMeasuredWidth(); //Width of selected view (In this example, they are all the same size)
@@ -107,21 +106,17 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
                 if (e1.getX() - e2.getX() > MINIMUM_SWIPE_DISTANCE && Math.abs(velocityX) > MINIMUM_REQUIRED_VELOCITY) { //Swipe from right to left
                     index = (index <= items.size() ? ++index : items.size() - 1); //onFling, increment index if current index is not the last item. Else set index to last item
                     int scrollTo = (index * width)+getPaddingLeft();
-                    Log.v(TAG, "Width : "+width);
-                    Log.d(TAG, "Fling. Index : "+index+". ScrollTo :"+scrollTo);
                     smoothScrollTo(scrollTo, 0);
                     return true;
                 } else if (e2.getX() - e1.getX() > MINIMUM_SWIPE_DISTANCE && Math.abs(velocityX) > MINIMUM_REQUIRED_VELOCITY) { //Swipe from left to right
                     index = (index > 0 ? --index : 0); //onFling, decrement index if current index is not the first item. Else set index to first item
                     int scrollTo = (index * width)+getPaddingLeft();
-                    Log.v(TAG, "Width : "+width);
-                    Log.d(TAG, "Fling. Index : "+index+". ScrollTo :"+scrollTo);
                     smoothScrollTo(scrollTo, 0);
                     return true;
                 }
 
             } catch (NullPointerException e) {
-                Log.e(TAG, "Need to add items with addItems(ArrayList<View>) or some other null pointer exception", e);
+                Log.e(TAG, "Must call addItems(List<View>)", e);
             } catch (Exception e) {
                 Log.e(TAG, "Flinging View", e);
             }
