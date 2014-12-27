@@ -283,6 +283,17 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        //Pressing the back button will close the navigation drawer, if it is open
+        if(mDrawerLayout.isDrawerOpen(navigationDrawerList)) {
+            mDrawerLayout.closeDrawers();
+            return;
+        }
+
+        super.onBackPressed();
+    }
+
     @Override //Creates an animated TextView when there is no connection, or for any other error.
     public void hasConnection(boolean isConnected, String message) {
         textView.setText(message);
