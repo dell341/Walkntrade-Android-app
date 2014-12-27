@@ -50,7 +50,7 @@
             android:visibility="gone" />
 
         <EditText
-            android:id="@id/schoolSearch"
+            android:id="@+id/schoolSearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/edit_text_margin_top"
@@ -68,6 +68,5 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/schoolSearch"/>
     </RelativeLayout>
-
 
 </RelativeLayout>

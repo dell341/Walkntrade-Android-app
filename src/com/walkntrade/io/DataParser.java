@@ -821,12 +821,19 @@ public class DataParser {
         return serverResponse;
     }
 
-    public ObjectResult<UserProfileObject> getUserProfile(String uid) throws Exception{
+    //Get user profile. Search using either username or user id
+    public ObjectResult<UserProfileObject> getUserProfile(String name, String uid) throws Exception{
         establishConnection();
         ObjectResult<UserProfileObject> result = new ObjectResult<UserProfileObject>(StatusCodeParser.CONNECT_FAILED, null);
 
         try {
-            String query = "intent=getUserProfile&uid="+uid;
+            String query;
+
+            if(name != null)
+                query = "intent=getUserProfile&userName="+name;
+            else
+                query = "intent=getUserProfile&uid="+uid;
+
             HttpEntity entity = new StringEntity(query);
             InputStream inputStream = processRequest(entity);
 
@@ -843,12 +850,14 @@ public class DataParser {
             for(int i=0; i<userPosts.length(); i++) {
                 JSONObject post = userPosts.getJSONObject(i);
 
+                String schoolName = post.getString("schoolLongName");
+                String schoolAbbv = post.getString("schoolShortName");
                 String link = post.getString("post_identifier");
                 String title = post.getString("title");
                 String date = post.getString("date");
                 String category = post.getString("category");
 
-                postList.add(new ReferencedPost("Unknown School", "US", link, category, title, date, "0", 0, false));
+                postList.add(new ReferencedPost(schoolName, schoolAbbv, link, category, title, date, "0", 0, false));
             }
 
             result = new ObjectResult<UserProfileObject>(serverResponse, new UserProfileObject(userName, userImgUrl, postList));
@@ -953,6 +962,27 @@ public class DataParser {
         }
 
         return result;
+    }
+
+    public int editPost(String identifier, String title, String author, String price, String description, String isbn, String tags) throws IOException{
+        establishConnection();
+        int requestStatus = StatusCodeParser.CONNECT_FAILED;
+
+        try {
+            String query = "intent=editPost&identifier="+identifier+"&title="+title+"&author="+author+"&price="+price+"&details="+description+"&isbn="+isbn+"&tags="+tags;
+            HttpEntity entity = new StringEntity(query);
+            InputStream inputStream = processRequest(entity);
+
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+            requestStatus = jsonObject.getInt(STATUS);
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        } finally {
+            disconnectAll();
+        }
+
+        return requestStatus;
     }
 
     public String renewPost(String obsId) throws IOException {

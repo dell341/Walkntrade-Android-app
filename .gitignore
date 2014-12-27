@@ -25,3 +25,6 @@ build/intermediates
 # Local configuration file (sdk path, etc)
 local.properties
 
+#Mac OSX
+.DS_Store
+

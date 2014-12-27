@@ -137,10 +137,14 @@ public class EditPost extends Activity implements View.OnClickListener {
                 if (photoPath != null) {
                     Bitmap bm = ImageTool.getImageFromDevice(photoPaths[index], width, height);
                     switch (index) {
-                        case 0: image1.setImageBitmap(bm); break;
-                        case 1: image2.setImageBitmap(bm); break;
-                        case 2: image3.setImageBitmap(bm); break;
-                        case 3: image4.setImageBitmap(bm); break;
+                        case 0: image1.setImageBitmap(bm);
+                            image1.setScaleType(ImageView.ScaleType.FIT_CENTER); break;
+                        case 1: image2.setImageBitmap(bm);
+                            image2.setScaleType(ImageView.ScaleType.FIT_CENTER); break;
+                        case 2: image3.setImageBitmap(bm);
+                            image3.setScaleType(ImageView.ScaleType.FIT_CENTER); break;
+                        case 3: image4.setImageBitmap(bm);
+                            image4.setScaleType(ImageView.ScaleType.FIT_CENTER); break;
                         default: break;
                     }
                 }
@@ -154,10 +158,14 @@ public class EditPost extends Activity implements View.OnClickListener {
                     try {
                         Bitmap bm = ImageTool.getImageFromDevice(context, uri, width, height);
                         switch (index) {
-                            case 0: image1.setImageBitmap(bm); break;
-                            case 1: image2.setImageBitmap(bm); break;
-                            case 2: image3.setImageBitmap(bm); break;
-                            case 3: image4.setImageBitmap(bm); break;
+                            case 0: image1.setImageBitmap(bm);
+                                image1.setScaleType(ImageView.ScaleType.FIT_CENTER); break;
+                            case 1: image2.setImageBitmap(bm);
+                                image2.setScaleType(ImageView.ScaleType.FIT_CENTER); break;
+                            case 2: image3.setImageBitmap(bm);
+                                image3.setScaleType(ImageView.ScaleType.FIT_CENTER); break;
+                            case 3: image4.setImageBitmap(bm);
+                                image4.setScaleType(ImageView.ScaleType.FIT_CENTER); break;
                             default: break;
                         }
                     } catch (FileNotFoundException e) {
@@ -415,21 +423,25 @@ public class EditPost extends Activity implements View.OnClickListener {
                 uriStreams[0] = null;
                 photoPaths[0] = null;
                 image1.setImageResource(R.drawable.ic_action_new_picture);
+                image1.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 break;
             case R.id.postImage2:
                 uriStreams[1] = null;
                 photoPaths[1] = null;
                 image2.setImageResource(R.drawable.ic_action_new_picture);
+                image2.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 break;
             case R.id.postImage3:
-                uriStreams[3] = null;
-                photoPaths[3] = null;
+                uriStreams[2] = null;
+                photoPaths[2] = null;
                 image3.setImageResource(R.drawable.ic_action_new_picture);
+                image3.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 break;
             case R.id.postImage4:
                 uriStreams[3] = null;
                 photoPaths[3] = null;
                 image4.setImageResource(R.drawable.ic_action_new_picture);
+                image4.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 break;
         }
     }
@@ -474,6 +486,7 @@ public class EditPost extends Activity implements View.OnClickListener {
                     if (returnUri == null)
                         return;
 
+                    imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                     imageView.setImageBitmap(ImageTool.getImageFromDevice(context, returnUri, width, height));
                 } catch (FileNotFoundException e) {
                     Log.e(TAG, "File not found", e);
@@ -506,6 +519,7 @@ public class EditPost extends Activity implements View.OnClickListener {
                         return;
                 }
                 addPicToGallery();
+                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 imageView.setImageBitmap(ImageTool.getImageFromDevice(currentPhotoPath, width, height));
             }
         }
@@ -653,10 +667,13 @@ public class EditPost extends Activity implements View.OnClickListener {
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             if (bitmap != null) {
+                imgView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 imgView.setImageBitmap(bitmap);
                 originalImageCount++;
-            } else
+            } else {
                 imgView.setImageResource(R.drawable.ic_action_new_picture);
+                imgView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            }
 
             switch (index) {
                 case 0:
@@ -672,6 +689,34 @@ public class EditPost extends Activity implements View.OnClickListener {
                     progress4.setVisibility(View.INVISIBLE);
                     break;
             }
+        }
+    }
+
+    private class EditPostTask extends AsyncTask<Void, Void, Integer> {
+
+        @Override
+        protected void onPreExecute() {
+            saveProgressBar.setVisibility(View.VISIBLE);
+            submit.setEnabled(false);
+        }
+
+        @Override
+        protected Integer doInBackground(Void... voids) {
+            DataParser database = new DataParser(context);
+            int requestStatus = StatusCodeParser.CONNECT_FAILED;
+
+            try {
+                requestStatus = database.editPost(identifier, title.getText().toString(), "", price.getText().toString(), details.getText().toString(), "", "");
+            } catch (IOException e) {
+                Log.e(TAG, "Editing Post", e);
+            }
+
+            return requestStatus;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            new AddImagesTask().execute();
         }
     }
 

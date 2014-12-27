@@ -443,7 +443,7 @@ public class PostFragment extends Fragment {
             DataParser database = new DataParser(context);
 
             try {
-                DataParser.ObjectResult<UserProfileObject> result = database.getUserProfile(strings[0]);
+                DataParser.ObjectResult<UserProfileObject> result = database.getUserProfile(null, strings[0]);
                 serverResponse = result.getStatus();
                 userProfile = result.getValue();
             } catch (Exception e) {

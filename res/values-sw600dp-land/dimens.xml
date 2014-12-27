@@ -9,4 +9,9 @@
     <!-- AddPost-->
     <dimen name="add_post_image_width">240dp</dimen>
     <dimen name="add_post_image_height">200dp</dimen>
+
+    <!-- EditPost-->
+    <dimen name="edit_post_image_width">400dp</dimen>
+    <dimen name="edit_post_image_height">260dp</dimen>
+
 </resources>
