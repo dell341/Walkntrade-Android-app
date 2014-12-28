@@ -46,14 +46,16 @@ public class AvatarRetrievalTask extends AsyncTask<Void, Void, Bitmap> {
                 return null;
 
             String splitURL[] = avatarURL.split("_");
-            String key = splitURL[2]; //The URL will also be used as the key to cache their avatar image
+            String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+            splitURL = key.split("\\.");
+            key = splitURL[0];
 
-            bm = imageCache.getBitmapFromDiskCache(key.substring(0, 1)); //Try to retrieve image from cache
+            bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 
             if(bm == null) //If it doesn't exists, retrieve image from network
                 bm = DataParser.loadBitmap(avatarURL);
 
-            imageCache.addBitmapToCache(key.substring(0, 1), bm); //Finally cache bitmap. Will override cache if already exists or write new cache
+            imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
         }
         catch(IOException e) {
             Log.e(TAG, "Retrieving user avatar", e);

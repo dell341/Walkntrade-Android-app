@@ -47,7 +47,7 @@ import java.util.ArrayList;
 
 public class PostFragment extends Fragment {
 
-    public static final String TAG = "FRAGMENT:Post";
+    public static final String TAG = "PostFragment";
     public static String IMGSRC = "Link_For_Images";
     public static String IDENTIFIER = "Unique_Post_Id";
     public static String INDEX = "Image_Index";
@@ -63,10 +63,10 @@ public class PostFragment extends Fragment {
     private Context context;
     private String identifier;
     private Post thisPost;
-    private ProgressBar progressImage, progressProfile;
+    private ProgressBar progressImage, progressUserImage, progressProfile;
     private LinearLayout linearLayout;
     private TextView title, details, user, date, price, profileUserName;
-    private ImageView image, image2, image3, image4, userImage, userImage2;
+    private ImageView image, image2, image3, image4, userImage;
     private Button contact;
     private ArrayList<ViewPostItem> profilePostItems;
     private LinearLayout profilePosts;
@@ -80,7 +80,6 @@ public class PostFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.i(TAG, "OnCreateView");
         View rootView = inflater.inflate(R.layout.fragment_post, container, false);
 
         thisPost = getArguments().getParcelable(SchoolPage.SELECTED_POST);
@@ -101,9 +100,9 @@ public class PostFragment extends Fragment {
         price = (TextView) rootView.findViewById(R.id.postPrice);
         contact = (Button) rootView.findViewById(R.id.post_contact);
         profileUserName = (TextView) rootView.findViewById(R.id.user_name);
+        progressUserImage = (ProgressBar) rootView.findViewById(R.id.progressBar2);
         progressProfile = (ProgressBar) rootView.findViewById(R.id.profile_progress_bar);
-        userImage = (ImageView) rootView.findViewById(R.id.userImage);
-        userImage2 = (ImageView) rootView.findViewById(R.id.user_image);
+        userImage = (ImageView) rootView.findViewById(R.id.user_image);
         image = (ImageView) rootView.findViewById(R.id.postImage1);
         image2 = (ImageView) rootView.findViewById(R.id.postImage2);
         image3 = (ImageView) rootView.findViewById(R.id.postImage3);
@@ -130,10 +129,10 @@ public class PostFragment extends Fragment {
             if(avatarUrl != null && !avatarUrl.isEmpty())
                 new UserAvatarRetrievalTask().execute(avatarUrl);
             else
-                new UserProfileRetrievalTask().execute("1");
+                new UserProfileRetrievalTask().execute(thisPost.getUser());
         }
         else
-            new UserProfileRetrievalTask().execute("1");
+            new UserProfileRetrievalTask().execute(thisPost.getUser());
 
         ArrayList<View> images = new ArrayList<View>(4);
         images.add(image); images.add(image2); images.add(image3); images.add(image4);
@@ -443,7 +442,7 @@ public class PostFragment extends Fragment {
             DataParser database = new DataParser(context);
 
             try {
-                DataParser.ObjectResult<UserProfileObject> result = database.getUserProfile(null, strings[0]);
+                DataParser.ObjectResult<UserProfileObject> result = database.getUserProfile(strings[0], null);
                 serverResponse = result.getStatus();
                 userProfile = result.getValue();
             } catch (Exception e) {
@@ -456,6 +455,7 @@ public class PostFragment extends Fragment {
         @Override
         protected void onPostExecute(Integer serverResponse) {
             progressProfile.setVisibility(View.INVISIBLE);
+            profilePosts.removeAllViews();
 
             if(serverResponse == StatusCodeParser.STATUS_OK) {
                 avatarUrl = userProfile.getUserImageUrl();
@@ -485,25 +485,31 @@ public class PostFragment extends Fragment {
     }
 
     private class UserAvatarRetrievalTask extends AsyncTask<String, Void, Bitmap> {
+
+        @Override
+        protected void onPreExecute() {
+            progressUserImage.setVisibility(View.VISIBLE);
+        }
+
         @Override
         protected Bitmap doInBackground(String... url) {
-            DataParser database = new DataParser(context);
             Bitmap bm = null;
             DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
 
             try {
                 String avatarURL = url[0];
-                Log.d(TAG, "Avatar URL: "+avatarURL);
 
                 String[] splitURL = avatarURL.split("_");
-                String key = splitURL[2]; //The URL will also be used as the key to cache their avatar image
+                String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+                splitURL = key.split("\\.");
+                key = splitURL[0];
 
-                bm = imageCache.getBitmapFromDiskCache(key.substring(0, 1)); //Try to retrieve image from cache
+                bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 
                 if(bm == null) //If it doesn't exists, retrieve image from network
                     bm = DataParser.loadBitmap(avatarURL);
 
-                imageCache.addBitmapToCache(key.substring(0, 1), bm); //Finally cache bitmap. Will override cache if already exists or write new cache
+                imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             }
             catch(IOException e) {
                 Log.e(TAG, "Retrieving user avatar", e);
@@ -520,10 +526,10 @@ public class PostFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            if(bitmap != null) {
+            progressUserImage.setVisibility(View.INVISIBLE);
+            
+            if(bitmap != null)
                 userImage.setImageBitmap(bitmap);
-                userImage2.setImageBitmap(bitmap);
-            }
 
         }
     }
