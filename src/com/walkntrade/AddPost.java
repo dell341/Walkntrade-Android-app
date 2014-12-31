@@ -2,9 +2,11 @@ package com.walkntrade;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,8 +20,10 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -30,6 +34,7 @@ import android.widget.Toast;
 
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.ImageTool;
+import com.walkntrade.views.SimpleProgressDialog;
 import com.walkntrade.views.SnappingHorizontalScrollView;
 
 import java.io.File;
@@ -64,8 +69,8 @@ public class AddPost extends Activity implements OnClickListener {
     private static final int GALLERY_IMAGE_THREE = 700;
     private static final int GALLERY_IMAGE_FOUR = 800;
 
+    private ProgressDialog progressDialog;
     private ScrollView scrollView;
-    private ProgressBar progressBar;
     private TextView postError;
     private EditText title, author, description, price, isbn, tags;
     private ImageView image1, image2, image3, image4;
@@ -93,7 +98,6 @@ public class AddPost extends Activity implements OnClickListener {
             startLoginActivity();
 
         scrollView = (ScrollView) findViewById(R.id.scroll_view);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
         postError = (TextView) findViewById(R.id.post_error);
         title = (EditText) findViewById(R.id.content_title);
         description = (EditText) findViewById(R.id.post_description);
@@ -115,6 +119,14 @@ public class AddPost extends Activity implements OnClickListener {
         ArrayList<View> views = new ArrayList<View>();
         views.add(image1); views.add(image2); views.add(image3); views.add(image4);
         horizontalScrollView.addItems(views);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setProgressNumberFormat(null);
+        progressDialog.setProgressPercentFormat(null);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setMax(100);
 
         if(savedInstanceState != null) {
             int width = (int) context.getResources().getDimension(R.dimen.photo_width);
@@ -574,6 +586,28 @@ public class AddPost extends Activity implements OnClickListener {
         startActivity(loginIntent); //Starts Login  activity
     }
 
+    /*Temporary solution for asynctask, progress dialog, and orientation compatibility. Next step is to migrate towards IntentServices.*/
+    private void lockScreenOrientation() {
+        switch (((WindowManager) getSystemService(WINDOW_SERVICE))
+                .getDefaultDisplay().getRotation()) {
+            case Surface.ROTATION_90:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                break;
+            case Surface.ROTATION_180: //Reverse portrait
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                break;
+            case Surface.ROTATION_270: //Reverse landscape
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                break;
+            default :
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+    }
+
+    private void unlockScreenOrientation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+    }
+
     //Asynchronous Task; Add post, receives category returns response
     public class AddPostTask extends AsyncTask<Void, Void, String> {
 
@@ -595,8 +629,10 @@ public class AddPost extends Activity implements OnClickListener {
 
         @Override
         protected void onPreExecute() {
+            lockScreenOrientation();
+            progressDialog.setMessage(context.getString(R.string.adding_post_changes));
+            progressDialog.show();
             submit.setEnabled(false);
-            progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -613,6 +649,7 @@ public class AddPost extends Activity implements OnClickListener {
             String schoolCode = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
 
             try {
+                progressDialog.setProgress(10);
                 //Calls different method if book was selected
                 if (selectedCategory.equals(context.getString(R.string.server_category_book))) {
                     int isbnValue;
@@ -633,7 +670,7 @@ public class AddPost extends Activity implements OnClickListener {
 
         @Override
         protected void onPostExecute(String identifier) {
-
+            progressDialog.setProgress(50);
             if(identifier == null || identifier.isEmpty()) {
                 Toast.makeText(context, "Could not submit post", Toast.LENGTH_SHORT).show();
                 scrollView.fullScroll(View.FOCUS_UP);
@@ -646,6 +683,12 @@ public class AddPost extends Activity implements OnClickListener {
     //Asynchronous Task: Sends images after successfully adding a post
     public class AddImagesTask extends AsyncTask<String, String, String[]>{
         private DataParser database;
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog.setMessage(context.getString(R.string.adding_post_image_changes));
+            submit.setEnabled(false);
+        }
 
         @Override
         protected String[] doInBackground(String... identifier) {
@@ -678,11 +721,16 @@ public class AddPost extends Activity implements OnClickListener {
 
         @Override
         protected void onPostExecute(String[] responses) {
+            progressDialog.setProgress(100);
+            progressDialog.setMessage(context.getString(R.string.done));
+            progressDialog.cancel();
+
             for(String response : responses)
                 if(response != null)
                     Log.d(TAG, response);
-            progressBar.setVisibility(View.INVISIBLE);
-            Toast.makeText(context, "Post Added", Toast.LENGTH_SHORT).show();
+
+            submit.setEnabled(true);
+            unlockScreenOrientation();
             finish();
         }
     }

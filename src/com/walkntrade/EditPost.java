@@ -128,7 +128,7 @@ public class EditPost extends Activity implements View.OnClickListener {
         image3.getLayoutParams().width = (int) (displayMetrics.widthPixels * .50);
         image4.getLayoutParams().width = (int) (displayMetrics.widthPixels * .50);
 
-        progressDialog = new SimpleProgressDialog(this);
+        progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.setProgressNumberFormat(null);
         progressDialog.setProgressPercentFormat(null);
