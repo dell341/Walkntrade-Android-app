@@ -6,6 +6,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -19,7 +21,9 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,6 +38,7 @@ import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ImageTool;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
+import com.walkntrade.views.SimpleProgressDialog;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,6 +61,7 @@ public class EditPost extends Activity implements View.OnClickListener {
     private static final String SAVED_CURRENT_INDEX = "saved_instance_current_index";
     private static final String SAVED_IMAGE_PATHS = "saved_instance_image_paths";
     private static final String SAVED_IMAGE_URIS = "saved_instance_image_uri";
+    private static final String SAVED_PROGRESS_DIALOG = "saved_instance_progress_dialog";
     public static final String POST_OBJECT = "post_object";
     public static final String POST_ID = "post_obs_id";
     public static final String POST_IDENTIFIER = "post_identifier";
@@ -121,6 +127,14 @@ public class EditPost extends Activity implements View.OnClickListener {
         image2.getLayoutParams().width = (int) (displayMetrics.widthPixels * .50);
         image3.getLayoutParams().width = (int) (displayMetrics.widthPixels * .50);
         image4.getLayoutParams().width = (int) (displayMetrics.widthPixels * .50);
+
+        progressDialog = new SimpleProgressDialog(this);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setProgressNumberFormat(null);
+        progressDialog.setProgressPercentFormat(null);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setMax(100);
 
         if (savedInstanceState != null) {
             image1.setImageResource(R.drawable.ic_action_new_picture);
@@ -249,14 +263,6 @@ public class EditPost extends Activity implements View.OnClickListener {
         });
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setProgressNumberFormat(null);
-        progressDialog.setProgressPercentFormat(null);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.setMax(100);
     }
 
     private void editPost() {
@@ -311,14 +317,6 @@ public class EditPost extends Activity implements View.OnClickListener {
         outState.putInt(SAVED_CURRENT_INDEX, imageIndex);
         outState.putStringArray(SAVED_IMAGE_PATHS, photoPaths);
         outState.putParcelableArray(SAVED_IMAGE_URIS, uriStreams);
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.v(TAG, "onDestroy");
-        super.onDestroy();
-        uriStreams = null;
-        photoPaths = null;
     }
 
     @Override
@@ -660,6 +658,28 @@ public class EditPost extends Activity implements View.OnClickListener {
 //        return canPost;
 //    }
 
+    /*Temporary solution for asynctask, progress dialog, and orientation compatibility. Next step is to migrate towards IntentServices.*/
+    private void lockScreenOrientation() {
+        switch (((WindowManager) getSystemService(WINDOW_SERVICE))
+                .getDefaultDisplay().getRotation()) {
+            case Surface.ROTATION_90:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                break;
+            case Surface.ROTATION_180: //Reverse portrait
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                break;
+            case Surface.ROTATION_270: //Reverse landscape
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                break;
+            default :
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+    }
+
+    private void unlockScreenOrientation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+    }
+
     private class LaunchPostTask extends AsyncTask<String, Void, Integer> {
 
         private Post post;
@@ -798,6 +818,7 @@ public class EditPost extends Activity implements View.OnClickListener {
 
         @Override
         protected void onPreExecute() {
+            lockScreenOrientation();
             progressDialog.setMessage(context.getString(R.string.saving_post_changes));
             progressDialog.show();
             submit.setEnabled(false);
@@ -922,6 +943,7 @@ public class EditPost extends Activity implements View.OnClickListener {
                     Log.d(TAG, response);
 
             submit.setEnabled(true);
+            unlockScreenOrientation();
             finish();
         }
     }

@@ -52,7 +52,7 @@ public class PostFragment extends Fragment {
     public static String IDENTIFIER = "Unique_Post_Id";
     public static String INDEX = "Image_Index";
 
-//    private static final String SAVED_IMAGE_1 = "saved_instance_image_1";
+    //    private static final String SAVED_IMAGE_1 = "saved_instance_image_1";
 //    private static final String SAVED_IMAGE_2 = "saved_instance_image_2";
 //    private static final String SAVED_IMAGE_3 = "saved_instance_image_3";
 //    private static final String SAVED_IMAGE_4 = "saved_instance_image_4";
@@ -108,34 +108,37 @@ public class PostFragment extends Fragment {
         image3 = (ImageView) rootView.findViewById(R.id.postImage3);
         image4 = (ImageView) rootView.findViewById(R.id.postImage4);
 
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             profilePostItems = savedInstanceState.getParcelableArrayList(SAVED_POST_ITEMS);
             String avatarUrl = savedInstanceState.getString(SAVED_USER_IMAGE);
 
-            for(ViewPostItem item : profilePostItems) {
-                if(item.isHeader()) {
-                    View school = LayoutInflater.from(context).inflate(R.layout.item_post_school, profilePosts, false);
-                    ((TextView)school.findViewById(R.id.content_title)).setText(item.getContents());
-                    profilePosts.addView(school);
-                }
-                else {
-                    View post = LayoutInflater.from(context).inflate(R.layout.item_profile_post, profilePosts, false);
-                    ((TextView)post.findViewById(R.id.content_date)).setText(item.getDate());
-                    ((TextView)post.findViewById(R.id.content_title)).setText(item.getContents());
-                    profilePosts.addView(post);
+            if (profilePostItems == null || avatarUrl == null || avatarUrl.isEmpty())
+                new UserProfileRetrievalTask().execute(thisPost.getUser());
+            else {
+                new UserAvatarRetrievalTask().execute(avatarUrl);
+
+
+                for (ViewPostItem item : profilePostItems) {
+                    if (item.isHeader()) {
+                        View school = LayoutInflater.from(context).inflate(R.layout.item_post_school, profilePosts, false);
+                        ((TextView) school.findViewById(R.id.content_title)).setText(item.getContents());
+                        profilePosts.addView(school);
+                    } else {
+                        View post = LayoutInflater.from(context).inflate(R.layout.item_profile_post, profilePosts, false);
+                        ((TextView) post.findViewById(R.id.content_date)).setText(item.getDate());
+                        ((TextView) post.findViewById(R.id.content_title)).setText(item.getContents());
+                        profilePosts.addView(post);
+                    }
                 }
             }
-
-            if(avatarUrl != null && !avatarUrl.isEmpty())
-                new UserAvatarRetrievalTask().execute(avatarUrl);
-            else
-                new UserProfileRetrievalTask().execute(thisPost.getUser());
-        }
-        else
+        } else
             new UserProfileRetrievalTask().execute(thisPost.getUser());
 
         ArrayList<View> images = new ArrayList<View>(4);
-        images.add(image); images.add(image2); images.add(image3); images.add(image4);
+        images.add(image);
+        images.add(image2);
+        images.add(image3);
+        images.add(image4);
         horizontalScrollView.addItems(images); //Add image views to view, to allow and keep track of fling gesture
 
         identifier = thisPost.getIdentifier();
@@ -148,7 +151,7 @@ public class PostFragment extends Fragment {
         else
             price.setVisibility(View.GONE);
 
-        profileUserName.setText(thisPost.getUser()+"'s posts");
+        profileUserName.setText(thisPost.getUser() + "'s posts");
 
         //Calls images to be displayed on show page
         imageOne = false;
@@ -457,10 +460,10 @@ public class PostFragment extends Fragment {
             progressProfile.setVisibility(View.INVISIBLE);
             profilePosts.removeAllViews();
 
-            if(serverResponse == StatusCodeParser.STATUS_OK) {
+            if (serverResponse == StatusCodeParser.STATUS_OK) {
                 avatarUrl = userProfile.getUserImageUrl();
                 new UserAvatarRetrievalTask().execute(avatarUrl);
-                profileUserName.setText(userProfile.getUserName()+"'s posts");
+                profileUserName.setText(userProfile.getUserName() + "'s posts");
 
                 ArrayList<ReferencedPost> userPosts = userProfile.getUserPosts();
                 profilePostItems = new ArrayList<ViewPostItem>();
@@ -471,13 +474,13 @@ public class PostFragment extends Fragment {
                         currentSchool = p.getSchool();
                         profilePostItems.add(new ViewPostItem(p.getSchool(), p.getSchoolAbbv()));
                         View school = LayoutInflater.from(context).inflate(R.layout.item_post_school, profilePosts, false);
-                        ((TextView)school.findViewById(R.id.content_title)).setText(p.getSchool());
+                        ((TextView) school.findViewById(R.id.content_title)).setText(p.getSchool());
                         profilePosts.addView(school);
                     }
                     profilePostItems.add(new ViewPostItem(p)); //Then continue adding posts
                     View post = LayoutInflater.from(context).inflate(R.layout.item_profile_post, profilePosts, false);
-                    ((TextView)post.findViewById(R.id.content_date)).setText(p.getDate());
-                    ((TextView)post.findViewById(R.id.content_title)).setText(p.getTitle());
+                    ((TextView) post.findViewById(R.id.content_date)).setText(p.getDate());
+                    ((TextView) post.findViewById(R.id.content_title)).setText(p.getTitle());
                     profilePosts.addView(post);
                 }
             }
@@ -506,19 +509,16 @@ public class PostFragment extends Fragment {
 
                 bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 
-                if(bm == null) //If it doesn't exists, retrieve image from network
+                if (bm == null) //If it doesn't exists, retrieve image from network
                     bm = DataParser.loadBitmap(avatarURL);
 
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
-            }
-            catch(IOException e) {
+            } catch (IOException e) {
                 Log.e(TAG, "Retrieving user avatar", e);
-            }
-            catch(ArrayIndexOutOfBoundsException e) {
+            } catch (ArrayIndexOutOfBoundsException e) {
                 Log.e(TAG, "Image does not exist", e);
                 //If user has not uploaded an image, leave Bitmap as null
-            }
-            finally {
+            } finally {
                 imageCache.close();
             }
             return bm;
@@ -527,8 +527,8 @@ public class PostFragment extends Fragment {
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             progressUserImage.setVisibility(View.INVISIBLE);
-            
-            if(bitmap != null)
+
+            if (bitmap != null)
                 userImage.setImageBitmap(bitmap);
 
         }

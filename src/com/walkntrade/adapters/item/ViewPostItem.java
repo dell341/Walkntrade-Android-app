@@ -55,6 +55,16 @@ public class ViewPostItem implements Parcelable {
         isContent = array[2];
     }
 
+    public static final Parcelable.Creator<ViewPostItem> CREATOR = new Parcelable.Creator<ViewPostItem>() {
+        public ViewPostItem createFromParcel(Parcel in) {
+            return new ViewPostItem(in);
+        }
+
+        public ViewPostItem[] newArray(int size) {
+            return new ViewPostItem[size];
+        }
+    };
+
     @Override
     public int describeContents() {
         return 0;
