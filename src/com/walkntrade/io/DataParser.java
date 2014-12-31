@@ -67,7 +67,7 @@ import javax.xml.parsers.SAXParserFactory;
 public class DataParser {
     private static final String url = "https://walkntrade.com/";
     private static final String apiUrl = "https://walkntrade.com/api2/";
-    private static final String TAG = "DATAPARSER";
+    private static final String TAG = "DataParser";
     private static final String STATUS = "status"; //name:"value" pair for JSON request status
     private static final String MESSAGE = "message"; //name:"value" pair for JSON returned message
     private static final String PAYLOAD = "payload"; //name:"value" pair for JSON payload (actual data)
@@ -889,6 +889,7 @@ public class DataParser {
             JSONObject jsonPost = payload.getJSONObject(0);
 
             String category = jsonPost.getString("category");
+            String schoolId = id.split(":")[0];
             String identifier = id.split(":")[1].toLowerCase(Locale.US); //Identifier only holds the unique generated number for the post. Used in image url
             String title = jsonPost.getString("title");
             String author = jsonPost.getString("author");
@@ -900,13 +901,13 @@ public class DataParser {
             String views = jsonPost.getString("views");
 
             if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
-                post = new BookPost(id, identifier, title, details, user, null, date, price, views);
+                post = new BookPost(id, schoolId, identifier, title, author, details, isbn, user, null, date, price, views);
             else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
-                post = new TechPost(id, identifier, title, details, user, null, date, price, views);
+                post = new TechPost(id, schoolId, identifier, title, details, user, null, date, price, views);
             else if (category.equalsIgnoreCase(context.getString(R.string.server_category_service)))
-                post = new ServicePost(id, identifier, title, details, user, null, date, price, views);
+                post = new ServicePost(id, schoolId, identifier, title, details, user, null, date, price, views);
             else
-                post = new MiscPost(id, identifier, title, details, user, null, date, price, views);
+                post = new MiscPost(id, schoolId, identifier, title, details, user, null, date, price, views);
 
             result = new ObjectResult<Post>(requestStatus, post);
         } catch (JSONException e) {
@@ -964,16 +965,18 @@ public class DataParser {
         return result;
     }
 
-    public int editPost(String identifier, String title, String author, String price, String description, String isbn, String tags) throws IOException{
+    public int editPost(String schoolId, String identifier, String title, String description, String price, String tags) throws IOException{
         establishConnection();
         int requestStatus = StatusCodeParser.CONNECT_FAILED;
 
         try {
-            String query = "intent=editPost&identifier="+identifier+"&title="+title+"&author="+author+"&price="+price+"&details="+description+"&isbn="+isbn+"&tags="+tags;
+            String query = "intent=editPost&school="+schoolId+"&identifier="+identifier+"&title="+title+"&details="+description+"&price="+price+"&tags="+tags;
+            Log.d(TAG, "Query: "+query);
             HttpEntity entity = new StringEntity(query);
             InputStream inputStream = processRequest(entity);
 
             JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+            Log.i(TAG, jsonObject.toString());
             requestStatus = jsonObject.getInt(STATUS);
 
         } catch (JSONException e) {
@@ -1092,9 +1095,12 @@ public class DataParser {
 
                 String category = jsonPost.getString("category");
                 String obsId = jsonPost.getString("obsId");
+                String schoolId = obsId.split(":")[0];
                 String identifier = obsId.split(":")[1].toLowerCase(Locale.US); //Identifier only holds the unique generated number for the post. Used in image url
                 String title = jsonPost.getString("title");
+                String author = "";
                 String details = jsonPost.getString("details");
+                String isbn = "";
                 String user = jsonPost.getString("username");
                 String imgURL = jsonPost.getString("image");
                 String date = jsonPost.getString("date");
@@ -1102,13 +1108,13 @@ public class DataParser {
                 String views = jsonPost.getString("views");
 
                 if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
-                    posts.add(new BookPost(obsId, identifier, title, details, user, imgURL, date, price, views));
+                    posts.add(new BookPost(obsId, schoolId, identifier, title, author, details, isbn, user, imgURL, date, price, views));
                 else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
-                    posts.add(new TechPost(obsId, identifier, title, details, user, imgURL, date, price, views));
+                    posts.add(new TechPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views));
                 else if (category.equalsIgnoreCase(context.getString(R.string.server_category_service)))
-                    posts.add(new ServicePost(obsId, identifier, title, details, user, imgURL, date, price, views));
+                    posts.add(new ServicePost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views));
                 else
-                    posts.add(new MiscPost(obsId, identifier, title, details, user, imgURL, date, price, views));
+                    posts.add(new MiscPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views));
             }
 
             result = new ObjectResult<ArrayList<Post>>(requestStatus, posts);

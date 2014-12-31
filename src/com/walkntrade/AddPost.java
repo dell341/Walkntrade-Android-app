@@ -554,7 +554,7 @@ public class AddPost extends Activity implements OnClickListener {
         if (!canPost) {
             postError.setText(getString(R.string.post_error));
             postError.setVisibility(View.VISIBLE);
-            scrollView.fullScroll(View.FOCUS_UP);
+            scrollView.scrollTo(0,0);
         }
 
         return canPost;
@@ -581,7 +581,7 @@ public class AddPost extends Activity implements OnClickListener {
         if (!canPost) {
             postError.setText(getString(R.string.post_error));
             postError.setVisibility(View.VISIBLE);
-            scrollView.fullScroll(View.FOCUS_UP);
+            scrollView.scrollTo(0,0);
         }
 
         return canPost;

@@ -32,7 +32,7 @@ public class ViewPostItem implements Parcelable {
     //Post Item
     public ViewPostItem(ReferencedPost post) {
         contents = post.getTitle();
-        obsId = post.getLink();
+        obsId = post.getObsId();
         schoolAbbv = post.getSchoolAbbv();
         date = post.getDate();
         expire = post.getExpire();

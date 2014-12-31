@@ -19,12 +19,13 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 	public static final String CATEGORY_MISC = "Miscellaneous";
     public static final String CATEGORY_UNKNOWN = "Unknown";
 	
-	private String obsId, identifier, title, details, user, imgURL, date, views;
+	private String obsId, schoolId, identifier, title, details, user, imgURL, date, views;
 	private String price = "";
 	private Bitmap defaultImage = null;
 	
-	public Post(String obsId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views) {
+	public Post(String obsId, String schoolId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views) {
         this.obsId = obsId;
+        this.schoolId = schoolId;
         this.identifier = identifier;
 		this.title = title;
 		this.details = details;
@@ -37,6 +38,10 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 
     public String getObsId() {
         return obsId;
+    }
+
+    public String getSchoolId() {
+        return schoolId;
     }
 
     public String getIdentifier(){
@@ -83,10 +88,10 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 	public abstract String getCategory();
 	
 	/*Parcelable implementation*/
-	private int mData;
 	
 	protected Post(Parcel in) { //Called only by sub-classes
-		mData = in.readInt();
+        obsId = in.readString();
+        schoolId = in.readString();
         identifier = in.readString();
 		title = in.readString();
 		details = in.readString();
@@ -103,7 +108,8 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 	
 	public void writeToParcel(Parcel out, int flags) {
 		//Must be written out in the same order it is read in
-		out.writeInt(mData);
+        out.writeString(obsId);
+        out.writeString(schoolId);
         out.writeString(identifier);
 		out.writeString(title);
 		out.writeString(details);

@@ -12,14 +12,19 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,7 +72,9 @@ public class EditPost extends Activity implements View.OnClickListener {
     private Context context;
     private String obsId, identifier;
     private ProgressBar progress1, progress2, progress3, progress4, saveProgressBar;
-    private TextView title, details, price, errorMessage;
+    private ScrollView scrollView;
+    private EditText title, details, price, tags;
+    private TextView errorMessage;
     private ImageView image1, image2, image3, image4;
     private Button submit;
 
@@ -94,11 +101,13 @@ public class EditPost extends Activity implements View.OnClickListener {
         progress2 = (ProgressBar) findViewById(R.id.progressBar2);
         progress3 = (ProgressBar) findViewById(R.id.progressBar3);
         progress4 = (ProgressBar) findViewById(R.id.progressBar4);
+        scrollView = (ScrollView) findViewById(R.id.scroll_view);
         saveProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         errorMessage = (TextView) findViewById(R.id.error_message);
-        title = (TextView) findViewById(R.id.postTitle);
-        details = (TextView) findViewById(R.id.postDescr);
-        price = (TextView) findViewById(R.id.postPrice);
+        title = (EditText) findViewById(R.id.postTitle);
+        details = (EditText) findViewById(R.id.postDescr);
+        price = (EditText) findViewById(R.id.postPrice);
+        tags = (EditText) findViewById(R.id.post_tags);
         submit = (Button) findViewById(R.id.button);
 
         image1 = (ImageView) findViewById(R.id.postImage1);
@@ -221,16 +230,32 @@ public class EditPost extends Activity implements View.OnClickListener {
         image3.setOnClickListener(this);
         image4.setOnClickListener(this);
 
+        tags.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                if(actionId == EditorInfo.IME_ACTION_DONE)
+                    editPost();
+
+                return false;
+            }
+        });
+
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AddImagesTask().execute();
+                editPost();
             }
         });
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    private void editPost() {
+        errorMessage.setVisibility(View.GONE);
+
+        if(canPostOther())
+            new EditPostTask().execute();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -564,6 +589,67 @@ public class EditPost extends Activity implements View.OnClickListener {
         context.sendBroadcast(mediaScanIntent);
     }
 
+    //Verifies that post credentials are valid
+    private boolean canPostOther() {
+        boolean canPost = true;
+
+        if (title.length() < 2) {
+            title.setError(getString(R.string.error_short_title));
+            canPost = false;
+        }
+        if (title.length() > 150) {
+            title.setError(getString(R.string.error_long_title));
+            canPost = false;
+        }
+        if (details.length() < 5) {
+            details.setError(getString(R.string.error_short_description));
+            canPost = false;
+        }
+        if (details.length() > 3000) {
+            details.setError(getString(R.string.error_long_description));
+            canPost = false;
+        }
+        if (tags.length() < 5) {
+            tags.setError(getString(R.string.error_short_tags));
+            canPost = false;
+        }
+
+        if (!canPost) {
+            errorMessage.setText(getString(R.string.post_error));
+            errorMessage.setVisibility(View.VISIBLE);
+            scrollView.scrollTo(0,0);
+        }
+
+        return canPost;
+    }
+
+//    private boolean canPostBook() {
+//        boolean canPost = true;
+//        if (!canPostOther()) //Checks if all other fields are valid
+//            canPost = false;
+//
+//        if (author.length() < 2) {
+//            author.setError(getString(R.string.error_short_author));
+//            canPost = false;
+//        }
+//        if (author.length() > 50) {
+//            author.setError(getString(R.string.error_long_author));
+//            canPost = false;
+//        }
+//        if (isbn.length() != 10 && _isbn.length() != 13 && !TextUtils.isEmpty(_isbn)) {
+//            isbn.setError(getString(R.string.error_isbn));
+//            canPost = false;
+//        }
+//
+//        if (!canPost) {
+//            postError.setText(getString(R.string.post_error));
+//            postError.setVisibility(View.VISIBLE);
+//            scrollView.fullScroll(View.FOCUS_UP);
+//        }
+//
+//        return canPost;
+//    }
+
     private class LaunchPostTask extends AsyncTask<String, Void, Integer> {
 
         private Post post;
@@ -706,7 +792,7 @@ public class EditPost extends Activity implements View.OnClickListener {
             int requestStatus = StatusCodeParser.CONNECT_FAILED;
 
             try {
-                requestStatus = database.editPost(identifier, title.getText().toString(), "", price.getText().toString(), details.getText().toString(), "", "");
+                requestStatus = database.editPost(schoolId, identifier, title.getText().toString(),details.getText().toString(),price.getText().toString(),  tags.getText().toString());
             } catch (IOException e) {
                 Log.e(TAG, "Editing Post", e);
             }
@@ -716,6 +802,7 @@ public class EditPost extends Activity implements View.OnClickListener {
 
         @Override
         protected void onPostExecute(Integer integer) {
+            Toast.makeText(context, "Post edited", Toast.LENGTH_SHORT).show();
             new AddImagesTask().execute();
         }
     }

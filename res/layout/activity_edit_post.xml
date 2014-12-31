@@ -28,6 +28,7 @@
             android:layout_marginTop="5dp"
             android:background="@drawable/dashed_border_selectable"
             android:hint="@string/post_title"
+            android:imeOptions="actionNext"
             android:inputType="text|textCapWords"
             android:padding="5dp"
             android:textSize="@dimen/title_size" />
@@ -39,6 +40,7 @@
             android:layout_margin="20dp"
             android:background="@drawable/dashed_border_selectable"
             android:hint="@string/post_author"
+            android:imeOptions="actionNext"
             android:inputType="textCapWords"
             android:visibility="gone" />
 
@@ -68,7 +70,7 @@
                         android:clickable="true"
                         android:contentDescription="@string/post_image"
                         android:padding="3dp"
-                        android:scaleType="centerInside"/>
+                        android:scaleType="centerInside" />
 
                     <ProgressBar
                         android:id="@+id/progressBar1"
@@ -111,8 +113,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:baselineAligned="false"
-                android:orientation="horizontal"
-                android:gravity="center_horizontal">
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -127,7 +129,7 @@
                         android:clickable="true"
                         android:contentDescription="@string/post_image"
                         android:padding="3dp"
-                        android:scaleType="centerInside"/>
+                        android:scaleType="centerInside" />
 
                     <ProgressBar
                         android:id="@+id/progressBar3"
@@ -152,7 +154,7 @@
                         android:clickable="true"
                         android:contentDescription="@string/post_image"
                         android:padding="3dp"
-                        android:scaleType="centerInside"/>
+                        android:scaleType="centerInside" />
 
                     <ProgressBar
                         android:id="@+id/progressBar4"
@@ -175,6 +177,7 @@
             android:layout_marginTop="5dp"
             android:background="@drawable/dashed_border_selectable"
             android:hint="@string/post_price"
+            android:imeOptions="actionNext"
             android:inputType="numberDecimal"
             android:padding="5dp"
             android:textSize="@dimen/price_size"
@@ -187,6 +190,7 @@
             android:layout_margin="20dp"
             android:background="@drawable/dashed_border_selectable"
             android:hint="@string/post_isbn"
+            android:imeOptions="actionNext"
             android:inputType="number"
             android:visibility="gone" />
 
@@ -199,7 +203,22 @@
             android:layout_marginTop="5dp"
             android:background="@drawable/dashed_border_selectable"
             android:hint="@string/post_description"
+            android:imeOptions="actionNext"
             android:inputType="textMultiLine|textCapSentences"
+            android:padding="5dp"
+            android:textSize="@dimen/show_page_text" />
+
+        <EditText
+            android:id="@+id/post_tags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/dashed_border_selectable"
+            android:hint="@string/post_tags"
+            android:imeOptions="actionDone"
+            android:inputType="textCapWords"
             android:padding="5dp"
             android:textSize="@dimen/show_page_text" />
 

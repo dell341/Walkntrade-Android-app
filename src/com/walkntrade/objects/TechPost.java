@@ -11,8 +11,8 @@ import android.os.Parcelable;
 public class TechPost extends Post {
 	
 
-	public TechPost(String obsId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views) {
-		super(obsId, identifier, title, details, user, imgURL,date, price, views);
+	public TechPost(String obsId, String schoolId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views) {
+		super(obsId, schoolId, identifier, title, details, user, imgURL,date, price, views);
 	}
 
 	@Override
