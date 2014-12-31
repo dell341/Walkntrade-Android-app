@@ -2,6 +2,7 @@ package com.walkntrade;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -71,7 +72,8 @@ public class EditPost extends Activity implements View.OnClickListener {
 
     private Context context;
     private String obsId, identifier;
-    private ProgressBar progress1, progress2, progress3, progress4, saveProgressBar;
+    private ProgressBar progress1, progress2, progress3, progress4;
+    private ProgressDialog progressDialog;
     private ScrollView scrollView;
     private EditText title, details, price, tags;
     private TextView errorMessage;
@@ -102,7 +104,6 @@ public class EditPost extends Activity implements View.OnClickListener {
         progress3 = (ProgressBar) findViewById(R.id.progressBar3);
         progress4 = (ProgressBar) findViewById(R.id.progressBar4);
         scrollView = (ScrollView) findViewById(R.id.scroll_view);
-        saveProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         errorMessage = (TextView) findViewById(R.id.error_message);
         title = (EditText) findViewById(R.id.postTitle);
         details = (EditText) findViewById(R.id.postDescr);
@@ -248,6 +249,14 @@ public class EditPost extends Activity implements View.OnClickListener {
         });
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setProgressNumberFormat(null);
+        progressDialog.setProgressPercentFormat(null);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setMax(100);
     }
 
     private void editPost() {
@@ -306,6 +315,7 @@ public class EditPost extends Activity implements View.OnClickListener {
 
     @Override
     protected void onDestroy() {
+        Log.v(TAG, "onDestroy");
         super.onDestroy();
         uriStreams = null;
         photoPaths = null;
@@ -655,6 +665,11 @@ public class EditPost extends Activity implements View.OnClickListener {
         private Post post;
 
         @Override
+        protected void onPreExecute() {
+            submit.setEnabled(false);
+        }
+
+        @Override
         protected Integer doInBackground(String... obsId) {
             DataParser database = new DataParser(context);
             int serverResponse = StatusCodeParser.CONNECT_FAILED;
@@ -676,6 +691,7 @@ public class EditPost extends Activity implements View.OnClickListener {
 
         @Override
         protected void onPostExecute(Integer serverResponse) {
+            submit.setEnabled(true);
 
             if(serverResponse == StatusCodeParser.STATUS_OK) {
                 getActionBar().setTitle(post.getTitle());
@@ -782,7 +798,8 @@ public class EditPost extends Activity implements View.OnClickListener {
 
         @Override
         protected void onPreExecute() {
-            saveProgressBar.setVisibility(View.VISIBLE);
+            progressDialog.setMessage(context.getString(R.string.saving_post_changes));
+            progressDialog.show();
             submit.setEnabled(false);
         }
 
@@ -792,6 +809,7 @@ public class EditPost extends Activity implements View.OnClickListener {
             int requestStatus = StatusCodeParser.CONNECT_FAILED;
 
             try {
+                progressDialog.setProgress(10);
                 requestStatus = database.editPost(schoolId, identifier, title.getText().toString(),details.getText().toString(),price.getText().toString(),  tags.getText().toString());
             } catch (IOException e) {
                 Log.e(TAG, "Editing Post", e);
@@ -802,7 +820,7 @@ public class EditPost extends Activity implements View.OnClickListener {
 
         @Override
         protected void onPostExecute(Integer integer) {
-            Toast.makeText(context, "Post edited", Toast.LENGTH_SHORT).show();
+            progressDialog.setProgress(50);
             new AddImagesTask().execute();
         }
     }
@@ -814,7 +832,7 @@ public class EditPost extends Activity implements View.OnClickListener {
 
         @Override
         protected void onPreExecute() {
-            saveProgressBar.setVisibility(View.VISIBLE);
+            progressDialog.setMessage(context.getString(R.string.saving_post_image_changes));
             submit.setEnabled(false);
         }
 
@@ -824,6 +842,7 @@ public class EditPost extends Activity implements View.OnClickListener {
             String[] responses = new String[4];
 
             try {
+                progressDialog.setProgress(60);
                 //Add any images with photo paths. Pictures taken with the device's camera
                 for (int i = 0; i < photoPaths.length; i++) {
                     if (photoPaths[i] != null && !photoPaths[i].isEmpty()) {
@@ -894,13 +913,15 @@ public class EditPost extends Activity implements View.OnClickListener {
 
         @Override
         protected void onPostExecute(String[] responses) {
+            progressDialog.setProgress(100);
+            progressDialog.setMessage(context.getString(R.string.done));
+            progressDialog.cancel();
+
             for (String response : responses)
                 if (response != null)
                     Log.d(TAG, response);
 
             submit.setEnabled(true);
-            saveProgressBar.setVisibility(View.GONE);
-            Toast.makeText(context, "Images edited", Toast.LENGTH_SHORT).show();
             finish();
         }
     }

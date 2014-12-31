@@ -28,6 +28,7 @@
     <string name="default_image_url">/colorful/tfe_no_thumb.png</string>
     <string name="confirm">Confirm</string>
     <string name="reply">Reply</string>
+    <string name="done">Done!</string>
     <string name="received_messages">Received Messages</string>
     <string name="sent_messages">Sent Messages</string>
     <string name="received_message">Received Message</string>

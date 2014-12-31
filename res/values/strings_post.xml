@@ -36,9 +36,12 @@
     <!-- EditPost -->
     <string name="title_activity_edit_post_page">Editing Post</string>
     <string name="edit_post">Edit Post</string>
+    <string name="edit_post_complete"></string>
     <string name="delete_post">Delete post</string>
     <string name="delete_post_multiple">Delete posts</string>
     <string name="delete_post_quest">Do you want to delete this post?</string>
+    <string name="saving_post_changes">Saving post changes&#8230;</string>
+    <string name="saving_post_image_changes">Saving images&#8230;</string>
 
     <!-- Renew Post-->
     <string name="no_posts">You don\'t have any posts!</string>
