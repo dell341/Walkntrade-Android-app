@@ -15,7 +15,7 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 	//public static final String CATEGORY_ALL = "All";
 	public static final String CATEGORY_BOOK = "Books";
 	public static final String CATEGORY_TECH = "Tech";
-	public static final String CATEGORY_SERVICE = "Services";
+	public static final String CATEGORY_HOUSING = "Housing";
 	public static final String CATEGORY_MISC = "Miscellaneous";
     public static final String CATEGORY_UNKNOWN = "Unknown";
 	

@@ -85,26 +85,20 @@ public class SearchActivity extends Activity implements AdapterView.OnItemClickL
         else
             init();
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.categories, android.R.layout.simple_spinner_item);
+        String[] categoryTitles = new String[DataParser.getSharedIntPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_AMOUNT)];
+
+        for (int i = 0; i < categoryTitles.length; i++)
+            categoryTitles[i] = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_NAME + i);
+
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(getActionBar().getThemedContext(), android.R.layout.simple_spinner_item, categoryTitles);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         spinner.setAdapter(adapter);
         spinner.setSelection(index);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long id) {
-                switch (i) {
-                    case 0: index = 0;
-                        category = context.getString(R.string.server_category_all); break;
-                    case 1: index = 1;
-                        category = context.getString(R.string.server_category_book); break;
-                    case 2: index = 2;
-                        category = context.getString(R.string.server_category_tech); break;
-                    case 3: index = 3;
-                        category = context.getString(R.string.server_category_service); break;
-                    case 4: index = 4;
-                        category = context.getString(R.string.server_category_misc); break;
-                }
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                category = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_ID + position);
             }
 
             @Override

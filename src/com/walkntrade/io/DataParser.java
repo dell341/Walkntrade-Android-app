@@ -20,7 +20,7 @@ import com.walkntrade.objects.MiscPost;
 import com.walkntrade.objects.Post;
 import com.walkntrade.objects.ReferencedPost;
 import com.walkntrade.objects.SchoolObject;
-import com.walkntrade.objects.ServicePost;
+import com.walkntrade.objects.HousingPost;
 import com.walkntrade.objects.TechPost;
 import com.walkntrade.objects.UserProfileObject;
 
@@ -81,6 +81,7 @@ public class DataParser {
 
     //SharedPreferences preference names
     public static final String PREFS_COOKIES = "CookiesPreferences";
+    public static final String PREFS_CATEGORIES = "CategoriesPreferences";
     public static final String PREFS_USER = "UserPreferences";
     public static final String PREFS_SCHOOL = "SchoolPreferences";
     public static final String PREFS_NOTIFICATIONS = "NotificationPreferences";
@@ -100,6 +101,9 @@ public class DataParser {
     public static final String KEY_NOTIFY_SOUND = "notification_sound"; //Notification preference title
     public static final String KEY_NOTIFY_LIGHT = "notification_light"; //Notification preference title (boolean)
     public static final String KEY_AUTHORIZED = "user_authorization"; //Authorization-Pref title (boolean) User password changed or session id expired.
+    public static final String KEY_CATEGORY_AMOUNT = "category_amount"; //Category preference
+    public static final String KEY_CATEGORY_ID = "category_"; //Category preference. Number must be added at the end. 'category_#'
+    public static final String KEY_CATEGORY_NAME = "category_name_"; //Category preference. Number must be added at the end. 'category_#'
 
     public static final String BLANK = " ";
 
@@ -356,6 +360,12 @@ public class DataParser {
         return settings.getString(key, null);
     }
 
+    public static int getSharedIntPreference(Context _context, String preferenceName, String key) {
+        SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
+
+        return settings.getInt(key, 0);
+    }
+
     //Since the default value is true, only use this with switches that should be true
     public static boolean getSharedBooleanPreference(Context _context, String preferenceName, String key) {
         SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
@@ -384,6 +394,45 @@ public class DataParser {
     public static boolean isUserLoggedIn(Context _context) {
         SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
         return settings.getBoolean(DataParser.KEY_CURRENTLY_LOGGED_IN, false);
+    }
+
+    //All category references exist on the server, so they can be updated and changed dynamically
+    public int getCategories() throws IOException {
+        establishConnection();
+
+        String query = "intent=getCategories";
+        int requestStatus = StatusCodeParser.CONNECT_FAILED;
+
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+            requestStatus = jsonObject.getInt(STATUS);
+
+            JSONObject payload = jsonObject.getJSONObject(PAYLOAD);
+            JSONArray categories = payload.getJSONArray("categories");
+            int numOfCategories = categories.length();
+
+            setSharedIntPreferences(PREFS_CATEGORIES, KEY_CATEGORY_AMOUNT, numOfCategories);
+
+            for(int i=0; i<numOfCategories; i++) {
+                JSONArray currentCategory = categories.getJSONArray(i);
+
+                String categoryId = currentCategory.getString(0);
+                String categoryName = currentCategory.getString(1);
+                String categoryDesc = currentCategory.getString(2);
+
+                setSharedStringPreference(PREFS_CATEGORIES, KEY_CATEGORY_ID + i, categoryId);
+                setSharedStringPreference(PREFS_CATEGORIES, KEY_CATEGORY_NAME+i, categoryName);
+            }
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        } finally {
+            disconnectAll();
+        }
+        return requestStatus;
     }
 
     //Requirement check for registration
@@ -904,8 +953,8 @@ public class DataParser {
                 post = new BookPost(id, schoolId, identifier, title, author, details, isbn, user, null, date, price, views);
             else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
                 post = new TechPost(id, schoolId, identifier, title, details, user, null, date, price, views);
-            else if (category.equalsIgnoreCase(context.getString(R.string.server_category_service)))
-                post = new ServicePost(id, schoolId, identifier, title, details, user, null, date, price, views);
+            else if (category.equalsIgnoreCase(context.getString(R.string.server_category_housing)))
+                post = new HousingPost(id, schoolId, identifier, title, details, user, null, date, price, views);
             else
                 post = new MiscPost(id, schoolId, identifier, title, details, user, null, date, price, views);
 
@@ -1111,8 +1160,8 @@ public class DataParser {
                     posts.add(new BookPost(obsId, schoolId, identifier, title, author, details, isbn, user, imgURL, date, price, views));
                 else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
                     posts.add(new TechPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views));
-                else if (category.equalsIgnoreCase(context.getString(R.string.server_category_service)))
-                    posts.add(new ServicePost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views));
+                else if (category.equalsIgnoreCase(context.getString(R.string.server_category_housing)))
+                    posts.add(new HousingPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views));
                 else
                     posts.add(new MiscPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views));
             }

@@ -9,25 +9,25 @@ import android.os.Parcelable;
  * https://walkntrade.com
  */
 
-public class ServicePost extends Post {
+public class HousingPost extends Post {
 	
-	public ServicePost(String obsId, String schoolId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views) {
+	public HousingPost(String obsId, String schoolId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views) {
 		super(obsId, schoolId, identifier, title, details, user, imgURL,date, price, views);
 	}
 	
 	public String getCategory() {
-		return Post.CATEGORY_SERVICE;
+		return Post.CATEGORY_HOUSING;
 	}
 	
 	/*Parcelable implementation*/
 	
-	private ServicePost(Parcel in) {
+	private HousingPost(Parcel in) {
 		super(in);
 	}
 	
 	public static final Parcelable.Creator<Post> CREATOR = new Parcelable.Creator<Post>() {
-		public ServicePost createFromParcel(Parcel in) {
-			return new ServicePost(in);
+		public HousingPost createFromParcel(Parcel in) {
+			return new HousingPost(in);
 		}
 		
 		public Post[] newArray(int size) {

@@ -52,7 +52,8 @@ public class AddPost extends Activity implements OnClickListener {
     private static final String SAVED_CURRENT_PATH = "saved_instance_current_path";
     private static final String SAVED_IMAGE_PATHS = "saved_instance_image_paths";
     private static final String SAVED_IMAGE_URIS = "saved_instance_image_uri";
-    public static final String CATEGORY_POSITION = "category_position";
+    public static final String CATEGORY_NAME = "category_name";
+    //public static final String CATEGORY_POSITION = "category_position";
 
     private static final int CAPTURE_IMAGE_ONE = 100;
     private static final int CAPTURE_IMAGE_TWO = 200;
@@ -82,30 +83,11 @@ public class AddPost extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        int position = getIntent().getIntExtra(AddPost.CATEGORY_POSITION, 2);
+        selectedCategory = getIntent().getStringExtra(CATEGORY_NAME);
         context = getApplicationContext();
         setContentView(R.layout.activity_add_post);
 
-        switch (position) {
-            case 0:
-                selectedCategory = getString(R.string.server_category_book);
-                getActionBar().setTitle(getString(R.string.add_book));
-                break;
-            case 1:
-                selectedCategory = getString(R.string.server_category_tech);
-                getActionBar().setTitle(getString(R.string.add_tech));
-                break;
-            case 2:
-                selectedCategory = getString(R.string.server_category_service);
-                getActionBar().setTitle(getString(R.string.add_service));
-                break;
-            case 3:
-                selectedCategory = getString(R.string.server_category_misc);
-                getActionBar().setTitle(getString(R.string.add_misc));
-                break;
-            default:
-                selectedCategory = getString(R.string.server_category_book);
-        }
+        getActionBar().setTitle("Adding "+selectedCategory+" post");
 
         if (!DataParser.isUserLoggedIn(context))
             startLoginActivity();

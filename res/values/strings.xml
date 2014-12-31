@@ -39,12 +39,19 @@
     <string name="error_occured">An error occurred.</string>
     <string name="user_not_found">User not found</string>
 
-    <!-- Actual Category names -->
+    <!-- Actual Category id -->
     <string name="server_category_all">all</string>
     <string name="server_category_book">book</string>
     <string name="server_category_tech">tech</string>
-    <string name="server_category_service">service</string>
+    <string name="server_category_housing">housing</string>
     <string name="server_category_misc">misc</string>
+
+    <!-- Category name -->
+    <string name="category_name_all">Everything</string>
+    <string name="category_name_book">Textbooks</string>
+    <string name="category_name_housing">Housing</string>
+    <string name="category_name_tech">Tech</string>
+    <string name="category_name_misc">Miscellaneous</string>
 
     <string-array name="categories">
         <item>All</item>

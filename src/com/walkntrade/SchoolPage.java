@@ -362,10 +362,28 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
             //Expandable section
             DrawerItem postSection = new DrawerItem(drawerOptions[0], R.drawable.expander_open_holo_light);
             drawerItemParents.add(postSection); //Post [SECTION] id:100
-            drawerItemChildList.add(new DrawerItem(R.drawable.ic_book, drawerOptions[1])); //Books id:110
-            drawerItemChildList.add(new DrawerItem(R.drawable.ic_tech, drawerOptions[2])); //Tech id:120
-            drawerItemChildList.add(new DrawerItem(R.drawable.ic_service, drawerOptions[3])); //Services id:130
-            drawerItemChildList.add(new DrawerItem(R.drawable.ic_misc, drawerOptions[4])); //Misc. id:140
+
+            //Add all of the add post for the different categories
+            for(int i=0; i<DataParser.getSharedIntPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_AMOUNT); i++) {
+                String categoryName = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_NAME+i);
+
+                int iconResource;
+
+                if(categoryName.equals(context.getString(R.string.category_name_all)))
+                    continue;
+                else if(categoryName.equals(context.getString(R.string.category_name_book)))
+                    iconResource = R.drawable.ic_book;
+                else if(categoryName.equals(context.getString(R.string.category_name_housing)))
+                    iconResource = R.drawable.ic_service;
+                else if(categoryName.equals(context.getString(R.string.category_name_tech)))
+                    iconResource = R.drawable.ic_tech;
+                else if(categoryName.equals(context.getString(R.string.category_name_misc)))
+                    iconResource = R.drawable.ic_misc;
+                else
+                    iconResource = R.drawable.ic_action_remove;
+
+                drawerItemChildList.add(new DrawerItem(iconResource, categoryName));
+            }
 
             drawerItemChildren.put(postSection, drawerItemChildList);
 
@@ -430,8 +448,8 @@ public class SchoolPage extends Activity implements ExpandableListView.OnGroupCl
             case 1:
             case 2:
             case 3:
-                Intent addPostIntent = new Intent(this, AddPost.class);
-                addPostIntent.putExtra(AddPost.CATEGORY_POSITION, position);
+                Intent addPostIntent = new Intent(this, AddPost.class);                                                     //REMOVE THE '+1' WHEN MERGING WITH CHAT_MESSAGING
+                addPostIntent.putExtra(AddPost.CATEGORY_NAME, DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_ID+(position+1)));
                 startActivity(addPostIntent);
                 break;
         }

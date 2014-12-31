@@ -16,6 +16,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.walkntrade.asynctasks.LogoutTask;
 import com.walkntrade.gcm.GcmRegistration;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.StatusCodeParser;
 
 import java.io.IOException;
 
@@ -30,7 +31,8 @@ public class Walkntrade_Main extends Activity {
     private static final int RESOLUTION_REQUEST = 9000;
 
     private Context context;
-    private boolean hasError = false;
+    private boolean updatedCategories = false;
+    private boolean hasPlayServicesError = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,31 @@ public class Walkntrade_Main extends Activity {
 
         context = getApplicationContext();
         Button retry = (Button)findViewById(R.id.retryButton);
+
+        //Check & update categories from the server
+        new AsyncTask<Void, Void, Integer>() {
+            @Override
+            protected Integer doInBackground(Void... voids) {
+                int serverResponse = StatusCodeParser.CONNECT_FAILED;
+                DataParser database = new DataParser(context);
+
+                try {
+                    serverResponse = database.getCategories();
+                } catch (IOException e) {
+                    Log.e(TAG, "Getting Categories", e);
+                }
+
+                return serverResponse;
+            }
+
+            @Override
+            protected void onPostExecute(Integer serverResponse) {
+                if(serverResponse == StatusCodeParser.STATUS_OK)
+                    updatedCategories = true;
+
+
+            }
+        }.execute();
 
         //Checks if device has the Google Play Services APK
         if (checkPlayServices()) {
@@ -73,23 +100,16 @@ public class Walkntrade_Main extends Activity {
                         }
                         return serverResponse;
                     }
-
                 }.execute(regId);
             }
         }
-        if (hasConnection() && !hasError) {
-            if(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG) != null) //There is a school preference
-                startActivity(new Intent(context, SchoolPage.class)); //Starts SchoolPage Activity
-            else
-                startActivity(new Intent(context, Selector.class)); //Starts Selector (Select/Change School) activity
 
-            finish(); //Closes this activity
-        }
+        continueToApplication();
 
         retry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (hasConnection() && checkPlayServices()) {
+                if (hasConnection() && updatedCategories && checkPlayServices()) {
                     if(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG) != null) //There is a school preference
                         startActivity(new Intent(context, SchoolPage.class)); //Starts SchoolPage Activity
                     else
@@ -125,12 +145,24 @@ public class Walkntrade_Main extends Activity {
             else
                 Log.i(TAG, "Play Services not available on device");
 
-            hasError = true;
+            hasPlayServicesError = true;
             return false;
         }
 
-        hasError = false;
+        hasPlayServicesError = false;
         return true;
+    }
+
+    //Attempt to connect to the rest of the app, if the conditions below have been met
+    private void continueToApplication() {
+        if (hasConnection() && !hasPlayServicesError) {
+            if(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG) != null) //There is a school preference
+                startActivity(new Intent(context, SchoolPage.class)); //Starts SchoolPage Activity
+            else
+                startActivity(new Intent(context, Selector.class)); //Starts Selector (Select/Change School) activity
+
+            finish(); //Closes this activity
+        }
     }
 }
 

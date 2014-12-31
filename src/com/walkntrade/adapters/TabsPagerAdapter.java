@@ -8,6 +8,7 @@ import android.support.v13.app.FragmentPagerAdapter;
 
 import com.walkntrade.R;
 import com.walkntrade.fragments.SchoolPostsFragment;
+import com.walkntrade.io.DataParser;
 
 /*
  * Copyright (c) 2014. All Rights Reserved. Walkntrade
@@ -16,61 +17,41 @@ import com.walkntrade.fragments.SchoolPostsFragment;
 
 //Creates category-specific fragments
 public class TabsPagerAdapter extends FragmentPagerAdapter {
-	private Context context;
-	private String[] tabTitles;
+    private Context context;
+    private String[] tabTitles;
 
-	public TabsPagerAdapter(FragmentManager fm, Context context) {
-		super(fm);
-		this.context = context;
-		//String titles pulled from resources to allow easy language translation
-		tabTitles = new String[] {context.getString(R.string.category_all) , context.getString(R.string.category_book),
-                context.getString(R.string.category_tech), context.getString(R.string.category_service), context.getString(R.string.category_misc)};
-	}
+    public TabsPagerAdapter(FragmentManager fm, Context context) {
+        super(fm);
+        this.context = context;
+        //String titles pulled from resources to allow easy language translation
+        tabTitles = new String[DataParser.getSharedIntPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_AMOUNT)];
+
+        for (int i = 0; i < tabTitles.length; i++)
+            tabTitles[i] = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_NAME + i);
+    }
 
     @Override //Initially creates the fragments here. Only called once for each fragment
     public Fragment getItem(int position) {
         Fragment fragment = new SchoolPostsFragment();
         Bundle args = new Bundle();
 
-        switch(position){
-            case 0:
-                args.putString(SchoolPostsFragment.ARG_CATEGORY, context.getString(R.string.server_category_all));
-                args.putInt(SchoolPostsFragment.INDEX, 0);
-                fragment.setArguments(args);
-                return fragment;
-            case 1:
-                args.putString(SchoolPostsFragment.ARG_CATEGORY, context.getString(R.string.server_category_book));
-                args.putInt(SchoolPostsFragment.INDEX, 1);
-                fragment.setArguments(args);
-                return fragment;
-            case 2:
-                args.putString(SchoolPostsFragment.ARG_CATEGORY, context.getString(R.string.server_category_tech));
-                args.putInt(SchoolPostsFragment.INDEX, 2);
-                fragment.setArguments(args);
-                return fragment;
-            case 3:
-                args.putString(SchoolPostsFragment.ARG_CATEGORY, context.getString(R.string.server_category_service));
-                args.putInt(SchoolPostsFragment.INDEX, 3);
-                fragment.setArguments(args);
-                return fragment;
-            default:
-                args.putString(SchoolPostsFragment.ARG_CATEGORY, context.getString(R.string.server_category_misc));
-                args.putInt(SchoolPostsFragment.INDEX, 4);
-                fragment.setArguments(args);
-                return fragment;
-        }
+        args.putString(SchoolPostsFragment.ARG_CATEGORY, DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_ID + position));
+        args.putInt(SchoolPostsFragment.INDEX, position);
+        fragment.setArguments(args);
+        return fragment;
+
     }
 
     @Override
-	public int getCount() {
-		//Returns the number of tabs
-		return tabTitles.length;
+    public int getCount() {
+        //Returns the number of tabs
+        return tabTitles.length;
     }
-	
-	@Override
-	public CharSequence getPageTitle(int position) {
-		//Returns name of tabs
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+        //Returns name of tabs
         return tabTitles[position];
-	}
+    }
 
 }
