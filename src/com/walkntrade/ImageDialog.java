@@ -131,7 +131,6 @@ public class ImageDialog extends Activity {
         @Override
         public void onDetach() {
             super.onDetach();
-            imageRetrievalTask.cancel(true);
         }
     }
 
@@ -158,9 +157,6 @@ public class ImageDialog extends Activity {
             DiskLruImageCache imageCache = new DiskLruImageCache(context, schoolID+DiskLruImageCache.DIRECTORY_POST_IMAGES);
 
             Bitmap bm = null;
-
-            if(isCancelled())
-                return null;
 
             try {
 

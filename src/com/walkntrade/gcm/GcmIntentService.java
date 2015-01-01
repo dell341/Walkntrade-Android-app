@@ -157,20 +157,6 @@ public class GcmIntentService extends IntentService {
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
-//    private class GetImage extends AsyncTask<String, Void, Bitmap>{
-//        @Override
-//        protected Bitmap doInBackground(String... image) {
-//            Bitmap largeIcon = null;
-//            try {
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            return largeIcon;
-//        }
-//    }
-
     public static void resetNotfCounter(Context context) {
         NotificationManager notfManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notfManager.cancel(NOTIFICATION_ID);
