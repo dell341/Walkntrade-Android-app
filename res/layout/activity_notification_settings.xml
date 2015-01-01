@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:clickable="true"
-        android:background="@drawable/list_selector_0">
+        android:background="@drawable/list_selector_activated">
 
         <TextView
             android:layout_width="match_parent"

@@ -9,9 +9,11 @@ import android.graphics.Bitmap;
 
 //Represents the actual menu option in the Navigation Drawer
 public class DrawerItem {
-	private int iconResource, expandResource;
-	private String title;
-    private int counter;
+
+    private long id; //Id used to identify this drawer item
+	private int iconResource; //Drawable resource used for drawer
+	private String title; //Content in item
+    private int counter; //Number used for unread messages
 	private Bitmap avatar;
 	private boolean isHeader = false;
 	private boolean isUserItem = false;
@@ -19,31 +21,31 @@ public class DrawerItem {
     private boolean hasCounter = false;
 	
 	//Constructor for user item
-	public DrawerItem(int iconResource, String title, boolean isUser) {
+	public DrawerItem(long id, int iconResource, String title, boolean isUser) {
+        this.id = id;
 		this.iconResource = iconResource;
 		this.title = title;
 		isUserItem = true;
 	}
-	
-	//Header item
-	public DrawerItem(String title, int expandResource) {
-		this.title = title;
-		isHeader = true;
-        this.expandResource = expandResource;
-	}
-	
+
 	//Regular menu item
-	public DrawerItem(int iconResource, String title) {
+	public DrawerItem(long id, int iconResource, String title) {
+        this.id = id;
 		this.iconResource = iconResource;
 		this.title = title;
 	}
 
     //Regular menu item with a counter
-    public DrawerItem(int iconResource, String title, int counter) {
+    public DrawerItem(long id, int iconResource, String title, int counter) {
+        this.id = id;
         this.iconResource = iconResource;
         this.title = title;
         this.counter = counter;
         hasCounter = true;
+    }
+
+    public long getId(){
+        return id;
     }
 	
 	public String getTitle() {
@@ -52,14 +54,6 @@ public class DrawerItem {
 
     public void setTitle(String t){
         title = t;
-    }
-
-    public void setExpandResource(int expandResource){
-        this.expandResource = expandResource;
-    }
-
-    public int getExpandResource(){
-        return expandResource;
     }
 	
 	public int getIconResource() {

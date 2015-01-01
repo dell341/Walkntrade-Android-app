@@ -1,0 +1,70 @@
+<!--
+  ~ Copyright (c) 2014. All Rights Reserved. Walkntrade
+  ~ https://walkntrade.com
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="invisible"/>
+
+    <ListView
+        android:id="@+id/chat_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/relative_layout"
+        android:listSelector="@android:color/transparent"
+        android:divider="@null"
+        android:dividerHeight="0dp"/>
+
+    <RelativeLayout
+        android:id="@id/relative_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:minHeight="48dp"
+        android:paddingLeft="3dp"
+        android:paddingRight="3dp"
+        android:paddingBottom="5dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/gray"/>
+
+        <EditText
+            android:id="@+id/edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/send_message"
+            android:layout_toStartOf="@id/send_message"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:inputType="textCapSentences"
+            android:maxLines="4"
+            android:imeOptions="actionSend"
+            android:hint="@string/enter_message" />
+
+        <ImageView
+            android:id="@id/send_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignBottom="@id/edit_text"
+            android:scaleType="centerInside"
+            android:clickable="true"
+            android:visibility="invisible"
+            android:src="@drawable/ic_send_grey"
+            android:background="@drawable/list_selector_pressed_1"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

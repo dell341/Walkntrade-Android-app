@@ -12,12 +12,11 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
-import com.walkntrade.objects.MessageObject;
 import com.walkntrade.Messages;
 import com.walkntrade.R;
-import com.walkntrade.ShowMessage;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.objects.MessageThread;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,7 +32,7 @@ public class GcmIntentService extends IntentService {
     private static final String TAG = "GcmIntentService";
     public static final int NOTIFICATION_ID = 1;
 
-    private static ArrayList<MessageObject> messageObjects = new ArrayList<MessageObject>();
+    private static ArrayList<MessageThread> messageObjects = new ArrayList<MessageThread>();
 
     public GcmIntentService() {
         super("GcmIntentService");
@@ -69,20 +68,19 @@ public class GcmIntentService extends IntentService {
 
     //Put the received message into a notification
     private void sendNotification(String id, String user, String subject, String message, String date, String image) {
-        MessageObject newMessage = new MessageObject(id, user, subject, message, date, "0"); //Create message object from the parameters
+        MessageThread newMessage = new MessageThread(null,null, null,null,-1,null,null,null,false); //Create message object from the parameters
         messageObjects.add(newMessage);
 
-        Intent showMessage = new Intent(this, ShowMessage.class);
+        Intent showMessage = new Intent(this, Messages.class);
         Intent notfBroadcast = new Intent(this, NotificationBroadcastReceiver.class);
 
         showMessage.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        showMessage.putExtra(ShowMessage.MESSAGE_OBJECT, newMessage);
-        showMessage.putExtra(Messages.MESSAGE_TYPE, Messages.RECEIVED_MESSAGES);
+        showMessage.putExtra("Message Object", newMessage);
         showMessage.setAction("ACTION_" + System.currentTimeMillis()); //Makes intents unique, so Android does not reuse invalid intents with null extras
 
         //Allows parent navigation after opening ShowMessage activity
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(ShowMessage.class);
+        stackBuilder.addParentStack(Messages.class);
         stackBuilder.addNextIntent(showMessage); //Adds intent to the top of the stack
 
         PendingIntent contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -106,11 +104,11 @@ public class GcmIntentService extends IntentService {
             NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
             inboxStyle.setSummaryText(DataParser.getSharedStringPreference(getApplicationContext(), DataParser.PREFS_USER, DataParser.KEY_USER_NAME));
 
-            for (MessageObject messageObject : messageObjects) {
-                String userText = messageObject.getUser();
-                String contentText = messageObject.getContents();
+            for (MessageThread messageThread : messageObjects) {
+                String userText = messageThread.getLastUser();
+                String contentText = messageThread.getLastContent();
 
-                if (messageObjects.indexOf(messageObject) > 4) { //Inbox style only holds up to 5 lines of text
+                if (messageObjects.indexOf(messageThread) > 4) { //Inbox style only holds up to 5 lines of text
                     inboxStyle.setBigContentTitle(getApplicationContext().getString(R.string.notification_overflow));
                     break;
                 } else {

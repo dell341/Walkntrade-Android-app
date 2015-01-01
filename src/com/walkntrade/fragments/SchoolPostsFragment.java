@@ -261,7 +261,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
                 String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
                 DataParser.ObjectResult<ArrayList<Post>> result = database.getSchoolPosts(schoolID, searchQuery, category, offset, AMOUNT_OF_POSTS);
                 serverResponse = result.getStatus();
-                newPosts = result.getValue();
+                newPosts = result.getObject();
             } catch (Exception e) {
                 Log.e(TAG, "Retrieving school post(s)", e);
             }

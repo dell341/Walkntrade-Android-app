@@ -367,8 +367,9 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
             try {
                 DataParser.ObjectResult<ArrayList<ReferencedPost>> result = database.getUserPosts();
                 serverResponse = result.getStatus();
-                userPosts = result.getValue();
-            } catch (Exception e) {
+                userPosts = result.getObject();
+            }
+            catch(Exception e) {
                 Log.e(TAG, "Get user posts", e);
             }
             return serverResponse;

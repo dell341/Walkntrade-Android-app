@@ -447,7 +447,7 @@ public class PostFragment extends Fragment {
             try {
                 DataParser.ObjectResult<UserProfileObject> result = database.getUserProfile(strings[0], null);
                 serverResponse = result.getStatus();
-                userProfile = result.getValue();
+                userProfile = result.getObject();
             } catch (Exception e) {
                 Log.e(TAG, "Downloading User Profile ", e);
             }

@@ -38,7 +38,6 @@ import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ImageTool;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
-import com.walkntrade.views.SimpleProgressDialog;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -61,7 +60,6 @@ public class EditPost extends Activity implements View.OnClickListener {
     private static final String SAVED_CURRENT_INDEX = "saved_instance_current_index";
     private static final String SAVED_IMAGE_PATHS = "saved_instance_image_paths";
     private static final String SAVED_IMAGE_URIS = "saved_instance_image_uri";
-    private static final String SAVED_PROGRESS_DIALOG = "saved_instance_progress_dialog";
     public static final String POST_OBJECT = "post_object";
     public static final String POST_ID = "post_obs_id";
     public static final String POST_IDENTIFIER = "post_identifier";
@@ -697,7 +695,7 @@ public class EditPost extends Activity implements View.OnClickListener {
             try {
                 DataParser.ObjectResult<Post> result = database.getPostByIdentifier(obsId[0]);
                 serverResponse = result.getStatus();
-                post = result.getValue();
+                post = result.getObject();
             } catch (NullPointerException e) {
                 Log.e(TAG, "Post does not exist");
                 return StatusCodeParser.STATUS_NOT_FOUND;

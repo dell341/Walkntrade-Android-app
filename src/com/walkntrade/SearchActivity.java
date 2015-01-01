@@ -210,7 +210,7 @@ public class SearchActivity extends Activity implements AdapterView.OnItemClickL
                 String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
                 DataParser.ObjectResult<ArrayList<Post>> result = database.getSchoolPosts(schoolID, searchQuery, category, offset, 15);
                 serverResponse = result.getStatus();
-                posts = result.getValue();
+                posts = result.getObject();
             } catch (Exception e) {
                 Log.e(TAG, "Retrieving school post(s)", e);
             }

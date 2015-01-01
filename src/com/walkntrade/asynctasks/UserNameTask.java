@@ -3,10 +3,10 @@ package com.walkntrade.asynctasks;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ExpandableListView;
+import android.widget.ListView;
 
-import com.walkntrade.adapters.DrawerAdapter;
 import com.walkntrade.adapters.item.DrawerItem;
+import com.walkntrade.adapters.DrawerAdapter;
 import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
@@ -20,9 +20,9 @@ public class UserNameTask extends AsyncTask<Void, Void, String> {
 
     private final String TAG = "ASYNCTASK:UserNameTask";
     private Context context;
-    private ExpandableListView drawerList;
+    private ListView drawerList;
 
-    public UserNameTask(Context _context, ExpandableListView _drawerList){
+    public UserNameTask(Context _context, ListView _drawerList){
         context = _context;
         drawerList = _drawerList;
     }
@@ -46,8 +46,8 @@ public class UserNameTask extends AsyncTask<Void, Void, String> {
 
     @Override
     protected void onPostExecute(String userName) {
-        DrawerAdapter adapter = (DrawerAdapter) drawerList.getExpandableListAdapter();
-        DrawerItem item = (DrawerItem) adapter.getGroup(0); //Get user header item
+        DrawerAdapter adapter = (DrawerAdapter) drawerList.getAdapter();
+        DrawerItem item = adapter.getItem(0); //Get user header item
         item.setTitle(userName);
         adapter.notifyDataSetChanged();
     }

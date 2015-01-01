@@ -236,7 +236,7 @@ public class Selector extends Activity implements OnItemClickListener {
                 schoolObjects = new ArrayList<SchoolObject>();
                 DataParser.ObjectResult<ArrayList<SchoolObject>> result = database.getSchools(schoolQuery);
                 serverResponse = result.getStatus();
-                schoolObjects = result.getValue();
+                schoolObjects = result.getObject();
             } catch (IOException e) {
                 Log.e(TAG, "Retrieving school name", e);
             }

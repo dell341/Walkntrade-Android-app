@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- NavigationDrawer (Side Menu) strings -->
-    <string-array name="user_options">
-        <item>Add a post&#8230;</item>
-        <item>book</item>
-        <item>tech/game</item>
-        <item>service</item>
-        <item>misc.</item>
-        <item>Messages</item>
-        <item>Inbox</item>
-        <item>Sent</item>
-        <item>Settings</item>
-        <item>Account</item>
-        <item>Change School</item>1
-    </string-array>
+
+    <string name="drawer_book">Add a book</string>
+    <string name="drawer_tech">Add a tech/game</string>
+    <string name="drawer_service">Add a service</string>
+    <string name="drawer_misc">Add misc.</string>
+    <string name="drawer_messages">Messages</string>
+    <string name="drawer_account">Account</string>
+    <string name="drawer_change_school">Change School</string>
 
     <!-- Tab Titles strings -->
     <string name="category_all">All</string>
