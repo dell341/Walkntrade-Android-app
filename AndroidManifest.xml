@@ -180,17 +180,10 @@
         <activity
             android:name="com.walkntrade.Messages"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_messages" >
+            android:label="@string/messages" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.SchoolPage" />
-        </activity>
-        <activity
-            android:name="com.walkntrade.ShowMessage"
-            android:label="@string/title_activity_show_message" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.walkntrade.Messages" />
         </activity>
         <activity
             android:name="com.walkntrade.NotificationSettings"

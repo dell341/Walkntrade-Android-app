@@ -40,7 +40,7 @@ import java.util.ArrayList;
  */
 
 
-public class SchoolPage extends Activity implements SchoolPostsFragment.ConnectionFailedListener{
+public class SchoolPage extends Activity implements SchoolPostsFragment.ConnectionFailedListener {
 
     private final String TAG = "SchoolPage";
     private static final String SAVED_AVATAR_IMAGE = "saved_instance_avatar";
@@ -55,8 +55,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     private Context context;
 
     private boolean hasAvatar;
-    private boolean hasPausedActivity = false;
-    private boolean isLoggedIn;
     private boolean lastConnectedValue = true;
 
     @Override
@@ -69,8 +67,8 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
         actionBar = getActionBar();
         context = getApplicationContext();
-		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		navigationDrawerList = (ListView) findViewById(R.id.navigation_drawer_list);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        navigationDrawerList = (ListView) findViewById(R.id.navigation_drawer_list);
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         PagerTabStrip pagerTab = (PagerTabStrip) findViewById(R.id.pager_tab);
         textView = (TextView) findViewById(R.id.text_view);
@@ -79,16 +77,16 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        if(savedInstanceState != null)
+        if (savedInstanceState != null)
             hasAvatar = true;
 
         updateDrawer();
 
         //Retrieve saved avatar image
-        if(savedInstanceState != null &&  DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
+        if (savedInstanceState != null && DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
             Bitmap bm = savedInstanceState.getParcelable(SAVED_AVATAR_IMAGE);
 
-            if(bm == null)
+            if (bm == null)
                 new AvatarRetrievalTask(this, navigationDrawerList).execute();
             else {
                 DrawerAdapter adapter = (DrawerAdapter) navigationDrawerList.getAdapter();
@@ -108,7 +106,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
                 if (DataParser.isUserLoggedIn(context)) {
                     //TODO: Find a better way to update the inbox amount
-                    DrawerAdapter adapter = (DrawerAdapter)navigationDrawerList.getAdapter();
+                    DrawerAdapter adapter = (DrawerAdapter) navigationDrawerList.getAdapter();
                     DrawerItem inboxItem = adapter.getItem(5);
                     inboxItem.setCounter(DataParser.getMessagesAmount(context));
 
@@ -136,45 +134,30 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         textView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() { //Set position of text view whenever layout is updated. (Only really need to run one time)
-                if(lastConnectedValue)
-                    textView.setY(0-textView.getHeight());
+                if (lastConnectedValue)
+                    textView.setY(0 - textView.getHeight());
                 else
                     textView.setY(0);
             }
         });
-	}
+    }
 
-	private class DrawerItemClickListener implements OnItemClickListener {
-		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-			selectItem(position, id);
-		}
-		
-	}
+    private class DrawerItemClickListener implements OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectItem(position, id);
+        }
 
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        hasPausedActivity = true;
-        isLoggedIn = DataParser.isUserLoggedIn(context);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        boolean currentlyLoggedIn = DataParser.isUserLoggedIn(context);
-
-        if(hasPausedActivity && isLoggedIn != currentlyLoggedIn) //If user changed login status, from the last time page was visited. Update the drawer.
-            updateDrawer();
-
-        if (currentlyLoggedIn)
+        if (DataParser.isUserLoggedIn(context))
             new PollMessagesTask(this).execute(); //Check for new messages
 
         invalidateOptionsMenu(); //Refreshes the ActionBar menu when activity is resumed
-        hasPausedActivity = false;
     }
 
     @Override
@@ -186,7 +169,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
         try {
             outState.putParcelable(SAVED_AVATAR_IMAGE, item.getAvatar());
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             Log.e(TAG, "Orientation Change before image downloaded");
         }
     }
@@ -228,10 +211,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             inboxItem.setEnabled(true);
             inboxItem.setVisible(true);
 
-//            if (DataParser.getMessagesAmount(context) > 0)
-//                inboxItem.setIcon(R.drawable.ic_action_unread);
-//            else
-                inboxItem.setIcon(R.drawable.ic_chat_white);
+            inboxItem.setIcon(R.drawable.ic_chat_white);
         } else if (!DataParser.isUserLoggedIn(context)) {
             //User logged out, disable sign out option
             signOutItem.setVisible(false);
@@ -290,7 +270,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     @Override
     public void onBackPressed() {
         //Pressing the back button will close the navigation drawer, if it is open
-        if(mDrawerLayout.isDrawerOpen(navigationDrawerList)) {
+        if (mDrawerLayout.isDrawerOpen(navigationDrawerList)) {
             mDrawerLayout.closeDrawers();
             return;
         }
@@ -302,10 +282,10 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     public void hasConnection(boolean isConnected, String message) {
         textView.setText(message);
 
-        if(isConnected == lastConnectedValue) //If connection status has not changed, do not perform another animation
+        if (isConnected == lastConnectedValue) //If connection status has not changed, do not perform another animation
             return;
 
-        if(!isConnected)
+        if (!isConnected)
             textView.animate().setDuration(500).translationY(0);
         else
             textView.setY(0);
@@ -316,8 +296,8 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //If user logs in, update the navigation drawer
-        if(requestCode == LoginActivity.REQUEST_LOGIN)
-            if(resultCode == Activity.RESULT_OK)
+        if (requestCode == LoginActivity.REQUEST_LOGIN)
+            if (resultCode == Activity.RESULT_OK)
                 updateDrawer();
     }
 
@@ -326,62 +306,41 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     private void updateDrawer() {
         if (DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
             new UserNameTask(this, navigationDrawerList).execute();
-            if(!hasAvatar)
+            if (!hasAvatar)
                 new AvatarRetrievalTask(this, navigationDrawerList).execute();
         }
 
         //Create titles and options for the NavigationDrawer
         ArrayList<DrawerItem> items = new ArrayList<DrawerItem>();
 
-        if(DataParser.isUserLoggedIn(context)){
+        if (DataParser.isUserLoggedIn(context)) {
             //User is signed in
             items.add(new DrawerItem(0, R.drawable.ic_action_person, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), true)); //User Item
-            items.add(new DrawerItem(100, R.drawable.ic_book, getString(R.string.drawer_book))); //Books
-            items.add(new DrawerItem(101, R.drawable.ic_tech, getString(R.string.drawer_tech))); //Tech
-            items.add(new DrawerItem(102, R.drawable.ic_service, getString(R.string.drawer_service))); //Services
-            items.add(new DrawerItem(103, R.drawable.ic_misc, getString(R.string.drawer_misc))); //Misc.
-            items.add(new DrawerItem(200, R.drawable.ic_message, getString(R.string.drawer_messages), DataParser.getMessagesAmount(context))); //Messages
-            items.add(new DrawerItem(300, R.drawable.ic_account, getString(R.string.drawer_account))); //Account
-            items.add(new DrawerItem(400, R.drawable.ic_location, getString(R.string.drawer_change_school))); //Select School
-        }
-        else if(!DataParser.isUserLoggedIn(context)){
-            drawerItemParents.add(new DrawerItem(R.drawable.ic_action_person, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), true)); //User Item id:000
-
-            //Expandable section
-            DrawerItem postSection = new DrawerItem(drawerOptions[0], R.drawable.expander_open_holo_light);
-            drawerItemParents.add(postSection); //Post [SECTION] id:100
-
             //Add all of the add post for the different categories
-            for(int i=0; i<DataParser.getSharedIntPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_AMOUNT); i++) {
-                String categoryName = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_NAME+i);
+            for (int i = 0; i < DataParser.getSharedIntPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_AMOUNT); i++) {
+                String categoryName = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_NAME + i);
 
                 int iconResource;
 
-                if(categoryName.equals(context.getString(R.string.category_name_all)))
+                if (categoryName.equals(context.getString(R.string.category_name_all)))
                     continue;
-                else if(categoryName.equals(context.getString(R.string.category_name_book)))
+                else if (categoryName.equals(context.getString(R.string.category_name_book)))
                     iconResource = R.drawable.ic_book;
-                else if(categoryName.equals(context.getString(R.string.category_name_housing)))
+                else if (categoryName.equals(context.getString(R.string.category_name_housing)))
                     iconResource = R.drawable.ic_service;
-                else if(categoryName.equals(context.getString(R.string.category_name_tech)))
+                else if (categoryName.equals(context.getString(R.string.category_name_tech)))
                     iconResource = R.drawable.ic_tech;
-                else if(categoryName.equals(context.getString(R.string.category_name_misc)))
+                else if (categoryName.equals(context.getString(R.string.category_name_misc)))
                     iconResource = R.drawable.ic_misc;
                 else
                     iconResource = R.drawable.ic_action_remove;
 
-                drawerItemChildList.add(new DrawerItem(iconResource, categoryName));
+                items.add(new DrawerItem(100 + i, iconResource, categoryName));
             }
-
-            drawerItemChildren.put(postSection, drawerItemChildList);
-
-            drawerItemParents.add(new DrawerItem(drawerOptions[5], R.drawable.expander_open_holo_light)); //Messages [SECTION] id:200
-            drawerItemParents.add(new DrawerItem(R.drawable.ic_message, drawerOptions[6], DataParser.getMessagesAmount(context))); //Inbox id:300
-            drawerItemParents.add(new DrawerItem(R.drawable.ic_message, drawerOptions[7])); //Sent id:400
-            drawerItemParents.add(new DrawerItem(drawerOptions[8], R.drawable.expander_open_holo_light)); //Settings [SECTION] id:500
-            drawerItemParents.add(new DrawerItem(R.drawable.ic_account, drawerOptions[9])); //Account id:600
-            drawerItemParents.add(new DrawerItem(R.drawable.ic_location, drawerOptions[10])); //Select School id:700
-        } else if (!DataParser.isUserLoggedIn(context)) {
+            items.add(new DrawerItem(200, R.drawable.ic_message, getString(R.string.drawer_messages), DataParser.getMessagesAmount(context))); //Messages
+            items.add(new DrawerItem(300, R.drawable.ic_account, getString(R.string.drawer_account))); //Account
+            items.add(new DrawerItem(400, R.drawable.ic_location, getString(R.string.drawer_change_school))); //Select School
+        } else {
             //User is signed out
             items.add(new DrawerItem(0, R.drawable.ic_action_person, getString(R.string.user_name_no_login), true));
             items.add(new DrawerItem(400, R.drawable.ic_location, getString(R.string.drawer_change_school))); //Select School
@@ -392,7 +351,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
     private void selectItem(int position, long id) {
 
-        int castedId = (int)id;
+        int castedId = (int) id;
 
         //Perform action based on selected item
         switch (castedId) {
@@ -400,28 +359,43 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             case 101:
             case 102:
             case 103:
+            case 104:
+            case 105:
+            case 106:
                 Intent addPostIntent = new Intent(this, AddPost.class);
-                addPostIntent.putExtra(AddPost.CATEGORY_ID, castedId);
-                startActivity(addPostIntent);  break; //Add Post
+                String category = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_ID + (castedId - 100));
+                addPostIntent.putExtra(AddPost.CATEGORY_NAME, category);
+                startActivity(addPostIntent);
+                break; //Add Post
             case 200:
                 Intent getMessageIntent = new Intent(this, Messages.class);
-                startActivity(getMessageIntent); break; //Messages
+                startActivity(getMessageIntent);
+                break; //Messages
             case 300:
-                startActivity(new Intent(this, UserSettings.class)); break; //Account
+                startActivity(new Intent(this, UserSettings.class));
+                break; //Account
             case 400:
                 startActivity(new Intent(SchoolPage.this, Selector.class));//Change School
-                finish(); break;
-            default: return;
+                finish();
+                break;
+            default:
+                return;
         }
 
-		//Highlight the selected item, update the title, close the drawer
-		navigationDrawerList.setItemChecked(position, true);
-		mDrawerLayout.closeDrawer(navigationDrawerList);
-	}
+        //Highlight the selected item, update the title, close the drawer
+        navigationDrawerList.setItemChecked(position, true);
+        mDrawerLayout.closeDrawer(navigationDrawerList);
+    }
 
-    private void signOut(){
-        if(DataParser.isNetworkAvailable(this))
+    private void signOut() {
+        if (DataParser.isNetworkAvailable(this)) {
+            SharedPreferences settings = context.getSharedPreferences(DataParser.PREFS_USER, 0);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean(DataParser.KEY_CURRENTLY_LOGGED_IN, false);
+            editor.apply();
+
             new LogoutTask(this).execute(); //Starts asynchronous sign out
+        }
 
         invalidateOptionsMenu();
         updateDrawer(); //Update navigation drawer after logging out

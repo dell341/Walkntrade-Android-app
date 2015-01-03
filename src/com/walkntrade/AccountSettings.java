@@ -23,9 +23,9 @@ public class AccountSettings extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_account);
+        setContentView(R.layout.simple_list_view);
 
-        ListView listView = (ListView) findViewById(R.id.listView);
+        ListView listView = (ListView) findViewById(R.id.list_view);
 
         String email = DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.KEY_USER_EMAIL);
         String phone = DataParser.getSharedStringPreference(this, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE);

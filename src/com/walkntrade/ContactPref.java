@@ -28,9 +28,6 @@ import java.io.IOException;
 public class ContactPref extends Activity implements CompoundButton.OnCheckedChangeListener, SwipeRefreshLayout.OnRefreshListener{
 
     private static final String TAG = "ContactPref";
-    private static final String PROPERTY_REG_ID = "gcm_registration_id";
-    private static final String PROPERTY_APP_VERSION = "last_recorded_app_version";
-    private static final String SENDER_ID = "857653417054"; //Unique project number from Google API Developer Console
     private static final int RESOLUTION_REQUEST = 9000;
 
     private Context context;

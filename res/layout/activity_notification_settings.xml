@@ -13,27 +13,27 @@
         android:id="@+id/switch_vibrate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
         android:text="@string/notification_vibrate"/>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#c2c2c2"/>
+        android:layout_height="0.5dp"
+        android:background="#dadada"/>
 
     <Switch
         android:id="@+id/switch_light"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
         android:text="@string/notification_light"/>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#c2c2c2"/>
+        android:layout_height="0.5dp"
+        android:background="#dadada"/>
 
     <LinearLayout
         android:id="@+id/notification_sound"
@@ -54,13 +54,13 @@
             android:id="@+id/sound_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="10dp"
+            android:paddingBottom="14dp"
             android:textColor="@color/darker_gray"/>
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-    android:background="#c2c2c2"/>
+        android:layout_height="0.5dp"
+        android:background="#dadada"/>
 
 </LinearLayout>

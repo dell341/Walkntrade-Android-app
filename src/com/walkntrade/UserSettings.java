@@ -25,9 +25,9 @@ public class UserSettings extends Activity implements AdapterView.OnItemClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_settings);
+        setContentView(R.layout.simple_list_view);
 
-        ListView settingsList = (ListView) findViewById(R.id.settings_list);
+        ListView settingsList = (ListView) findViewById(R.id.list_view);
         String[] userOptions = getResources().getStringArray(R.array.user_account);
 
         settingsList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, userOptions));

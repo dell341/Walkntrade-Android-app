@@ -78,9 +78,14 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
             ArrayList<ViewPostItem> items = savedInstanceState.getParcelableArrayList(SAVED_LIST);
             adapter = new ViewPostAdapter(context, items);
             listView.setAdapter(adapter);
+
+            if(adapter.isEmpty())
+                new UserPostsTask().execute();
         }
-        else
+        else {
+            adapter = new ViewPostAdapter(context, new ArrayList<ViewPostItem>());
             new UserPostsTask().execute();
+        }
 
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         listView.setMultiChoiceModeListener(multiChoiceListener);
@@ -159,7 +164,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
                     Log.e(TAG, "CheckBox doesn't exist for this view");
                 } finally {
                     if (adapter.getSize() <= 0) {
-                        noResults.setText(context.getString(R.string.no_results));
+                        noResults.setText(context.getString(R.string.no_posts));
                         noResults.setVisibility(View.VISIBLE);
                     }
                 }

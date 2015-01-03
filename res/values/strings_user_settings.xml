@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="title_activity_user_settings">User Settings</string>
-    <string name="title_activity_view_posts">Current Posts</string>
+    <string name="title_activity_user_settings">Account</string>
+    <string name="title_activity_view_posts">Your posts</string>
     <string name="title_activity_user_avatar">Change your avatar</string>
     <string name="title_activity_user_account">Account Settings</string>
     <string name="title_activity_contact_pref">Contact Preferences</string>

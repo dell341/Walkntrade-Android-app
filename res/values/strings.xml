@@ -29,10 +29,7 @@
     <string name="confirm">Confirm</string>
     <string name="reply">Reply</string>
     <string name="done">Done!</string>
-    <string name="received_messages">Received Messages</string>
-    <string name="sent_messages">Sent Messages</string>
-    <string name="received_message">Received Message</string>
-    <string name="sent_message">Sent Message</string>
+    <string name="messages">Messages</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
     <string name="send">Send</string>
@@ -77,9 +74,8 @@
 
     <!-- Auto-generated Strings **Remove All** -->
     <string name="invalid_message">Message cannot be blank</string>
-    <string name="title_activity_messages">Messages</string>
     <string name="title_activity_show_message">Walkntrade Message</string>
-    <string name="title_activity_search">SearchActivity</string>
+    <string name="title_activity_search">Searching</string>
     <string name="title_activity_message_conversation">MessageConversation</string>
 
 </resources>
