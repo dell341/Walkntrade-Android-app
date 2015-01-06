@@ -10,21 +10,20 @@ import android.graphics.Bitmap;
 public class ChatObject {
 
     private static final String TAG = "ChatObject";
-    private String postIdentifier, userImageUrl, user, contents, dateTime;
-    private int messageId;
-    private boolean read;
+    private String senderName, contents, dateTime, userImageUrl;
+    private int senderId;
+    private boolean sentFromMe, messageSeen;
 
     private Bitmap userImage;
     private boolean hasImage = false;
 
-    public ChatObject(String postIdentifier, String userImageUrl, int messageId, String user, String contents, String dateTime, boolean read) {
-        this.postIdentifier = postIdentifier;
-        this.userImageUrl = userImageUrl;
-        this.messageId = messageId;
-        this.user = user;
+    public ChatObject(boolean sentFromMe, String senderName, String contents, String dateTime, boolean messageSeen, String userImageUrl) {
+        this.sentFromMe = sentFromMe;
+        this.senderName = senderName;
         this.contents = contents;
         this.dateTime = dateTime;
-        this.read = read;
+        this.messageSeen = messageSeen;
+        this.userImageUrl = userImageUrl;
     }
 
     public void setCurrentUserImage(Bitmap image) {
@@ -40,16 +39,8 @@ public class ChatObject {
         return hasImage;
     }
 
-    public String getPostIdentifier() {
-        return postIdentifier;
-    }
-
-    public String getUserImageUrl() {
-        return userImageUrl;
-    }
-
-    public String getUser() {
-        return user;
+    public String getSenderName() {
+        return senderName;
     }
 
     public String getContents() {
@@ -60,11 +51,23 @@ public class ChatObject {
         return dateTime;
     }
 
-    public int getMessageId() {
-        return messageId;
+    public String getUserImageUrl() {
+        return userImageUrl;
     }
 
-    public boolean isRead() {
-        return read;
+    public boolean isSentFromMe() {
+        return sentFromMe;
+    }
+
+    public boolean isMessageSeen() {
+        return messageSeen;
+    }
+
+    public Bitmap getUserImage() {
+        return userImage;
+    }
+
+    public boolean isHasImage() {
+        return hasImage;
     }
 }

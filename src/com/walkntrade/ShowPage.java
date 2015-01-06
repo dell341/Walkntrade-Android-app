@@ -23,6 +23,7 @@ public class ShowPage extends Activity implements PostFragment.ContactUserListen
 
     private String TAG = "ShowPage";
     private Context context;
+    private Post thisPost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +33,7 @@ public class ShowPage extends Activity implements PostFragment.ContactUserListen
         context = getApplicationContext();
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Post thisPost = getIntent().getParcelableExtra(SchoolPage.SELECTED_POST);
+        thisPost = getIntent().getParcelableExtra(SchoolPage.SELECTED_POST);
         Bundle args = new Bundle();
         args.putParcelable(SchoolPage.SELECTED_POST, thisPost);
 
@@ -123,8 +124,7 @@ public class ShowPage extends Activity implements PostFragment.ContactUserListen
         ContactUserFragment fragment = new ContactUserFragment();
 
         Bundle args = new Bundle();
-        args.putString(ContactUserFragment.USER, user);
-        args.putString(ContactUserFragment.TITLE, title);
+        args.putParcelable(SchoolPage.SELECTED_POST, thisPost);
         fragment.setArguments(args);
 
         FragmentTransaction transaction = getFragmentManager().beginTransaction();

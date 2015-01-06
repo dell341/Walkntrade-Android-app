@@ -107,7 +107,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
                 if (DataParser.isUserLoggedIn(context)) {
                     //TODO: Find a better way to update the inbox amount
                     DrawerAdapter adapter = (DrawerAdapter) navigationDrawerList.getAdapter();
-                    DrawerItem inboxItem = adapter.getItem(5);
+                    DrawerItem inboxItem = adapter.getItem(4);
                     inboxItem.setCounter(DataParser.getMessagesAmount(context));
 
                     adapter.notifyDataSetChanged();

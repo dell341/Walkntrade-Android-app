@@ -39,8 +39,8 @@ public class AvatarRetrievalTask extends AsyncTask<Void, Void, Bitmap> {
         try {
             String avatarURL;
 
-            DataParser.StringResult result = database.getAvatarUrl();
-            avatarURL = result.getValue();
+            DataParser.ObjectResult<String> result = database.getAvatarUrl();
+            avatarURL = result.getObject();
 
             if (avatarURL == null)
                 return null;

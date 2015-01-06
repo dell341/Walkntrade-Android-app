@@ -9,53 +9,59 @@ import android.os.Parcelable;
  * https://walkntrade.com
  */
 
-public class MessageThread implements Parcelable{
+public class MessageThread implements Parcelable {
 
-    private String uniqueThreadId, postIdentifier, postTitle, userImageUrl, lastUser, lastContent, lastDateTime;
-    private int lastMessageId;
-    private boolean lastMessageRead;
+    private String threadId, postIdentifier, postTitle, lastMessage, lastUserName, lastDateTime, userName, userImageUrl;
+    private int lastUserId, userId, newMessages;
 
     private boolean hasImage = false;
     private Bitmap userImage;
 
-    public MessageThread(String uniqueThreadId, String postIdentifier, String postTitle, String userImageUrl, int lastMessageId, String lastUser, String lastContent, String lastDateTime, boolean lastMessageRead) {
-        this.uniqueThreadId = uniqueThreadId;
+    public MessageThread(String threadId, String postIdentifier, String postTitle, String lastMessage, String lastUserName, int lastUserId, String lastDateTime, int userId, String userName, String userImageUrl, int newMessages) {
+        this.threadId = threadId;
         this.postIdentifier = postIdentifier;
         this.postTitle = postTitle;
-        this.userImageUrl = userImageUrl;
-        this.lastMessageId = lastMessageId;
-        this.lastUser = lastUser;
-        this.lastContent = lastUser+" : "+lastContent;
+        this.lastMessage = lastMessage;
+        this.lastUserName = lastUserName;
+        this.lastUserId = lastUserId;
         this.lastDateTime = lastDateTime;
-        this.lastMessageRead = lastMessageRead;
+        this.userId = userId;
+        this.userName = userName;
+        this.userImageUrl = userImageUrl;
+        this.newMessages = newMessages;
 
         //TODO: Separate date from time
     }
 
     //Constructor when object is created from a parcel
-    public MessageThread(Parcel in){
-        uniqueThreadId = in.readString();
+    public MessageThread(Parcel in) {
+        threadId = in.readString();
         postIdentifier = in.readString();
         postTitle = in.readString();
-        userImageUrl = in.readString();
-        lastMessageId = in.readInt();
-        lastUser = in.readString();
-        lastContent = in.readString();
+        lastMessage = in.readString();
+        lastUserName = in.readString();
+        lastUserId = in.readInt();
         lastDateTime = in.readString();
-        lastMessageRead = false; ////////////////////////////////TODO: Change to read from parcel. //////////////////////////////////////////////////////////////
+        userId = in.readInt();
+        userName = in.readString();
+        userImageUrl = in.readString();
+        newMessages = in.readInt();
     }
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
         //Must be written out in the same order it is read in
-        out.writeString(uniqueThreadId);
+        out.writeString(threadId);
         out.writeString(postIdentifier);
         out.writeString(postTitle);
-        out.writeString(userImageUrl);
-        out.writeInt(lastMessageId);
-        out.writeString(lastUser);
-        out.writeString(lastContent);
+        out.writeString(lastMessage);
+        out.writeString(lastUserName);
+        out.writeInt(lastUserId);
         out.writeString(lastDateTime);
+        out.writeInt(userId);
+        out.writeString(userName);
+        out.writeString(userImageUrl);
+        out.writeInt(newMessages);
     }
 
     public boolean hasImage() {
@@ -71,12 +77,36 @@ public class MessageThread implements Parcelable{
         return userImage;
     }
 
-    public String getUniqueThreadId() {
-        return uniqueThreadId;
+    public String getThreadId() {
+        return threadId;
     }
 
     public String getPostIdentifier() {
         return postIdentifier;
+    }
+
+    public String getLastMessage() {
+        return lastMessage;
+    }
+
+    public String getLastUserName() {
+        return lastUserName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public int getLastUserId() {
+        return lastUserId;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public int getNewMessages() {
+        return newMessages;
     }
 
     public String getPostTitle() {
@@ -87,24 +117,8 @@ public class MessageThread implements Parcelable{
         return userImageUrl;
     }
 
-    public String getLastUser() {
-        return lastUser;
-    }
-
-    public String getLastContent() {
-        return lastContent;
-    }
-
     public String getLastDateTime() {
         return lastDateTime;
-    }
-
-    public int getLastMessageId() {
-        return lastMessageId;
-    }
-
-    public boolean isLastMessageRead() {
-        return lastMessageRead;
     }
 
     @Override

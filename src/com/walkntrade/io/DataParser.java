@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.http.AndroidHttpClient;
+import android.net.wifi.WifiConfiguration;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -42,9 +43,6 @@ import org.apache.http.protocol.HttpContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -54,9 +52,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 /*
  * Copyright (c) 2014. All Rights Reserved. Walkntrade
@@ -127,35 +122,6 @@ public class DataParser {
 
     public DataParser(Context _context) {
         context = _context;
-    }
-
-    public class StringResult {
-        private int status = 0;
-        private String value;
-
-        public StringResult(int status, String value) {
-            this.status = status;
-            this.value = value;
-        }
-
-        public void setStatus(int status) {
-            this.status = status;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public String getValue() {
-            if (value == null)
-                throw new NullPointerException("Value is null");
-
-            return value;
-        }
     }
 
     public class ObjectResult<T> {
@@ -294,16 +260,16 @@ public class DataParser {
     }
 
     //Used for JSONObjects that just return a String
-    private StringResult getIntentResult(String query) throws IOException {
+    private ObjectResult<String> getIntentResult(String query) throws IOException {
 
-        StringResult result = new StringResult(StatusCodeParser.CONNECT_FAILED, null);
+        ObjectResult<String> result = new ObjectResult<String>(StatusCodeParser.CONNECT_FAILED, null);
         try {
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inputStream = processRequest(entity);
             JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
 
             result.setStatus(jsonObject.getInt(STATUS));
-            result.setValue(jsonObject.getString(MESSAGE));
+            result.setObject(jsonObject.getString(MESSAGE));
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
         } finally {
@@ -545,58 +511,71 @@ public class DataParser {
         disconnectAll();
     }
 
-    public StringResult getUserName() throws IOException {
+    public ObjectResult<String> getUserName() throws IOException {
         establishConnection();
 
         String query = "intent=getUserName";
-        StringResult result = getIntentResult(query);
+        ObjectResult<String> result = getIntentResult(query);
 
         //Stores username locally to device
-        setSharedStringPreference(PREFS_USER, KEY_USER_NAME, result.getValue()); //Stores username locally to device
+        setSharedStringPreference(PREFS_USER, KEY_USER_NAME, result.getObject()); //Stores username locally to device
         return result;
     }
 
-    public StringResult getAvatarUrl() throws IOException {
+    public ObjectResult<String> getAvatarUrl() throws IOException {
         establishConnection();
 
         String query = "intent=getAvatar";
-        StringResult result = getIntentResult(query);
+        ObjectResult<String> result = getIntentResult(query);
 
         //Stores user's avatar url
-        setSharedStringPreference(PREFS_USER, KEY_USER_AVATAR_URL, result.getValue());
+        setSharedStringPreference(PREFS_USER, KEY_USER_AVATAR_URL, result.getObject());
         return result;
     }
 
-    public StringResult getUserPhoneNumber() throws IOException {
+    public ObjectResult<String> getUserPhoneNumber() throws IOException {
         establishConnection();
 
         String query = "getPhoneNum";
-        StringResult result = getIntentResult(query);
+        ObjectResult<String> result = getIntentResult(query);
 
         //Stores phone number locally to device
-        setSharedStringPreference(PREFS_USER, KEY_USER_PHONE, result.getValue());
+        setSharedStringPreference(PREFS_USER, KEY_USER_PHONE, result.getObject());
         return result;
     }
 
-    public StringResult getEmailPreference() throws IOException {
+    public ObjectResult<String> getEmailPreference() throws IOException {
         establishConnection();
 
         String query = "getEmailPref";
-        StringResult result = getIntentResult(query);
+        ObjectResult<String> result = getIntentResult(query);
 
         //Stores email contact preference locally
-        setSharedStringPreference(PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, result.getValue());
+        setSharedStringPreference(PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, result.getObject());
         return result;
     }
 
-    public StringResult getAmountOfNewMessages() throws IOException {
+    public ObjectResult<Integer> getNewMessages() throws IOException {
         establishConnection();
 
-        String query = "intent=pollNewWebmail";
-        StringResult result = getIntentResult(query);
+        ObjectResult<Integer> result = new ObjectResult<Integer>(StatusCodeParser.CONNECT_FAILED, null);
+        String query = "intent=hasNewMessages";
+
+        try {
+            HttpEntity entity = new StringEntity(query);
+            InputStream inputStream = processRequest(entity);
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+            int requestStatus = jsonObject.getInt(STATUS);
+
+            result = new ObjectResult<Integer>(requestStatus, jsonObject.getInt(MESSAGE));
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        } finally {
+            disconnectAll();
+        }
 
         //Stores amount of unread messages here
-        setSharedIntPreferences(PREFS_USER, KEY_USER_MESSAGES, Integer.parseInt(result.getValue()));
+        setSharedIntPreferences(PREFS_USER, KEY_USER_MESSAGES, result.getObject());
         return result;
     }
 
@@ -690,6 +669,9 @@ public class DataParser {
     public String simpleGetIntent(String intentValue) throws IOException {
         establishConnection();
 
+        if(intentValue.equals(INTENT_GET_NEWMESSAGE))
+            return "0";
+
         String query = "intent=" + intentValue;
         String serverResponse = null;
 
@@ -762,134 +744,155 @@ public class DataParser {
         return serverResponse;
     }
 
-    public ObjectResult<ArrayList<MessageThread>> getMessageThreads() throws IOException{
-        ObjectResult<ArrayList<MessageThread>> result = new ObjectResult<ArrayList<MessageThread>>(StatusCodeParser.CONNECT_FAILED, null);
-
-        try {
-            JSONObject jsonObject = new JSONObject("{\"payload\": ["
-                    + "{ \"unique_thread_id\":\"16gd2468dgf\", \"post_identifier\":\"spsu:45923f654b2fds\", \"post_title\":\"Title of what I'm selling\", \"user_image_url\":\"/user_images/uid_1.jpg\", \"last_message\": { \"id\":\"21\", \"user\":\"walkntrade\", \"contents\":\"Ok, see you soon.\", \"datetime\":\"2014-05-20 19:51\", \"read\":\"false\"} }]}");
-//        +"{..}, {..} ] "}
-
-            JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
-            ArrayList<MessageThread> messageThreads = new ArrayList<MessageThread>();
-
-            for (int i = 0; i < payload.length(); i++) {
-                JSONObject messageThread = payload.getJSONObject(i);
-
-                String uniqueThreadId = messageThread.getString("unique_thread_id");
-                String postIdentifier = messageThread.getString("post_identifier");
-                String postTitle = messageThread.getString("post_title");
-                String userImageUrl = messageThread.getString("user_image_url");
-
-                JSONObject lastMessage = messageThread.getJSONObject("last_message");
-                int messageId = lastMessage.getInt("id");
-                String user = lastMessage.getString("user");
-                String contents = lastMessage.getString("contents");
-                String dateTime = lastMessage.getString("datetime");
-                boolean lastMessageRead = lastMessage.getBoolean("read");
-
-                messageThreads.add(new MessageThread(uniqueThreadId, postIdentifier, postTitle, userImageUrl, messageId, user, contents, dateTime, lastMessageRead));
-            }
-
-            result = new ObjectResult<ArrayList<MessageThread>>(StatusCodeParser.STATUS_OK, messageThreads);
-        } catch (JSONException e) {
-            Log.e(TAG, "Parsing JSON", e);
-        }
-
-        return result;
-    }
-
-    public ObjectResult<ArrayList<ChatObject>> getMessageThread(String uniqueThreadId, int amount) throws IOException{
-        ObjectResult<ArrayList<ChatObject>> result = new ObjectResult<ArrayList<ChatObject>>(StatusCodeParser.CONNECT_FAILED, null);
-        try {
-
-            String username = DataParser.getSharedStringPreference(context, PREFS_USER, KEY_USER_NAME);
-            JSONObject jsonObject = new JSONObject("{\"payload\": ["
-                    + "{\"post_identifier\":\"spsu:45923f654b2fds\", \"user_image_url\":\"/user_images/uid_1.jpg\", \"messages\": [{\"id\":\"18\", \"user\":\"walkntrade\", \"contents\":\"Hey, I just saw your post. I'm interested in buying. How long have you had it?\", \"datetime\":\"2014-05-20 19:51\", \"read\":\"false\"}, " +
-                    "{\"id\":\"19\", \"user\":\""+username+"\", \"contents\":\"Awesome! Well, I've had it for about a year. So it's still in pretty good condition.\", \"datetime\":\"2014-05-20 19:51\", \"read\":\"false\"}," +
-                    "{\"id\":\"20\", \"user\":\"walkntrade\", \"contents\":\"Cool. Would you be available to sell it later on today?\", \"datetime\":\"2014-05-20 19:51\", \"read\":\"false\"}," +
-                    "{\"id\":\"21\", \"user\":\""+username+"\", \"contents\":\"Sure, if you want we can meet at the Atrium at 2pm. I'll be wearing a blue shirt and black jeans.\", \"datetime\":\"2014-05-20 19:51\", \"read\":\"false\"},"+
-                    "{\"id\":\"20\", \"user\":\"walkntrade\", \"contents\":\"Ok, see you soon.\", \"datetime\":\"2014-05-20 19:51\", \"read\":\"false\"}] }]}");
-
-            JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
-            ArrayList<ChatObject> chatObjects = new ArrayList<ChatObject>();
-
-            JSONObject chatThread = payload.getJSONObject(0);
-            JSONArray messages = chatThread.getJSONArray("messages");
-
-            String postIdentifer = chatThread.getString("post_identifier");
-            String userImageUrl = chatThread.getString("user_image_url");
-
-            for(int i=0; i<messages.length(); i++) {
-                JSONObject currentMessage = messages.getJSONObject(i);
-
-                int id = currentMessage.getInt("id");
-                String user = currentMessage.getString("user");
-                String contents = currentMessage.getString("contents");
-                String dateTime = currentMessage.getString("datetime");
-                boolean read = currentMessage.getBoolean("read");
-
-                chatObjects.add(new ChatObject(postIdentifer, userImageUrl, id, user, contents, dateTime, read));
-            }
-
-            result = new ObjectResult<ArrayList<ChatObject>>(StatusCodeParser.STATUS_OK, chatObjects);
-
-        } catch (JSONException e) {
-            Log.e(TAG, "Parsing JSON", e);
-        }
-
-        return result;
-    }
-
-    //Currently not used to retrieve message, but just mark it as read. Server marks a message as read, when this intent is called.
-    public void getMessage(String id) throws IOException {
-        establishConnection();
-
-        String query = "intent=getMessage&message_id=" + id;
-
-        try {
-            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-            processRequest(entity);
-        } finally {
-            disconnectAll();
-        }
-    }
-
-    public String removeMessage(String id) throws IOException {
-        establishConnection();
-
-        String query = "intent=removeMessage&message_id=" + id;
-        String serverResponse = null;
-
-        try {
-            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
-            InputStream inputStream = processRequest(entity);
-            serverResponse = readInputAsString(inputStream); //Reads message response from server
-        } finally {
-            disconnectAll();
-        }
-        return serverResponse;
-    }
-
-    public int messageUser(String userName, String title, String message) throws IOException {
+    //Create a new message conversation with a user. Regarding a specific post
+    public int createMessageThread(String postIdentifier, String message) throws IOException{
         establishConnection();
 
         int serverResponse = StatusCodeParser.CONNECT_FAILED;
+        String query = "intent=createMessageThread&message="+message+"&post_id="+postIdentifier;
 
         try {
-            String query = "intent=messageUser&uuid=&userName=" + userName + "&title=" + title + "&message=" + message;
-            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            HttpEntity entity = new StringEntity(query);
             InputStream inputStream = processRequest(entity);
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
 
-            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream)); //Reads message response from server
             serverResponse = jsonObject.getInt(STATUS);
-
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
         } finally {
             disconnectAll();
         }
+
         return serverResponse;
+    }
+
+    //Reply to add-on to an existing conversation
+    public int appendMessage(String threadId, String message) throws IOException {
+        establishConnection();
+
+        int serverResponse = StatusCodeParser.CONNECT_FAILED;
+        String query = "intent=appendMessage&thread_id="+threadId+"&message="+message;
+
+        try {
+            HttpEntity entity = new StringEntity(query);
+            InputStream inputStream = processRequest(entity);
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+
+            serverResponse = jsonObject.getInt(STATUS);
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        } finally {
+            disconnectAll();
+        }
+
+        return serverResponse;
+    }
+
+    //Delete thread
+    public int deleteThread(String threadId) throws IOException {
+        establishConnection();
+
+        int serverResponse = StatusCodeParser.CONNECT_FAILED;
+        String query = "intent=deleteThread&thread_id="+threadId;
+
+        try {
+            HttpEntity entity = new StringEntity(query);
+            InputStream inputStream = processRequest(entity);
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+
+            serverResponse = jsonObject.getInt(STATUS);
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        } finally {
+            disconnectAll();
+        }
+
+        return serverResponse;
+    }
+
+    public ObjectResult<ArrayList<MessageThread>> getMessageThreads(int offset, int amount) throws IOException {
+        establishConnection();
+        ObjectResult<ArrayList<MessageThread>> result = new ObjectResult<ArrayList<MessageThread>>(StatusCodeParser.CONNECT_FAILED, null);
+
+        String query = "intent=getMessageThreadsCurrentUser&offset="+offset+"&amount="+amount;
+
+        try {
+            HttpEntity entity = new StringEntity(query);
+            InputStream inputStream = processRequest(entity);
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+            int requestStatus = jsonObject.getInt(STATUS);
+            JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
+
+            ArrayList<MessageThread> messageThreads = new ArrayList<MessageThread>();
+            for(int i=0; i<payload.length(); i++) {
+                JSONObject messageThread = payload.getJSONObject(i);
+
+                String threadId = messageThread.getString("thread_id");
+                String postIdentifier = messageThread.getString("post_id");
+                String postTitle = messageThread.getString("post_title");
+                String lastMessage = messageThread.getString("last_message");
+                int lastUserId = messageThread.getInt("last_user_id");
+                String lastUserName = messageThread.getString("last_user_name");
+                String lastDateTime = messageThread.getString("datetime");
+                int userId = messageThread.getInt("associated_with");
+                String userName = messageThread.getString("associated_with_name");
+                String userImageUrl = messageThread.getString("associated_with_image");
+                int newMessages = messageThread.getInt("new_messages");
+
+                messageThreads.add(new MessageThread(threadId, postIdentifier, postTitle, lastMessage, lastUserName, lastUserId, lastDateTime, userId, userName, userImageUrl, newMessages));
+            }
+
+            result = new ObjectResult<ArrayList<MessageThread>>(requestStatus, messageThreads);
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        } finally {
+            disconnectAll();
+        }
+
+        return result;
+    }
+
+    public ObjectResult<ArrayList<ChatObject>> retrieveThread(String threadId) throws IOException{
+        establishConnection();
+        ObjectResult<ArrayList<ChatObject>> result = new ObjectResult<ArrayList<ChatObject>>(StatusCodeParser.CONNECT_FAILED, null);
+
+        String query = "intent=retrieveThread&thread_id="+threadId;
+
+        try {
+            HttpEntity entity = new StringEntity(query);
+            InputStream inputStream = processRequest(entity);
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+
+            int requestStatus = jsonObject.getInt(STATUS);
+            JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
+
+            ArrayList<ChatObject> messages = new ArrayList<ChatObject>();
+
+            for(int i=0; i<payload.length(); i++) {
+                JSONObject message = payload.getJSONObject(i);
+
+                int messageId = message.getInt("message_id");
+                int value = message.getInt("sentFromMe");
+                boolean sentFromMe = (value == 1);
+                int senderId = message.getInt("sender_id");
+                String senderName = message.getString("sender_name");
+                String messageContent = message.getString("message_content");
+                String dateTime = message.getString("datetime");
+                value = message.getInt("message_seen");
+                boolean messageSeen = (value == 1);
+                String userImageUrl = message.getString("avatar");
+
+                messages.add(new ChatObject(sentFromMe, senderName, messageContent, dateTime, messageSeen, userImageUrl));
+            }
+
+            result = new ObjectResult<ArrayList<ChatObject>>(requestStatus, messages);
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        } finally {
+            disconnectAll();
+        }
+
+        return result;
     }
 
     //Get user profile. Search using either username or user id
@@ -1042,12 +1045,10 @@ public class DataParser {
 
         try {
             String query = "intent=editPost&school="+schoolId+"&identifier="+identifier+"&title="+title+"&details="+description+"&price="+price+"&tags="+tags;
-            Log.d(TAG, "Query: "+query);
             HttpEntity entity = new StringEntity(query);
             InputStream inputStream = processRequest(entity);
 
             JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
-            Log.i(TAG, jsonObject.toString());
             requestStatus = jsonObject.getInt(STATUS);
 
         } catch (JSONException e) {

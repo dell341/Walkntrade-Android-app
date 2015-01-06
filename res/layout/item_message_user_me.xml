@@ -39,7 +39,8 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/message_contents"
         android:layout_toLeftOf="@id/message_contents"
-        android:layout_toStartOf="@id/message_contents" />
+        android:layout_toStartOf="@id/message_contents"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/user"

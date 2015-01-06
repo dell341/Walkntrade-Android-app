@@ -208,7 +208,7 @@
             android:label="@string/title_activity_search" >
         </activity>
         <activity
-            android:name=".ChatThread"
+            android:name=".MessageConversation"
             android:label="@string/title_activity_message_conversation"
             android:windowSoftInputMode="stateHidden|adjustPan">
             <meta-data

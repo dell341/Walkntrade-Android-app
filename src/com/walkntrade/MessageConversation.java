@@ -23,7 +23,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.StatusCodeParser;
@@ -39,13 +41,15 @@ import java.util.List;
  * https://walkntrade.com
  */
 
-public class ChatThread extends Activity {
+public class MessageConversation extends Activity {
 
-    private static final String TAG = "ChatThread";
+    private static final String TAG = "MessageConversation";
+    public static final String THREAD_ID = "id_of_current_message_thread";
     public static final String POST_TITLE = "title_of_current_post";
 
     private Context context;
     private ProgressBar progressBar;
+    private String threadId, postTitle;
     private ListView chatList;
     private ChatThreadAdapter chatAdapter;
     private EditText newMessage;
@@ -57,7 +61,12 @@ public class ChatThread extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_conversation);
 
+        threadId = getIntent().getStringExtra(THREAD_ID);
+        postTitle = getIntent().getStringExtra(POST_TITLE);
+
         context = getApplicationContext();
+        GcmIntentService.resetNotfCounter(context); //Clears out all message notifications in Status Bar
+
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         chatList = (ListView) findViewById(R.id.chat_list);
         newMessage = (EditText) findViewById(R.id.edit_text);
@@ -66,7 +75,7 @@ public class ChatThread extends Activity {
         getActionBar().setTitle(getIntent().getStringExtra(POST_TITLE));
 
         chatAdapter = new ChatThreadAdapter(context, R.layout.item_message_thread, new ArrayList<ChatObject>());
-        new GetChatThreadTask().execute("k3lrlk23nd2");
+        new GetChatThreadTask().execute(threadId);
 
         newMessage.addTextChangedListener(new TextWatcher() {
             @Override
@@ -90,7 +99,8 @@ public class ChatThread extends Activity {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
                 switch (actionId) {
-                    case EditorInfo.IME_ACTION_SEND: sendMessage(textView.getText().toString());
+                    case EditorInfo.IME_ACTION_SEND:
+                        new AppendMessageTask().execute(newMessage.getText().toString());
                         textView.setText("");
                 }
 
@@ -101,7 +111,7 @@ public class ChatThread extends Activity {
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendMessage(newMessage.getText().toString());
+                new AppendMessageTask().execute(newMessage.getText().toString());
             }
         });
 
@@ -131,17 +141,6 @@ public class ChatThread extends Activity {
         }
     }
 
-    private void sendMessage(String message) {
-        ChatObject chatObject = new ChatObject("jksndkadan", "ihakhskjahsk",99, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), message, "[current time]", false);
-        chatAdapter.add(chatObject);
-        chatAdapter.notifyDataSetChanged();
-        chatList.setSelection(chatAdapter.getCount() - 1);
-        newMessage.setText("");
-        ArrayList<ChatObject> c = new ArrayList<ChatObject>();
-        c.add(chatObject);
-        new UserAvatarRetrievalTask(c, true).execute(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL));
-    }
-
     private class ChatThreadAdapter extends ArrayAdapter<ChatObject> {
 
         public ChatThreadAdapter(Context context, int resource, List<ChatObject> chatObjects) {
@@ -156,7 +155,7 @@ public class ChatThread extends Activity {
 
             boolean myMessage = false;
 
-            if (item.getUser().equalsIgnoreCase(DataParser.getSharedStringPreference(getContext(), DataParser.PREFS_USER, DataParser.KEY_USER_NAME)))
+            if (item.getSenderName().equalsIgnoreCase(DataParser.getSharedStringPreference(getContext(), DataParser.PREFS_USER, DataParser.KEY_USER_NAME)))
                 myMessage = true;
 
             if (myMessage)
@@ -172,7 +171,7 @@ public class ChatThread extends Activity {
             if (item.hasImage())
                 userImage.setImageBitmap(item.getCurrentUserImage());
             contents.setText(item.getContents());
-            user.setText(item.getUser());
+            user.setText(item.getSenderName());
             date.setText(item.getDateTime());
 
             return messageView;
@@ -199,7 +198,7 @@ public class ChatThread extends Activity {
             int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
-                DataParser.ObjectResult<ArrayList<ChatObject>> result = database.getMessageThread(strings[0], -1);
+                DataParser.ObjectResult<ArrayList<ChatObject>> result = database.retrieveThread(strings[0]);
                 serverResponse = result.getStatus();
                 chatObjects = result.getObject();
 
@@ -216,11 +215,53 @@ public class ChatThread extends Activity {
             if (serverResponse == StatusCodeParser.STATUS_OK) {
                 chatAdapter.addAll(chatObjects);
                 chatList.setAdapter(chatAdapter);
-                chatList.setSelection(chatAdapter.getCount()-1);
+                chatList.setSelection(chatAdapter.getCount() - 1);
 
                 new UserAvatarRetrievalTask(chatObjects, false).execute(chatObjects.get(0).getUserImageUrl()); //Retrieve image for other user's avatar
                 new UserAvatarRetrievalTask(chatObjects, true).execute(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL)); //Retrieve image for current user's avatar
             }
+        }
+    }
+
+    private class AppendMessageTask extends AsyncTask<String, Void, Integer> {
+
+        private String message;
+
+        @Override
+        protected void onPreExecute() {
+            send.setVisibility(View.GONE);
+        }
+
+        @Override
+        protected Integer doInBackground(String... strings) {
+            DataParser database = new DataParser(context);
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
+
+            message = strings[0];
+            try {
+                serverResponse = database.appendMessage(threadId, strings[0]);
+            } catch (IOException e) {
+                Log.e(TAG, "Appending message thread", e);
+            }
+
+            return serverResponse;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+
+            send.setVisibility(View.VISIBLE);
+            ChatObject chatObject = new ChatObject(true,DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), message, "[current time]", true, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL));
+            chatAdapter.add(chatObject);
+            chatAdapter.notifyDataSetChanged();
+            chatList.setSelection(chatAdapter.getCount() - 1);
+            newMessage.setText("");
+            ArrayList<ChatObject> c = new ArrayList<ChatObject>();
+            c.add(chatObject);
+            new UserAvatarRetrievalTask(c, true).execute(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL));
+
+            Toast.makeText(context, integer.toString(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -245,8 +286,10 @@ public class ChatThread extends Activity {
             Bitmap bm = null;
             DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
             try {
-                String splitURL[] = avatarURL[0].split("_");
-                String key = splitURL[2]; //The URL will also be used as the key to cache their avatar image
+                String[] splitURL = avatarURL[0].split("_");
+                String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+                splitURL = key.split("\\.");
+                key = splitURL[0];
 
                 bm = imageCache.getBitmapFromDiskCache(key.substring(0, 1)); //Try to retrieve image from cache
 
@@ -257,7 +300,7 @@ public class ChatThread extends Activity {
                     int width = userImageView.getWidth();
                     int height = userImageView.getHeight();
 
-                    Log.v(TAG, "User Image View: width - "+width+" height - "+height);
+                    Log.v(TAG, "User Image View: width - " + width + " height - " + height);
                     bm = DataParser.loadOptBitmap(avatarURL[0], width, height);
                 }
 
@@ -281,11 +324,11 @@ public class ChatThread extends Activity {
 
                 if (myImage) {
                     for (ChatObject c : chatObjects)
-                        if (c.getUser().equalsIgnoreCase(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME)))
+                        if (c.getSenderName().equalsIgnoreCase(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME)))
                             c.setCurrentUserImage(bitmap);
                 } else {
                     for (ChatObject c : chatObjects)
-                        if (!c.getUser().equalsIgnoreCase(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME)))
+                        if (!c.getSenderName().equalsIgnoreCase(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME)))
                             c.setCurrentUserImage(bitmap);
                 }
 

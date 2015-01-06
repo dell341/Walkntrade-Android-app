@@ -17,8 +17,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.walkntrade.R;
+import com.walkntrade.SchoolPage;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.StatusCodeParser;
+import com.walkntrade.objects.Post;
 
 import java.io.IOException;
 
@@ -30,13 +32,12 @@ import java.io.IOException;
 public class ContactUserFragment extends Fragment {
 
     private static final String TAG = "FRAGMENT:ContactUser";
-    public static final String USER = "user_to_message";
-    public static final String TITLE = "title_of_message";
 
     private Context context;
+    private Post thisPost;
     private AsyncTask sendMessageTask;
     private TextView messageFeedback;
-    private String user, subject, message;
+    private String user, message;
     private EditText messageContents;
     private Button button;
 
@@ -44,15 +45,16 @@ public class ContactUserFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_contact_user, container, false);
 
+        thisPost = getArguments().getParcelable(SchoolPage.SELECTED_POST);
         context = getActivity().getApplicationContext();
-        user = getArguments().getString(USER);
-        subject = getArguments().getString(TITLE);
 
         messageFeedback = (TextView) rootView.findViewById(R.id.message_error);
         TextView contactUser = (TextView) rootView.findViewById(R.id.contactUser);
         messageContents = (EditText) rootView.findViewById(R.id.edit_message_contents);
         CheckBox checkBox = (CheckBox) rootView.findViewById(R.id.checkBox);
         button = (Button) rootView.findViewById(R.id.button);
+
+        user = thisPost.getUser();
 
         //If user has no phone number on their account. Include a message without the phone number
         if(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE) == null || DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE).equals("0"))
@@ -136,7 +138,7 @@ public class ContactUserFragment extends Fragment {
                 return null;
 
             try {
-                serverResponse = database.messageUser(user, subject, message);
+                serverResponse = database.createMessageThread(thisPost.getIdentifier(), message);
             } catch (IOException e) {
                 Log.e(TAG, "Messaging user", e);
             }

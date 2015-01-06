@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -24,6 +25,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.walkntrade.asynctasks.PollMessagesTask;
+import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.StatusCodeParser;
@@ -55,12 +57,14 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         setContentView(R.layout.activity_messages);
 
         context = getApplicationContext();
+        GcmIntentService.resetNotfCounter(context); //Clears out all message notifications in Status Bar
+
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         noResults = (TextView) findViewById(R.id.noResults);
         messageList = (ListView) findViewById(R.id.messageList);
-        //messageList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        //messageList.setMultiChoiceModeListener(new MultiChoiceListener());
+        messageList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        messageList.setMultiChoiceModeListener(new MultiChoiceListener());
 
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
@@ -113,9 +117,10 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         MessageThread message = (MessageThread) parent.getItemAtPosition(position);
 
-        Intent showMessageIntent = new Intent(this, ChatThread.class);
-        showMessageIntent.putExtra(ChatThread.POST_TITLE, message.getPostTitle());
-        startActivity(showMessageIntent);
+        Intent showConversationIntent = new Intent(this, MessageConversation.class);
+        showConversationIntent.putExtra(MessageConversation.THREAD_ID, message.getThreadId());
+        showConversationIntent.putExtra(MessageConversation.POST_TITLE, message.getPostTitle());
+        startActivity(showConversationIntent);
     }
 
     private class MultiChoiceListener implements AbsListView.MultiChoiceModeListener {
@@ -134,10 +139,10 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             MessageThread item = adapter.getItem(position);
 
             if (selected) {
-                messageIds.add(item.getUniqueThreadId());
+                messageIds.add(item.getThreadId());
                 count++;
             } else {
-                messageIds.remove(item.getUniqueThreadId());
+                messageIds.remove(item.getThreadId());
                 count--;
             }
 
@@ -153,7 +158,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.action_delete:
-                    new RemoveMessageTask().execute(messageIds);
+                    new DeleteThreadTask().execute(messageIds);
                     mode.finish(); //Close the Contextual Action Bar
                     return true;
                 default:
@@ -189,17 +194,16 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             TextView lastMessage = (TextView) messageView.findViewById(R.id.message_last);
             TextView lastMessageDate = (TextView) messageView.findViewById(R.id.message_last_date);
 
+            postTitle.setText(item.getPostTitle());
+            lastMessage.setText(item.getUserName()+" : "+item.getLastMessage());
+            lastMessageDate.setText(item.getLastDateTime());
             if(item.hasImage())
                 userImage.setImageBitmap(item.getUserImage());
-            postTitle.setText(item.getPostTitle());
-            lastMessage.setText(item.getLastContent());
-            lastMessageDate.setText(item.getLastDateTime());
-
-//            if(!item.isLastMessageRead()) {
-//                postTitle.setTypeface(postTitle.getTypeface(), Typeface.BOLD);
-//                lastMessage.setTypeface(lastMessage.getTypeface(), Typeface.BOLD);
-//                lastMessageDate.setTypeface(lastMessageDate.getTypeface(), Typeface.BOLD);
-//            }
+            if(item.getNewMessages() > 0) {
+                postTitle.setTypeface(postTitle.getTypeface(), Typeface.BOLD);
+                lastMessage.setTypeface(lastMessage.getTypeface(), Typeface.BOLD);
+                lastMessageDate.setTypeface(lastMessageDate.getTypeface(), Typeface.BOLD);
+            }
 
             return messageView;
         }
@@ -225,7 +229,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
-                DataParser.ObjectResult<ArrayList<MessageThread>> result = database.getMessageThreads();
+                DataParser.ObjectResult<ArrayList<MessageThread>> result = database.getMessageThreads(0, -1);
                 serverResponse = result.getStatus();
                 messageThreads = result.getObject();
             } catch (IOException e) {
@@ -276,10 +280,12 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             Bitmap bm = null;
             DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
             try {
-                String splitURL[] = avatarURL[0].split("_");
-                String key = splitURL[2]; //The URL will also be used as the key to cache their avatar image
+                String[] splitURL = avatarURL[0].split("_");
+                String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+                splitURL = key.split("\\.");
+                key = splitURL[0];
 
-                bm = imageCache.getBitmapFromDiskCache(key.substring(0, 1)); //Try to retrieve image from cache
+                bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 
                 if (bm == null) //If it doesn't exists, retrieve image from network
                     bm = DataParser.loadBitmap(avatarURL[0]);
@@ -307,28 +313,29 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         }
     }
 
-    private class RemoveMessageTask extends AsyncTask<ArrayList<String>, Void, Void> {
+    private class DeleteThreadTask extends AsyncTask<ArrayList<String>, Void, Integer> {
         @Override
         protected void onPreExecute() {
             refreshLayout.setRefreshing(true);
         }
 
         @Override
-        protected Void doInBackground(ArrayList<String>... messagesToDelete) {
-//            DataParser database = new DataParser(context);
-//
-//            try {
-//                for(String s : messagesToDelete[0])
-//                    database.removeMessage(s);
-//            } catch (IOException e) {
-//                Log.e(TAG, "Deleting message(s)", e);
-//            }
+        protected Integer doInBackground(ArrayList<String>... messagesToDelete) {
+            DataParser database = new DataParser(context);
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
-            return null;
+            try {
+                for(String s : messagesToDelete[0])
+                    serverResponse = database.deleteThread(s);
+            } catch (IOException e) {
+                Log.e(TAG, "Deleting message(s)", e);
+            }
+
+            return serverResponse;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
+        protected void onPostExecute(Integer serverResponse) {
             new GetMessagesTask().execute();
         }
     }

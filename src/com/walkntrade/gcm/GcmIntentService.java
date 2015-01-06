@@ -12,10 +12,13 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
+import com.walkntrade.MessageConversation;
 import com.walkntrade.Messages;
 import com.walkntrade.R;
+import com.walkntrade.SchoolPage;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.objects.ChatObject;
 import com.walkntrade.objects.MessageThread;
 
 import java.io.IOException;
@@ -32,7 +35,9 @@ public class GcmIntentService extends IntentService {
     private static final String TAG = "GcmIntentService";
     public static final int NOTIFICATION_ID = 1;
 
-    private static ArrayList<MessageThread> messageObjects = new ArrayList<MessageThread>();
+    private static ArrayList<String> threadIds = new ArrayList<String>();
+    private static ArrayList<ChatObject> messageObjects = new ArrayList<ChatObject>();
+    private static int numOfMessages = 0;
 
     public GcmIntentService() {
         super("GcmIntentService");
@@ -52,47 +57,55 @@ public class GcmIntentService extends IntentService {
 
         if (!extras.isEmpty()) {
             new PollMessagesTask(getApplicationContext()).execute(); //Poll new message, when this message arrived.
+            Log.d(TAG, "GCM-Push: "+extras.toString());
 
-            String id = extras.getString("id");
+            String threadId = extras.getString("id");
             String user = extras.getString("user");
             String subject = extras.getString("subject");
-            String message = extras.getString("message");
+            String contents = extras.getString("message");
             String date = extras.getString("date");
-            String image = extras.getString("userImageURL");
+            String imageUrl = extras.getString("userImageURL");
 
-            if (id != null && user != null) //As long as id and user fields are not null, send the notification
-                sendNotification(id, user, subject, message, date, image);
+            if (threadId != null && user != null) //As long as id and user fields are not null, send the notification
+                sendNotification(threadId, user, subject, contents, date, imageUrl);
         } else
             Log.i(TAG, "Incomplete/Empty message received");
     }
 
     //Put the received message into a notification
-    private void sendNotification(String id, String user, String subject, String message, String date, String image) {
-        MessageThread newMessage = new MessageThread(null,null, null,null,-1,null,null,null,false); //Create message object from the parameters
-        messageObjects.add(newMessage);
+    private void sendNotification(String threadId, String user, String subject, String contents, String date, String imageUrl) {
+        boolean oneMessageThread = true;
+        messageObjects.add(new ChatObject(false, user, contents, date, false, imageUrl));
+        numOfMessages++;
 
-        Intent showMessage = new Intent(this, Messages.class);
+        if(!threadIds.contains(threadId))
+            threadIds.add(threadId);
+
+        Intent showMessage;
         Intent notfBroadcast = new Intent(this, NotificationBroadcastReceiver.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this); //Allows parent navigation after opening the app from the notification
 
-        showMessage.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        showMessage.putExtra("Message Object", newMessage);
-        showMessage.setAction("ACTION_" + System.currentTimeMillis()); //Makes intents unique, so Android does not reuse invalid intents with null extras
+        if(threadIds.size() > 1) {//If there are more than one conversations in the notification. Go to messages list, not individual message
+            showMessage = new Intent(this, Messages.class);
+            stackBuilder.addParentStack(SchoolPage.class);
+        } else { //Else go straight to the individual message
+            showMessage = new Intent(this, MessageConversation.class);
+            stackBuilder.addParentStack(Messages.class);
+        }
 
-        //Allows parent navigation after opening ShowMessage activity
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(Messages.class);
         stackBuilder.addNextIntent(showMessage); //Adds intent to the top of the stack
-
-        PendingIntent contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent deleteIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, notfBroadcast, PendingIntent.FLAG_UPDATE_CURRENT);
+        showMessage.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        showMessage.putExtra(MessageConversation.THREAD_ID, threadId);
+        showMessage.putExtra(MessageConversation.POST_TITLE, subject);
+        showMessage.setAction("ACTION_" + System.currentTimeMillis()); //Makes intents unique, so Android does not reuse invalid intents with null extras
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         try {
             builder.setSmallIcon(R.drawable.walkntrade_icon)
-                    .setLargeIcon(DataParser.loadBitmap(image))
+                    .setLargeIcon(DataParser.loadBitmap(imageUrl))
                     .setContentTitle(getApplicationContext().getString(R.string.notification_from) + " " + user)
-                    .setContentText(message)
-                    .setContentInfo(messageObjects.size() + "")
+                    .setContentText(contents)
+                    .setContentInfo(numOfMessages + "")
                     .setAutoCancel(true)
                     .setPriority(NotificationCompat.PRIORITY_HIGH);
         } catch (IOException e) {
@@ -100,15 +113,15 @@ public class GcmIntentService extends IntentService {
         }
 
         //Set big view if more than one notification has been received
-        if (messageObjects.size() > 1) {
+        if (numOfMessages > 1) {
             NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
             inboxStyle.setSummaryText(DataParser.getSharedStringPreference(getApplicationContext(), DataParser.PREFS_USER, DataParser.KEY_USER_NAME));
 
-            for (MessageThread messageThread : messageObjects) {
-                String userText = messageThread.getLastUser();
-                String contentText = messageThread.getLastContent();
+            for (ChatObject m : messageObjects) {
+                String userText = m.getSenderName();
+                String contentText = m.getContents();
 
-                if (messageObjects.indexOf(messageThread) > 4) { //Inbox style only holds up to 5 lines of text
+                if (messageObjects.indexOf(m) > 4) { //Inbox style only holds up to 5 lines of text
                     inboxStyle.setBigContentTitle(getApplicationContext().getString(R.string.notification_overflow));
                     break;
                 } else {
@@ -148,6 +161,9 @@ public class GcmIntentService extends IntentService {
         else if (showLight)
             builder.setLights(0xff00ff, 500, 500);
 
+        PendingIntent contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent deleteIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, notfBroadcast, PendingIntent.FLAG_UPDATE_CURRENT);
+
         builder.setContentIntent(contentIntent); //Fired when the notification is clicked
         builder.setDeleteIntent(deleteIntent); //Fired when notification is dismissed
 
@@ -158,7 +174,10 @@ public class GcmIntentService extends IntentService {
     public static void resetNotfCounter(Context context) {
         NotificationManager notfManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notfManager.cancel(NOTIFICATION_ID);
-        messageObjects.clear();
+
+        threadIds = new ArrayList<String>();
+        messageObjects = new ArrayList<ChatObject>();
+        numOfMessages = 0;
     }
 
 }
