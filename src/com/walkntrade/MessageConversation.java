@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -25,6 +26,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.walkntrade.adapters.MessageConversationAdapter;
+import com.walkntrade.adapters.item.ConversationItem;
 import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
@@ -49,12 +52,13 @@ public class MessageConversation extends Activity {
 
     private Context context;
     private ProgressBar progressBar;
-    private String threadId, postTitle;
+    private String threadId;
     private ListView chatList;
-    private ChatThreadAdapter chatAdapter;
     private EditText newMessage;
     private ImageView send;
     boolean canSendMessage = false;
+
+    private MessageConversationAdapter conversationAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +66,7 @@ public class MessageConversation extends Activity {
         setContentView(R.layout.activity_message_conversation);
 
         threadId = getIntent().getStringExtra(THREAD_ID);
-        postTitle = getIntent().getStringExtra(POST_TITLE);
+        getActionBar().setTitle(getIntent().getStringExtra(POST_TITLE));
 
         context = getApplicationContext();
         GcmIntentService.resetNotfCounter(context); //Clears out all message notifications in Status Bar
@@ -72,9 +76,6 @@ public class MessageConversation extends Activity {
         newMessage = (EditText) findViewById(R.id.edit_text);
         send = (ImageView) findViewById(R.id.send_message);
 
-        getActionBar().setTitle(getIntent().getStringExtra(POST_TITLE));
-
-        chatAdapter = new ChatThreadAdapter(context, R.layout.item_message_thread, new ArrayList<ChatObject>());
         new GetChatThreadTask().execute(threadId);
 
         newMessage.addTextChangedListener(new TextWatcher() {
@@ -100,7 +101,7 @@ public class MessageConversation extends Activity {
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
                 switch (actionId) {
                     case EditorInfo.IME_ACTION_SEND:
-                        new AppendMessageTask().execute(newMessage.getText().toString());
+                        new AppendMessageTask(newMessage.getText().toString()).execute();
                         textView.setText("");
                 }
 
@@ -111,7 +112,10 @@ public class MessageConversation extends Activity {
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new AppendMessageTask().execute(newMessage.getText().toString());
+                //Hide keyboard if send button was pressed
+                InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputMethodManager.hideSoftInputFromWindow(newMessage.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                new AppendMessageTask(newMessage.getText().toString()).execute();
             }
         });
 
@@ -141,43 +145,6 @@ public class MessageConversation extends Activity {
         }
     }
 
-    private class ChatThreadAdapter extends ArrayAdapter<ChatObject> {
-
-        public ChatThreadAdapter(Context context, int resource, List<ChatObject> chatObjects) {
-            super(context, resource, chatObjects);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View messageView;
-            ChatObject item = getItem(position);
-
-            boolean myMessage = false;
-
-            if (item.getSenderName().equalsIgnoreCase(DataParser.getSharedStringPreference(getContext(), DataParser.PREFS_USER, DataParser.KEY_USER_NAME)))
-                myMessage = true;
-
-            if (myMessage)
-                messageView = inflater.inflate(R.layout.item_message_user_me, parent, false);
-            else
-                messageView = inflater.inflate(R.layout.item_message_user_other, parent, false);
-
-            ImageView userImage = (ImageView) messageView.findViewById(R.id.user_image);
-            TextView contents = (TextView) messageView.findViewById(R.id.message_contents);
-            TextView user = (TextView) messageView.findViewById(R.id.user);
-            TextView date = (TextView) messageView.findViewById(R.id.date);
-
-            if (item.hasImage())
-                userImage.setImageBitmap(item.getCurrentUserImage());
-            contents.setText(item.getContents());
-            user.setText(item.getSenderName());
-            date.setText(item.getDateTime());
-
-            return messageView;
-        }
-    }
-
     private class GetChatThreadTask extends AsyncTask<String, Void, Integer> {
 
         ArrayList<ChatObject> chatObjects;
@@ -189,7 +156,7 @@ public class MessageConversation extends Activity {
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
+            progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -211,35 +178,50 @@ public class MessageConversation extends Activity {
 
         @Override
         protected void onPostExecute(Integer serverResponse) {
+            progressBar.setVisibility(View.GONE);
 
             if (serverResponse == StatusCodeParser.STATUS_OK) {
-                chatAdapter.addAll(chatObjects);
-                chatList.setAdapter(chatAdapter);
-                chatList.setSelection(chatAdapter.getCount() - 1);
+                ArrayList<ConversationItem> conversationItems = new ArrayList<ConversationItem>();
 
-                new UserAvatarRetrievalTask(chatObjects, false).execute(chatObjects.get(0).getUserImageUrl()); //Retrieve image for other user's avatar
-                new UserAvatarRetrievalTask(chatObjects, true).execute(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL)); //Retrieve image for current user's avatar
+                for(ChatObject c : chatObjects) {
+                    ConversationItem item = new ConversationItem(c.getSenderName(), c.getContents(), c.getDateTime(), c.getDateTime(), c.isSentFromMe(), false);
+                    conversationItems.add(item);
+
+                    new UserAvatarRetrievalTask(item).execute(c.getUserImageUrl());
+                }
+
+                conversationAdapter = new MessageConversationAdapter(context, conversationItems);
+                chatList.setAdapter(conversationAdapter);
+                chatList.setSelection(conversationAdapter.getCount() - 1);
             }
         }
     }
 
-    private class AppendMessageTask extends AsyncTask<String, Void, Integer> {
+    private class AppendMessageTask extends AsyncTask<Void, Void, Integer> {
 
+        private ConversationItem conversationItem;
         private String message;
+
+        public AppendMessageTask(String m) {
+            super();
+            this.message = m;
+            conversationItem = new ConversationItem(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), m, "[Current date]", "[Current Time]", true, true);
+        }
 
         @Override
         protected void onPreExecute() {
             send.setVisibility(View.GONE);
+            conversationAdapter.addItem(conversationItem);
+            new UserAvatarRetrievalTask(conversationItem).execute(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL));
+            chatList.setSelection(conversationAdapter.getCount() - 1);
         }
 
         @Override
-        protected Integer doInBackground(String... strings) {
+        protected Integer doInBackground(Void... voids) {
             DataParser database = new DataParser(context);
             int serverResponse = StatusCodeParser.CONNECT_FAILED;
-
-            message = strings[0];
             try {
-                serverResponse = database.appendMessage(threadId, strings[0]);
+                serverResponse = database.appendMessage(threadId, message);
             } catch (IOException e) {
                 Log.e(TAG, "Appending message thread", e);
             }
@@ -252,28 +234,19 @@ public class MessageConversation extends Activity {
             super.onPostExecute(integer);
 
             send.setVisibility(View.VISIBLE);
-            ChatObject chatObject = new ChatObject(true,DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), message, "[current time]", true, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL));
-            chatAdapter.add(chatObject);
-            chatAdapter.notifyDataSetChanged();
-            chatList.setSelection(chatAdapter.getCount() - 1);
             newMessage.setText("");
-            ArrayList<ChatObject> c = new ArrayList<ChatObject>();
-            c.add(chatObject);
-            new UserAvatarRetrievalTask(c, true).execute(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL));
-
-            Toast.makeText(context, integer.toString(), Toast.LENGTH_SHORT).show();
+            conversationItem.messageDelivered();
+            conversationAdapter.notifyDataSetChanged();
         }
     }
 
     private class UserAvatarRetrievalTask extends AsyncTask<String, Void, Bitmap> {
 
-        private ArrayList<ChatObject> chatObjects;
-        private boolean myImage;
+        private ConversationItem conversationItem;
 
-        public UserAvatarRetrievalTask(ArrayList<ChatObject> chatObjects, boolean myImage) {
+        public UserAvatarRetrievalTask(ConversationItem conversationItem) {
             super();
-            this.chatObjects = chatObjects;
-            this.myImage = myImage;
+            this.conversationItem = conversationItem;
         }
 
         @Override
@@ -293,16 +266,8 @@ public class MessageConversation extends Activity {
 
                 bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 
-                if (bm == null) { //If it doesn't exists, retrieve image from network
-
-//                    //Get width and height of image view, so it returns a more-optimized image. Save memory and fits better
-//                    ImageView userImageView = (ImageView) LayoutInflater.from(context).inflate(R.layout.item_message_user_me, chatList).findViewById(R.id.user_image);
-//                    int width = userImageView.getWidth();
-//                    int height = userImageView.getHeight();
-//
-//                    Log.v(TAG, "User Image View: width - " + width + " height - " + height);
+                if (bm == null)//If it doesn't exists, retrieve image from network
                     bm = DataParser.loadBitmap(avatarURL[0]);
-                }
 
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {
@@ -321,19 +286,10 @@ public class MessageConversation extends Activity {
             super.onPostExecute(bitmap);
 
             if (bitmap != null) {
-
-                if (myImage) {
-                    for (ChatObject c : chatObjects)
-                        if (c.getSenderName().equalsIgnoreCase(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME)))
-                            c.setCurrentUserImage(bitmap);
-                } else {
-                    for (ChatObject c : chatObjects)
-                        if (!c.getSenderName().equalsIgnoreCase(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME)))
-                            c.setCurrentUserImage(bitmap);
-                }
-
-                chatAdapter.notifyDataSetChanged();
+                conversationItem.setAvatar(bitmap);
+                conversationAdapter.notifyDataSetChanged();
             }
+
         }
     }
 }

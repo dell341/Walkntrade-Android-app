@@ -14,9 +14,6 @@ public class ChatObject {
     private int senderId;
     private boolean sentFromMe, messageSeen;
 
-    private Bitmap userImage;
-    private boolean hasImage = false;
-
     public ChatObject(boolean sentFromMe, String senderName, String contents, String dateTime, boolean messageSeen, String userImageUrl) {
         this.sentFromMe = sentFromMe;
         this.senderName = senderName;
@@ -24,19 +21,6 @@ public class ChatObject {
         this.dateTime = dateTime;
         this.messageSeen = messageSeen;
         this.userImageUrl = userImageUrl;
-    }
-
-    public void setCurrentUserImage(Bitmap image) {
-        userImage = image;
-        hasImage = true;
-    }
-
-    public Bitmap getCurrentUserImage() {
-        return userImage;
-    }
-
-    public boolean hasImage() {
-        return hasImage;
     }
 
     public String getSenderName() {
@@ -61,13 +45,5 @@ public class ChatObject {
 
     public boolean isMessageSeen() {
         return messageSeen;
-    }
-
-    public Bitmap getUserImage() {
-        return userImage;
-    }
-
-    public boolean isHasImage() {
-        return hasImage;
     }
 }

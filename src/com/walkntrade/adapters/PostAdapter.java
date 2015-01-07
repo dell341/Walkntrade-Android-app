@@ -22,7 +22,7 @@ import java.util.List;
 //Holds all post information for each specific grid
 public class PostAdapter extends BaseAdapter {
 
-    private static final String TAG = "ADAPTER:Post";
+    private static final String TAG = "PostAdapter";
     private Context context;
     private List<Post> items;
     private int currentPostCount = 12; //Number of posts to load and display initially

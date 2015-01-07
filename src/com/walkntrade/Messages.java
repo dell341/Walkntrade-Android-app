@@ -85,14 +85,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     }
 
     @Override
-    protected void onResume() {
-        if (messageList.getAdapter() != null)
-            new GetMessagesTask().execute();
-
-        super.onResume();
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             //Used to support Android 15 and below
