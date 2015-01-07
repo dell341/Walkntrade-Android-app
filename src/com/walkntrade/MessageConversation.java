@@ -291,20 +291,20 @@ public class MessageConversation extends Activity {
                 splitURL = key.split("\\.");
                 key = splitURL[0];
 
-                bm = imageCache.getBitmapFromDiskCache(key.substring(0, 1)); //Try to retrieve image from cache
+                bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 
                 if (bm == null) { //If it doesn't exists, retrieve image from network
 
-                    //Get width and height of image view, so it returns a more-optimized image. Save memory and fits better
-                    ImageView userImageView = (ImageView) LayoutInflater.from(context).inflate(R.layout.item_message_user_me, chatList).findViewById(R.id.user_image);
-                    int width = userImageView.getWidth();
-                    int height = userImageView.getHeight();
-
-                    Log.v(TAG, "User Image View: width - " + width + " height - " + height);
-                    bm = DataParser.loadOptBitmap(avatarURL[0], width, height);
+//                    //Get width and height of image view, so it returns a more-optimized image. Save memory and fits better
+//                    ImageView userImageView = (ImageView) LayoutInflater.from(context).inflate(R.layout.item_message_user_me, chatList).findViewById(R.id.user_image);
+//                    int width = userImageView.getWidth();
+//                    int height = userImageView.getHeight();
+//
+//                    Log.v(TAG, "User Image View: width - " + width + " height - " + height);
+                    bm = DataParser.loadBitmap(avatarURL[0]);
                 }
 
-                imageCache.addBitmapToCache(key.substring(0, 1), bm); //Finally cache bitmap. Will override cache if already exists or write new cache
+                imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {
                 Log.e(TAG, "Retrieving user avatar", e);
             } catch (ArrayIndexOutOfBoundsException e) {

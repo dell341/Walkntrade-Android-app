@@ -254,9 +254,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
             if (response.equals(DataParser.LOGIN_SUCCESS)) {
                 loginError.setVisibility(View.GONE);
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putBoolean(DataParser.KEY_CURRENTLY_LOGGED_IN, true);
-                editor.apply();
+                DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_USER, DataParser.KEY_CURRENTLY_LOGGED_IN, true);
 
                 //Checks if device has the Google Play Services APK
                 if (checkPlayServices()) {

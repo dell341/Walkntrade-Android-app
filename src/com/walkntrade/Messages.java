@@ -285,12 +285,14 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                 splitURL = key.split("\\.");
                 key = splitURL[0];
 
+                Log.d(TAG, "Key: "+key);
+
                 bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 
                 if (bm == null) //If it doesn't exists, retrieve image from network
                     bm = DataParser.loadBitmap(avatarURL[0]);
 
-                imageCache.addBitmapToCache(key.substring(0, 1), bm); //Finally cache bitmap. Will override cache if already exists or write new cache
+                imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {
                 Log.e(TAG, "Retrieving user avatar", e);
             } catch (ArrayIndexOutOfBoundsException e) {

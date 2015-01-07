@@ -52,7 +52,7 @@ public class GcmIntentService extends IntentService {
         //String messageType = gcm.getMessageType(intent);
 
         //If user does want to receive notifications and is not logged, do not continue.
-        if (!DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_USER) && !DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_CURRENTLY_LOGGED_IN))
+        if (!DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_USER) && !DataParser.getSharedBooleanPreference(this, DataParser.PREFS_USER, DataParser.KEY_CURRENTLY_LOGGED_IN))
             return;
 
         if (!extras.isEmpty()) {
@@ -85,12 +85,14 @@ public class GcmIntentService extends IntentService {
         Intent notfBroadcast = new Intent(this, NotificationBroadcastReceiver.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this); //Allows parent navigation after opening the app from the notification
 
+        Log.i(TAG, "Thread Ids: "+threadIds.size());
+
         if(threadIds.size() > 1) {//If there are more than one conversations in the notification. Go to messages list, not individual message
             showMessage = new Intent(this, Messages.class);
-            stackBuilder.addParentStack(SchoolPage.class);
+            stackBuilder.addParentStack(Messages.class);
         } else { //Else go straight to the individual message
             showMessage = new Intent(this, MessageConversation.class);
-            stackBuilder.addParentStack(Messages.class);
+            stackBuilder.addParentStack(MessageConversation.class);
         }
 
         stackBuilder.addNextIntent(showMessage); //Adds intent to the top of the stack

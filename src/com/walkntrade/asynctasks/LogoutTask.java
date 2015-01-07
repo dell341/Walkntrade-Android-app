@@ -26,11 +26,7 @@ public class LogoutTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPreExecute() {
-        SharedPreferences settings = context.getSharedPreferences(DataParser.PREFS_USER, 0);
-        SharedPreferences.Editor editor = settings.edit();
-
-        editor.putBoolean(DataParser.KEY_CURRENTLY_LOGGED_IN, false);
-        editor.apply();
+        DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_USER, DataParser.KEY_CURRENTLY_LOGGED_IN, false);
     }
 
     @Override

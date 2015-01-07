@@ -389,10 +389,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
     private void signOut() {
         if (DataParser.isNetworkAvailable(this)) {
-            SharedPreferences settings = context.getSharedPreferences(DataParser.PREFS_USER, 0);
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putBoolean(DataParser.KEY_CURRENTLY_LOGGED_IN, false);
-            editor.apply();
+            DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_USER, DataParser.KEY_CURRENTLY_LOGGED_IN, false);
 
             new LogoutTask(this).execute(); //Starts asynchronous sign out
         }
