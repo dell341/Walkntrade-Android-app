@@ -285,8 +285,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                 splitURL = key.split("\\.");
                 key = splitURL[0];
 
-                Log.d(TAG, "Key: "+key);
-
                 bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 
                 if (bm == null) //If it doesn't exists, retrieve image from network

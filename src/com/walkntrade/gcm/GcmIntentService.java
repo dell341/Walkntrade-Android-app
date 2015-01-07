@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
@@ -101,10 +102,14 @@ public class GcmIntentService extends IntentService {
         showMessage.putExtra(MessageConversation.POST_TITLE, subject);
         showMessage.setAction("ACTION_" + System.currentTimeMillis()); //Makes intents unique, so Android does not reuse invalid intents with null extras
 
+        //Get dimensions the notification will need to be
+        int largeIconWidth = Resources.getSystem().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+        int largeIconHeight = Resources.getSystem().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         try {
             builder.setSmallIcon(R.drawable.walkntrade_icon)
-                    .setLargeIcon(DataParser.loadBitmap(imageUrl))
+                    .setLargeIcon(DataParser.loadOptBitmap(imageUrl, largeIconWidth, largeIconHeight))
                     .setContentTitle(getApplicationContext().getString(R.string.notification_from) + " " + user)
                     .setContentText(contents)
                     .setContentInfo(numOfMessages + "")
