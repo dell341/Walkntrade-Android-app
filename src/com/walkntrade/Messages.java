@@ -113,7 +113,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private BroadcastReceiver newMessagesReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             new GetMessagesTask().execute();
         }
     };

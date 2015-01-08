@@ -94,14 +94,20 @@ public class MessageConversationAdapter extends BaseAdapter {
 
         messageView.setTag(tag);
 
-        if (currentItem.hasAvatar())
-            holder.userImage.setImageBitmap(currentItem.getAvatar());
-        if(currentItem.isSentFromThisDevice()) //If this message was sent from this device. Show a progress bar until it is delivered.
-            holder.progressBar.setVisibility( (currentItem.isDelivered() ? View.GONE : View.VISIBLE));
-
         holder.contents.setText(currentItem.getContents());
         holder.user.setText(currentItem.getSenderName());
         holder.date.setText(currentItem.getDate());
+
+        if (currentItem.hasAvatar())
+            holder.userImage.setImageBitmap(currentItem.getAvatar());
+        if(currentItem.isSentFromThisDevice()) {//If this message was sent from this device. Show a progress bar until it is delivered.
+            holder.progressBar.setVisibility((currentItem.isDelivered() ? View.GONE : View.VISIBLE));
+            if(currentItem.hasMessageFailed()) {
+                holder.date.setText(context.getResources().getString(R.string.message_failed));
+                holder.date.setTextColor(context.getResources().getColor(R.color.red));
+                holder.progressBar.setVisibility(View.GONE);
+            }
+        }
 
         return messageView;
     }

@@ -11,7 +11,7 @@ import android.os.Parcelable;
 
 public class ConversationItem implements Parcelable{
     private String senderName, contents, date, time, imageUrl;
-    private boolean sentFromMe, sentFromThisDevice, isDelivered, hasAvatar;
+    private boolean sentFromMe, sentFromThisDevice, isDelivered, hasAvatar, messageFailed;
     private Bitmap avatar;
 
     public ConversationItem(String senderName, String contents, String date, String time, String imageUrl, boolean sentFromMe, boolean sentFromThisDevice) {
@@ -24,6 +24,7 @@ public class ConversationItem implements Parcelable{
         this.imageUrl = imageUrl;
         isDelivered = false;
         hasAvatar = false;
+        messageFailed = false;
     }
 
     public ConversationItem(Parcel in) {
@@ -101,6 +102,14 @@ public class ConversationItem implements Parcelable{
 
     public boolean isDelivered() {
         return isDelivered;
+    }
+
+    public void messageFailedToDeliver() {
+        messageFailed = true;
+    }
+
+    public boolean hasMessageFailed() {
+        return messageFailed;
     }
 
     public void setAvatar(Bitmap avatar) {

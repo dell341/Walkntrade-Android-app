@@ -14,12 +14,14 @@ import android.util.Log;
 //Could be a more efficient way to do this, but it works.
 public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
+    private static final String TAG = "NotificationBroadcastReceiver";
+
     public NotificationBroadcastReceiver() {
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.v("NotificationBroadcastReceiver", "NotificationBroadcast onReceive");
+        Log.v(TAG, "NotificationBroadcast onReceive");
         GcmIntentService.resetNotfCounter(context);
     }
 }

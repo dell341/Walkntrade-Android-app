@@ -13,11 +13,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -54,6 +52,7 @@ public class MessageConversation extends Activity {
     private ProgressBar progressBar;
     private String threadId;
     private ListView chatList;
+    private TextView errorMessage;
     private EditText newMessage;
     private ImageView send;
     boolean canSendMessage = false;
@@ -73,6 +72,7 @@ public class MessageConversation extends Activity {
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         chatList = (ListView) findViewById(R.id.chat_list);
+        errorMessage = (TextView) findViewById(R.id.error_message);
         newMessage = (EditText) findViewById(R.id.edit_text);
         send = (ImageView) findViewById(R.id.send_message);
 
@@ -104,19 +104,6 @@ public class MessageConversation extends Activity {
 
                 canSendMessage = hasText;
                 send.setVisibility(hasText ? View.VISIBLE : View.INVISIBLE);
-            }
-        });
-
-        newMessage.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                switch (actionId) {
-                    case EditorInfo.IME_ACTION_SEND:
-                        new AppendMessageTask(newMessage.getText().toString()).execute();
-                        textView.setText("");
-                }
-
-                return false;
             }
         });
 
@@ -208,6 +195,7 @@ public class MessageConversation extends Activity {
         public GetChatThreadTask() {
             super();
             chatObjects = new ArrayList<ChatObject>();
+            send.setEnabled(false);
         }
 
         @Override
@@ -249,7 +237,10 @@ public class MessageConversation extends Activity {
                 conversationAdapter = new MessageConversationAdapter(context, conversationItems);
                 chatList.setAdapter(conversationAdapter);
                 chatList.setSelection(conversationAdapter.getCount() - 1);
-            }
+                send.setEnabled(true);
+            } else
+                errorMessage.setVisibility(View.VISIBLE);
+
         }
     }
 
@@ -289,10 +280,14 @@ public class MessageConversation extends Activity {
         }
 
         @Override
-        protected void onPostExecute(Integer integer) {
-            super.onPostExecute(integer);
+        protected void onPostExecute(Integer serverResponse) {
+            super.onPostExecute(serverResponse);
 
-            conversationItem.messageDelivered();
+            if(serverResponse == StatusCodeParser.STATUS_OK)
+                conversationItem.messageDelivered();
+            else
+                conversationItem.messageFailedToDeliver();
+
             conversationAdapter.notifyDataSetChanged();
         }
     }

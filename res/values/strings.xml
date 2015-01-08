@@ -34,7 +34,7 @@
     <string name="cancel">Cancel</string>
     <string name="send">Send</string>
     <string name="save_changes">Save Changes</string>
-    <string name="error_occured">An error occurred.</string>
+    <string name="error_occured">An error occurred</string>
     <string name="user_not_found">User not found</string>
 
     <!-- Actual Category id -->
