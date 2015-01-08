@@ -47,6 +47,7 @@ import java.util.List;
 public class MessageConversation extends Activity {
 
     private static final String TAG = "MessageConversation";
+    private static final String SAVED_INSTANCE_CONVERSATION = "saved_instance_state_conversation";
     public static final String THREAD_ID = "id_of_current_message_thread";
     public static final String POST_TITLE = "title_of_current_post";
 
@@ -63,6 +64,7 @@ public class MessageConversation extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.v(TAG, "onCreate");
         setContentView(R.layout.activity_message_conversation);
 
         threadId = getIntent().getStringExtra(THREAD_ID);
@@ -76,7 +78,18 @@ public class MessageConversation extends Activity {
         newMessage = (EditText) findViewById(R.id.edit_text);
         send = (ImageView) findViewById(R.id.send_message);
 
-        new GetChatThreadTask().execute(threadId);
+        if(savedInstanceState != null) {
+            ArrayList<ConversationItem> items = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_CONVERSATION);
+
+            if(items == null)
+                new GetChatThreadTask().execute(threadId);
+            else {
+                conversationAdapter = new MessageConversationAdapter(context, items);
+                chatList.setAdapter(conversationAdapter);
+            }
+        }
+        else
+            new GetChatThreadTask().execute(threadId);
 
         newMessage.addTextChangedListener(new TextWatcher() {
             @Override
@@ -145,6 +158,18 @@ public class MessageConversation extends Activity {
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        try {
+            outState.putParcelableArrayList(SAVED_INSTANCE_CONVERSATION, conversationAdapter.getItems());
+        } catch (NullPointerException e) {
+            Log.e(TAG, "Configuration change before finished downloading", e);
+        }
+
+    }
+
     private class GetChatThreadTask extends AsyncTask<String, Void, Integer> {
 
         ArrayList<ChatObject> chatObjects;
@@ -183,7 +208,7 @@ public class MessageConversation extends Activity {
             if (serverResponse == StatusCodeParser.STATUS_OK) {
                 ArrayList<ConversationItem> conversationItems = new ArrayList<ConversationItem>();
 
-                for(ChatObject c : chatObjects) {
+                for (ChatObject c : chatObjects) {
                     ConversationItem item = new ConversationItem(c.getSenderName(), c.getContents(), c.getDateTime(), c.getDateTime(), c.isSentFromMe(), false);
                     conversationItems.add(item);
 

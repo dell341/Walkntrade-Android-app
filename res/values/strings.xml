@@ -71,6 +71,8 @@
     <string name="feedback">Feedback</string>
     <string name="feedback_fail">Could not send feedback</string>
     <string name="feedback_thanks">Thank you!</string>
+    
+    <item name="holder" type="id"/>
 
     <!-- Auto-generated Strings **Remove All** -->
     <string name="invalid_message">Message cannot be blank</string>

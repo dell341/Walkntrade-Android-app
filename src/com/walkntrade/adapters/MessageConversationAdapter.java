@@ -7,11 +7,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextClock;
 import android.widget.TextView;
 
 import com.walkntrade.R;
 import com.walkntrade.adapters.item.ConversationItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -22,11 +24,13 @@ import java.util.List;
 public class MessageConversationAdapter extends BaseAdapter {
 
     private static final String TAG = "MessageConversationAdapter";
+    private static final String CHAT_ME = "chat_me_item";
+    private static final String CHAT_OTHER = "chat_other_item";
 
     private Context context;
-    private List<ConversationItem> items;
+    private ArrayList<ConversationItem> items;
 
-    public MessageConversationAdapter(Context context, List<ConversationItem> items) {
+    public MessageConversationAdapter(Context context, ArrayList<ConversationItem> items) {
         this.context = context;
         this.items = items;
     }
@@ -50,32 +54,59 @@ public class MessageConversationAdapter extends BaseAdapter {
         return 0;
     }
 
+    public ArrayList<ConversationItem> getItems() {
+        return items;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View messageView;
+        ViewHolder holder;
         ConversationItem currentItem = getItem(position);
 
-        if (currentItem.isSentFromMe())
-            messageView = inflater.inflate(R.layout.item_message_user_me, parent, false);
-        else
-            messageView = inflater.inflate(R.layout.item_message_user_other, parent, false);
+        String tag = (currentItem.isSentFromMe() ? CHAT_ME : CHAT_OTHER);
 
-        ImageView userImage = (ImageView) messageView.findViewById(R.id.user_image);
-        ProgressBar progressBar = (ProgressBar) messageView.findViewById(R.id.progressBar);
-        TextView contents = (TextView) messageView.findViewById(R.id.message_contents);
-        TextView user = (TextView) messageView.findViewById(R.id.user);
-        TextView date = (TextView) messageView.findViewById(R.id.date);
+        //Use the recycled view (convert view) if it is not null, and is compatible with the new view
+        if(convertView != null && tag.equals(convertView.getTag())) {
+            messageView = convertView;
+            holder = (ViewHolder) convertView.getTag(R.id.holder);
+        }
+        else {
+            if (currentItem.isSentFromMe())
+                messageView = inflater.inflate(R.layout.item_message_user_me, parent, false);
+            else
+                messageView = inflater.inflate(R.layout.item_message_user_other, parent, false);
+
+            holder = new ViewHolder();
+            holder.userImage = (ImageView) messageView.findViewById(R.id.user_image);
+            holder.progressBar = (ProgressBar) messageView.findViewById(R.id.progressBar);
+            holder.contents = (TextView) messageView.findViewById(R.id.message_contents);
+            holder.user = (TextView) messageView.findViewById(R.id.user);
+            holder.date = (TextView) messageView.findViewById(R.id.date);
+
+            messageView.setTag(R.id.holder, holder);
+        }
+
+        messageView.setTag(tag);
 
         if (currentItem.hasAvatar())
-            userImage.setImageBitmap(currentItem.getAvatar());
+            holder.userImage.setImageBitmap(currentItem.getAvatar());
         if(currentItem.isSentFromThisDevice()) //If this message was sent from this device. Show a progress bar until it is delivered.
-            progressBar.setVisibility( (currentItem.isDelivered() ? View.GONE : View.VISIBLE));
+            holder.progressBar.setVisibility( (currentItem.isDelivered() ? View.GONE : View.VISIBLE));
 
-        contents.setText(currentItem.getContents());
-        user.setText(currentItem.getSenderName());
-        date.setText(currentItem.getDate());
+        holder.contents.setText(currentItem.getContents());
+        holder.user.setText(currentItem.getSenderName());
+        holder.date.setText(currentItem.getDate());
 
         return messageView;
+    }
+
+    private static class ViewHolder { //Increase efficiency by decreasing the amount of calls to findViewById
+        public ImageView userImage;
+        public ProgressBar progressBar;
+        TextView contents;
+        TextView user;
+        TextView date;
     }
 }

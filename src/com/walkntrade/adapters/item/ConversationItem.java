@@ -6,8 +6,10 @@ package com.walkntrade.adapters.item;
  */
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class ConversationItem {
+public class ConversationItem implements Parcelable{
     private String senderName, contents, date, time;
     private boolean sentFromMe, sentFromThisDevice, isDelivered, hasAvatar;
     private Bitmap avatar;
@@ -22,6 +24,47 @@ public class ConversationItem {
         isDelivered = false;
         hasAvatar = false;
     }
+
+    public ConversationItem(Parcel in) {
+        senderName = in.readString();
+        contents = in.readString();
+        date = in.readString();
+        time = in.readString();
+
+        boolean[] values = new boolean[4];
+        in.readBooleanArray(values);
+        sentFromMe = values[0];
+        sentFromThisDevice = values[1];
+        isDelivered = values[2];
+        hasAvatar = values[3];
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+        parcel.writeString(senderName);
+        parcel.writeString(contents);
+        parcel.writeString(date);
+        parcel.writeString(time);
+        boolean[] values = {sentFromMe, sentFromThisDevice, isDelivered, hasAvatar};
+        parcel.writeBooleanArray(values);
+    }
+
+    public static final Parcelable.Creator<ConversationItem> CREATOR = new Parcelable.Creator<ConversationItem>() {
+        @Override
+        public ConversationItem createFromParcel(Parcel parcel) {
+            return new ConversationItem(parcel);
+        }
+
+        @Override
+        public ConversationItem[] newArray(int size) {
+            return new ConversationItem[size];
+        }
+    };
 
     public String getSenderName() {
         return senderName;
