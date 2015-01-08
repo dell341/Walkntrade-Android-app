@@ -121,6 +121,10 @@ public class MessageThread implements Parcelable {
         return lastDateTime;
     }
 
+    public void clearNewMessages() {
+        newMessages = 0;
+    }
+
     @Override
     public int describeContents() {
         return 0;

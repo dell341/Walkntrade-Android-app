@@ -96,6 +96,7 @@ public class DataParser {
     public static final String KEY_NOTIFY_VIBRATE = "notification_vibrate"; //Notification preference title (boolean)
     public static final String KEY_NOTIFY_SOUND = "notification_sound"; //Notification preference title
     public static final String KEY_NOTIFY_LIGHT = "notification_light"; //Notification preference title (boolean)
+    public static final String KEY_NOTIFY_ACTIVE_THREAD = "notification_active_thread"; //Notification preference title. Disable notifications for threads matching this id
     public static final String KEY_AUTHORIZED = "user_authorization"; //Authorization-Pref title (boolean) User password changed or session id expired.
     public static final String KEY_CATEGORY_AMOUNT = "category_amount"; //Category preference
     public static final String KEY_CATEGORY_ID = "category_"; //Category preference. Number must be added at the end. 'category_#'
@@ -293,16 +294,16 @@ public class DataParser {
     }
 
     //Stores values for later use. preferred school, username, phone number, email, etc.
-    public void setSharedStringPreference(String preferenceName, String key, String value) {
-        SharedPreferences settings = context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
+    public static void setSharedStringPreference(Context _context, String preferenceName, String key, String value) {
+        SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(key, value);
 
         editor.apply(); //Save changes to the SharedPreferences
     }
 
-    public void setSharedIntPreferences(String preferenceName, String key, int value) {
-        SharedPreferences settings = context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
+    public static void setSharedIntPreferences(Context _context, String preferenceName, String key, int value) {
+        SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt(key, value);
 
@@ -381,7 +382,7 @@ public class DataParser {
             JSONArray categories = payload.getJSONArray("categories");
             int numOfCategories = categories.length();
 
-            setSharedIntPreferences(PREFS_CATEGORIES, KEY_CATEGORY_AMOUNT, numOfCategories);
+            setSharedIntPreferences(context, PREFS_CATEGORIES, KEY_CATEGORY_AMOUNT, numOfCategories);
 
             for(int i=0; i<numOfCategories; i++) {
                 JSONArray currentCategory = categories.getJSONArray(i);
@@ -390,8 +391,8 @@ public class DataParser {
                 String categoryName = currentCategory.getString(1);
                 String categoryDesc = currentCategory.getString(2);
 
-                setSharedStringPreference(PREFS_CATEGORIES, KEY_CATEGORY_ID + i, categoryId);
-                setSharedStringPreference(PREFS_CATEGORIES, KEY_CATEGORY_NAME+i, categoryName);
+                setSharedStringPreference(context, PREFS_CATEGORIES, KEY_CATEGORY_ID + i, categoryId);
+                setSharedStringPreference(context, PREFS_CATEGORIES, KEY_CATEGORY_NAME+i, categoryName);
             }
 
         } catch (JSONException e) {
@@ -518,7 +519,7 @@ public class DataParser {
         ObjectResult<String> result = getIntentResult(query);
 
         //Stores username locally to device
-        setSharedStringPreference(PREFS_USER, KEY_USER_NAME, result.getObject()); //Stores username locally to device
+        setSharedStringPreference(context, PREFS_USER, KEY_USER_NAME, result.getObject()); //Stores username locally to device
         return result;
     }
 
@@ -529,7 +530,7 @@ public class DataParser {
         ObjectResult<String> result = getIntentResult(query);
 
         //Stores user's avatar url
-        setSharedStringPreference(PREFS_USER, KEY_USER_AVATAR_URL, result.getObject());
+        setSharedStringPreference(context, PREFS_USER, KEY_USER_AVATAR_URL, result.getObject());
         return result;
     }
 
@@ -540,7 +541,7 @@ public class DataParser {
         ObjectResult<String> result = getIntentResult(query);
 
         //Stores phone number locally to device
-        setSharedStringPreference(PREFS_USER, KEY_USER_PHONE, result.getObject());
+        setSharedStringPreference(context, PREFS_USER, KEY_USER_PHONE, result.getObject());
         return result;
     }
 
@@ -551,7 +552,7 @@ public class DataParser {
         ObjectResult<String> result = getIntentResult(query);
 
         //Stores email contact preference locally
-        setSharedStringPreference(PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, result.getObject());
+        setSharedStringPreference(context, PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, result.getObject());
         return result;
     }
 
@@ -575,7 +576,7 @@ public class DataParser {
         }
 
         //Stores amount of unread messages here
-        setSharedIntPreferences(PREFS_USER, KEY_USER_MESSAGES, result.getObject());
+        setSharedIntPreferences(context, PREFS_USER, KEY_USER_MESSAGES, result.getObject());
         return result;
     }
 
@@ -583,7 +584,7 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=setEmailPref&pref=" + preference;
-        setSharedStringPreference(PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, preference); //Stores email contact preference
+        setSharedStringPreference(context, PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, preference); //Stores email contact preference
         String serverResponse = null;
 
         try {
@@ -684,11 +685,11 @@ public class DataParser {
         }
 
         if (intentValue.equals(INTENT_GET_PHONENUM))
-            setSharedStringPreference(PREFS_USER, KEY_USER_PHONE, serverResponse); //Stores phone number locally to device
+            setSharedStringPreference(context, PREFS_USER, KEY_USER_PHONE, serverResponse); //Stores phone number locally to device
         else if (intentValue.equals(INTENT_GET_NEWMESSAGE))
-            setSharedIntPreferences(PREFS_USER, KEY_USER_MESSAGES, Integer.parseInt(serverResponse)); //Stores amount of unread messages here
+            setSharedIntPreferences(context, PREFS_USER, KEY_USER_MESSAGES, Integer.parseInt(serverResponse)); //Stores amount of unread messages here
         else if (intentValue.equals(INTENT_GET_EMAILPREF))
-            setSharedStringPreference(PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, serverResponse); //Stores email contact preference
+            setSharedStringPreference(context, PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, serverResponse); //Stores email contact preference
         else
             Log.e(TAG, "Intent unread: " + intentValue);
 

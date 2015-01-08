@@ -1,13 +1,16 @@
 package com.walkntrade;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.ActionMode;
@@ -73,6 +76,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         new PollMessagesTask(this).execute();
         new GetMessagesTask().execute();
 
+        LocalBroadcastManager.getInstance(context).registerReceiver(newMessagesReceiver, new IntentFilter(GcmIntentService.NOTIFICATION_NEW));
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
@@ -101,6 +105,20 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(newMessagesReceiver);
+    }
+
+    private BroadcastReceiver newMessagesReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            new GetMessagesTask().execute();
+        }
+    };
+
+    @Override
     public void onRefresh() {
         new GetMessagesTask().execute();
     }
@@ -108,6 +126,9 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         MessageThread message = (MessageThread) parent.getItemAtPosition(position);
+
+        message.clearNewMessages();
+        threadAdapter.notifyDataSetChanged();
 
         Intent showConversationIntent = new Intent(this, MessageConversation.class);
         showConversationIntent.putExtra(MessageConversation.THREAD_ID, message.getThreadId());
@@ -194,7 +215,9 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             if(item.getNewMessages() > 0) {
                 postTitle.setTypeface(postTitle.getTypeface(), Typeface.BOLD);
                 lastMessage.setTypeface(lastMessage.getTypeface(), Typeface.BOLD);
+                lastMessage.setTextColor(getResources().getColor(R.color.black));
                 lastMessageDate.setTypeface(lastMessageDate.getTypeface(), Typeface.BOLD);
+                lastMessageDate.setTextColor(getResources().getColor(R.color.black));
             }
 
             return messageView;

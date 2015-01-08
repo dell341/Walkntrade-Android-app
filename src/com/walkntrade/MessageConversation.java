@@ -1,30 +1,29 @@
 package com.walkntrade;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.walkntrade.adapters.MessageConversationAdapter;
 import com.walkntrade.adapters.item.ConversationItem;
@@ -36,7 +35,6 @@ import com.walkntrade.objects.ChatObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 
 /*
@@ -48,6 +46,7 @@ public class MessageConversation extends Activity {
 
     private static final String TAG = "MessageConversation";
     private static final String SAVED_INSTANCE_CONVERSATION = "saved_instance_state_conversation";
+    public static final String LIST_CONVERSATION = "extra_arraylist_conversation";
     public static final String THREAD_ID = "id_of_current_message_thread";
     public static final String POST_TITLE = "title_of_current_post";
 
@@ -64,7 +63,6 @@ public class MessageConversation extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.v(TAG, "onCreate");
         setContentView(R.layout.activity_message_conversation);
 
         threadId = getIntent().getStringExtra(THREAD_ID);
@@ -135,6 +133,39 @@ public class MessageConversation extends Activity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        GcmIntentService.resetNotfCounter(context); //Clears out all message notifications in Status Bar
+        DataParser.setSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD, null);
+
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(interceptMessageReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        GcmIntentService.resetNotfCounter(context); //Clears out all message notifications in Status Bar
+        DataParser.setSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD, threadId); //Set this conversation as active, to disable notifications
+
+        LocalBroadcastManager.getInstance(context).registerReceiver(interceptMessageReceiver, new IntentFilter(GcmIntentService.NOTIFICATION_BLOCKED));
+    }
+
+    private BroadcastReceiver interceptMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ConversationItem item = intent.getParcelableExtra(LIST_CONVERSATION);
+
+            if(conversationAdapter == null)
+                Log.w(TAG, "Conversation Adapter is null");
+            else {
+                new UserAvatarRetrievalTask(item).execute();
+                conversationAdapter.addItem(item);
+                conversationAdapter.notifyDataSetChanged();
+                chatList.smoothScrollToPosition(conversationAdapter.getCount() - 1);
+            }
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -209,10 +240,10 @@ public class MessageConversation extends Activity {
                 ArrayList<ConversationItem> conversationItems = new ArrayList<ConversationItem>();
 
                 for (ChatObject c : chatObjects) {
-                    ConversationItem item = new ConversationItem(c.getSenderName(), c.getContents(), c.getDateTime(), c.getDateTime(), c.isSentFromMe(), false);
+                    ConversationItem item = new ConversationItem(c.getSenderName(), c.getContents(), c.getDateTime(), c.getDateTime(), c.getUserImageUrl(), c.isSentFromMe(), false);
                     conversationItems.add(item);
 
-                    new UserAvatarRetrievalTask(item).execute(c.getUserImageUrl());
+                    new UserAvatarRetrievalTask(item).execute();
                 }
 
                 conversationAdapter = new MessageConversationAdapter(context, conversationItems);
@@ -230,15 +261,18 @@ public class MessageConversation extends Activity {
         public AppendMessageTask(String m) {
             super();
             this.message = m;
-            conversationItem = new ConversationItem(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), m, "[Current date]", "[Current Time]", true, true);
+            conversationItem = new ConversationItem(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), m, "[Current date]", "[Current Time]", DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL),true, true);
         }
 
         @Override
         protected void onPreExecute() {
             send.setVisibility(View.GONE);
             conversationAdapter.addItem(conversationItem);
-            new UserAvatarRetrievalTask(conversationItem).execute(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL));
-            chatList.setSelection(conversationAdapter.getCount() - 1);
+            conversationAdapter.notifyDataSetChanged();
+            new UserAvatarRetrievalTask(conversationItem).execute();
+            send.setVisibility(View.VISIBLE);
+            newMessage.setText("");
+            chatList.smoothScrollToPosition(conversationAdapter.getCount() - 1);
         }
 
         @Override
@@ -258,14 +292,12 @@ public class MessageConversation extends Activity {
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
 
-            send.setVisibility(View.VISIBLE);
-            newMessage.setText("");
             conversationItem.messageDelivered();
             conversationAdapter.notifyDataSetChanged();
         }
     }
 
-    private class UserAvatarRetrievalTask extends AsyncTask<String, Void, Bitmap> {
+    private class UserAvatarRetrievalTask extends AsyncTask<Void, Void, Bitmap> {
 
         private ConversationItem conversationItem;
 
@@ -280,11 +312,11 @@ public class MessageConversation extends Activity {
         }
 
         @Override
-        protected Bitmap doInBackground(String... avatarURL) {
+        protected Bitmap doInBackground(Void... voids) {
             Bitmap bm = null;
             DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
             try {
-                String[] splitURL = avatarURL[0].split("_");
+                String[] splitURL = conversationItem.getImageUrl().split("_");
                 String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
                 splitURL = key.split("\\.");
                 key = splitURL[0];
@@ -292,7 +324,7 @@ public class MessageConversation extends Activity {
                 bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 
                 if (bm == null)//If it doesn't exists, retrieve image from network
-                    bm = DataParser.loadBitmap(avatarURL[0]);
+                    bm = DataParser.loadBitmap(conversationItem.getImageUrl());
 
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {

@@ -44,6 +44,10 @@ public class MessageConversationAdapter extends BaseAdapter {
         return items.add(item);
     }
 
+    public boolean addItems(List<ConversationItem> i){
+        return items.addAll(i);
+    }
+
     @Override
     public ConversationItem getItem(int i) {
         return items.get(i);

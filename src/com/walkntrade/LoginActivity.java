@@ -237,7 +237,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
             String response = context.getString(R.string.login_failed);
             try {
                 response = database.login(_emailAddress, _password);
-                database.setSharedStringPreference(DataParser.PREFS_USER, DataParser.KEY_USER_EMAIL, _emailAddress);
+                DataParser.setSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_EMAIL, _emailAddress);
                 database.getUserName();
                 database.simpleGetIntent(DataParser.INTENT_GET_PHONENUM);
             } catch (Exception e) {

@@ -3,6 +3,7 @@ package com.walkntrade.gcm;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 /*
  * Copyright (c) 2014. All Rights Reserved. Walkntrade
@@ -18,6 +19,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.v("NotificationBroadcastReceiver", "NotificationBroadcast onReceive");
         GcmIntentService.resetNotfCounter(context);
     }
 }

@@ -11,12 +11,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.walkntrade.MessageConversation;
 import com.walkntrade.Messages;
 import com.walkntrade.R;
 import com.walkntrade.SchoolPage;
+import com.walkntrade.adapters.item.ConversationItem;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.objects.ChatObject;
@@ -34,6 +36,8 @@ import java.util.ArrayList;
 public class GcmIntentService extends IntentService {
 
     private static final String TAG = "GcmIntentService";
+    public static final String NOTIFICATION_BLOCKED = "com.walkntrade.gcm.gcmintentservice.block";
+    public static final String NOTIFICATION_NEW = "com.walkntrade.gcm.gcmintentservice.new";
     public static final int NOTIFICATION_ID = 1;
 
     private static ArrayList<String> threadIds = new ArrayList<String>();
@@ -46,7 +50,6 @@ public class GcmIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i(TAG, "Message Received");
         Bundle extras = intent.getExtras();
 
         //GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
@@ -58,7 +61,7 @@ public class GcmIntentService extends IntentService {
 
         if (!extras.isEmpty()) {
             new PollMessagesTask(getApplicationContext()).execute(); //Poll new message, when this message arrived.
-            Log.d(TAG, "GCM-Push: "+extras.toString());
+            //Log.d(TAG, "GCM-Push: "+extras.toString());
 
             String threadId = extras.getString("id");
             String user = extras.getString("user");
@@ -75,7 +78,18 @@ public class GcmIntentService extends IntentService {
 
     //Put the received message into a notification
     private void sendNotification(String threadId, String user, String subject, String contents, String date, String imageUrl) {
-        boolean oneMessageThread = true;
+        //Update all messages list
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(NOTIFICATION_NEW));
+
+        //Do not create notification if user is viewing the conversation
+        if(threadId.equals(DataParser.getSharedStringPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD))) {
+
+            Intent test = new Intent(NOTIFICATION_BLOCKED);
+            test.putExtra(MessageConversation.LIST_CONVERSATION, new ConversationItem(user, contents, date, date, imageUrl, false, false));
+            LocalBroadcastManager.getInstance(this).sendBroadcast(test);
+            return;
+        }
+
         messageObjects.add(new ChatObject(false, user, contents, date, false, imageUrl));
         numOfMessages++;
 
@@ -86,8 +100,6 @@ public class GcmIntentService extends IntentService {
         Intent notfBroadcast = new Intent(this, NotificationBroadcastReceiver.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this); //Allows parent navigation after opening the app from the notification
 
-        Log.i(TAG, "Thread Ids: "+threadIds.size());
-
         if(threadIds.size() > 1) {//If there are more than one conversations in the notification. Go to messages list, not individual message
             showMessage = new Intent(this, Messages.class);
             stackBuilder.addParentStack(Messages.class);
@@ -97,7 +109,6 @@ public class GcmIntentService extends IntentService {
         }
 
         stackBuilder.addNextIntent(showMessage); //Adds intent to the top of the stack
-        showMessage.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         showMessage.putExtra(MessageConversation.THREAD_ID, threadId);
         showMessage.putExtra(MessageConversation.POST_TITLE, subject);
         showMessage.setAction("ACTION_" + System.currentTimeMillis()); //Makes intents unique, so Android does not reuse invalid intents with null extras
@@ -180,7 +191,7 @@ public class GcmIntentService extends IntentService {
 
     public static void resetNotfCounter(Context context) {
         NotificationManager notfManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notfManager.cancel(NOTIFICATION_ID);
+        notfManager.cancelAll();
 
         threadIds = new ArrayList<String>();
         messageObjects = new ArrayList<ChatObject>();

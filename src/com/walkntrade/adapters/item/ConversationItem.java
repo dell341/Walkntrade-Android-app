@@ -10,17 +10,18 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class ConversationItem implements Parcelable{
-    private String senderName, contents, date, time;
+    private String senderName, contents, date, time, imageUrl;
     private boolean sentFromMe, sentFromThisDevice, isDelivered, hasAvatar;
     private Bitmap avatar;
 
-    public ConversationItem(String senderName, String contents, String date, String time, boolean sentFromMe, boolean sentFromThisDevice) {
+    public ConversationItem(String senderName, String contents, String date, String time, String imageUrl, boolean sentFromMe, boolean sentFromThisDevice) {
         this.senderName = senderName;
         this.contents = contents;
         this.date = date;
         this.time = time;
         this.sentFromMe = sentFromMe;
         this.sentFromThisDevice = sentFromThisDevice;
+        this.imageUrl = imageUrl;
         isDelivered = false;
         hasAvatar = false;
     }
@@ -80,6 +81,10 @@ public class ConversationItem implements Parcelable{
 
     public String getTime() {
         return time;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
     }
 
     public boolean isSentFromMe() {
