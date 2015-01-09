@@ -9,16 +9,19 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.walkntrade.io.FormatDateTime;
+
+import java.text.ParseException;
+
 public class ConversationItem implements Parcelable{
-    private String senderName, contents, date, time, imageUrl;
+    private String senderName, contents, dateTime, imageUrl;
     private boolean sentFromMe, sentFromThisDevice, isDelivered, hasAvatar, messageFailed;
     private Bitmap avatar;
 
-    public ConversationItem(String senderName, String contents, String date, String time, String imageUrl, boolean sentFromMe, boolean sentFromThisDevice) {
+    public ConversationItem(String senderName, String contents, String dateTime, String imageUrl, boolean sentFromMe, boolean sentFromThisDevice) {
         this.senderName = senderName;
         this.contents = contents;
-        this.date = date;
-        this.time = time;
+        this.dateTime = dateTime;
         this.sentFromMe = sentFromMe;
         this.sentFromThisDevice = sentFromThisDevice;
         this.imageUrl = imageUrl;
@@ -30,9 +33,7 @@ public class ConversationItem implements Parcelable{
     public ConversationItem(Parcel in) {
         senderName = in.readString();
         contents = in.readString();
-        date = in.readString();
-        time = in.readString();
-
+        dateTime = in.readString();
         boolean[] values = new boolean[4];
         in.readBooleanArray(values);
         sentFromMe = values[0];
@@ -50,8 +51,7 @@ public class ConversationItem implements Parcelable{
     public void writeToParcel(Parcel parcel, int flags) {
         parcel.writeString(senderName);
         parcel.writeString(contents);
-        parcel.writeString(date);
-        parcel.writeString(time);
+        parcel.writeString(dateTime);
         boolean[] values = {sentFromMe, sentFromThisDevice, isDelivered, hasAvatar};
         parcel.writeBooleanArray(values);
     }
@@ -76,12 +76,12 @@ public class ConversationItem implements Parcelable{
         return contents;
     }
 
-    public String getDate() {
-        return date;
+    public String getDateTime() {
+        return dateTime;
     }
 
-    public String getTime() {
-        return time;
+    public String getDisplayableDateTime() {
+        return FormatDateTime.formatDateTime(dateTime);
     }
 
     public String getImageUrl() {

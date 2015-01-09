@@ -1,18 +1,19 @@
 package com.walkntrade.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextClock;
 import android.widget.TextView;
 
 import com.walkntrade.R;
 import com.walkntrade.adapters.item.ConversationItem;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class MessageConversationAdapter extends BaseAdapter {
         return items.add(item);
     }
 
-    public boolean addItems(List<ConversationItem> i){
+    public boolean addItems(List<ConversationItem> i) {
         return items.addAll(i);
     }
 
@@ -72,11 +73,10 @@ public class MessageConversationAdapter extends BaseAdapter {
         String tag = (currentItem.isSentFromMe() ? CHAT_ME : CHAT_OTHER);
 
         //Use the recycled view (convert view) if it is not null, and is compatible with the new view
-        if(convertView != null && tag.equals(convertView.getTag())) {
+        if (convertView != null && tag.equals(convertView.getTag())) {
             messageView = convertView;
             holder = (ViewHolder) convertView.getTag(R.id.holder);
-        }
-        else {
+        } else {
             if (currentItem.isSentFromMe())
                 messageView = inflater.inflate(R.layout.item_message_user_me, parent, false);
             else
@@ -96,13 +96,13 @@ public class MessageConversationAdapter extends BaseAdapter {
 
         holder.contents.setText(currentItem.getContents());
         holder.user.setText(currentItem.getSenderName());
-        holder.date.setText(currentItem.getDate());
+        holder.date.setText(currentItem.getDisplayableDateTime());
 
         if (currentItem.hasAvatar())
             holder.userImage.setImageBitmap(currentItem.getAvatar());
-        if(currentItem.isSentFromThisDevice()) {//If this message was sent from this device. Show a progress bar until it is delivered.
+        if (currentItem.isSentFromThisDevice()) {//If this message was sent from this device. Show a progress bar until it is delivered.
             holder.progressBar.setVisibility((currentItem.isDelivered() ? View.GONE : View.VISIBLE));
-            if(currentItem.hasMessageFailed()) {
+            if (currentItem.hasMessageFailed()) {
                 holder.date.setText(context.getResources().getString(R.string.message_failed));
                 holder.date.setTextColor(context.getResources().getColor(R.color.red));
                 holder.progressBar.setVisibility(View.GONE);

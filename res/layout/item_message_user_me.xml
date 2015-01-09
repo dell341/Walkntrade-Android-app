@@ -29,8 +29,7 @@
         android:background="@drawable/chat_bubble_me_selector"
         android:clickable="true"
         android:padding="5dp"
-        android:textColor="@color/black"
-        android:textSize="18sp" />
+        android:textColor="@color/black" />
 
     <ProgressBar
         android:id="@+id/progressBar"

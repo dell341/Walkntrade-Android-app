@@ -29,8 +29,6 @@ public class MessageThread implements Parcelable {
         this.userName = userName;
         this.userImageUrl = userImageUrl;
         this.newMessages = newMessages;
-
-        //TODO: Separate date from time
     }
 
     //Constructor when object is created from a parcel

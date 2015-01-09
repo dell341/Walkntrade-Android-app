@@ -30,8 +30,7 @@
         android:padding="5dp"
         android:textColor="@color/black"
         android:background="@drawable/chat_bubble_other_selector"
-        android:clickable="true"
-        android:textSize="18sp"/>
+        android:clickable="true"/>
 
     <TextView
         android:id="@+id/user"

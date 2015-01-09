@@ -85,7 +85,7 @@ public class GcmIntentService extends IntentService {
         if(threadId.equals(DataParser.getSharedStringPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD))) {
 
             Intent test = new Intent(NOTIFICATION_BLOCKED);
-            test.putExtra(MessageConversation.LIST_CONVERSATION, new ConversationItem(user, contents, date, date, imageUrl, false, false));
+            test.putExtra(MessageConversation.LIST_CONVERSATION, new ConversationItem(user, contents, date, imageUrl, false, false));
             LocalBroadcastManager.getInstance(this).sendBroadcast(test);
             return;
         }

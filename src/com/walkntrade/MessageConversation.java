@@ -228,7 +228,7 @@ public class MessageConversation extends Activity {
                 ArrayList<ConversationItem> conversationItems = new ArrayList<ConversationItem>();
 
                 for (ChatObject c : chatObjects) {
-                    ConversationItem item = new ConversationItem(c.getSenderName(), c.getContents(), c.getDateTime(), c.getDateTime(), c.getUserImageUrl(), c.isSentFromMe(), false);
+                    ConversationItem item = new ConversationItem(c.getSenderName(), c.getContents(), c.getDateTime(), c.getUserImageUrl(), c.isSentFromMe(), false);
                     conversationItems.add(item);
 
                     new UserAvatarRetrievalTask(item).execute();
@@ -252,7 +252,7 @@ public class MessageConversation extends Activity {
         public AppendMessageTask(String m) {
             super();
             this.message = m;
-            conversationItem = new ConversationItem(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), m, "[Current date]", "[Current Time]", DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL),true, true);
+            conversationItem = new ConversationItem(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), m, "just now", DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL),true, true);
         }
 
         @Override

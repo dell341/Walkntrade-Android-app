@@ -31,10 +31,12 @@ import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
+import com.walkntrade.io.FormatDateTime;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.MessageThread;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -207,11 +209,11 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             TextView lastMessageDate = (TextView) messageView.findViewById(R.id.message_last_date);
 
             postTitle.setText(item.getPostTitle());
-            lastMessage.setText(item.getUserName()+" : "+item.getLastMessage());
-            lastMessageDate.setText(item.getLastDateTime());
-            if(item.hasImage())
+            lastMessage.setText(item.getUserName() + " : " + item.getLastMessage());
+            lastMessageDate.setText(FormatDateTime.formatDateTime(item.getLastDateTime()));
+            if (item.hasImage())
                 userImage.setImageBitmap(item.getUserImage());
-            if(item.getNewMessages() > 0) {
+            if (item.getNewMessages() > 0) {
                 postTitle.setTypeface(postTitle.getTypeface(), Typeface.BOLD);
                 lastMessage.setTypeface(lastMessage.getTypeface(), Typeface.BOLD);
                 lastMessage.setTextColor(getResources().getColor(R.color.black));
@@ -267,7 +269,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                 messageList.setAdapter(threadAdapter);
                 messageList.setOnItemClickListener(Messages.this);
 
-                for(MessageThread m : messageThreads)
+                for (MessageThread m : messageThreads)
                     new UserAvatarRetrievalTask(m).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m.getUserImageUrl());
             }
 
@@ -339,7 +341,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
-                for(String s : messagesToDelete[0])
+                for (String s : messagesToDelete[0])
                     serverResponse = database.deleteThread(s);
             } catch (IOException e) {
                 Log.e(TAG, "Deleting message(s)", e);
