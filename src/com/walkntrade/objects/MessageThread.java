@@ -3,6 +3,7 @@ package com.walkntrade.objects;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 /*
  * Copyright (c) 2014. All Rights Reserved. Walkntrade
@@ -120,6 +121,7 @@ public class MessageThread implements Parcelable {
     }
 
     public void clearNewMessages() {
+        Log.w("Messages", "Clearing new messages: "+lastMessage);
         newMessages = 0;
     }
 

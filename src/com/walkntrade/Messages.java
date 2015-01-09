@@ -130,6 +130,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         message.clearNewMessages();
         threadAdapter.notifyDataSetChanged();
+        messageList.setAdapter(threadAdapter);
 
         Intent showConversationIntent = new Intent(this, MessageConversation.class);
         showConversationIntent.putExtra(MessageConversation.THREAD_ID, message.getThreadId());
