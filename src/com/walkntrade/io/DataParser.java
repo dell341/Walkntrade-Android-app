@@ -917,6 +917,7 @@ public class DataParser {
             JSONObject payload = jsonObject.getJSONObject(PAYLOAD);
             int serverResponse = jsonObject.getInt(STATUS);
 
+            Log.i(TAG, "UserProfile: "+serverResponse);
             ArrayList<ReferencedPost> postList = new ArrayList<ReferencedPost>();
             String userName = payload.getString("username");
             String userImgUrl = payload.getString("avatarUrl");

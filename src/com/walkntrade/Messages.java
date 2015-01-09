@@ -209,7 +209,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             TextView lastMessageDate = (TextView) messageView.findViewById(R.id.message_last_date);
 
             postTitle.setText(item.getPostTitle());
-            lastMessage.setText(item.getUserName() + " : " + item.getLastMessage());
+            lastMessage.setText(item.getLastUserName() + " : " + item.getLastMessage());
             lastMessageDate.setText(FormatDateTime.formatDateTime(item.getLastDateTime()));
             if (item.hasImage())
                 userImage.setImageBitmap(item.getUserImage());
