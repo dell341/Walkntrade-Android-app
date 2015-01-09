@@ -115,11 +115,6 @@ public class ContactUserFragment extends Fragment {
         return rootView;
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
     //Sends message to user
     private class SendMessageTask extends AsyncTask<Void, Void, Integer> {
         private DataParser database;
@@ -138,7 +133,7 @@ public class ContactUserFragment extends Fragment {
                 return null;
 
             try {
-                serverResponse = database.createMessageThread(thisPost.getIdentifier(), message);
+                serverResponse = database.createMessageThread(thisPost.getObsId(), message);
             } catch (IOException e) {
                 Log.e(TAG, "Messaging user", e);
             }

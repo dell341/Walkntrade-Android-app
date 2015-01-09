@@ -14,7 +14,7 @@ import com.walkntrade.io.FormatDateTime;
 import java.text.ParseException;
 
 public class ConversationItem implements Parcelable{
-    private String senderName, contents, dateTime, imageUrl;
+    private String senderName, contents, dateTime, imageUrl, errorMessage;
     private boolean sentFromMe, sentFromThisDevice, isDelivered, hasAvatar, messageFailed;
     private Bitmap avatar;
 
@@ -28,12 +28,14 @@ public class ConversationItem implements Parcelable{
         isDelivered = false;
         hasAvatar = false;
         messageFailed = false;
+        errorMessage = "";
     }
 
     public ConversationItem(Parcel in) {
         senderName = in.readString();
         contents = in.readString();
         dateTime = in.readString();
+        errorMessage = in.readString();
         boolean[] values = new boolean[4];
         in.readBooleanArray(values);
         sentFromMe = values[0];
@@ -52,6 +54,7 @@ public class ConversationItem implements Parcelable{
         parcel.writeString(senderName);
         parcel.writeString(contents);
         parcel.writeString(dateTime);
+        parcel.writeString(errorMessage);
         boolean[] values = {sentFromMe, sentFromThisDevice, isDelivered, hasAvatar};
         parcel.writeBooleanArray(values);
     }
@@ -104,12 +107,17 @@ public class ConversationItem implements Parcelable{
         return isDelivered;
     }
 
-    public void messageFailedToDeliver() {
+    public void messageFailedToDeliver(String errorMessage) {
         messageFailed = true;
+        this.errorMessage = errorMessage;
     }
 
     public boolean hasMessageFailed() {
         return messageFailed;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
     public void setAvatar(Bitmap avatar) {

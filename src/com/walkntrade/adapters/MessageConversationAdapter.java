@@ -103,7 +103,7 @@ public class MessageConversationAdapter extends BaseAdapter {
         if (currentItem.isSentFromThisDevice()) {//If this message was sent from this device. Show a progress bar until it is delivered.
             holder.progressBar.setVisibility((currentItem.isDelivered() ? View.GONE : View.VISIBLE));
             if (currentItem.hasMessageFailed()) {
-                holder.date.setText(context.getResources().getString(R.string.message_failed));
+                holder.date.setText(currentItem.getErrorMessage());
                 holder.date.setTextColor(context.getResources().getColor(R.color.red));
                 holder.progressBar.setVisibility(View.GONE);
             }

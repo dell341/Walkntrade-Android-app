@@ -238,8 +238,10 @@ public class MessageConversation extends Activity {
                 chatList.setAdapter(conversationAdapter);
                 chatList.setSelection(conversationAdapter.getCount() - 1);
                 send.setEnabled(true);
-            } else
+            } else {
+                errorMessage.setText(StatusCodeParser.getStatusString(context, serverResponse));
                 errorMessage.setVisibility(View.VISIBLE);
+            }
 
         }
     }
@@ -285,8 +287,9 @@ public class MessageConversation extends Activity {
 
             if(serverResponse == StatusCodeParser.STATUS_OK)
                 conversationItem.messageDelivered();
-            else
-                conversationItem.messageFailedToDeliver();
+            else {
+                conversationItem.messageFailedToDeliver(StatusCodeParser.getStatusString(context, serverResponse));
+            }
 
             conversationAdapter.notifyDataSetChanged();
         }

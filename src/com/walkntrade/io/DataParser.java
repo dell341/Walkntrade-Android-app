@@ -750,7 +750,8 @@ public class DataParser {
         establishConnection();
 
         int serverResponse = StatusCodeParser.CONNECT_FAILED;
-        String query = "intent=createMessageThread&message="+message+"&post_id="+postIdentifier;
+        String query = "intent=createMessageThread&post_id="+postIdentifier+"&message="+message;
+        Log.i(TAG, query);
 
         try {
             HttpEntity entity = new StringEntity(query);
