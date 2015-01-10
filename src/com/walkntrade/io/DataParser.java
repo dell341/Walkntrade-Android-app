@@ -25,6 +25,7 @@ import com.walkntrade.objects.HousingPost;
 import com.walkntrade.objects.TechPost;
 import com.walkntrade.objects.UserProfileObject;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
@@ -97,6 +98,7 @@ public class DataParser {
     public static final String KEY_NOTIFY_SOUND = "notification_sound"; //Notification preference title
     public static final String KEY_NOTIFY_LIGHT = "notification_light"; //Notification preference title (boolean)
     public static final String KEY_NOTIFY_ACTIVE_THREAD = "notification_active_thread"; //Notification preference title. Disable notifications for threads matching this id
+    public static final String KEY_NOTIFY_DISPLAY_ON = "notification_display_on"; //Notification preference title (boolean)
     public static final String KEY_AUTHORIZED = "user_authorization"; //Authorization-Pref title (boolean) User password changed or session id expired.
     public static final String KEY_CATEGORY_AMOUNT = "category_amount"; //Category preference
     public static final String KEY_CATEGORY_ID = "category_"; //Category preference. Number must be added at the end. 'category_#'
@@ -330,14 +332,18 @@ public class DataParser {
 
     public static int getSharedIntPreference(Context _context, String preferenceName, String key) {
         SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
-
         return settings.getInt(key, 0);
     }
 
-    //Since the default value is true, only use this with switches that should be true
-    public static boolean getSharedBooleanPreference(Context _context, String preferenceName, String key) {
+    //Default boolean value is true
+    public static boolean getSharedBooleanPreferenceTrueByDefault(Context _context, String preferenceName, String key) {
         SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
         return settings.getBoolean(key, true);
+    }
+
+    public static boolean getSharedBooleanPreference(Context _context, String preferenceName,String key) {
+        SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
+        return settings.getBoolean(key, false);
     }
 
     public static void setSoundPref(Context _context, Uri uri) {
@@ -351,11 +357,6 @@ public class DataParser {
     public static String getSoundPref(Context _context) {
         SharedPreferences settings = _context.getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
         return settings.getString(KEY_NOTIFY_SOUND, null);
-    }
-
-    public static int getMessagesAmount(Context _context) {
-        SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
-        return settings.getInt(KEY_USER_MESSAGES, 0);
     }
 
     //Returns user login status
@@ -831,8 +832,8 @@ public class DataParser {
 
                 String threadId = messageThread.getString("thread_id");
                 String postIdentifier = messageThread.getString("post_id");
-                String postTitle = messageThread.getString("post_title");
-                String lastMessage = messageThread.getString("last_message");
+                String postTitle = StringEscapeUtils.unescapeHtml4(messageThread.getString("post_title"));
+                String lastMessage = StringEscapeUtils.unescapeHtml4(messageThread.getString("last_message"));
                 int lastUserId = messageThread.getInt("last_user_id");
                 String lastUserName = messageThread.getString("last_user_name");
                 String lastDateTime = messageThread.getString("datetime");
@@ -878,7 +879,7 @@ public class DataParser {
                 boolean sentFromMe = (value == 1);
                 int senderId = message.getInt("sender_id");
                 String senderName = message.getString("sender_name");
-                String messageContent = message.getString("message_content");
+                String messageContent = StringEscapeUtils.unescapeHtml4(message.getString("message_content"));
                 String dateTime = message.getString("datetime");
                 value = message.getInt("message_seen");
                 boolean messageSeen = (value == 1);
@@ -930,7 +931,7 @@ public class DataParser {
                 String schoolName = post.getString("schoolLongName");
                 String schoolAbbv = post.getString("schoolShortName");
                 String link = post.getString("post_identifier");
-                String title = post.getString("title");
+                String title = StringEscapeUtils.unescapeHtml4(post.getString("title"));
                 String date = post.getString("date");
                 String category = post.getString("category");
 
@@ -968,10 +969,10 @@ public class DataParser {
             String category = jsonPost.getString("category");
             String schoolId = id.split(":")[0];
             String identifier = id.split(":")[1].toLowerCase(Locale.US); //Identifier only holds the unique generated number for the post. Used in image url
-            String title = jsonPost.getString("title");
+            String title = StringEscapeUtils.unescapeHtml4(jsonPost.getString("title"));
             String author = jsonPost.getString("author");
             String isbn = jsonPost.getString("isbn");
-            String details = jsonPost.getString("details");
+            String details = StringEscapeUtils.unescapeHtml4(jsonPost.getString("details"));
             String user = jsonPost.getString("username");
             String date = jsonPost.getString("date");
             String price = jsonPost.getString("price");
@@ -1022,7 +1023,7 @@ public class DataParser {
 
                     String link = jsonPost.getString("link");
                     String category = jsonPost.getString("category");
-                    String title = jsonPost.getString("title");
+                    String title = StringEscapeUtils.unescapeHtml4(jsonPost.getString("title"));
                     String date = jsonPost.getString("date");
                     String views = jsonPost.getString("views");
                     int expire = jsonPost.getInt("expire");
@@ -1174,7 +1175,7 @@ public class DataParser {
                 String identifier = obsId.split(":")[1].toLowerCase(Locale.US); //Identifier only holds the unique generated number for the post. Used in image url
                 String title = jsonPost.getString("title");
                 String author = "";
-                String details = jsonPost.getString("details");
+                String details = StringEscapeUtils.unescapeHtml4(jsonPost.getString("details"));
                 String isbn = "";
                 String user = jsonPost.getString("username");
                 String imgURL = jsonPost.getString("image");

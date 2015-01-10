@@ -64,7 +64,7 @@ public class ContactPref extends Activity implements CompoundButton.OnCheckedCha
             switchEmail.setChecked(value);
         }
 
-        switchNofication.setChecked(DataParser.getSharedBooleanPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_USER));
+        switchNofication.setChecked(DataParser.getSharedBooleanPreferenceTrueByDefault(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_USER));
         switchNofication.setOnCheckedChangeListener(this);
 
         //Change notification sound, vibrate, light

@@ -128,14 +128,14 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         MessageThread message = (MessageThread) parent.getItemAtPosition(position);
 
-        message.clearNewMessages();
-        threadAdapter.notifyDataSetChanged();
-        messageList.setAdapter(threadAdapter);
-
         Intent showConversationIntent = new Intent(this, MessageConversation.class);
         showConversationIntent.putExtra(MessageConversation.THREAD_ID, message.getThreadId());
         showConversationIntent.putExtra(MessageConversation.POST_TITLE, message.getPostTitle());
         startActivity(showConversationIntent);
+
+        message.clearNewMessages();
+        threadAdapter.notifyDataSetChanged();
+        messageList.setAdapter(threadAdapter);
     }
 
     private class MultiChoiceListener implements AbsListView.MultiChoiceModeListener {

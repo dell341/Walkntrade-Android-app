@@ -12,17 +12,18 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Html;
 import android.util.Log;
 
 import com.walkntrade.MessageConversation;
 import com.walkntrade.Messages;
 import com.walkntrade.R;
-import com.walkntrade.SchoolPage;
 import com.walkntrade.adapters.item.ConversationItem;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.objects.ChatObject;
-import com.walkntrade.objects.MessageThread;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class GcmIntentService extends IntentService {
         //String messageType = gcm.getMessageType(intent);
 
         //If user does want to receive notifications and is not logged, do not continue.
-        if (!DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_USER) && !DataParser.getSharedBooleanPreference(this, DataParser.PREFS_USER, DataParser.KEY_CURRENTLY_LOGGED_IN))
+        if (!DataParser.getSharedBooleanPreferenceTrueByDefault(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_USER) && !DataParser.isUserLoggedIn(this))
             return;
 
         if (!extras.isEmpty()) {
@@ -65,33 +66,36 @@ public class GcmIntentService extends IntentService {
 
             String threadId = extras.getString("id");
             String user = extras.getString("user");
-            String subject = extras.getString("subject");
-            String contents = extras.getString("message");
-            String date = extras.getString("date");
+            String subject = StringEscapeUtils.unescapeHtml4(extras.getString("subject"));
+            String contents = StringEscapeUtils.unescapeHtml4(extras.getString("message"));
+            String dateTime = extras.getString("date");
             String imageUrl = extras.getString("userImageURL");
 
             if (threadId != null && user != null) //As long as id and user fields are not null, send the notification
-                sendNotification(threadId, user, subject, contents, date, imageUrl);
+                sendNotification(threadId, user, subject, contents, dateTime, imageUrl);
         } else
             Log.i(TAG, "Incomplete/Empty message received");
     }
 
     //Put the received message into a notification
-    private void sendNotification(String threadId, String user, String subject, String contents, String date, String imageUrl) {
+    private void sendNotification(String threadId, String user, String subject, String contents, String dateTime, String imageUrl) {
         //Update all messages list
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(NOTIFICATION_NEW));
 
-        //Do not create notification if user is viewing the conversation
+        //Send the message to the active conversation the user viewing
         if(threadId.equals(DataParser.getSharedStringPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD))) {
-
             Intent test = new Intent(NOTIFICATION_BLOCKED);
-            test.putExtra(MessageConversation.LIST_CONVERSATION, new ConversationItem(user, contents, date, imageUrl, false, false));
+            test.putExtra(MessageConversation.LIST_CONVERSATION, new ConversationItem(user, contents, dateTime.replace('/','-'), imageUrl, false, false));
             LocalBroadcastManager.getInstance(this).sendBroadcast(test);
-            return;
+
+            //Do not create a notification if the activity is currently being viewed
+            if(DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_DISPLAY_ON))
+                return;
+
         }
 
-        messageObjects.add(new ChatObject(false, user, contents, date, false, imageUrl));
-        numOfMessages++;
+        messageObjects.add(new ChatObject(false, user, contents, dateTime, false, imageUrl));
+        DataParser.setSharedIntPreferences(this, DataParser.PREFS_USER, DataParser.KEY_USER_MESSAGES, ++numOfMessages);
 
         if(!threadIds.contains(threadId))
             threadIds.add(threadId);
@@ -152,8 +156,8 @@ public class GcmIntentService extends IntentService {
         }
 
         boolean hasSound = false;
-        boolean vibrate = DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_VIBRATE);
-        boolean showLight = DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_LIGHT);
+        boolean vibrate = DataParser.getSharedBooleanPreferenceTrueByDefault(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_VIBRATE);
+        boolean showLight = DataParser.getSharedBooleanPreferenceTrueByDefault(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_LIGHT);
 
         String sound = DataParser.getSoundPref(this);
         if (sound != null) {

@@ -118,24 +118,31 @@ public class MessageConversation extends Activity {
         });
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        GcmIntentService.resetNotfCounter(context); //Clears out all message notifications in Status Bar
-        DataParser.setSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD, null);
-
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(interceptMessageReceiver);
+        LocalBroadcastManager.getInstance(context).registerReceiver(interceptMessageReceiver, new IntentFilter(GcmIntentService.NOTIFICATION_BLOCKED));
+        DataParser.setSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD, threadId); //Set this conversation as active, to disable notifications
     }
 
     @Override
     protected void onResume() {
+        Log.v(TAG, "onResume");
         super.onResume();
         GcmIntentService.resetNotfCounter(context); //Clears out all message notifications in Status Bar
-        DataParser.setSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD, threadId); //Set this conversation as active, to disable notifications
+        DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_DISPLAY_ON, true);
+    }
 
-        LocalBroadcastManager.getInstance(context).registerReceiver(interceptMessageReceiver, new IntentFilter(GcmIntentService.NOTIFICATION_BLOCKED));
+    @Override
+    protected void onPause() {
+        Log.v(TAG, "onPause");
+        super.onPause();
+        DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_DISPLAY_ON, false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.v(TAG, "onDestroy");
+        DataParser.setSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD, null);
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(interceptMessageReceiver);
+        super.onDestroy();
     }
 
     private BroadcastReceiver interceptMessageReceiver = new BroadcastReceiver() {

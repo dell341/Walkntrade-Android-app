@@ -121,7 +121,6 @@ public class MessageThread implements Parcelable {
     }
 
     public void clearNewMessages() {
-        Log.w("Messages", "Clearing new messages: "+lastMessage);
         newMessages = 0;
     }
 

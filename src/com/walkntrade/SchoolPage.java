@@ -110,15 +110,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             public void onDrawerOpened(View view) {//Navigation Drawer is completely open
                 actionBar.setTitle(getString(R.string.app_name));
 
-                if (DataParser.isUserLoggedIn(context)) {
-                    //TODO: Find a better way to update the inbox amount
-                    DrawerAdapter adapter = (DrawerAdapter) navigationDrawerList.getAdapter();
-                    DrawerItem inboxItem = adapter.getItem(4);
-                    inboxItem.setCounter(DataParser.getMessagesAmount(context));
-
-                    adapter.notifyDataSetChanged();
-                }
-
                 invalidateOptionsMenu();
                 super.onDrawerOpened(view);
             }
@@ -312,7 +303,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
     //Update contents in Navigation Drawer. User logged in/ User not logged in
     private void updateDrawer() {
-        Log.i(TAG, "Updating Drawer");
 
         if (DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
             new UserNameTask(this, navigationDrawerList).execute();
@@ -348,7 +338,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
                 items.add(new DrawerItem(100 + i, iconResource, categoryName));
             }
-            items.add(new DrawerItem(200, R.drawable.ic_message, getString(R.string.drawer_messages), DataParser.getMessagesAmount(context))); //Messages
+            items.add(new DrawerItem(200, R.drawable.ic_message, getString(R.string.drawer_messages), DataParser.getSharedIntPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_MESSAGES))); //Messages
             items.add(new DrawerItem(300, R.drawable.ic_account, getString(R.string.drawer_account))); //Account
             items.add(new DrawerItem(400, R.drawable.ic_location, getString(R.string.drawer_change_school))); //Select School
         } else {

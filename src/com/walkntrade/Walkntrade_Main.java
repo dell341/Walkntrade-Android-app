@@ -62,8 +62,6 @@ public class Walkntrade_Main extends Activity {
             protected void onPostExecute(Integer serverResponse) {
                 if(serverResponse == StatusCodeParser.STATUS_OK)
                     updatedCategories = true;
-
-
             }
         }.execute();
 
@@ -109,7 +107,8 @@ public class Walkntrade_Main extends Activity {
         retry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (hasConnection() && updatedCategories && checkPlayServices()) {
+                //if (hasConnection() && updatedCategories && checkPlayServices()) {
+                if(hasConnection()) {
                     if(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG) != null) //There is a school preference
                         startActivity(new Intent(context, SchoolPage.class)); //Starts SchoolPage Activity
                     else
