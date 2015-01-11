@@ -8,6 +8,32 @@
     android:layout_height="wrap_content"
     android:padding="5dp">
 
+    <LinearLayout
+        android:id="@+id/linear_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/user_image"
+        android:layout_toStartOf="@id/user_image"
+        android:gravity="bottom"
+        android:orientation="horizontal">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/message_contents"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/chat_bubble_me_selector"
+        android:clickable="true"
+        android:padding="5dp"
+        android:textColor="@color/black"/>
+    </LinearLayout>
+
     <ImageView
         android:id="@+id/user_image"
         android:layout_width="56dp"
@@ -20,34 +46,12 @@
         android:background="@color/gray"/>
 
     <TextView
-        android:id="@+id/message_contents"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="1dp"
-        android:layout_toLeftOf="@id/user_image"
-        android:layout_toStartOf="@id/user_image"
-        android:background="@drawable/chat_bubble_me_selector"
-        android:clickable="true"
-        android:padding="5dp"
-        android:textColor="@color/black" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/message_contents"
-        android:layout_toLeftOf="@id/message_contents"
-        android:layout_toStartOf="@id/message_contents"
-        android:visibility="gone"/>
-
-    <TextView
         android:id="@+id/user"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@id/message_contents"
-        android:layout_alignRight="@id/message_contents"
-        android:layout_below="@id/message_contents"
+        android:layout_alignEnd="@id/linear_layout"
+        android:layout_alignRight="@id/linear_layout"
+        android:layout_below="@id/linear_layout"
         android:textColor="@color/dark_gray_text"
         android:textSize="12sp" />
 
@@ -55,8 +59,8 @@
         android:id="@+id/date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@id/message_contents"
-        android:layout_alignRight="@id/message_contents"
+        android:layout_alignEnd="@id/linear_layout"
+        android:layout_alignRight="@id/linear_layout"
         android:layout_below="@id/user"
         android:textColor="@color/dark_gray_text"
         android:textSize="12sp" />

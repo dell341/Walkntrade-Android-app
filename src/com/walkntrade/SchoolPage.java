@@ -526,8 +526,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
     //Asynchronous Task, received user avatar image
     private class AvatarRetrievalTask extends AsyncTask<Void, Void, Bitmap> {
-
-        private final String TAG = "ASYNCTASK:AvatarRetrieval";
         private Context context;
         private ListView drawerList;
 
