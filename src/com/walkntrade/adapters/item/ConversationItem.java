@@ -16,7 +16,7 @@ import java.text.ParseException;
 public class ConversationItem implements Parcelable{
     private String senderName, contents, dateTime, imageUrl, errorMessage;
     private boolean sentFromMe, sentFromThisDevice, isDelivered, hasAvatar, messageFailed;
-    private Bitmap avatar;
+    private static Bitmap myAvatar, otherUserAvatar; //Hold a single reference to each Bitmap. The images will be the same, no need for different objects.
 
     public ConversationItem(String senderName, String contents, String dateTime, String imageUrl, boolean sentFromMe, boolean sentFromThisDevice) {
         this.senderName = senderName;
@@ -121,8 +121,13 @@ public class ConversationItem implements Parcelable{
     }
 
     public void setAvatar(Bitmap avatar) {
-        this.avatar = avatar;
-        this.hasAvatar = true;
+
+        if(sentFromMe)
+            myAvatar = avatar;
+        else
+            otherUserAvatar = avatar;
+
+        hasAvatar = true;
     }
 
     public boolean hasAvatar() {
@@ -130,6 +135,6 @@ public class ConversationItem implements Parcelable{
     }
 
     public Bitmap getAvatar() {
-        return avatar;
+        return (sentFromMe ? myAvatar : otherUserAvatar);
     }
 }
