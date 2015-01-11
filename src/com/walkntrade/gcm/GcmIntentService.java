@@ -56,8 +56,8 @@ public class GcmIntentService extends IntentService {
         //GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
         //String messageType = gcm.getMessageType(intent);
 
-        //If user does want to receive notifications and is not logged, do not continue.
-        if (!DataParser.getSharedBooleanPreferenceTrueByDefault(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_USER) && !DataParser.isUserLoggedIn(this))
+        //If user is not logged, do not continue.
+        if (!DataParser.isUserLoggedIn(this))
             return;
 
         if (!extras.isEmpty()) {
@@ -94,8 +94,13 @@ public class GcmIntentService extends IntentService {
 
         }
 
-        messageObjects.add(new ChatObject(false, user, contents, dateTime, false, imageUrl));
+        //Increments amount of unread messages
         DataParser.setSharedIntPreferences(this, DataParser.PREFS_USER, DataParser.KEY_USER_MESSAGES, ++numOfMessages);
+
+        if (!DataParser.getSharedBooleanPreferenceTrueByDefault(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_USER)) //If user does want to receive notifications, do not create a notification
+            return;
+
+        messageObjects.add(new ChatObject(false, user, contents, dateTime, false, imageUrl));
 
         if(!threadIds.contains(threadId))
             threadIds.add(threadId);
