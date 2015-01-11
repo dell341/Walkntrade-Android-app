@@ -7,7 +7,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="5dp">
+    android:padding="5dp"
+    android:background="@drawable/gray_on_activated">
 
     <ImageView
         android:id="@+id/user_image"

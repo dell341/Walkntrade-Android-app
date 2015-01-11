@@ -62,7 +62,7 @@ public class GcmIntentService extends IntentService {
 
         if (!extras.isEmpty()) {
             new PollMessagesTask(getApplicationContext()).execute(); //Poll new message, when this message arrived.
-            //Log.d(TAG, "GCM-Push: "+extras.toString());
+            Log.v(TAG, "GCM-Push: "+extras.toString());
 
             String threadId = extras.getString("id");
             String user = extras.getString("user");
@@ -122,16 +122,17 @@ public class GcmIntentService extends IntentService {
         int largeIconHeight = Resources.getSystem().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.walkntrade_icon)
+                .setContentTitle(getApplicationContext().getString(R.string.notification_from) + " " + user)
+                .setContentText(contents)
+                .setContentInfo(numOfMessages + "")
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
+
         try {
-            builder.setSmallIcon(R.drawable.walkntrade_icon)
-                    .setLargeIcon(DataParser.loadOptBitmap(imageUrl, largeIconWidth, largeIconHeight))
-                    .setContentTitle(getApplicationContext().getString(R.string.notification_from) + " " + user)
-                    .setContentText(contents)
-                    .setContentInfo(numOfMessages + "")
-                    .setAutoCancel(true)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
+            builder.setLargeIcon(DataParser.loadOptBitmap(imageUrl, largeIconWidth, largeIconHeight));
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d(TAG, "Could not load notification icon", e);
         }
 
         //Set big view if more than one notification has been received

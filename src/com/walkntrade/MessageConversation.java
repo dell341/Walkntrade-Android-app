@@ -124,7 +124,6 @@ public class MessageConversation extends Activity {
 
     @Override
     protected void onResume() {
-        Log.v(TAG, "onResume");
         super.onResume();
         GcmIntentService.resetNotfCounter(context); //Clears out all message notifications in Status Bar
         DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_DISPLAY_ON, true);
@@ -132,14 +131,12 @@ public class MessageConversation extends Activity {
 
     @Override
     protected void onPause() {
-        Log.v(TAG, "onPause");
         super.onPause();
         DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_DISPLAY_ON, false);
     }
 
     @Override
     protected void onDestroy() {
-        Log.v(TAG, "onDestroy");
         DataParser.setSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD, null);
         LocalBroadcastManager.getInstance(context).unregisterReceiver(interceptMessageReceiver);
         super.onDestroy();
