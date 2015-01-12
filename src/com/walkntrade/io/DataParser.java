@@ -919,7 +919,6 @@ public class DataParser {
             JSONObject payload = jsonObject.getJSONObject(PAYLOAD);
             int serverResponse = jsonObject.getInt(STATUS);
 
-            Log.i(TAG, "UserProfile: "+serverResponse);
             ArrayList<ReferencedPost> postList = new ArrayList<ReferencedPost>();
             String userName = payload.getString("username");
             String userImgUrl = payload.getString("avatarUrl");
@@ -958,25 +957,23 @@ public class DataParser {
             HttpEntity entity = new StringEntity(query);
             InputStream inputStream = processRequest(entity);
 
-            Post post;
             JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
-            JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
+            JSONObject payload = jsonObject.getJSONObject(PAYLOAD);
             int requestStatus = jsonObject.getInt(STATUS);
 
-            //Retrieve all post attributes from JSONObject
-            JSONObject jsonPost = payload.getJSONObject(0);
-
-            String category = jsonPost.getString("category");
+            String category = payload.getString("category");
             String schoolId = id.split(":")[0];
             String identifier = id.split(":")[1].toLowerCase(Locale.US); //Identifier only holds the unique generated number for the post. Used in image url
-            String title = StringEscapeUtils.unescapeHtml4(jsonPost.getString("title"));
-            String author = jsonPost.getString("author");
-            String isbn = jsonPost.getString("isbn");
-            String details = StringEscapeUtils.unescapeHtml4(jsonPost.getString("details"));
-            String user = jsonPost.getString("username");
-            String date = jsonPost.getString("date");
-            String price = jsonPost.getString("price");
-            String views = jsonPost.getString("views");
+            String title = StringEscapeUtils.unescapeHtml4(payload.getString("title"));
+            String author = payload.getString("author");
+            String isbn = payload.getString("isbn");
+            String details = StringEscapeUtils.unescapeHtml4(payload.getString("details"));
+            String user = payload.getString("username");
+            String date = payload.getString("date");
+            String price = payload.getString("price");
+            String views = payload.getString("views");
+
+            Post post;
 
             if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
                 post = new BookPost(id, schoolId, identifier, title, author, details, isbn, user, null, date, price, views);

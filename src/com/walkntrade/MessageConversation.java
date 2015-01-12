@@ -84,6 +84,7 @@ public class MessageConversation extends Activity {
             else {
                 conversationAdapter = new MessageConversationAdapter(context, items);
                 chatList.setAdapter(conversationAdapter);
+                chatList.setSelection(conversationAdapter.getCount() - 1);
             }
         }
         else
