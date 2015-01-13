@@ -54,6 +54,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     private final String TAG = "SchoolPage";
     private static final String SAVED_AVATAR_IMAGE = "saved_instance_avatar";
     public static final String SELECTED_POST = "Selected_Post";
+    public static final String INTENT_UPDATE_DRAWER = "com.walkntrade.SchoolPage.update_drawer";
 
     private DrawerLayout mDrawerLayout;
     private ListView navigationDrawerList;
@@ -86,7 +87,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         if (savedInstanceState != null)
             hasAvatar = true;
 
-        LocalBroadcastManager.getInstance(context).registerReceiver(updateDrawerReceiver, new IntentFilter(PollMessagesTask.INTENT_UPDATE_UNREAD_MESSAGE));
+        LocalBroadcastManager.getInstance(context).registerReceiver(updateDrawerReceiver, new IntentFilter(INTENT_UPDATE_DRAWER));
         new PollMessagesTask(context).execute();
         updateDrawer();
 
@@ -298,10 +299,8 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //If user logs in, update the navigation drawer
         if (requestCode == LoginActivity.REQUEST_LOGIN)
-            if (resultCode == Activity.RESULT_OK) {
-                Log.v(TAG, "User logged in");
+            if (resultCode == Activity.RESULT_OK)
                 updateDrawer();
-            }
     }
 
     private BroadcastReceiver updateDrawerReceiver = new BroadcastReceiver() {
@@ -405,9 +404,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
             new LogoutTask(this).execute(); //Starts asynchronous sign out
         }
-
         invalidateOptionsMenu();
-        updateDrawer(); //Update navigation drawer after logging out
     }
 
     private class DrawerAdapter extends ArrayAdapter<DrawerItem> {

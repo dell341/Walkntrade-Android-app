@@ -5,6 +5,8 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -94,7 +96,7 @@ public class ShowPage extends Activity implements PostFragment.ContactUserListen
                 return true;
             case R.id.action_login:
                 if (!DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context))
-                    startActivity(new Intent(this, LoginActivity.class));
+                    startActivityForResult(new Intent(this, LoginActivity.class), LoginActivity.REQUEST_LOGIN);
                 return true;
             case R.id.action_inbox:
                 if (DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context)) {
@@ -132,6 +134,14 @@ public class ShowPage extends Activity implements PostFragment.ContactUserListen
         transaction.replace(R.id.frame_layout, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //If user logs in, update the navigation drawer
+        if (requestCode == LoginActivity.REQUEST_LOGIN)
+            if (resultCode == Activity.RESULT_OK)
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.INTENT_UPDATE_DRAWER));
     }
 
     private void signOut() {

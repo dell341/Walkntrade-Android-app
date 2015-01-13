@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.walkntrade.SchoolPage;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.StatusCodeParser;
 
@@ -19,7 +20,6 @@ import java.io.IOException;
 public class PollMessagesTask extends AsyncTask<Void, Void, Integer> {
 
     private static final String TAG = "PollMessages";
-    public static final String INTENT_UPDATE_UNREAD_MESSAGE = "com.walkntrade.asynctasks.PollMessagesTask";
     private Context context;
     private int lastMessageValue;
 
@@ -47,7 +47,7 @@ public class PollMessagesTask extends AsyncTask<Void, Void, Integer> {
         if(serverResponse == StatusCodeParser.STATUS_OK) {
             //Only update visible unread message amounts if it has changed
             if(lastMessageValue != DataParser.getSharedIntPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_MESSAGES))
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(INTENT_UPDATE_UNREAD_MESSAGE));
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.INTENT_UPDATE_DRAWER));
         }
     }
 }

@@ -1,10 +1,13 @@
 package com.walkntrade.asynctasks;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.walkntrade.SchoolPage;
 import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
@@ -38,5 +41,10 @@ public class LogoutTask extends AsyncTask<Void, Void, Void> {
             Log.e(TAG, "Logging out", e);
         }
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.INTENT_UPDATE_DRAWER)); //Update navigation drawer after logging out
     }
 }
