@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -128,6 +129,7 @@ public class MessageConversation extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        new MarkThreadAsRead().execute();
         GcmIntentService.resetNotfCounter(context); //Clears out all message notifications in Status Bar
         DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_DISPLAY_ON, true);
     }
@@ -157,6 +159,9 @@ public class MessageConversation extends Activity {
                 conversationAdapter.addItem(item);
                 conversationAdapter.notifyDataSetChanged();
                 chatList.smoothScrollToPosition(conversationAdapter.getCount() - 1);
+
+                if(DataParser.getSharedBooleanPreference(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_DISPLAY_ON))
+                 new MarkThreadAsRead().execute(); //Mark this thread as read, if this conversation is actively being viewed. But only if the screen currently displaying the app
             }
         }
     };
@@ -299,6 +304,23 @@ public class MessageConversation extends Activity {
             }
 
             conversationAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private class MarkThreadAsRead extends AsyncTask<Void, Void, Integer> {
+
+        @Override
+        protected Integer doInBackground(Void... voids) {
+            DataParser database = new DataParser(context);
+            int serverResponse = StatusCodeParser.CONNECT_FAILED;
+
+            try {
+                serverResponse = database.markThreadAsRead(threadId);
+            } catch (IOException e) {
+                Log.e(TAG, "Marking thread as read", e);
+            }
+
+            return serverResponse;
         }
     }
 

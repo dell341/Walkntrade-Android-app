@@ -91,13 +91,11 @@ public class GcmIntentService extends IntentService {
             //Do not create a notification if the activity is currently being viewed
             if(DataParser.getSharedBooleanPreference(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_DISPLAY_ON))
                 return;
-
         }
         if (!DataParser.getSharedBooleanPreferenceTrueByDefault(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_USER)) //If user does want to receive notifications, do not create a notification
             return;
 
         messageObjects.add(new ChatObject(false, user, contents, dateTime, false, imageUrl));
-
         if(!threadIds.contains(threadId))
             threadIds.add(threadId);
 

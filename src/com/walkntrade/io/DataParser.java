@@ -768,6 +768,28 @@ public class DataParser {
         return serverResponse;
     }
 
+    //Mark thread as read
+    public int markThreadAsRead(String threadId) throws IOException {
+        establishConnection();
+
+        int serverResponse = StatusCodeParser.CONNECT_FAILED;
+        String query = "intent=markThreadAsRead&thread_id="+threadId;
+
+        try {
+            HttpEntity entity = new StringEntity(query);
+            InputStream inputStream = processRequest(entity);
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+
+            serverResponse = jsonObject.getInt(STATUS);
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        } finally {
+            disconnectAll();
+        }
+
+        return serverResponse;
+    }
+
     //Reply to add-on to an existing conversation
     public int appendMessage(String threadId, String message) throws IOException {
         establishConnection();
