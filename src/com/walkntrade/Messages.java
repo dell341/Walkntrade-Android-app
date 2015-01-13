@@ -36,7 +36,6 @@ import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.MessageThread;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,10 +74,9 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         refreshLayout.setOnRefreshListener(this);
 
         threadAdapter = new MessageThreadAdapter(context, R.layout.item_message_thread, new ArrayList<MessageThread>());
-        new PollMessagesTask(this).execute();
         new GetMessagesTask().execute();
-
-        LocalBroadcastManager.getInstance(context).registerReceiver(newMessagesReceiver, new IntentFilter(GcmIntentService.NOTIFICATION_NEW));
+        new PollMessagesTask(context).execute();
+        LocalBroadcastManager.getInstance(context).registerReceiver(newMessagesReceiver, new IntentFilter(GcmIntentService.INTENT_NOTIFICATION_NEW));
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 

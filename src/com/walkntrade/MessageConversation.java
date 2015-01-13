@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.walkntrade.adapters.MessageConversationAdapter;
 import com.walkntrade.adapters.item.ConversationItem;
+import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
@@ -119,7 +120,8 @@ public class MessageConversation extends Activity {
         });
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        LocalBroadcastManager.getInstance(context).registerReceiver(interceptMessageReceiver, new IntentFilter(GcmIntentService.NOTIFICATION_BLOCKED));
+        new PollMessagesTask(context).execute();
+        LocalBroadcastManager.getInstance(context).registerReceiver(interceptMessageReceiver, new IntentFilter(GcmIntentService.INTENT_NOTIFICATION_BLOCKED));
         DataParser.setSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD, threadId); //Set this conversation as active, to disable notifications
     }
 

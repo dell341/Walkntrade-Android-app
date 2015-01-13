@@ -256,7 +256,6 @@ public class PostFragment extends Fragment {
         });
 
         if (DataParser.isUserLoggedIn(context)) { //If user is logged in
-            new PollMessagesTask(context).execute();
             if (thisPost.getUser().equals(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME))) { //If this is the current user's post
                 currentUserPost = true;
                 contact.setText(getString(R.string.edit_post));
@@ -302,7 +301,6 @@ public class PostFragment extends Fragment {
         super.onResume();
 
         if (DataParser.isUserLoggedIn(context)) {
-            new PollMessagesTask(context).execute();
             if (thisPost.getUser().equals(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME))) {
                 currentUserPost = true;
                 contact.setText(getString(R.string.edit_post));

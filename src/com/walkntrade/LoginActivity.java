@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.gcm.GcmRegistration;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
@@ -250,10 +251,10 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         @Override
         protected void onPostExecute(String response) {
             refreshLayout.setRefreshing(false);
-        //    Log.d(TAG, "Login complete");
+            loginError.setVisibility(View.GONE);
 
             if (response.equals(DataParser.LOGIN_SUCCESS)) {
-                loginError.setVisibility(View.GONE);
+                new PollMessagesTask(context).execute(); //Get any of the user's unread messages on log in
                 DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_USER, DataParser.KEY_CURRENTLY_LOGGED_IN, true);
 
                 //Checks if device has the Google Play Services APK
@@ -340,7 +341,6 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
             String key = "background_1";
             String url = context.getResources().getString(R.string.background_image_2);
 
-        //    Log.i(TAG, "Downloading background image");
             DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
             bm = imageCache.getBitmapFromDiskCache(key);
 
@@ -364,7 +364,6 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
 
-        //    Log.i(TAG, "Background image complete");
             if(bitmap != null) {
                 background = bitmap;
                 imageView.setImageBitmap(bitmap);

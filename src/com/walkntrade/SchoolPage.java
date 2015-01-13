@@ -2,14 +2,17 @@ package com.walkntrade;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -68,9 +71,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_school_page);
 
-        if (DataParser.isUserLoggedIn(this))
-            new PollMessagesTask(this).execute();
-
         actionBar = getActionBar();
         context = getApplicationContext();
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -86,6 +86,8 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         if (savedInstanceState != null)
             hasAvatar = true;
 
+        LocalBroadcastManager.getInstance(context).registerReceiver(updateDrawerReceiver, new IntentFilter(PollMessagesTask.INTENT_UPDATE_UNREAD_MESSAGE));
+        new PollMessagesTask(context).execute();
         updateDrawer();
 
         //Retrieve saved avatar image
@@ -150,10 +152,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (DataParser.isUserLoggedIn(context))
-            new PollMessagesTask(this).execute(); //Check for new messages
-
         invalidateOptionsMenu(); //Refreshes the ActionBar menu when activity is resumed
     }
 
@@ -275,6 +273,12 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         super.onBackPressed();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(updateDrawerReceiver);
+    }
+
     @Override //Creates an animated TextView when there is no connection, or for any other error.
     public void hasConnection(boolean isConnected, String message) {
         textView.setText(message);
@@ -300,6 +304,12 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             }
     }
 
+    private BroadcastReceiver updateDrawerReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateDrawer();
+        }
+    };
 
     //Update contents in Navigation Drawer. User logged in/ User not logged in
     private void updateDrawer() {
@@ -338,6 +348,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
                 items.add(new DrawerItem(100 + i, iconResource, categoryName));
             }
+            Log.i(TAG, "Updating view messages");
             items.add(new DrawerItem(200, R.drawable.ic_message, getString(R.string.drawer_messages), DataParser.getSharedIntPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_MESSAGES))); //Messages
             items.add(new DrawerItem(300, R.drawable.ic_account, getString(R.string.drawer_account))); //Account
             items.add(new DrawerItem(400, R.drawable.ic_location, getString(R.string.drawer_change_school))); //Select School

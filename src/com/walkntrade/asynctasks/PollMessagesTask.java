@@ -1,10 +1,13 @@
 package com.walkntrade.asynctasks;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.StatusCodeParser;
 
 import java.io.IOException;
 
@@ -13,29 +16,38 @@ import java.io.IOException;
  * http://walkntrade.com
  */
 
-public class PollMessagesTask extends AsyncTask<Void, Void, String> {
+public class PollMessagesTask extends AsyncTask<Void, Void, Integer> {
 
-    private static final String TAG = "ASYNCTASK:PollMessages";
-
+    private static final String TAG = "PollMessages";
+    public static final String INTENT_UPDATE_UNREAD_MESSAGE = "com.walkntrade.asynctasks.PollMessagesTask";
     private Context context;
+    private int lastMessageValue;
 
     public PollMessagesTask(Context context) {
         this.context = context;
+        lastMessageValue = DataParser.getSharedIntPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_MESSAGES);
     }
 
     @Override
-    protected String doInBackground(Void... params) {
+    protected Integer doInBackground(Void... params) {
         DataParser database = new DataParser(context);
-        String serverResponse = null;
+        int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
         try {
-            serverResponse = database.simpleGetIntent(DataParser.INTENT_GET_NEWMESSAGE);
+            DataParser.ObjectResult<Integer> result = database.getNewMessages();
+            serverResponse = result.getStatus();
         } catch (IOException e) {
             Log.e(TAG, "Polling messages", e);
-        } catch (NumberFormatException e) {
-            Log.e(TAG, "Polling messages", e);
         }
-
         return serverResponse;
+    }
+
+    @Override
+    protected void onPostExecute(Integer serverResponse) {
+        if(serverResponse == StatusCodeParser.STATUS_OK) {
+            //Only update visible unread message amounts if it has changed
+            if(lastMessageValue != DataParser.getSharedIntPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_MESSAGES))
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(INTENT_UPDATE_UNREAD_MESSAGE));
+        }
     }
 }

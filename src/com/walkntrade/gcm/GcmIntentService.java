@@ -7,12 +7,12 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.Html;
 import android.util.Log;
 
 import com.walkntrade.MessageConversation;
@@ -21,6 +21,7 @@ import com.walkntrade.R;
 import com.walkntrade.adapters.item.ConversationItem;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.objects.ChatObject;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -37,8 +38,8 @@ import java.util.ArrayList;
 public class GcmIntentService extends IntentService {
 
     private static final String TAG = "GcmIntentService";
-    public static final String NOTIFICATION_BLOCKED = "com.walkntrade.gcm.gcmintentservice.block";
-    public static final String NOTIFICATION_NEW = "com.walkntrade.gcm.gcmintentservice.new";
+    public static final String INTENT_NOTIFICATION_BLOCKED = "com.walkntrade.gcm.gcmintentservice.block";
+    public static final String INTENT_NOTIFICATION_NEW = "com.walkntrade.gcm.gcmintentservice.new";
     public static final int NOTIFICATION_ID = 1;
 
     private static ArrayList<String> threadIds = new ArrayList<String>();
@@ -52,16 +53,15 @@ public class GcmIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Bundle extras = intent.getExtras();
-
         //GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
         //String messageType = gcm.getMessageType(intent);
 
         //If user is not logged, do not continue.
-        if (!DataParser.isUserLoggedIn(this))
+        if (!DataParser.isUserLoggedIn(getApplicationContext()))
             return;
 
         if (!extras.isEmpty()) {
-            new PollMessagesTask(getApplicationContext()).execute(); //Poll new message, when this message arrived.
+            new PollMessagesTask(getApplicationContext()).execute(); //Look for new messages, when this message arrives.
             Log.v(TAG, "GCM-Push: "+extras.toString());
 
             String threadId = extras.getString("id");
@@ -80,23 +80,19 @@ public class GcmIntentService extends IntentService {
     //Put the received message into a notification
     private void sendNotification(String threadId, String user, String subject, String contents, String dateTime, String imageUrl) {
         //Update all messages list
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(NOTIFICATION_NEW));
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(INTENT_NOTIFICATION_NEW));
 
         //Send the message to the active conversation the user viewing
-        if(threadId.equals(DataParser.getSharedStringPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD))) {
-            Intent test = new Intent(NOTIFICATION_BLOCKED);
+        if(threadId.equals(DataParser.getSharedStringPreference(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD))) {
+            Intent test = new Intent(INTENT_NOTIFICATION_BLOCKED);
             test.putExtra(MessageConversation.LIST_CONVERSATION, new ConversationItem(user, contents, dateTime.replace('/','-'), imageUrl, false, false));
-            LocalBroadcastManager.getInstance(this).sendBroadcast(test);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(test);
 
             //Do not create a notification if the activity is currently being viewed
-            if(DataParser.getSharedBooleanPreference(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_DISPLAY_ON))
+            if(DataParser.getSharedBooleanPreference(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_DISPLAY_ON))
                 return;
 
         }
-
-        //Increments amount of unread messages
-        DataParser.setSharedIntPreferences(this, DataParser.PREFS_USER, DataParser.KEY_USER_MESSAGES, ++numOfMessages);
-
         if (!DataParser.getSharedBooleanPreferenceTrueByDefault(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_USER)) //If user does want to receive notifications, do not create a notification
             return;
 
@@ -106,14 +102,14 @@ public class GcmIntentService extends IntentService {
             threadIds.add(threadId);
 
         Intent showMessage;
-        Intent notfBroadcast = new Intent(this, NotificationBroadcastReceiver.class);
+        Intent notfBroadcast = new Intent(getApplicationContext(), NotificationBroadcastReceiver.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this); //Allows parent navigation after opening the app from the notification
 
         if(threadIds.size() > 1) {//If there are more than one conversations in the notification. Go to messages list, not individual message
-            showMessage = new Intent(this, Messages.class);
+            showMessage = new Intent(getApplicationContext(), Messages.class);
             stackBuilder.addParentStack(Messages.class);
         } else { //Else go straight to the individual message
-            showMessage = new Intent(this, MessageConversation.class);
+            showMessage = new Intent(getApplicationContext(), MessageConversation.class);
             stackBuilder.addParentStack(MessageConversation.class);
         }
 
@@ -130,14 +126,28 @@ public class GcmIntentService extends IntentService {
         builder.setSmallIcon(R.drawable.walkntrade_icon)
                 .setContentTitle(getApplicationContext().getString(R.string.notification_from) + " " + user)
                 .setContentText(contents)
-                .setContentInfo(numOfMessages + "")
+                .setContentInfo(++numOfMessages + "") //Increment then add new messages amount
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
         try {
-            builder.setLargeIcon(DataParser.loadOptBitmap(imageUrl, largeIconWidth, largeIconHeight));
+            DiskLruImageCache imageCache = new DiskLruImageCache(getApplicationContext(), DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
+            String[] splitURL = imageUrl.split("_");
+            String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+            splitURL = key.split("\\.");
+            key = splitURL[0];
+
+            Bitmap userBitmap = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
+
+            if (userBitmap == null)//If it doesn't exists, retrieve image from network
+                userBitmap = DataParser.loadOptBitmap(imageUrl, largeIconWidth, largeIconHeight);
+
+            if(userBitmap != null)
+                builder.setLargeIcon(userBitmap);
         } catch (IOException e) {
-            Log.d(TAG, "Could not load notification icon", e);
+            Log.e(TAG, "Could not load notification icon", e);
+        } catch (ArrayIndexOutOfBoundsException e1) {
+            Log.e(TAG, "User url not standard", e1);
         }
 
         //Set big view if more than one notification has been received
@@ -162,13 +172,13 @@ public class GcmIntentService extends IntentService {
         }
 
         boolean hasSound = false;
-        boolean vibrate = DataParser.getSharedBooleanPreferenceTrueByDefault(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_VIBRATE);
-        boolean showLight = DataParser.getSharedBooleanPreferenceTrueByDefault(this, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_LIGHT);
+        boolean vibrate = DataParser.getSharedBooleanPreferenceTrueByDefault(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_VIBRATE);
+        boolean showLight = DataParser.getSharedBooleanPreferenceTrueByDefault(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_LIGHT);
 
-        String sound = DataParser.getSoundPref(this);
+        String sound = DataParser.getSoundPref(getApplicationContext());
         if (sound != null) {
             hasSound = true;
-            builder.setSound(Uri.parse(DataParser.getSoundPref(this)));
+            builder.setSound(Uri.parse(DataParser.getSoundPref(getApplicationContext())));
         }
 
         if (!hasSound) {

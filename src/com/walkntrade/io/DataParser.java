@@ -109,7 +109,6 @@ public class DataParser {
     //Server commands & intent names
     public static final String INTENT_GET_EMAILPREF = "getEmailPref";
     public static final String INTENT_GET_PHONENUM = "getPhoneNum";
-    public static final String INTENT_GET_NEWMESSAGE = "pollNewWebmail";
 
     private AndroidHttpClient httpClient; //Android Client, Uses User-Agent, and executes request
     private HttpContext httpContext; //Contains CookieStore that is sent along with request
@@ -558,9 +557,12 @@ public class DataParser {
     }
 
     public ObjectResult<Integer> getNewMessages() throws IOException {
-        establishConnection();
-
         ObjectResult<Integer> result = new ObjectResult<Integer>(StatusCodeParser.CONNECT_FAILED, null);
+
+        if(!isUserLoggedIn(context)) //If user is not logged in, do attempt to poll new messages.
+            return result;
+
+        establishConnection();
         String query = "intent=hasNewMessages";
 
         try {
@@ -569,7 +571,9 @@ public class DataParser {
             JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
             int requestStatus = jsonObject.getInt(STATUS);
 
-            result = new ObjectResult<Integer>(requestStatus, jsonObject.getInt(MESSAGE));
+            int messages = jsonObject.getInt(MESSAGE);
+            Log.d(TAG, "Messages: "+messages);
+            result = new ObjectResult<Integer>(requestStatus, messages);
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
         } finally {
@@ -671,9 +675,6 @@ public class DataParser {
     public String simpleGetIntent(String intentValue) throws IOException {
         establishConnection();
 
-        if(intentValue.equals(INTENT_GET_NEWMESSAGE))
-            return "0";
-
         String query = "intent=" + intentValue;
         String serverResponse = null;
 
@@ -687,8 +688,6 @@ public class DataParser {
 
         if (intentValue.equals(INTENT_GET_PHONENUM))
             setSharedStringPreference(context, PREFS_USER, KEY_USER_PHONE, serverResponse); //Stores phone number locally to device
-        else if (intentValue.equals(INTENT_GET_NEWMESSAGE))
-            setSharedIntPreferences(context, PREFS_USER, KEY_USER_MESSAGES, Integer.parseInt(serverResponse)); //Stores amount of unread messages here
         else if (intentValue.equals(INTENT_GET_EMAILPREF))
             setSharedStringPreference(context, PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, serverResponse); //Stores email contact preference
         else
