@@ -127,12 +127,11 @@ public class EditPost extends Activity implements View.OnClickListener {
         image4.getLayoutParams().width = (int) (displayMetrics.widthPixels * .50);
 
         progressDialog = new ProgressDialog(this);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setProgressNumberFormat(null);
         progressDialog.setProgressPercentFormat(null);
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.setMax(100);
 
         if (savedInstanceState != null) {
             image1.setImageResource(R.drawable.ic_action_new_picture);
@@ -861,7 +860,6 @@ public class EditPost extends Activity implements View.OnClickListener {
             String[] responses = new String[4];
 
             try {
-                progressDialog.setProgress(60);
                 //Add any images with photo paths. Pictures taken with the device's camera
                 for (int i = 0; i < photoPaths.length; i++) {
                     if (photoPaths[i] != null && !photoPaths[i].isEmpty()) {
@@ -932,7 +930,6 @@ public class EditPost extends Activity implements View.OnClickListener {
 
         @Override
         protected void onPostExecute(String[] responses) {
-            progressDialog.setProgress(100);
             progressDialog.setMessage(context.getString(R.string.done));
             progressDialog.cancel();
 

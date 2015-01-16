@@ -121,12 +121,11 @@ public class AddPost extends Activity implements OnClickListener {
         horizontalScrollView.addItems(views);
 
         progressDialog = new ProgressDialog(this);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setProgressNumberFormat(null);
         progressDialog.setProgressPercentFormat(null);
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.setMax(100);
 
         if(savedInstanceState != null) {
             int width = (int) context.getResources().getDimension(R.dimen.photo_width);
@@ -721,7 +720,6 @@ public class AddPost extends Activity implements OnClickListener {
 
         @Override
         protected void onPostExecute(String[] responses) {
-            progressDialog.setProgress(100);
             progressDialog.setMessage(context.getString(R.string.done));
             progressDialog.cancel();
 
