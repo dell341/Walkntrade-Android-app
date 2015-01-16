@@ -4,15 +4,6 @@
     android:layout_height="match_parent"
     tools:context=".RegistrationActivity">
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/progress_bar_margin_top"
-        android:indeterminate="true"
-        android:visibility="invisible" />
-
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
@@ -69,15 +60,31 @@
                 android:layout_margin="20dp"
                 android:hint="@string/register_password_verf"
                 android:inputType="textPassword" />
-
-            <Button
-                android:id="@+id/submit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginLeft="45dp"
-                android:layout_marginRight="45dp"
                 android:text="@string/register" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <!-- ProgressBar that is next to submit button-->
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    style="?android:attr/progressBarStyleInverse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toLeftOf="@+id/submit"
+                    android:layout_toStartOf="@+id/submit"
+                    android:visibility="invisible" />
+
+                <Button
+                    android:id="@+id/submit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:paddingLeft="45dp"
+                    android:paddingRight="45dp"
+                    android:text="@string/register" />
+            </RelativeLayout>
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

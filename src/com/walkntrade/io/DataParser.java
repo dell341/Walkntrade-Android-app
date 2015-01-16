@@ -404,10 +404,10 @@ public class DataParser {
     }
 
     //Requirement check for registration
-    public boolean isUserNameFree(String username) throws IOException {
+    public int isUserNameFree(String username) throws IOException {
         establishConnection();
 
-        String query = "intent=checkUserName&username=" + username;
+        String query = "intent=checkUsername&username=" + username;
         int requestStatus = StatusCodeParser.CONNECT_FAILED;
 
         try {
@@ -422,24 +422,33 @@ public class DataParser {
             disconnectAll();
         }
 
-        return requestStatus == StatusCodeParser.STATUS_OK; //If request status is 200, then username is available
+        return requestStatus;
     }
 
     //Attempts to register User account into server
-    public String registerUser(String username, String email, String password, String phoneNum) throws IOException {
+    public ObjectResult<String> registerUser(String username, String email, String password, String phoneNum) throws IOException {
         establishConnection();
 
         String query = "intent=addUser&username=" + username + "&email=" + email + "&password=" + password + "&phone" + phoneNum;
-        String serverResponse = null;
+        ObjectResult<String> result = new ObjectResult<String>(StatusCodeParser.CONNECT_FAILED, null);
 
         try {
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inputStream = processRequest(entity);
-            serverResponse = readInputAsString(inputStream); //Reads message response from server
+
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+            int status = jsonObject.getInt(STATUS);
+            String message = jsonObject.getString(MESSAGE);
+
+            result = new ObjectResult<String>(status, message);
+
+        } catch (JSONException e) {
+          Log.e(TAG, "Parsing JSON", e);
         } finally {
             disconnectAll();
         }
-        return serverResponse;
+
+        return result;
     }
 
     //Resets user's password

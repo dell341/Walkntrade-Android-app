@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.StatusCodeParser;
 
 import java.io.IOException;
 
@@ -38,6 +39,7 @@ public class RegistrationActivity extends Activity {
     private TextView error;
     private EditText userName, email, phoneNumber, password, passwordVerf;
     private String _userName, _email, _phoneNumber, _password, _passwordVerf;
+    private Button submit;
     private Context context;
 
     @Override
@@ -54,9 +56,9 @@ public class RegistrationActivity extends Activity {
         phoneNumber = (EditText) findViewById(R.id.register_phoneNum);
         password = (EditText) findViewById(R.id.register_password);
         passwordVerf = (EditText) findViewById(R.id.register_password_verf);
-        Button submitButton = (Button) findViewById(R.id.submit);
+        submit = (Button) findViewById(R.id.submit);
 
-        submitButton.setOnClickListener(new OnClickListener() {
+        submit.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 error.setVisibility(View.GONE);
@@ -127,6 +129,11 @@ public class RegistrationActivity extends Activity {
             canRegister = false;
         }
 
+        if(!_email.contains(".edu")) {
+            email.setError(getString(R.string.error_email_edu));
+            canRegister = false;
+        }
+
         if(_phoneNumber.length() != 10 && _phoneNumber.length() != 0) {
             phoneNumber.setError(getString(R.string.error_phoneNum));
             canRegister = false;
@@ -151,45 +158,47 @@ public class RegistrationActivity extends Activity {
         return canRegister;
     }
 
-    private class RegistrationTask extends AsyncTask<Void, Void, String> {
+    private class RegistrationTask extends AsyncTask<Void, Void, DataParser.ObjectResult<String>> {
 
         private boolean userNameTaken;
 
         @Override
         protected void onPreExecute() {
             progressBar.setVisibility(View.VISIBLE);
+            submit.setEnabled(false);
         }
 
         @Override
-        protected String doInBackground(Void... voids) {
+        protected DataParser.ObjectResult<String> doInBackground(Void... voids) {
             userNameTaken = false;
             DataParser database = new DataParser(context);
 
-            String response = null;
+            DataParser.ObjectResult<String> serverResult = null;
             try {
-                if(!database.isUserNameFree(_userName)) {
+                if(database.isUserNameFree(_userName) != StatusCodeParser.STATUS_OK) {
                     userNameTaken = true;
                     return null;
                 }
-                response = database.registerUser(_userName, _email, _password, _phoneNumber); //Sends request to register user
+                serverResult = database.registerUser(_userName, _email, _password, _phoneNumber); //Sends request to register user
             } catch (IOException e) {
                 Log.e(TAG, "Registering user", e);
             }
-            return response;
+            return serverResult;
         }
 
         @Override
-            protected void onPostExecute(String response) {
+            protected void onPostExecute(DataParser.ObjectResult<String> serverResult) {
             progressBar.setVisibility(View.INVISIBLE);
+            submit.setEnabled(true);
 
             if(userNameTaken) { //If username is taken set error as so in the RegistrationActivity
                 error.setText(context.getString(R.string.error_username_taken));
                 error.setVisibility(View.VISIBLE);
                 scrollView.fullScroll(View.FOCUS_UP);
             }
-            else {
-                if(response.equals("3")) { //If email is already taken set error as so
-                    error.setText(context.getString(R.string.error_email_taken));
+            else if (serverResult != null) {
+                if(serverResult.getStatus() != StatusCodeParser.STATUS_OK) { //If email is already taken set error as so
+                    error.setText(serverResult.getObject());
                     error.setVisibility(View.VISIBLE);
                     scrollView.fullScroll(View.FOCUS_UP);
                 }
