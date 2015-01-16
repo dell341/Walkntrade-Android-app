@@ -17,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -122,7 +121,7 @@ public class MessageConversation extends Activity {
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
         new PollMessagesTask(context).execute();
-        LocalBroadcastManager.getInstance(context).registerReceiver(interceptMessageReceiver, new IntentFilter(GcmIntentService.INTENT_NOTIFICATION_BLOCKED));
+        LocalBroadcastManager.getInstance(context).registerReceiver(interceptMessageReceiver, new IntentFilter(GcmIntentService.ACTION_NOTIFICATION_BLOCKED));
         DataParser.setSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD, threadId); //Set this conversation as active, to disable notifications
     }
 

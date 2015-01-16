@@ -45,8 +45,8 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
     private static final String SAVED_BACKGROUND = "background_image";
     private static final int REQUEST_RESOLUTION = 9000;
     private static final int REQUEST_VERIFY = 100;
-    public static final int REQUEST_LOGIN = 200;
-    private static final int REQUEST_RESET = 300;
+    public static final int REQUEST_LOGIN = 101;
+    private static final int REQUEST_RESET = 102;
 
     private SwipeRefreshLayout refreshLayout;
     private TextView loginError, resetPassword;

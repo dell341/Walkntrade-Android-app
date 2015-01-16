@@ -38,8 +38,8 @@ import java.util.ArrayList;
 public class GcmIntentService extends IntentService {
 
     private static final String TAG = "GcmIntentService";
-    public static final String INTENT_NOTIFICATION_BLOCKED = "com.walkntrade.gcm.gcmintentservice.block";
-    public static final String INTENT_NOTIFICATION_NEW = "com.walkntrade.gcm.gcmintentservice.new";
+    public static final String ACTION_NOTIFICATION_BLOCKED = "com.walkntrade.gcm.gcmintentservice.block";
+    public static final String ACTION_NOTIFICATION_NEW = "com.walkntrade.gcm.gcmintentservice.new";
     public static final int NOTIFICATION_ID = 1;
 
     private static ArrayList<String> threadIds = new ArrayList<String>();
@@ -80,11 +80,11 @@ public class GcmIntentService extends IntentService {
     //Put the received message into a notification
     private void sendNotification(String threadId, String user, String subject, String contents, String dateTime, String imageUrl) {
         //Update all messages list
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(INTENT_NOTIFICATION_NEW));
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(ACTION_NOTIFICATION_NEW));
 
         //Send the message to the active conversation the user viewing
         if(threadId.equals(DataParser.getSharedStringPreference(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD))) {
-            Intent test = new Intent(INTENT_NOTIFICATION_BLOCKED);
+            Intent test = new Intent(ACTION_NOTIFICATION_BLOCKED);
             test.putExtra(MessageConversation.LIST_CONVERSATION, new ConversationItem(user, contents, dateTime.replace('/','-'), imageUrl, false, false));
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(test);
 

@@ -54,7 +54,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     private final String TAG = "SchoolPage";
     private static final String SAVED_AVATAR_IMAGE = "saved_instance_avatar";
     public static final String SELECTED_POST = "Selected_Post";
-    public static final String INTENT_UPDATE_DRAWER = "com.walkntrade.SchoolPage.update_drawer";
+    public static final String ACTION_UPDATE_DRAWER = "com.walkntrade.SchoolPage.update_drawer";
 
     private DrawerLayout mDrawerLayout;
     private ListView navigationDrawerList;
@@ -87,7 +87,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         if (savedInstanceState != null)
             hasAvatar = true;
 
-        LocalBroadcastManager.getInstance(context).registerReceiver(updateDrawerReceiver, new IntentFilter(INTENT_UPDATE_DRAWER));
+        LocalBroadcastManager.getInstance(context).registerReceiver(schoolPageUpdateReceiver, new IntentFilter(ACTION_UPDATE_DRAWER));
         new PollMessagesTask(context).execute();
         updateDrawer();
 
@@ -277,7 +277,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(updateDrawerReceiver);
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(schoolPageUpdateReceiver);
     }
 
     @Override //Creates an animated TextView when there is no connection, or for any other error.
@@ -297,16 +297,20 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //If user logs in, update the navigation drawer
-        if (requestCode == LoginActivity.REQUEST_LOGIN)
-            if (resultCode == Activity.RESULT_OK)
-                updateDrawer();
+
+        switch (requestCode) {
+            case LoginActivity.REQUEST_LOGIN:
+                //If user logs in, update the navigation drawer
+                if(resultCode == Activity.RESULT_OK)
+                    updateDrawer(); break;
+        }
     }
 
-    private BroadcastReceiver updateDrawerReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver schoolPageUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateDrawer();
+            if(intent.getAction() .equals(ACTION_UPDATE_DRAWER))
+                updateDrawer();
         }
     };
 
@@ -376,7 +380,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
                 Intent addPostIntent = new Intent(this, AddPost.class);
                 String category = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_ID + (castedId - 100));
                 addPostIntent.putExtra(AddPost.CATEGORY_NAME, category);
-                startActivity(addPostIntent);
+                startActivityForResult(addPostIntent, AddPost.REQUEST_ADD_POST);
                 break; //Add Post
             case 200:
                 Intent getMessageIntent = new Intent(this, Messages.class);

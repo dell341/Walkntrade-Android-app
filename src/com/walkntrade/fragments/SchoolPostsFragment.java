@@ -2,10 +2,13 @@ package com.walkntrade.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.walkntrade.AddPost;
 import com.walkntrade.R;
 import com.walkntrade.SchoolPage;
 import com.walkntrade.SearchActivity;
@@ -45,6 +49,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
     private String TAG = "FRAGMENT:School_Page";
     public static final String ARG_CATEGORY = "Fragment Category";
     public static final String INDEX = "index";
+    public static final String ACTION_UPDATE_POSTS = "com.walkntrade.fragments.SchoolPostsFragment.update_posts";
     private String category;
 
     private static final String SAVED_ARRAYLIST = "saved_instance_array_list";
@@ -202,15 +207,43 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement ConnectionFailedListener");
         }
-
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //Unregister when fragment is visible, because it only needs to be update it's not visible (Adding/Editing a post)
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(updatePostsReceiver);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(context).registerReceiver(updatePostsReceiver, new IntentFilter(ACTION_UPDATE_POSTS));
+    }
+
+    private BroadcastReceiver updatePostsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String intentCategoryName = intent.getStringExtra(AddPost.CATEGORY_NAME);
+            if((intentCategoryName != null && category.equals(intentCategoryName)) || category.equals(context.getString(R.string.server_category_all))) {
+                //Equivalent of onRefresh()
+                refreshLayout.setEnabled(false);
+                offset = 0;
+                shouldClearContents = true;
+
+                bigProgressBar.setVisibility(View.VISIBLE);
+                downloadMorePosts(bigProgressBar);
+            }
+        }
+    };
 
     //Download more posts from the server
     private void downloadMorePosts(ProgressBar progress) {
         noResults.setVisibility(View.INVISIBLE);
         swipeToRefresh.setVisibility(View.GONE);
         schoolPostsTask = new SchoolPostsTask(progress);
-        schoolPostsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(getActivity(), DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
+        schoolPostsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
     }
 
     //Set to false if the server returned an empty list

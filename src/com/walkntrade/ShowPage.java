@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -141,7 +140,7 @@ public class ShowPage extends Activity implements PostFragment.ContactUserListen
         //If user logs in, update the navigation drawer
         if (requestCode == LoginActivity.REQUEST_LOGIN)
             if (resultCode == Activity.RESULT_OK)
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.INTENT_UPDATE_DRAWER));
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.ACTION_UPDATE_DRAWER));
     }
 
     private void signOut() {

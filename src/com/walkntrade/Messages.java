@@ -76,7 +76,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         threadAdapter = new MessageThreadAdapter(context, R.layout.item_message_thread, new ArrayList<MessageThread>());
         new GetMessagesTask().execute();
         new PollMessagesTask(context).execute();
-        LocalBroadcastManager.getInstance(context).registerReceiver(newMessagesReceiver, new IntentFilter(GcmIntentService.INTENT_NOTIFICATION_NEW));
+        LocalBroadcastManager.getInstance(context).registerReceiver(newMessagesReceiver, new IntentFilter(GcmIntentService.ACTION_NOTIFICATION_NEW));
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 

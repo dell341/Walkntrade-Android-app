@@ -15,6 +15,7 @@ import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -32,6 +33,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.walkntrade.fragments.SchoolPostsFragment;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.ImageTool;
 import com.walkntrade.views.SimpleProgressDialog;
@@ -58,6 +60,7 @@ public class AddPost extends Activity implements OnClickListener {
     private static final String SAVED_IMAGE_PATHS = "saved_instance_image_paths";
     private static final String SAVED_IMAGE_URIS = "saved_instance_image_uri";
     public static final String CATEGORY_NAME = "category_name";
+    public static final int REQUEST_ADD_POST = 200;
     //public static final String CATEGORY_POSITION = "category_position";
 
     private static final int CAPTURE_IMAGE_ONE = 100;
@@ -669,13 +672,16 @@ public class AddPost extends Activity implements OnClickListener {
 
         @Override
         protected void onPostExecute(String identifier) {
-            progressDialog.setProgress(50);
             if(identifier == null || identifier.isEmpty()) {
                 Toast.makeText(context, "Could not submit post", Toast.LENGTH_SHORT).show();
                 scrollView.fullScroll(View.FOCUS_UP);
             }
-            else
+            else {
                 new AddImagesTask().execute(identifier);
+                Intent intent = new Intent(SchoolPostsFragment.ACTION_UPDATE_POSTS);
+                intent.putExtra(CATEGORY_NAME, selectedCategory);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent); //Update post list if this successfully post was added
+            }
         }
     }
 

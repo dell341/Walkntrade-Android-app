@@ -47,7 +47,7 @@ public class PollMessagesTask extends AsyncTask<Void, Void, Integer> {
         if(serverResponse == StatusCodeParser.STATUS_OK) {
             //Only update visible unread message amounts if it has changed
             if(lastMessageValue != DataParser.getSharedIntPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_MESSAGES))
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.INTENT_UPDATE_DRAWER));
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.ACTION_UPDATE_DRAWER));
         }
     }
 }

@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -33,6 +34,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.walkntrade.fragments.SchoolPostsFragment;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ImageTool;
@@ -827,7 +829,6 @@ public class EditPost extends Activity implements View.OnClickListener {
             int requestStatus = StatusCodeParser.CONNECT_FAILED;
 
             try {
-                progressDialog.setProgress(10);
                 requestStatus = database.editPost(schoolId, identifier, title.getText().toString(),details.getText().toString(),price.getText().toString(),  tags.getText().toString());
             } catch (IOException e) {
                 Log.e(TAG, "Editing Post", e);
@@ -838,8 +839,13 @@ public class EditPost extends Activity implements View.OnClickListener {
 
         @Override
         protected void onPostExecute(Integer integer) {
-            progressDialog.setProgress(50);
-            new AddImagesTask().execute();
+
+            if(integer == StatusCodeParser.STATUS_OK) {
+                new AddImagesTask().execute();
+                Intent intent = new Intent(SchoolPostsFragment.ACTION_UPDATE_POSTS);
+                intent.putExtra(AddPost.CATEGORY_NAME, selectedCategory);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent); //Update post list if this successfully post was added
+            }
         }
     }
 
