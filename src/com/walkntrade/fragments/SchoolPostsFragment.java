@@ -208,7 +208,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         downloadMorePosts(bigProgressBar);
     }
 
-    /*Not needed now because Fragment uses setRetainState(true)*/
+    /*Not needed now because Fragment uses setRetainInstance(true)*/
 //    @Override
 //    public void onSaveInstanceState(Bundle outState) {
 //        super.onSaveInstanceState(outState);

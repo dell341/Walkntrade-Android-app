@@ -45,6 +45,8 @@ public class ContactUserFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_contact_user, container, false);
 
+        setRetainInstance(true);
+
         thisPost = getArguments().getParcelable(SchoolPage.SELECTED_POST);
         context = getActivity().getApplicationContext();
 
