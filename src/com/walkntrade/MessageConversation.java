@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.walkntrade.adapters.MessageConversationAdapter;
 import com.walkntrade.adapters.item.ConversationItem;
@@ -31,6 +32,7 @@ import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ObjectResult;
+import com.walkntrade.io.SendMessageService;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.ChatObject;
 
@@ -53,6 +55,7 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
     public static final String LIST_CONVERSATION = "extra_arraylist_conversation";
     public static final String THREAD_ID = "id_of_current_message_thread";
     public static final String POST_TITLE = "title_of_current_post";
+
 
     private Context context;
     private ProgressBar progressBar;
@@ -132,12 +135,32 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
                 //Hide keyboard if send button was pressed
                 InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputMethodManager.hideSoftInputFromWindow(newMessage.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                new AppendMessageTask(newMessage.getText().toString()).execute();
+
+                send.setVisibility(View.GONE);
+                String messageContents = newMessage.getText().toString();
+                ConversationItem newConversationItem = new ConversationItem(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), messageContents, "just now", DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL),true, true);
+                conversationAdapter.addItem(newConversationItem);
+                conversationAdapter.notifyDataSetChanged();
+                new UserAvatarRetrievalTask(newConversationItem).execute();
+
+                newMessage.setText("");
+                chatList.smoothScrollToPosition(conversationAdapter.getCount() - 1);
+                Intent appendMessage = new Intent(MessageConversation.this, SendMessageService.class);
+                appendMessage.setAction(SendMessageService.ACTION_APPEND_MESSAGE_THREAD);
+                appendMessage.putExtra(SendMessageService.EXTRA_THREAD_ID, threadId);
+                appendMessage.putExtra(SendMessageService.EXTRA_MESSAGE_CONTENTS, messageContents);
+                appendMessage.putExtra(SendMessageService.EXTRA_CONVERSATION_ITEM_INDEX, conversationAdapter.getIndexOfItem(newConversationItem));
+                startService(appendMessage);
+
+                send.setVisibility(View.VISIBLE);
             }
         });
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        LocalBroadcastManager.getInstance(context).registerReceiver(interceptMessageReceiver, new IntentFilter(GcmIntentService.ACTION_NOTIFICATION_BLOCKED));
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(GcmIntentService.ACTION_NOTIFICATION_BLOCKED);
+        filter.addAction(SendMessageService.ACTION_APPEND_MESSAGE_THREAD);
+        LocalBroadcastManager.getInstance(context).registerReceiver(messageConversationReceiver, filter);
         DataParser.setSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD, threadId); //Set this conversation as active, to disable notifications
     }
 
@@ -158,25 +181,46 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
     @Override
     protected void onDestroy() {
         DataParser.setSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD, null);
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(interceptMessageReceiver);
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(messageConversationReceiver);
         super.onDestroy();
     }
 
-    private BroadcastReceiver interceptMessageReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver messageConversationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            ConversationItem item = intent.getParcelableExtra(LIST_CONVERSATION);
 
-            if(conversationAdapter == null)
-                Log.w(TAG, "Conversation Adapter is null");
-            else {
-                new UserAvatarRetrievalTask(item).execute();
-                conversationAdapter.addItem(item);
+            if(intent.getAction().equals(GcmIntentService.ACTION_NOTIFICATION_BLOCKED)) { //Intercepting messages on an active chat thread
+                ConversationItem item = intent.getParcelableExtra(LIST_CONVERSATION);
+
+                if (conversationAdapter == null)
+                    Log.w(TAG, "Conversation Adapter is null");
+                else {
+                    new UserAvatarRetrievalTask(item).execute();
+                    conversationAdapter.addItem(item);
+                    conversationAdapter.notifyDataSetChanged();
+                    chatList.smoothScrollToPosition(conversationAdapter.getCount() - 1);
+
+                    if (DataParser.getSharedBooleanPreference(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_DISPLAY_ON))
+                        new MarkThreadAsRead().execute(); //Mark this thread as read, if this conversation is actively being viewed. But only if the screen currently displaying the app
+                }
+            }
+           else if(intent.getAction().equals(SendMessageService.ACTION_APPEND_MESSAGE_THREAD)) {
+                int serverResponse = intent.getIntExtra(SendMessageService.EXTRA_SERVER_RESPONSE, StatusCodeParser.CONNECT_FAILED);
+                int itemIndex = intent.getIntExtra(SendMessageService.EXTRA_CONVERSATION_ITEM_INDEX, -1);
+
+                if(itemIndex == -1) {
+                    Toast.makeText(context, context.getString(R.string.error_email_edu), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                ConversationItem conversationItem = conversationAdapter.getItem(itemIndex);
+
+                if(serverResponse == StatusCodeParser.STATUS_OK)
+                    conversationItem.messageDelivered();
+                else
+                    conversationItem.messageFailedToDeliver(StatusCodeParser.getStatusString(context, serverResponse));
+
                 conversationAdapter.notifyDataSetChanged();
-                chatList.smoothScrollToPosition(conversationAdapter.getCount() - 1);
-
-                if(DataParser.getSharedBooleanPreference(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_DISPLAY_ON))
-                 new MarkThreadAsRead().execute(); //Mark this thread as read, if this conversation is actively being viewed. But only if the screen currently displaying the app
             }
         }
     };

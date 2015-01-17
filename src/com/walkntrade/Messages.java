@@ -79,6 +79,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         messageList = (ListView) findViewById(R.id.messageList);
         messageList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         messageList.setMultiChoiceModeListener(new MultiChoiceListener());
+        messageList.setOnItemClickListener(this);
 
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
@@ -324,7 +325,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             } else {
                 threadAdapter = new MessageThreadAdapter(context, messageThreads);
                 messageList.setAdapter(threadAdapter);
-                messageList.setOnItemClickListener(Messages.this);
 
                 for (MessageThread m : messageThreads)
                     new UserAvatarRetrievalTask(m).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m.getUserImageUrl());

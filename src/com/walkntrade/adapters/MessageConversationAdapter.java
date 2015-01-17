@@ -58,6 +58,10 @@ public class MessageConversationAdapter extends BaseAdapter {
         return items.get(i);
     }
 
+    public int getIndexOfItem(ConversationItem item) {
+        return items.indexOf(item);
+    }
+
     @Override
     public long getItemId(int i) {
         return 0;

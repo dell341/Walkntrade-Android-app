@@ -37,7 +37,6 @@ import java.io.IOException;
 public class ContactUserFragment extends Fragment {
 
     private static final String TAG = "ContactUser";
-    public static final String EXTRA_SERVER_RESPONSE = "com.walkntrade.fragments.server_response";
 
     private Context context;
     private Post thisPost;
@@ -147,7 +146,7 @@ public class ContactUserFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals(SendMessageService.ACTION_CREATE_MESSAGE_THREAD)) {
-                int serverResponse = intent.getIntExtra(EXTRA_SERVER_RESPONSE, StatusCodeParser.CONNECT_FAILED);
+                int serverResponse = intent.getIntExtra(SendMessageService.EXTRA_SERVER_RESPONSE, StatusCodeParser.CONNECT_FAILED);
 
                 if(serverResponse == StatusCodeParser.STATUS_OK){
                     messageFeedback.setTextColor(getResources().getColor(R.color.holo_blue));

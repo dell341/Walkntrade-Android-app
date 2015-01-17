@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.walkntrade.MessageConversation;
 import com.walkntrade.fragments.ContactUserFragment;
 
 import java.io.IOException;
@@ -23,8 +24,10 @@ public class SendMessageService extends IntentService {
     public static final String ACTION_CREATE_MESSAGE_THREAD = "com.walkntrade.io.create_message";
     public static final String ACTION_APPEND_MESSAGE_THREAD = "com.walkntrade.io.append_message";
 
+    public static final String EXTRA_SERVER_RESPONSE = "com.walkntrade.io.server_response";
     public static final String EXTRA_POST_OBSID = "com.walkntrade.io.post_obsid";
     public static final String EXTRA_THREAD_ID = "com.walkntrade.io.thread_id";
+    public static final String EXTRA_CONVERSATION_ITEM_INDEX = "com.walkntrade.io.conversation_index";
     public static final String EXTRA_MESSAGE_CONTENTS = "com.walkntrade.io.message_contents";
 
     private static final String TAG = "SendMessageService";
@@ -45,13 +48,14 @@ public class SendMessageService extends IntentService {
             } else if (ACTION_APPEND_MESSAGE_THREAD.equals(action)) {
                 final String threadId = intent.getStringExtra(EXTRA_THREAD_ID);
                 final String messageContents = intent.getStringExtra(EXTRA_MESSAGE_CONTENTS);
+                final int itemIndex = intent.getIntExtra(EXTRA_CONVERSATION_ITEM_INDEX, -1);
+                appendMessageThread(threadId, messageContents, itemIndex);
             }
         }
     }
 
     private void createMessageThread(String obsId, String messageContents) {
         DataParser database = new DataParser(getApplicationContext());
-
         Integer serverResponse = StatusCodeParser.CONNECT_FAILED;
 
         try {
@@ -60,12 +64,24 @@ public class SendMessageService extends IntentService {
             Log.e(TAG, "Messaging user", e);
         } finally {
             Intent intent = new Intent(ACTION_CREATE_MESSAGE_THREAD);
-            intent.putExtra(ContactUserFragment.EXTRA_SERVER_RESPONSE, serverResponse);
+            intent.putExtra(EXTRA_SERVER_RESPONSE, serverResponse);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
     }
 
-    private void appendMessageThread(String threadId, String messageContents) {
+    private void appendMessageThread(String threadId, String messageContents, int itemIndex) {
+        DataParser database = new DataParser(getApplicationContext());
+        Integer serverResponse = StatusCodeParser.CONNECT_FAILED;
 
+        try {
+            serverResponse = database.appendMessage(threadId, messageContents);
+        } catch (IOException e) {
+            Log.e(TAG, "Messaging user", e);
+        } finally {
+            Intent intent = new Intent(ACTION_APPEND_MESSAGE_THREAD);
+            intent.putExtra(EXTRA_SERVER_RESPONSE, serverResponse);
+            intent.putExtra(EXTRA_CONVERSATION_ITEM_INDEX, itemIndex);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        }
     }
 }

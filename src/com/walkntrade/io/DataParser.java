@@ -551,7 +551,6 @@ public class DataParser {
             int requestStatus = jsonObject.getInt(STATUS);
 
             int messages = jsonObject.getInt(MESSAGE);
-            Log.d(TAG, "Messages: "+messages);
             result = new ObjectResult<Integer>(requestStatus, messages);
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
