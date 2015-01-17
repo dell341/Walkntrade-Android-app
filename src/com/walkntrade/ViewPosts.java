@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import com.walkntrade.adapters.item.ViewPostItem;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.ReferencedPost;
 
@@ -370,7 +371,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
             int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
-                DataParser.ObjectResult<ArrayList<ReferencedPost>> result = database.getUserPosts();
+                ObjectResult<ArrayList<ReferencedPost>> result = database.getUserPosts();
                 serverResponse = result.getStatus();
                 userPosts = result.getObject();
             }

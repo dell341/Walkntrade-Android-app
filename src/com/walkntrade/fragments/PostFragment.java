@@ -28,10 +28,10 @@ import com.walkntrade.LoginActivity;
 import com.walkntrade.R;
 import com.walkntrade.SchoolPage;
 import com.walkntrade.adapters.item.ViewPostItem;
-import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.FormatDateTime;
+import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
 import com.walkntrade.objects.ReferencedPost;
@@ -444,7 +444,7 @@ public class PostFragment extends Fragment {
             DataParser database = new DataParser(context);
 
             try {
-                DataParser.ObjectResult<UserProfileObject> result = database.getUserProfile(strings[0], null);
+                ObjectResult<UserProfileObject> result = database.getUserProfile(strings[0], null);
                 serverResponse = result.getStatus();
                 userProfile = result.getObject();
 

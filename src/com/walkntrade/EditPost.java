@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -16,7 +15,6 @@ import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -38,6 +36,7 @@ import com.walkntrade.fragments.SchoolPostsFragment;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ImageTool;
+import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
 
@@ -694,7 +693,7 @@ public class EditPost extends Activity implements View.OnClickListener {
             int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
             try {
-                DataParser.ObjectResult<Post> result = database.getPostByIdentifier(obsId[0]);
+                ObjectResult<Post> result = database.getPostByIdentifier(obsId[0]);
                 serverResponse = result.getStatus();
                 post = result.getObject();
             } catch (NullPointerException e) {

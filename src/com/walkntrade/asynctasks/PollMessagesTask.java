@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.walkntrade.SchoolPage;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class PollMessagesTask extends AsyncTask<Void, Void, Integer> {
         int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
         try {
-            DataParser.ObjectResult<Integer> result = database.getNewMessages();
+            ObjectResult<Integer> result = database.getNewMessages();
             serverResponse = result.getStatus();
         } catch (IOException e) {
             Log.e(TAG, "Polling messages", e);

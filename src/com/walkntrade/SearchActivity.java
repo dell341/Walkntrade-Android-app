@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.walkntrade.adapters.PostAdapter;
 import com.walkntrade.asynctasks.ThumbnailTask;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
 
@@ -208,7 +209,7 @@ public class SearchActivity extends Activity implements AdapterView.OnItemClickL
 
             try {
                 String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
-                DataParser.ObjectResult<ArrayList<Post>> result = database.getSchoolPosts(schoolID, searchQuery, category, offset, 15);
+                ObjectResult<ArrayList<Post>> result = database.getSchoolPosts(schoolID, searchQuery, category, offset, 15);
                 serverResponse = result.getStatus();
                 posts = result.getObject();
             } catch (Exception e) {

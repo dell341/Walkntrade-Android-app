@@ -272,40 +272,38 @@ ADDED from AndroidManifest.xml:173:9
 activity#com.walkntrade.Messages
 ADDED from AndroidManifest.xml:180:9
 	android:label
-		ADDED from AndroidManifest.xml:183:13
-	android:configChanges
 		ADDED from AndroidManifest.xml:182:13
 	android:name
 		ADDED from AndroidManifest.xml:181:13
 activity#com.walkntrade.NotificationSettings
-ADDED from AndroidManifest.xml:188:9
+ADDED from AndroidManifest.xml:187:9
 	android:label
-		ADDED from AndroidManifest.xml:190:13
-	android:name
 		ADDED from AndroidManifest.xml:189:13
+	android:name
+		ADDED from AndroidManifest.xml:188:13
 activity#com.walkntrade.Privacy_Feedback
-ADDED from AndroidManifest.xml:195:9
+ADDED from AndroidManifest.xml:194:9
 	android:label
-		ADDED from AndroidManifest.xml:197:13
-	android:name
 		ADDED from AndroidManifest.xml:196:13
+	android:name
+		ADDED from AndroidManifest.xml:195:13
 activity#com.walkntrade.EditPost
-ADDED from AndroidManifest.xml:199:9
+ADDED from AndroidManifest.xml:198:9
 	android:label
-		ADDED from AndroidManifest.xml:201:13
-	android:name
 		ADDED from AndroidManifest.xml:200:13
+	android:name
+		ADDED from AndroidManifest.xml:199:13
 activity#com.walkntrade.SearchActivity
-ADDED from AndroidManifest.xml:206:9
+ADDED from AndroidManifest.xml:205:9
 	android:label
-		ADDED from AndroidManifest.xml:208:13
-	android:name
 		ADDED from AndroidManifest.xml:207:13
-activity#com.walkntrade.MessageConversation
-ADDED from AndroidManifest.xml:210:9
-	android:label
-		ADDED from AndroidManifest.xml:212:13
-	android:windowSoftInputMode
-		ADDED from AndroidManifest.xml:213:13
 	android:name
+		ADDED from AndroidManifest.xml:206:13
+activity#com.walkntrade.MessageConversation
+ADDED from AndroidManifest.xml:209:9
+	android:label
 		ADDED from AndroidManifest.xml:211:13
+	android:windowSoftInputMode
+		ADDED from AndroidManifest.xml:212:13
+	android:name
+		ADDED from AndroidManifest.xml:210:13

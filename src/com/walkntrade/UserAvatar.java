@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ImageTool;
+import com.walkntrade.io.ObjectResult;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -282,7 +283,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             try {
                 String avatarURL;
 
-                DataParser.ObjectResult<String> result = database.getAvatarUrl();
+                ObjectResult<String> result = database.getAvatarUrl();
                 avatarURL = result.getObject();
 
                 if (avatarURL == null)

@@ -12,7 +12,10 @@ import android.app.Fragment;
 import android.util.Log;
 
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.ObjectResult;
+import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.ChatObject;
+import com.walkntrade.objects.MessageThread;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,7 +30,8 @@ public class TaskFragment extends Fragment {
     public static final String ARG_THREAD_ID = "argument_thread_id";
     public static final String ARG_TASK_ID = "async_task_id";
 
-    public static final int TASK_GET_CHAT_THREAD = 100;
+    public static final int TASK_GET_MESSAGE_THREADS = 100;
+    public static final int TASK_GET_CHAT_THREAD = 200;
 
 
     private TaskCallbacks callbacks;
@@ -35,7 +39,7 @@ public class TaskFragment extends Fragment {
 
     //Callback interface that allows the Activity to access AsyncTask updates
     public static interface TaskCallbacks {
-        void onPreExecute();
+        void onPreExecute(int taskId);
         void onProgressUpdate(int percent);
         void onCancelled();
         void onPostExecute(int taskId, Object result);
@@ -49,10 +53,13 @@ public class TaskFragment extends Fragment {
         taskId = getArguments().getInt(ARG_TASK_ID, 0);
 
         switch(taskId) {
+            case TASK_GET_MESSAGE_THREADS:
+                GetMessagesTask messagesTask = new GetMessagesTask();
+                messagesTask.execute(); break;
             case TASK_GET_CHAT_THREAD:
                 String threadId = getArguments().getString(ARG_THREAD_ID);
-                ChatThreadTask asyncTask = new ChatThreadTask();
-                asyncTask.execute(threadId); break;
+                ChatThreadTask chatThreadTask = new ChatThreadTask();
+                chatThreadTask.execute(threadId); break;
         }
     }
 
@@ -72,17 +79,11 @@ public class TaskFragment extends Fragment {
         callbacks = null;
     }
 
-    private class ChatThreadTask extends AsyncTask<String, Void, DataParser.ObjectResult<ArrayList<ChatObject>>> {
-
-        public ChatThreadTask() {
-            super();
-            Log.i(TAG, "Starting ChatThreadTask from Fragment - " + getActivity());
-        }
-
+    private class GetMessagesTask extends AsyncTask<Void, Void, ObjectResult<ArrayList<MessageThread>>> {
         @Override
         protected void onPreExecute() {
             if (callbacks != null)
-                callbacks.onPreExecute();
+                callbacks.onPreExecute(taskId);
         }
 
         @Override
@@ -98,7 +99,46 @@ public class TaskFragment extends Fragment {
         }
 
         @Override
-        protected DataParser.ObjectResult<ArrayList<ChatObject>> doInBackground(String... threadId) {
+        protected ObjectResult<ArrayList<MessageThread>> doInBackground(Void... voids) {
+            DataParser database = new DataParser(getActivity().getApplicationContext());
+
+            try {
+                return database.getMessageThreads(0, -1);
+            } catch (IOException e) {
+                Log.e(TAG, "Get MessageThreads", e);
+            }
+
+            return new ObjectResult<ArrayList<MessageThread>>(StatusCodeParser.CONNECT_FAILED, null);
+        }
+
+        @Override
+        protected void onPostExecute(ObjectResult<ArrayList<MessageThread>> result) {
+            if (callbacks != null)
+                callbacks.onPostExecute(taskId, result);
+        }
+    }
+
+    private class ChatThreadTask extends AsyncTask<String, Void, ObjectResult<ArrayList<ChatObject>>> {
+        @Override
+        protected void onPreExecute() {
+            if (callbacks != null)
+                callbacks.onPreExecute(taskId);
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            if (callbacks != null)
+                callbacks.onProgressUpdate(0);
+        }
+
+        @Override
+        protected void onCancelled() {
+            if (callbacks != null)
+                callbacks.onCancelled();
+        }
+
+        @Override
+        protected ObjectResult<ArrayList<ChatObject>> doInBackground(String... threadId) {
             DataParser database = new DataParser(getActivity().getApplicationContext());
 
             try {
@@ -106,12 +146,11 @@ public class TaskFragment extends Fragment {
             } catch (IOException e) {
                 Log.e(TAG, "Getting Chat Thread", e);
             }
-            return null; //If an error occurred, return null
+            return new ObjectResult<ArrayList<ChatObject>>(StatusCodeParser.CONNECT_FAILED, null); //If an error occurred, return a connection failed object
         }
 
         @Override
-        protected void onPostExecute(DataParser.ObjectResult<ArrayList<ChatObject>> result) {
-            Log.d(TAG, "Completing ChatThreadTask from Fragment - "+getActivity());
+        protected void onPostExecute(ObjectResult<ArrayList<ChatObject>> result) {
             if (callbacks != null)
                 callbacks.onPostExecute(taskId, result);
         }

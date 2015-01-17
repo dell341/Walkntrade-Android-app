@@ -8,7 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.http.AndroidHttpClient;
-import android.net.wifi.WifiConfiguration;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -124,35 +123,6 @@ public class DataParser {
 
     public DataParser(Context _context) {
         context = _context;
-    }
-
-    public class ObjectResult<T> {
-        private int status = 0;
-        private T object;
-
-        public ObjectResult(int status, T object) {
-            this.status = status;
-            this.object = object;
-        }
-
-        public void setStatus(int status) {
-            this.status = status;
-        }
-
-        public void setObject(T object) {
-            this.object = object;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public T getObject() {
-            if (object == null)
-                throw new NullPointerException("Object is null");
-
-            return object;
-        }
     }
 
     //First call whenever connecting across the user's network

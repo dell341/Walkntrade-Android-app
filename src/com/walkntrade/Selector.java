@@ -30,6 +30,7 @@ import com.google.android.gms.analytics.Tracker;
 import com.walkntrade.gcm.Analytics;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
+import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.SchoolObject;
 
@@ -233,7 +234,7 @@ public class Selector extends Activity implements OnItemClickListener {
             t.send(new HitBuilders.EventBuilder("User Input", "School Search").setLabel(schoolQuery).build());
             try {
                 schoolObjects = new ArrayList<SchoolObject>();
-                DataParser.ObjectResult<ArrayList<SchoolObject>> result = database.getSchools(schoolQuery);
+                ObjectResult<ArrayList<SchoolObject>> result = database.getSchools(schoolQuery);
                 serverResponse = result.getStatus();
                 schoolObjects = result.getObject();
             } catch (IOException e) {

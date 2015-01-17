@@ -1,6 +1,8 @@
 package com.walkntrade;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,17 +23,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.walkntrade.asynctasks.PollMessagesTask;
+import com.walkntrade.fragments.TaskFragment;
 import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.FormatDateTime;
+import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.MessageThread;
 
@@ -44,9 +48,13 @@ import java.util.List;
  * https://walkntrade.com
  */
 
-public class Messages extends Activity implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class Messages extends Activity implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, TaskFragment.TaskCallbacks {
 
     private static final String TAG = "Messages";
+    private static final String TAG_TASK_FRAGMENT = "Task_Fragment";
+    private static final String SAVED_INSTANCE_MESSAGES = "saved_instance_messages";
+    private static final String SAVED_INSTANCE_PROGRESS_STATE = "saved_instance_progress_state";
+    private static final String SAVED_INSTANCE_ERROR_MESSAGE_STATE = "saved_instance_error_state";
 
     private Context context;
     private ProgressBar progressBar;
@@ -54,6 +62,8 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private TextView noResults;
     private ListView messageList;
     private MessageThreadAdapter threadAdapter;
+
+    private Fragment taskFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,13 +83,37 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
 
-        threadAdapter = new MessageThreadAdapter(context, R.layout.item_message_thread, new ArrayList<MessageThread>());
-        new GetMessagesTask().execute();
-        new PollMessagesTask(context).execute();
+        /*Fragment implementation is used for getting thread, to allow continuous download during configuration
+        * i.e. device rotation
+        */
+        taskFragment = getFragmentManager().findFragmentByTag(TAG_TASK_FRAGMENT);
+        if(taskFragment == null) //If this Fragment already exists during onCreate, do not download message threads
+            downloadMessageThreads();
+
+        if(savedInstanceState != null) {
+            ArrayList<MessageThread> messages = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_MESSAGES);
+            progressBar.setVisibility(savedInstanceState.getInt(SAVED_INSTANCE_PROGRESS_STATE) == View.VISIBLE ? View.VISIBLE : View.INVISIBLE);
+
+            if(messages != null) {
+                threadAdapter = new MessageThreadAdapter(context, messages);
+                messageList.setAdapter(threadAdapter);
+            }
+        } else {
+            new PollMessagesTask(context).execute();
+        }
+
         LocalBroadcastManager.getInstance(context).registerReceiver(newMessagesReceiver, new IntentFilter(GcmIntentService.ACTION_NOTIFICATION_NEW));
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    private void downloadMessageThreads() {
+        taskFragment = new TaskFragment();
+        Bundle args = new Bundle();
+        args.putInt(TaskFragment.ARG_TASK_ID, TaskFragment.TASK_GET_MESSAGE_THREADS);
+        taskFragment.setArguments(args);
+
+        getFragmentManager().beginTransaction().add(taskFragment, TAG_TASK_FRAGMENT).commit();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -105,6 +139,14 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(threadAdapter != null)
+            outState.putParcelableArrayList(SAVED_INSTANCE_MESSAGES, threadAdapter.getItems());
+        outState.putInt(SAVED_INSTANCE_PROGRESS_STATE, progressBar.getVisibility());
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(context).unregisterReceiver(newMessagesReceiver);
@@ -113,13 +155,14 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private BroadcastReceiver newMessagesReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            new GetMessagesTask().execute();
+            downloadMessageThreads();
         }
     };
 
     @Override
     public void onRefresh() {
-        new GetMessagesTask().execute();
+        refreshLayout.setRefreshing(true);
+        downloadMessageThreads();
     }
 
     @Override
@@ -185,14 +228,38 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         }
     }
 
-    private class MessageThreadAdapter extends ArrayAdapter<MessageThread> {
-        public MessageThreadAdapter(Context context, int resource, List<MessageThread> objects) {
-            super(context, resource, objects);
+    private class MessageThreadAdapter extends BaseAdapter {
+
+        private Context context;
+        private ArrayList<MessageThread> items;
+
+        public MessageThreadAdapter(Context context, ArrayList<MessageThread> items) {
+            this.context = context;
+            this.items = items;
+        }
+
+        @Override
+        public int getCount() {
+            return items.size();
+        }
+
+        @Override
+        public MessageThread getItem(int i) {
+            return items.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return 0;
+        }
+
+        public ArrayList<MessageThread> getItems() {
+            return items;
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View messageView;
 
             if (convertView != null)
@@ -224,47 +291,38 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         }
     }
 
-    private class GetMessagesTask extends AsyncTask<Void, Void, Integer> {
+    @Override
+    public void onPreExecute(int taskId) {
+        if(!refreshLayout.isRefreshing())
+            progressBar.setVisibility(View.VISIBLE);
 
-        private ArrayList<MessageThread> messageThreads;
+        noResults.setVisibility(View.GONE);
+    }
 
-        public GetMessagesTask() {
-            super();
-            messageThreads = new ArrayList<MessageThread>();
-        }
+    @Override
+    public void onProgressUpdate(int percent) {
+    }
 
-        @Override
-        protected void onPreExecute() {
-            refreshLayout.setRefreshing(true);
-        }
+    @Override
+    public void onCancelled() {
+    }
 
-        @Override
-        protected Integer doInBackground(Void... params) {
-            DataParser database = new DataParser(context);
-            int serverResponse = StatusCodeParser.CONNECT_FAILED;
+    @Override
+    public void onPostExecute(int taskId, Object result) {
+        progressBar.setVisibility(View.GONE);
+        refreshLayout.setRefreshing(false);
 
-            try {
-                DataParser.ObjectResult<ArrayList<MessageThread>> result = database.getMessageThreads(0, -1);
-                serverResponse = result.getStatus();
-                messageThreads = result.getObject();
-            } catch (IOException e) {
-                Log.e(TAG, "Get MessageThreads", e);
-            }
+        ObjectResult<ArrayList<MessageThread>> objectResult = (ObjectResult<ArrayList<MessageThread>>)result;
+        int serverResponse = objectResult.getStatus();
 
-            return serverResponse;
-        }
+        if(serverResponse == StatusCodeParser.STATUS_OK) {
+            ArrayList<MessageThread> messageThreads = objectResult.getObject();
 
-        @Override
-        protected void onPostExecute(Integer serverResponse) {
-            progressBar.setVisibility(View.GONE);
-            messageList.setAdapter(null);
-            threadAdapter.clear();
-
-            if (messageThreads.isEmpty())
+            if(messageThreads.isEmpty()) {
+                noResults.setText(context.getString(R.string.no_messages));
                 noResults.setVisibility(View.VISIBLE);
-            else {
-                noResults.setVisibility(View.GONE);
-                threadAdapter.addAll(messageThreads);
+            } else {
+                threadAdapter = new MessageThreadAdapter(context, messageThreads);
                 messageList.setAdapter(threadAdapter);
                 messageList.setOnItemClickListener(Messages.this);
 
@@ -272,7 +330,10 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                     new UserAvatarRetrievalTask(m).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m.getUserImageUrl());
             }
 
-            refreshLayout.setRefreshing(false);
+        } else {
+            messageList.setAdapter(null);
+            noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
+            noResults.setVisibility(View.VISIBLE);
         }
     }
 
@@ -351,7 +412,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         @Override
         protected void onPostExecute(Integer serverResponse) {
-            new GetMessagesTask().execute();
+            downloadMessageThreads();
         }
     }
 }

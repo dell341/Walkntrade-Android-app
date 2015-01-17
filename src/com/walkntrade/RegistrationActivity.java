@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 
 import java.io.IOException;
@@ -158,7 +159,7 @@ public class RegistrationActivity extends Activity {
         return canRegister;
     }
 
-    private class RegistrationTask extends AsyncTask<Void, Void, DataParser.ObjectResult<String>> {
+    private class RegistrationTask extends AsyncTask<Void, Void, ObjectResult<String>> {
 
         private boolean userNameTaken;
 
@@ -169,11 +170,11 @@ public class RegistrationActivity extends Activity {
         }
 
         @Override
-        protected DataParser.ObjectResult<String> doInBackground(Void... voids) {
+        protected ObjectResult<String> doInBackground(Void... voids) {
             userNameTaken = false;
             DataParser database = new DataParser(context);
 
-            DataParser.ObjectResult<String> serverResult = null;
+            ObjectResult<String> serverResult = null;
             try {
                 if(database.isUserNameFree(_userName) != StatusCodeParser.STATUS_OK) {
                     userNameTaken = true;
@@ -187,7 +188,7 @@ public class RegistrationActivity extends Activity {
         }
 
         @Override
-            protected void onPostExecute(DataParser.ObjectResult<String> serverResult) {
+            protected void onPostExecute(ObjectResult<String> serverResult) {
             progressBar.setVisibility(View.INVISIBLE);
             submit.setEnabled(true);
 

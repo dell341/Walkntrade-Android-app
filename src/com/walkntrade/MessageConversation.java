@@ -30,6 +30,7 @@ import com.walkntrade.fragments.TaskFragment;
 import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
+import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.ChatObject;
 
@@ -63,7 +64,6 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
     boolean canSendMessage = false;
 
     private MessageConversationAdapter conversationAdapter;
-    private TaskFragment taskFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +86,7 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
         * i.e. device rotation
         */
         FragmentManager fm = getFragmentManager();
-        taskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
+        TaskFragment taskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
         if(taskFragment == null) {
             taskFragment = new TaskFragment();
             Bundle args = new Bundle();
@@ -121,7 +121,6 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
             @Override
             public void afterTextChanged(Editable editable) {
                 boolean hasText = editable.length() > 0;
-
                 canSendMessage = hasText;
                 send.setVisibility(hasText ? View.VISIBLE : View.INVISIBLE);
             }
@@ -215,9 +214,14 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
     }
 
     @Override
-    public void onPreExecute() {
-        progressBar.setVisibility(View.VISIBLE);
-        send.setEnabled(false);
+    public void onPreExecute(int taskId) {
+
+        switch (taskId) {
+            case TaskFragment.TASK_GET_CHAT_THREAD:
+                progressBar.setVisibility(View.VISIBLE);
+                send.setEnabled(false); break;
+        }
+
     }
 
     @Override
@@ -230,18 +234,11 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
 
     @Override
     public void onPostExecute(int taskId, Object result) {
-        progressBar.setVisibility(View.GONE);
 
         switch (taskId) {
             case TaskFragment.TASK_GET_CHAT_THREAD:
-                DataParser.ObjectResult<ArrayList<ChatObject>> objectResult = (DataParser.ObjectResult<ArrayList<ChatObject>>)result;
-
-                if(objectResult == null) { //If a connection could not be made, or some other error. Show error message.
-                    errorMessage.setText(context.getString(R.string.error_occured));
-                    errorMessage.setVisibility(View.VISIBLE);
-                    return;
-                }
-
+                progressBar.setVisibility(View.GONE);
+                ObjectResult<ArrayList<ChatObject>> objectResult = (ObjectResult<ArrayList<ChatObject>>)result;
                 int serverResponse = objectResult.getStatus();
 
                 if (serverResponse == StatusCodeParser.STATUS_OK) {
@@ -264,7 +261,6 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
                     errorMessage.setVisibility(View.VISIBLE);
                 } break;
         }
-
     }
 
     private class AppendMessageTask extends AsyncTask<Void, Void, Integer> {

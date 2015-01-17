@@ -12,11 +12,11 @@
 
     <TextView
         android:id="@+id/noResults"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:layout_centerInParent="true"
         android:visibility="gone"
-        android:textSize="22sp"
+        android:textSize="16sp"
         android:text="@string/no_messages" />
 
     <android.support.v4.widget.SwipeRefreshLayout

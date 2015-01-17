@@ -179,7 +179,6 @@
         </activity>
         <activity
             android:name="com.walkntrade.Messages"
-            android:configChanges="orientation|screenSize"
             android:label="@string/messages" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

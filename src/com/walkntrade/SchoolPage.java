@@ -38,6 +38,7 @@ import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.fragments.SchoolPostsFragment;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
+import com.walkntrade.io.ObjectResult;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -516,7 +517,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             {
                 DataParser database = new DataParser(context);
                 try {
-                    DataParser.ObjectResult<String> result = database.getUserName();
+                    ObjectResult<String> result = database.getUserName();
                     userName = result.getObject();
                 } catch (IOException e) {
                     Log.e(TAG, "Get username", e);
@@ -555,7 +556,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             try {
                 String avatarURL;
 
-                DataParser.ObjectResult<String> result = database.getAvatarUrl();
+                ObjectResult<String> result = database.getAvatarUrl();
                 avatarURL = result.getObject();
 
                 if (avatarURL == null)
