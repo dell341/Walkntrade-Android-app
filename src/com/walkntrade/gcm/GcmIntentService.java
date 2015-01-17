@@ -84,9 +84,9 @@ public class GcmIntentService extends IntentService {
 
         //Send the message to the active conversation the user viewing
         if(threadId.equals(DataParser.getSharedStringPreference(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD))) {
-            Intent test = new Intent(ACTION_NOTIFICATION_BLOCKED);
-            test.putExtra(MessageConversation.LIST_CONVERSATION, new ConversationItem(user, contents, dateTime.replace('/','-'), imageUrl, false, false));
-            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(test);
+            Intent intent = new Intent(ACTION_NOTIFICATION_BLOCKED);
+            intent.putExtra(MessageConversation.LIST_CONVERSATION, new ConversationItem(user, contents, dateTime.replace('/', '-'), imageUrl, false, false));
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
 
             //Do not create a notification if the activity is currently being viewed
             if(DataParser.getSharedBooleanPreference(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_DISPLAY_ON))

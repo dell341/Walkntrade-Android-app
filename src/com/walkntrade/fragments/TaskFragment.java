@@ -57,7 +57,7 @@ public class TaskFragment extends Fragment {
                 GetMessagesTask messagesTask = new GetMessagesTask();
                 messagesTask.execute(); break;
             case TASK_GET_CHAT_THREAD:
-                String threadId = getArguments().getString(ARG_THREAD_ID);
+                final String threadId = getArguments().getString(ARG_THREAD_ID);
                 ChatThreadTask chatThreadTask = new ChatThreadTask();
                 chatThreadTask.execute(threadId); break;
         }
