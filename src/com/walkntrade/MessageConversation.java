@@ -1,6 +1,7 @@
 package com.walkntrade;
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +26,7 @@ import android.widget.TextView;
 
 import com.walkntrade.adapters.MessageConversationAdapter;
 import com.walkntrade.adapters.item.ConversationItem;
-import com.walkntrade.asynctasks.PollMessagesTask;
+import com.walkntrade.fragments.TaskFragment;
 import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
@@ -41,10 +42,13 @@ import java.util.ArrayList;
  * https://walkntrade.com
  */
 
-public class MessageConversation extends Activity {
+public class MessageConversation extends Activity implements TaskFragment.TaskCallbacks{
 
     private static final String TAG = "MessageConversation";
+    private static final String TAG_TASK_FRAGMENT = "Task_Fragment";
     private static final String SAVED_INSTANCE_CONVERSATION = "saved_instance_state_conversation";
+    private static final String SAVED_INSTANCE_PROGRESS_STATE = "saved_instance_progress_state";
+    private static final String SAVED_INSTANCE_ERROR_MESSAGE_STATE = "saved_instance_error_state";
     public static final String LIST_CONVERSATION = "extra_arraylist_conversation";
     public static final String THREAD_ID = "id_of_current_message_thread";
     public static final String POST_TITLE = "title_of_current_post";
@@ -59,6 +63,7 @@ public class MessageConversation extends Activity {
     boolean canSendMessage = false;
 
     private MessageConversationAdapter conversationAdapter;
+    private TaskFragment taskFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,19 +82,32 @@ public class MessageConversation extends Activity {
         newMessage = (EditText) findViewById(R.id.edit_text);
         send = (ImageView) findViewById(R.id.send_message);
 
+       /*Fragment implementation is used for getting thread, to allow continuous download during configuration
+        * i.e. device rotation
+        */
+        FragmentManager fm = getFragmentManager();
+        taskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
+        if(taskFragment == null) {
+            taskFragment = new TaskFragment();
+            Bundle args = new Bundle();
+            args.putString(TaskFragment.ARG_THREAD_ID, threadId);
+            args.putInt(TaskFragment.ARG_TASK_ID, TaskFragment.TASK_GET_CHAT_THREAD);
+            taskFragment.setArguments(args);
+
+            fm.beginTransaction().add(taskFragment, TAG_TASK_FRAGMENT).commit();
+        }
+
         if(savedInstanceState != null) {
             ArrayList<ConversationItem> items = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_CONVERSATION);
+            progressBar.setVisibility(savedInstanceState.getInt(SAVED_INSTANCE_PROGRESS_STATE) == View.VISIBLE ? View.VISIBLE : View.INVISIBLE);
+            errorMessage.setVisibility(savedInstanceState.getInt(SAVED_INSTANCE_ERROR_MESSAGE_STATE) == View.VISIBLE ? View.VISIBLE : View.INVISIBLE);
 
-            if(items == null)
-                new GetChatThreadTask().execute(threadId);
-            else {
+            if (items!= null) {
                 conversationAdapter = new MessageConversationAdapter(context, items);
                 chatList.setAdapter(conversationAdapter);
                 chatList.setSelection(conversationAdapter.getCount() - 1);
             }
         }
-        else
-            new GetChatThreadTask().execute(threadId);
 
         newMessage.addTextChangedListener(new TextWatcher() {
             @Override
@@ -120,7 +138,6 @@ public class MessageConversation extends Activity {
         });
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        new PollMessagesTask(context).execute();
         LocalBroadcastManager.getInstance(context).registerReceiver(interceptMessageReceiver, new IntentFilter(GcmIntentService.ACTION_NOTIFICATION_BLOCKED));
         DataParser.setSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD, threadId); //Set this conversation as active, to disable notifications
     }
@@ -191,70 +208,63 @@ public class MessageConversation extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        try {
+        if(conversationAdapter != null)
             outState.putParcelableArrayList(SAVED_INSTANCE_CONVERSATION, conversationAdapter.getItems());
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Configuration change before finished downloading", e);
-        }
-
+        outState.putInt(SAVED_INSTANCE_PROGRESS_STATE, progressBar.getVisibility());
+        outState.putInt(SAVED_INSTANCE_ERROR_MESSAGE_STATE, errorMessage.getVisibility());
     }
 
-    private class GetChatThreadTask extends AsyncTask<String, Void, Integer> {
+    @Override
+    public void onPreExecute() {
+        progressBar.setVisibility(View.VISIBLE);
+        send.setEnabled(false);
+    }
 
-        ArrayList<ChatObject> chatObjects;
+    @Override
+    public void onProgressUpdate(int percent) {
+    }
 
-        public GetChatThreadTask() {
-            super();
-            chatObjects = new ArrayList<ChatObject>();
-            send.setEnabled(false);
-        }
+    @Override
+    public void onCancelled() {
+    }
 
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
-        }
+    @Override
+    public void onPostExecute(int taskId, Object result) {
+        progressBar.setVisibility(View.GONE);
 
-        @Override
-        protected Integer doInBackground(String... strings) {
-            DataParser database = new DataParser(context);
-            int serverResponse = StatusCodeParser.CONNECT_FAILED;
+        switch (taskId) {
+            case TaskFragment.TASK_GET_CHAT_THREAD:
+                DataParser.ObjectResult<ArrayList<ChatObject>> objectResult = (DataParser.ObjectResult<ArrayList<ChatObject>>)result;
 
-            try {
-                DataParser.ObjectResult<ArrayList<ChatObject>> result = database.retrieveThread(strings[0]);
-                serverResponse = result.getStatus();
-                chatObjects = result.getObject();
-
-            } catch (IOException e) {
-                Log.e(TAG, "Getting Chat Thread", e);
-            }
-
-            return serverResponse;
-        }
-
-        @Override
-        protected void onPostExecute(Integer serverResponse) {
-            progressBar.setVisibility(View.GONE);
-
-            if (serverResponse == StatusCodeParser.STATUS_OK) {
-                ArrayList<ConversationItem> conversationItems = new ArrayList<ConversationItem>();
-
-                for (ChatObject c : chatObjects) {
-                    ConversationItem item = new ConversationItem(c.getSenderName(), c.getContents(), c.getDateTime(), c.getUserImageUrl(), c.isSentFromMe(), false);
-                    conversationItems.add(item);
-
-                    new UserAvatarRetrievalTask(item).execute();
+                if(objectResult == null) { //If a connection could not be made, or some other error. Show error message.
+                    errorMessage.setText(context.getString(R.string.error_occured));
+                    errorMessage.setVisibility(View.VISIBLE);
+                    return;
                 }
 
-                conversationAdapter = new MessageConversationAdapter(context, conversationItems);
-                chatList.setAdapter(conversationAdapter);
-                chatList.setSelection(conversationAdapter.getCount() - 1);
-                send.setEnabled(true);
-            } else {
-                errorMessage.setText(StatusCodeParser.getStatusString(context, serverResponse));
-                errorMessage.setVisibility(View.VISIBLE);
-            }
+                int serverResponse = objectResult.getStatus();
 
+                if (serverResponse == StatusCodeParser.STATUS_OK) {
+                    ArrayList<ChatObject> chatObjects = objectResult.getObject();
+                    ArrayList<ConversationItem> conversationItems = new ArrayList<ConversationItem>();
+
+                    for (ChatObject c : chatObjects) {
+                        ConversationItem item = new ConversationItem(c.getSenderName(), c.getContents(), c.getDateTime(), c.getUserImageUrl(), c.isSentFromMe(), false);
+                        conversationItems.add(item);
+
+                        new UserAvatarRetrievalTask(item).execute();
+                    }
+
+                    conversationAdapter = new MessageConversationAdapter(context, conversationItems);
+                    chatList.setAdapter(conversationAdapter);
+                    chatList.setSelection(conversationAdapter.getCount() - 1);
+                    send.setEnabled(true);
+                } else {
+                    errorMessage.setText(StatusCodeParser.getStatusString(context, serverResponse));
+                    errorMessage.setVisibility(View.VISIBLE);
+                } break;
         }
+
     }
 
     private class AppendMessageTask extends AsyncTask<Void, Void, Integer> {

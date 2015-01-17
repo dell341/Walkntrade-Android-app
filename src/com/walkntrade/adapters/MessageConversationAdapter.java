@@ -41,6 +41,10 @@ public class MessageConversationAdapter extends BaseAdapter {
         return items.size();
     }
 
+    public boolean hasItems() {
+        return items != null && items.size() >0;
+    }
+
     public boolean addItem(ConversationItem item) {
         return items.add(item);
     }
