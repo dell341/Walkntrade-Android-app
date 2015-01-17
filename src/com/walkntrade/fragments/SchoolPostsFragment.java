@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -32,12 +34,13 @@ import com.walkntrade.SchoolPage;
 import com.walkntrade.SearchActivity;
 import com.walkntrade.ShowPage;
 import com.walkntrade.adapters.PostAdapter;
-import com.walkntrade.asynctasks.ThumbnailTask;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /*
@@ -47,7 +50,7 @@ import java.util.ArrayList;
 
 public class SchoolPostsFragment extends Fragment implements OnItemClickListener, AbsListView.OnScrollListener, SwipeRefreshLayout.OnRefreshListener {
 
-    private String TAG = "FRAGMENT:School_Page";
+    private String TAG = "SchoolPostsFragment";
     public static final String ARG_CATEGORY = "Fragment Category";
     public static final String INDEX = "index";
     public static final String ACTION_UPDATE_POSTS = "com.walkntrade.fragments.SchoolPostsFragment.update_posts";
@@ -72,11 +75,21 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
     private boolean downloadMore = true;
     private boolean shouldClearContents = false; //Clear current list when manually refreshing
 
-    @Override //This method may be called several times
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_school_page, container, false);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setHasOptionsMenu(true); //Options in Actionbar (Search)
         setRetainInstance(true); //Prevents fragment from being destroyed during activity change. (Especially if AsyncTask is currently running)
+
+        Log.d(TAG, "Fragment - onCreate");
+        context = getActivity().getApplicationContext();
+        postsAdapter = new PostAdapter(this.getActivity(), schoolPosts);
+    }
+
+    @Override //This method may be called several times
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.i(TAG, "Fragment - onCreateView");
+        View rootView = inflater.inflate(R.layout.fragment_school_page, container, false);
 
         bigProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.refresh_layout);
@@ -85,26 +98,31 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         swipeToRefresh = (TextView) rootView.findViewById(R.id.text_swipe_refresh);
         swipeToRefreshBottom = (TextView) rootView.findViewById(R.id.text_swipe_refresh_error);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
-        Bundle args = getArguments();
-        context = getActivity().getApplicationContext();
 
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
 
         bigProgressBar.setVisibility(View.GONE);
 
+        Bundle args = getArguments();
         //Recalls data from onSaveState. Prevents network calls for a simple orientation change
-        if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
-            if (savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST) != null) {
-                schoolPosts = savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST);
-                category = savedInstanceState.getString(SAVED_CATEGORY);
-                index = savedInstanceState.getInt(SAVED_INDEX);
-                offset += schoolPosts.size();
-            }
-        } else {
+//        if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
+//            Log.d(TAG, "savedInstanceState not null");
+//            if (savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST) != null) {
+//                Log.d(TAG, "savedInstanceState has ArrayList data");
+//                schoolPosts = savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST);
+//                category = savedInstanceState.getString(SAVED_CATEGORY);
+//                index = savedInstanceState.getInt(SAVED_INDEX);
+//                offset += schoolPosts.size();
+//
+//                postsAdapter = new PostAdapter(this.getActivity(), schoolPosts);
+////                for(Post p : schoolPosts)
+////                    new ThumbnailTask(p).execute();
+//            }
+//        else {
             category = args.getString(ARG_CATEGORY);
             index = args.getInt(INDEX);
-        }
+//        }
 
         /*On initial create, ArrayList will be empty. But onCreateView may be called several times
         Only call this method if the ArrayList is empty, which should only be during the initial creation*/
@@ -113,7 +131,6 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
             downloadMorePosts(bigProgressBar);
         }
 
-        postsAdapter = new PostAdapter(this.getActivity(), schoolPosts);
         gridView.setAdapter(postsAdapter);
         gridView.setOnItemClickListener(this);
         gridView.setOnScrollListener(this);
@@ -191,13 +208,14 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         downloadMorePosts(bigProgressBar);
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(SAVED_ARRAYLIST, schoolPosts);
-        outState.putString(SAVED_CATEGORY, category);
-        outState.putInt(SAVED_INDEX, index);
-    }
+    /*Not needed now because Fragment uses setRetainState(true)*/
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        outState.putParcelableArrayList(SAVED_ARRAYLIST, schoolPosts);
+//        outState.putString(SAVED_CATEGORY, category);
+//        outState.putInt(SAVED_INDEX, index);
+//    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -326,7 +344,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
 
                     postsAdapter.notifyDataSetChanged();
                     for (Post post : newPosts)
-                        new ThumbnailTask(getActivity(), postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
+                        new ThumbnailTask(post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
                 }
             } else {
                 connectionListener.hasConnection(false, StatusCodeParser.getStatusString(context, serverResponse));
@@ -343,5 +361,51 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         }
     }
 
+    //Retrieves the thumbnail images for posts
+    private class ThumbnailTask extends AsyncTask<String, Void, Bitmap> {
+
+        private Post post;
+
+        public ThumbnailTask(Post post){
+            this.post = post;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... imgURL) {
+            Bitmap bm = null;
+
+            if(imgURL[0].equalsIgnoreCase(context.getString(R.string.default_image_url)))
+                return BitmapFactory.decodeResource(context.getResources(), R.drawable.post_image);
+
+            String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
+            String key = post.getIdentifier()+"_thumb";
+
+            DiskLruImageCache imageCache = new DiskLruImageCache(context, schoolID + DiskLruImageCache.DIRECTORY_POST_IMAGES);
+
+            try {
+                bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from Cache
+
+                if(bm == null) //If it doesn't exists, retrieve image from network
+                    bm = DataParser.loadBitmap(imgURL[0]);
+
+                imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
+            } catch (IOException e) {
+                Log.e(TAG, "Retrieving image", e);
+            }
+            finally{
+                imageCache.close();
+            }
+
+            return bm;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if(bitmap != null)
+                post.setBitmapImage(bitmap);
+
+            postsAdapter.notifyDataSetChanged();
+        }
+    }
 
 }

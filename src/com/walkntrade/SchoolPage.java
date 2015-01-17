@@ -207,8 +207,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             //Add inbox item
             inboxItem.setEnabled(true);
             inboxItem.setVisible(true);
-
-            inboxItem.setIcon(R.drawable.ic_chat_white);
         } else if (!DataParser.isUserLoggedIn(context)) {
             //User logged out, disable sign out option
             signOutItem.setVisible(false);
@@ -322,8 +320,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             new UserNameTask(this, navigationDrawerList).execute();
             if (!hasAvatar)
                 new AvatarRetrievalTask(this, navigationDrawerList).execute();
-        } else
-            Log.v(TAG, "User not logged in");
+        }
 
         //Create titles and options for the NavigationDrawer
         ArrayList<DrawerItem> items = new ArrayList<DrawerItem>();

@@ -3,6 +3,8 @@ package com.walkntrade;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,12 +22,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.walkntrade.adapters.PostAdapter;
-import com.walkntrade.asynctasks.ThumbnailTask;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /*
@@ -239,7 +242,7 @@ public class SearchActivity extends Activity implements AdapterView.OnItemClickL
                     postsAdapter.notifyDataSetChanged();
 
                     for (Post post : posts)
-                        new ThumbnailTask(SearchActivity.this, postsAdapter, post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
+                        new ThumbnailTask(post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
                 }
             }
             else {
@@ -248,6 +251,53 @@ public class SearchActivity extends Activity implements AdapterView.OnItemClickL
                 noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
                 noResults.setVisibility(View.VISIBLE);
             }
+        }
+    }
+
+    //Retrieves the thumbnail images for posts
+    private class ThumbnailTask extends AsyncTask<String, Void, Bitmap> {
+
+        private Post post;
+
+        public ThumbnailTask(Post post){
+            this.post = post;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... imgURL) {
+            Bitmap bm = null;
+
+            if(imgURL[0].equalsIgnoreCase(context.getString(R.string.default_image_url)))
+                return BitmapFactory.decodeResource(context.getResources(), R.drawable.post_image);
+
+            String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
+            String key = post.getIdentifier()+"_thumb";
+
+            DiskLruImageCache imageCache = new DiskLruImageCache(context, schoolID + DiskLruImageCache.DIRECTORY_POST_IMAGES);
+
+            try {
+                bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from Cache
+
+                if(bm == null) //If it doesn't exists, retrieve image from network
+                    bm = DataParser.loadBitmap(imgURL[0]);
+
+                imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
+            } catch (IOException e) {
+                Log.e(TAG, "Retrieving image", e);
+            }
+            finally{
+                imageCache.close();
+            }
+
+            return bm;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if(bitmap != null)
+                post.setBitmapImage(bitmap);
+
+            postsAdapter.notifyDataSetChanged();
         }
     }
 }

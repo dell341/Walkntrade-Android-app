@@ -9,19 +9,20 @@
 
     <item
         android:id="@+id/action_inbox"
-        android:icon="@drawable/ic_action_email"
+        android:orderInCategory="200"
+        android:icon="@drawable/ic_chat_white"
         android:title="@string/messages"
-        android:showAsAction="always"/>
+        android:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_feedback"
-        android:orderInCategory="200"
+        android:orderInCategory="300"
         android:title="@string/privacy_and_feedback"
         android:titleCondensed="@string/privacy_and_feedback_short"/>
 
     <item
         android:id="@+id/action_sign_out"
-        android:orderInCategory="300"
+        android:orderInCategory="400"
         android:title="@string/signout" />
 
 </menu>

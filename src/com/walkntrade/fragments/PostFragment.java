@@ -53,10 +53,6 @@ public class PostFragment extends Fragment {
     public static String IDENTIFIER = "Unique_Post_Id";
     public static String INDEX = "Image_Index";
 
-    //    private static final String SAVED_IMAGE_1 = "saved_instance_image_1";
-//    private static final String SAVED_IMAGE_2 = "saved_instance_image_2";
-//    private static final String SAVED_IMAGE_3 = "saved_instance_image_3";
-//    private static final String SAVED_IMAGE_4 = "saved_instance_image_4";
     private static final String SAVED_POST_ITEMS = "saved_instance_post_items";
     private static final String SAVED_USER_IMAGE = "saved_instance_user_image";
 
