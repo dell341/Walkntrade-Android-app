@@ -17,21 +17,23 @@
         android:gravity="bottom"
         android:orientation="horizontal">
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"/>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible" />
 
-    <TextView
-        android:id="@+id/message_contents"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/chat_bubble_me_selector"
-        android:clickable="true"
-        android:padding="5dp"
-        android:textColor="@color/black"/>
+        <TextView
+            android:id="@+id/message_contents"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/chat_bubble_me_selector"
+            android:clickable="true"
+            android:padding="8dp"
+            android:textColor="@color/black" />
+
+
     </LinearLayout>
 
     <ImageView
@@ -42,8 +44,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_margin="3dp"
-        android:scaleType="centerInside"
-        android:background="@color/gray"/>
+        android:src="@drawable/avatar"
+        android:scaleType="centerInside" />
 
     <TextView
         android:id="@+id/user"

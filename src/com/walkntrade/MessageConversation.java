@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.walkntrade.adapters.MessageConversationAdapter;
 import com.walkntrade.adapters.item.ConversationItem;
+import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.fragments.TaskFragment;
 import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
@@ -110,7 +111,8 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
                 chatList.setAdapter(conversationAdapter);
                 chatList.setSelection(conversationAdapter.getCount() - 1);
             }
-        }
+        } else
+            new PollMessagesTask(context).execute();
 
         newMessage.addTextChangedListener(new TextWatcher() {
             @Override
@@ -304,55 +306,6 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
                     errorMessage.setText(StatusCodeParser.getStatusString(context, serverResponse));
                     errorMessage.setVisibility(View.VISIBLE);
                 } break;
-        }
-    }
-
-    private class AppendMessageTask extends AsyncTask<Void, Void, Integer> {
-
-        private ConversationItem conversationItem;
-        private String message;
-
-        public AppendMessageTask(String m) {
-            super();
-            this.message = m;
-            conversationItem = new ConversationItem(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), m, "just now", DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL),true, true);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            send.setVisibility(View.GONE);
-            conversationAdapter.addItem(conversationItem);
-            conversationAdapter.notifyDataSetChanged();
-            new UserAvatarRetrievalTask(conversationItem).execute();
-            send.setVisibility(View.VISIBLE);
-            newMessage.setText("");
-            chatList.smoothScrollToPosition(conversationAdapter.getCount() - 1);
-        }
-
-        @Override
-        protected Integer doInBackground(Void... voids) {
-            DataParser database = new DataParser(context);
-            int serverResponse = StatusCodeParser.CONNECT_FAILED;
-            try {
-                serverResponse = database.appendMessage(threadId, message);
-            } catch (IOException e) {
-                Log.e(TAG, "Appending message thread", e);
-            }
-
-            return serverResponse;
-        }
-
-        @Override
-        protected void onPostExecute(Integer serverResponse) {
-            super.onPostExecute(serverResponse);
-
-            if(serverResponse == StatusCodeParser.STATUS_OK)
-                conversationItem.messageDelivered();
-            else {
-                conversationItem.messageFailedToDeliver(StatusCodeParser.getStatusString(context, serverResponse));
-            }
-
-            conversationAdapter.notifyDataSetChanged();
         }
     }
 

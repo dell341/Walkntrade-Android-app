@@ -19,7 +19,7 @@
         android:layout_alignParentBottom="true"
         android:adjustViewBounds="true"
         android:scaleType="centerInside"
-        android:background="@color/gray" />
+        android:src="@drawable/avatar" />
 
     <TextView
         android:id="@+id/message_contents"
@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/user_image"
         android:layout_toEndOf="@id/user_image"
-        android:padding="5dp"
+        android:padding="8dp"
         android:textColor="@color/black"
         android:background="@drawable/chat_bubble_other_selector"
         android:clickable="true"/>
