@@ -1,7 +1,9 @@
 package com.walkntrade;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import android.widget.Toast;
 
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.ObjectResult;
+import com.walkntrade.io.SendMessageService;
 import com.walkntrade.io.StatusCodeParser;
 
 import java.io.IOException;
@@ -65,7 +68,7 @@ public class RegistrationActivity extends Activity {
                 error.setVisibility(View.GONE);
 
                 //Collect all string values from input fields
-                _userName = userName.getText().toString();
+                _userName = userName.getText().toString().trim();
                 _email = email.getText().toString();
                 _phoneNumber = phoneNumber.getText().toString();
                 _password = password.getText().toString();
@@ -109,6 +112,7 @@ public class RegistrationActivity extends Activity {
     //Verifies that all registration requirements are met
     private boolean canRegister() {
         boolean canRegister = true;
+        boolean invalidEmail = false;
 
         if(_userName.length() < 5) {
             userName.setError(getString(R.string.error_username_short));
@@ -133,6 +137,7 @@ public class RegistrationActivity extends Activity {
         if(!_email.contains(".edu")) {
             email.setError(getString(R.string.error_email_edu));
             canRegister = false;
+            invalidEmail = true;
         }
 
         if(_phoneNumber.length() != 10 && _phoneNumber.length() != 0) {
@@ -152,6 +157,8 @@ public class RegistrationActivity extends Activity {
 
         if(!canRegister){
             error.setText(getString(R.string.error_registration));
+            if(invalidEmail)
+                error.setText(getString(R.string.error_email_edu_long));
             error.setVisibility(View.VISIBLE);
             scrollView.fullScroll(View.FOCUS_UP);
         }
@@ -204,8 +211,16 @@ public class RegistrationActivity extends Activity {
                     scrollView.fullScroll(View.FOCUS_UP);
                 }
                 else { //Close Registration Activity
-                    Toast.makeText(context, "Successfully Registered", Toast.LENGTH_SHORT).show();
-                    finish();
+                    //Confirms if user wants to send a message
+                    AlertDialog.Builder builder = new AlertDialog.Builder(RegistrationActivity.this);
+                    builder.setTitle(getString(R.string.email_verification))
+                            .setMessage(R.string.register_email_verification_message)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                               }
+                    }).create().show();
                 }
             }
         }

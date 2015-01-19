@@ -10,6 +10,7 @@
     <!-- Universal strings, used anywhere in the app -->
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="ok">OK</string>
     <string name="no_connection">Network connection not found</string>
     <string name="retry">Retry</string>
     <string name="action_settings">Settings</string>
