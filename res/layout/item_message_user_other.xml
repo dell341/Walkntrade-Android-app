@@ -9,18 +9,6 @@
     android:layout_height="wrap_content"
     android:padding="5dp">
 
-    <ImageView
-        android:id="@+id/user_image"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_margin="3dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:adjustViewBounds="true"
-        android:scaleType="centerInside"
-        android:src="@drawable/avatar" />
-
     <TextView
         android:id="@+id/message_contents"
         android:layout_width="wrap_content"
@@ -31,6 +19,20 @@
         android:textColor="@color/black"
         android:background="@drawable/chat_bubble_other_selector"
         android:clickable="true"/>
+
+    <ImageView
+        android:id="@+id/user_image"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginBottom="3dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@id/message_contents"
+        android:adjustViewBounds="true"
+        android:scaleType="centerInside"
+        android:src="@drawable/avatar" />
 
     <TextView
         android:id="@+id/user"

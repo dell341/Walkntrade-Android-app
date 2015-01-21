@@ -40,10 +40,12 @@
         android:id="@+id/user_image"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@id/linear_layout"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_margin="3dp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginBottom="3dp"
         android:src="@drawable/avatar"
         android:scaleType="centerInside" />
 
