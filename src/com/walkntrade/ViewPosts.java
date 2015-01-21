@@ -56,8 +56,6 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
     private ListView listView;
     private ViewPostAdapter adapter;
     private MultiChoiceListener multiChoiceListener;
-    private boolean actionModeActivated = false;
-    private boolean useConvertedView = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,8 +222,6 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
         @Override
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-            useConvertedView = true;
-            actionModeActivated = true;
             actionMode.getMenuInflater().inflate(R.menu.context_menu_post, menu);
             return true;
         }
@@ -249,8 +245,6 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
         @Override
         public void onDestroyActionMode(ActionMode actionMode) {
-            useConvertedView = false;
-            actionModeActivated = false;
             count = 0;
         }
     }
@@ -302,6 +296,9 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
                 if (item.isExpired() || item.getExpire() > -1) {
                     renewPost.setVisibility(View.VISIBLE);
                     postTitle.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                } else {
+                    renewPost.setVisibility(View.INVISIBLE);
+                    postTitle.setTypeface(Typeface.DEFAULT);
                 }
 
                 item.setItemView(postItemView);

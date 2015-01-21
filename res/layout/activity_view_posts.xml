@@ -19,6 +19,12 @@
             android:textSize="22sp"
             android:visibility="gone"/>
 
+        <ListView
+            android:id="@+id/postsList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false" />
+
         <ProgressBar
             android:id="@+id/progressBarViewPosts"
             style="?android:attr/progressBarStyle"
@@ -26,12 +32,6 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:visibility="invisible"/>
-
-        <ListView
-            android:id="@+id/postsList"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false" />
 
 
     </RelativeLayout>
