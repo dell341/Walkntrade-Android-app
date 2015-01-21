@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
@@ -24,6 +25,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -45,8 +47,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
     private static final String SAVED_BACKGROUND = "background_image";
     private static final int REQUEST_RESOLUTION = 9000;
     private static final int REQUEST_VERIFY = 100;
-    public static final int REQUEST_LOGIN = 101;
-    private static final int REQUEST_RESET = 102;
+    private static final int REQUEST_RESET = 101;
 
     private SwipeRefreshLayout refreshLayout;
     private TextView loginError, resetPassword;
@@ -54,7 +55,6 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
     private EditText emailAddress, password;
     private String _emailAddress, _password;
     private Context context;
-    private SharedPreferences settings;
 
     private Bitmap background;
 
@@ -64,7 +64,6 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        settings = getSharedPreferences(DataParser.PREFS_USER, 0);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         imageView = (ImageView) findViewById(R.id.background);
         loginError = (TextView) findViewById(R.id.loginErrorMessage);
@@ -266,7 +265,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
                     if (regId.isEmpty()) {
                         Log.i(TAG, "Registration id is empty, Creating one now");
                         gcmReg.registerForId();
-                        setResult(Activity.RESULT_OK);
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.ACTION_UPDATE_DRAWER));
                         finish();
                     } else { //If registration id is already found. Send it to the server to make sure it's still updated.
                         new AsyncTask<String, Void, String>() {
@@ -285,14 +284,14 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
                             @Override
                             protected void onPostExecute(String s) {
-                                setResult(Activity.RESULT_OK);
+                                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.ACTION_UPDATE_DRAWER));
                                 finish();
                             }
                         }.execute(regId);
                     }
                 } else {
                     Log.e(TAG, "Google Services not available");
-                    setResult(Activity.RESULT_CANCELED);
+                    Toast.makeText(context, "Google Services not available", Toast.LENGTH_SHORT).show();
                     finish(); //Closes this activity if Google Play Services not available
                 }
             } else if (response.equals("verify")) {

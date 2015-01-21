@@ -243,7 +243,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         switch (item.getItemId()) {
             case R.id.action_login:
                 if (!DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context))
-                    startActivityForResult(new Intent(this, LoginActivity.class), LoginActivity.REQUEST_LOGIN);
+                    startActivity(new Intent(this, LoginActivity.class));
                 return true;
             case R.id.action_inbox:
                 if (DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context)) {
@@ -294,21 +294,10 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         lastConnectedValue = isConnected;
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        switch (requestCode) {
-            case LoginActivity.REQUEST_LOGIN:
-                //If user logs in, update the navigation drawer
-                if(resultCode == Activity.RESULT_OK)
-                    updateDrawer(); break;
-        }
-    }
-
     private BroadcastReceiver schoolPageUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction() .equals(ACTION_UPDATE_DRAWER))
+            if(intent.getAction().equals(ACTION_UPDATE_DRAWER))
                 updateDrawer();
         }
     };
@@ -438,7 +427,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
                         @Override
                         public void onClick(View view) {
                             if (!DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context))
-                                startActivityForResult(new Intent(context, LoginActivity.class), LoginActivity.REQUEST_LOGIN);
+                                startActivity(new Intent(context, LoginActivity.class));
                         }
                     });
                 } else {
