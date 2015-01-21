@@ -302,6 +302,9 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
                 if (item.isExpired() || item.getExpire() > -1) {
                     renewPost.setVisibility(View.VISIBLE);
                     postTitle.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                } else {
+                    renewPost.setVisibility(View.INVISIBLE);
+                    postTitle.setTypeface(Typeface.DEFAULT);
                 }
 
                 item.setItemView(postItemView);
