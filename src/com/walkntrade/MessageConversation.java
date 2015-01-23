@@ -86,7 +86,7 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
         newMessage = (EditText) findViewById(R.id.edit_text);
         send = (ImageView) findViewById(R.id.send_message);
 
-       /*Fragment implementation is used for getting thread, to allow continuous download during configuration
+       /*Fragment implementation is used for getting thread, to allow continuous download during configuration changes
         * i.e. device rotation
         */
         FragmentManager fm = getFragmentManager();

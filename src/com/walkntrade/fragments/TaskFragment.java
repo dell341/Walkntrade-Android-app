@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
 
+import com.walkntrade.R;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
@@ -23,15 +24,20 @@ import java.util.ArrayList;
 /*
  * Implementation thanks to Alex Lockwood, from StackOverflow & Android Design Patterns
  */
-//Handles an AsyncTask, so that it is retained across configuration changes.
+
+//Handles an AsyncTask, so that it is retained across configuration changes. This way
+// the resulting data can be handled properly without losing connection with the displayed activity.
 public class TaskFragment extends Fragment {
 
     private static final String TAG = "TaskFragment";
-    public static final String ARG_THREAD_ID = "argument_thread_id";
-    public static final String ARG_TASK_ID = "async_task_id";
+    public static final String ARG_THREAD_ID = "com.walkntrade.fragments.argument_thread_id";
+    public static final String ARG_TASK_ID = "com.walkntrade.fragments.async_task_id";
+    public static final String ARG_LOGIN_USER = "com.walkntrade.fragments.login_user";
+    public static final String ARG_LOGIN_PASSWORD = "com.walkntrade.fragments.login_password";
 
-    public static final int TASK_GET_MESSAGE_THREADS = 100;
-    public static final int TASK_GET_CHAT_THREAD = 200;
+    public static final int TASK_LOGIN = 100;
+    public static final int TASK_GET_MESSAGE_THREADS = 200;
+    public static final int TASK_GET_CHAT_THREAD = 300;
 
 
     private TaskCallbacks callbacks;
@@ -56,6 +62,12 @@ public class TaskFragment extends Fragment {
 
     public void runTask(int taskId) {
         switch(taskId) {
+            case TASK_LOGIN:
+                LoginTask loginTask = new LoginTask();
+                final String loginUser = getArguments().getString(ARG_LOGIN_USER);
+                final String loginPassword = getArguments().getString(ARG_LOGIN_PASSWORD);
+                loginTask.execute(loginUser, loginPassword);
+                break;
             case TASK_GET_MESSAGE_THREADS:
                 GetMessagesTask messagesTask = new GetMessagesTask();
                 messagesTask.execute(); break;
@@ -80,6 +92,54 @@ public class TaskFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         callbacks = null;
+    }
+
+    //Asynchronous Task logs in user & retrieves username and password
+    private class LoginTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            if (callbacks != null)
+                callbacks.onPreExecute(taskId);
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            if (callbacks != null)
+                callbacks.onProgressUpdate(0);
+        }
+
+        @Override
+        protected void onCancelled(String s) {
+            if (callbacks != null)
+                callbacks.onCancelled();
+        }
+
+        @Override
+        protected String doInBackground(String... userCredentials) {
+            DataParser database = new DataParser(getActivity().getApplicationContext());
+            String _emailAddress = userCredentials[0];
+            String _password = userCredentials[1];
+
+            String response = getActivity().getApplicationContext().getString(R.string.login_failed);
+            try {
+                response = database.login(_emailAddress, _password);
+                DataParser.setSharedStringPreference(getActivity().getApplicationContext(), DataParser.PREFS_USER, DataParser.KEY_USER_EMAIL, _emailAddress);
+                database.getUserName();
+                database.simpleGetIntent(DataParser.INTENT_GET_PHONENUM); //Get user's phone number when logging in
+                database.simpleGetIntent(DataParser.INTENT_GET_EMAILPREF); //Get user's contact preference when logging in
+            } catch (Exception e) {
+                Log.e(TAG, "Logging in", e);
+            }
+
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (callbacks != null)
+                callbacks.onPostExecute(taskId, result);
+        }
     }
 
     private class GetMessagesTask extends AsyncTask<Void, Void, ObjectResult<ArrayList<MessageThread>>> {

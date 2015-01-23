@@ -84,7 +84,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
 
-        /*Fragment implementation is used for getting thread, to allow continuous download during configuration
+        /*Fragment implementation is used for getting thread, to allow continuous download during configuration changes
         * i.e. device rotation
         */
         taskFragment = (TaskFragment) getFragmentManager().findFragmentByTag(TAG_TASK_FRAGMENT);
@@ -108,9 +108,9 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     }
 
     private void downloadMessageThreads() {
-        taskFragment = new TaskFragment();
         Bundle args = new Bundle();
         args.putInt(TaskFragment.ARG_TASK_ID, TaskFragment.TASK_GET_MESSAGE_THREADS);
+        taskFragment = new TaskFragment();
         taskFragment.setArguments(args);
 
         getFragmentManager().beginTransaction().add(taskFragment, TAG_TASK_FRAGMENT).commit();

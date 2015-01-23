@@ -1,15 +1,12 @@
 package com.walkntrade;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -30,6 +27,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.walkntrade.asynctasks.PollMessagesTask;
+import com.walkntrade.fragments.TaskFragment;
 import com.walkntrade.gcm.GcmRegistration;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
@@ -41,10 +39,12 @@ import java.io.IOException;
  * https://walkntrade.com
  */
 
-public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener {
+public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener, TaskFragment.TaskCallbacks {
 
     private static final String TAG = "LoginActivity";
+    private static final String TAG_TASK_FRAGMENT = "Task_Fragment";
     private static final String SAVED_BACKGROUND = "background_image";
+    private static final String SAVED_INSTANCE_PROGRESS_STATE = "saved_instance_progress_state";
     private static final int REQUEST_RESOLUTION = 9000;
     private static final int REQUEST_VERIFY = 100;
     private static final int REQUEST_RESET = 101;
@@ -56,6 +56,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
     private String _emailAddress, _password;
     private Context context;
 
+    private TaskFragment taskFragment;
     private Bitmap background;
 
     //TODO: Handle password or email changes with auto-login
@@ -74,22 +75,25 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         Button registerButton = (Button) findViewById(R.id.register);
         context = getApplicationContext();
 
-        if(savedInstanceState != null) {
+
+        taskFragment = (TaskFragment) getFragmentManager().findFragmentByTag(TAG_TASK_FRAGMENT);
+        refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
+        refreshLayout.setOnRefreshListener(this);
+        refreshLayout.setEnabled(false);
+
+        if (savedInstanceState != null) {
+            refreshLayout.setRefreshing(savedInstanceState.getBoolean(SAVED_INSTANCE_PROGRESS_STATE));
             Bitmap bm = savedInstanceState.getParcelable(SAVED_BACKGROUND);
 
-            if(bm == null)
+            if (bm == null)
                 new DownloadBackgroundTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             else {
                 background = bm;
                 imageView.setImageBitmap(bm);
             }
-        }
-        else
+        } else
             new DownloadBackgroundTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-        refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
-        refreshLayout.setOnRefreshListener(this);
-        refreshLayout.setEnabled(false);
 
         resetPassword.setOnClickListener(new OnClickListener() {
             @Override
@@ -102,7 +106,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId == EditorInfo.IME_ACTION_DONE) //If user presses 'Done', continue to log-in, but return false so the keyboard goes away
+                if (actionId == EditorInfo.IME_ACTION_DONE) //If user presses 'Done', continue to log-in, but return false so the keyboard goes away
                     login();
 
                 return false;
@@ -112,6 +116,10 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         submitButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //If the refresh layout is refreshing, this means there is a current process running. Don't do anything else
+                if(refreshLayout.isRefreshing())
+                    return;
                 //Hide keyboard if submit button was pressed
                 InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputMethodManager.hideSoftInputFromWindow(password.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
@@ -122,6 +130,8 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         registerButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                //if(refreshLayout.isRefreshing())
+                  //  return;
                 Intent registerActivity = new Intent(context, RegistrationActivity.class);
                 startActivity(registerActivity);
             }
@@ -132,10 +142,19 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         loginError.setVisibility(View.GONE);
         _emailAddress = emailAddress.getText().toString();
         _password = password.getText().toString();
-        String[] userCredentials = {_emailAddress, _password};
 
-        if (canLogin() && DataParser.isNetworkAvailable(context))
-            new LoginTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, userCredentials);
+        if (canLogin() && DataParser.isNetworkAvailable(context)) {
+            Log.d(TAG, "Performing login task");
+            Bundle args = new Bundle();
+            args.putInt(TaskFragment.ARG_TASK_ID, TaskFragment.TASK_LOGIN);
+            args.putString(TaskFragment.ARG_LOGIN_USER, _emailAddress);
+            args.putString(TaskFragment.ARG_LOGIN_PASSWORD, _password);
+
+            taskFragment = new TaskFragment();
+            taskFragment.setArguments(args);
+
+            getFragmentManager().beginTransaction().add(taskFragment, TAG_TASK_FRAGMENT).commit();
+        }
     }
 
     @Override
@@ -148,6 +167,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putBoolean(SAVED_INSTANCE_PROGRESS_STATE, refreshLayout.isRefreshing());
 
         try {
             outState.putParcelable(SAVED_BACKGROUND, background);
@@ -161,23 +181,14 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         switch (requestCode) {
             case REQUEST_VERIFY:
                 if (resultCode == RESULT_OK) //If user has successfully verified their account, just log them in
-                    if (canLogin() && DataParser.isNetworkAvailable(context)) {
-                        loginError.setVisibility(View.GONE);
-                        _emailAddress = emailAddress.getText().toString();
-                        _password = password.getText().toString();
-                        String[] userCredentials = {_emailAddress, _password};
-
-                        new LoginTask().execute(userCredentials);
-                    }
+                    login();
                 break;
             case REQUEST_RESET:
-                    if(resultCode == RESULT_OK) {
-                        loginError.setTextColor(getResources().getColor(R.color.green_dark));
-                        loginError.setText(getString(R.string.reset_password_success));
-                        loginError.setVisibility(View.VISIBLE);
-                    }
-                break;
-            default:
+                if (resultCode == RESULT_OK) {
+                    loginError.setTextColor(getResources().getColor(R.color.green_dark));
+                    loginError.setText(getString(R.string.reset_password_success));
+                    loginError.setVisibility(View.VISIBLE);
+                }
                 break;
         }
 
@@ -219,117 +230,102 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         return true;
     }
 
-    //Asynchronous Task logs in user & retrieves username and password
-    private class LoginTask extends AsyncTask<String, Void, String> {
-        private DataParser database = new DataParser(context);
+    @Override
+    public void onPreExecute(int taskId) {
+        refreshLayout.setRefreshing(true);
+    }
 
-        @Override
-        protected void onPreExecute() {
-        //    Log.d(TAG, "PRE-EXECUTE - Login");
-            refreshLayout.setRefreshing(true);
-        }
-
-        @Override
-        protected String doInBackground(String... userCredentials) {
-            String _emailAddress = userCredentials[0];
-            String _password = userCredentials[1];
-
-            String response = context.getString(R.string.login_failed);
-            try {
-                response = database.login(_emailAddress, _password);
-                DataParser.setSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_EMAIL, _emailAddress);
-                database.getUserName();
-                database.simpleGetIntent(DataParser.INTENT_GET_PHONENUM); //Get user's phone number when logging in
-                database.simpleGetIntent(DataParser.INTENT_GET_EMAILPREF); //Get user's contact preference when logging in
-            } catch (Exception e) {
-                Log.e(TAG, "Logging in", e);
-            }
-
-            return response;
-        }
-
-        @Override
-        protected void onPostExecute(String response) {
-            refreshLayout.setRefreshing(false);
-            loginError.setVisibility(View.GONE);
-
-            if (response.equals(DataParser.LOGIN_SUCCESS)) {
-                new PollMessagesTask(context).execute(); //Get any of the user's unread messages on log in
-                DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_USER, DataParser.KEY_CURRENTLY_LOGGED_IN, true);
-
-                //Checks if device has the Google Play Services APK
-                if (checkPlayServices()) {
-                    GcmRegistration gcmReg = new GcmRegistration(context);
-                    String regId = gcmReg.getRegistrationId();
-                    Log.i(TAG, regId);
-
-                    if (regId.isEmpty()) {
-                        Log.i(TAG, "Registration id is empty, Creating one now");
-                        gcmReg.registerForId();
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.ACTION_UPDATE_DRAWER));
-                        finish();
-                    } else { //If registration id is already found. Send it to the server to make sure it's still updated.
-                        new AsyncTask<String, Void, String>() {
-                            @Override
-                            protected String doInBackground(String... regId) {
-                                String serverResponse = null;
-
-                                try {
-                                    serverResponse = database.setRegistrationId(regId[0]);
-                                } catch (IOException e) {
-                                    Log.e(TAG, "Sending id to server", e);
-                                }
-
-                                return serverResponse;
-                            }
-
-                            @Override
-                            protected void onPostExecute(String s) {
-                                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.ACTION_UPDATE_DRAWER));
-                                finish();
-                            }
-                        }.execute(regId);
-                    }
-                } else {
-                    Log.e(TAG, "Google Services not available");
-                    Toast.makeText(context, "Google Services not available", Toast.LENGTH_SHORT).show();
-                    finish(); //Closes this activity if Google Play Services not available
-                }
-            } else if (response.equals("verify")) {
-                Intent verifyIntent = new Intent(LoginActivity.this, VerifyKeyActivity.class);
-                startActivityForResult(verifyIntent, REQUEST_VERIFY); //Starts Verify activity
-            } else if (response.equals("reset")) {
-
-                //Asks user if they want to reset their password
-                AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-                builder.setTitle(getString(R.string.reset_password))
-                        .setMessage(R.string.reset_password_ques)
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent resetPasswordIntent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
-                                resetPasswordIntent.putExtra(ResetPasswordActivity.EMAIL, _emailAddress);
-                                startActivityForResult(resetPasswordIntent, REQUEST_RESET);
-                            }
-                        })
-                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        }).create().show();
-
-            }
-            else {
-                loginError.setText(response);
-                loginError.setVisibility(View.VISIBLE);
-            }
-
-        }
+    @Override
+    public void onProgressUpdate(int percent) {
 
     }
 
-    private class DownloadBackgroundTask extends AsyncTask<Void, Void, Bitmap>{
+    @Override
+    public void onCancelled() {
+
+    }
+
+    @Override
+    public void onPostExecute(int taskId, Object result) {
+        String response = result.toString();
+
+        refreshLayout.setRefreshing(false);
+        loginError.setVisibility(View.GONE);
+
+        if (response.equals(DataParser.LOGIN_SUCCESS)) {
+            new PollMessagesTask(context).execute(); //Get any of the user's unread messages on log in
+            DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_USER, DataParser.KEY_CURRENTLY_LOGGED_IN, true);
+
+            //Checks if device has the Google Play Services APK
+            if (checkPlayServices()) {
+                GcmRegistration gcmReg = new GcmRegistration(context);
+                String regId = gcmReg.getRegistrationId();
+                Log.i(TAG, regId);
+
+                if (regId.isEmpty()) {
+                    Log.i(TAG, "Registration id is empty, Creating one now");
+                    gcmReg.registerForId();
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.ACTION_UPDATE_DRAWER));
+                    finish();
+                } else { //If registration id is already found. Send it to the server to make sure it's still updated.
+                    new AsyncTask<String, Void, String>() {
+                        @Override
+                        protected String doInBackground(String... regId) {
+                            String serverResponse = null;
+                            DataParser database = new DataParser(context);
+
+                            try {
+                                serverResponse = database.setRegistrationId(regId[0]);
+                            } catch (IOException e) {
+                                Log.e(TAG, "Sending id to server", e);
+                            }
+
+                            return serverResponse;
+                        }
+
+                        @Override
+                        protected void onPostExecute(String s) {
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.ACTION_UPDATE_DRAWER));
+                            finish();
+                        }
+                    }.execute(regId);
+                }
+            } else {
+                Log.e(TAG, "Google Services not available");
+                Toast.makeText(context, "Google Services not available", Toast.LENGTH_SHORT).show();
+                finish(); //Closes this activity if Google Play Services not available
+            }
+        } else if (response.equals("verify")) {
+            Intent verifyIntent = new Intent(LoginActivity.this, VerifyKeyActivity.class);
+            startActivityForResult(verifyIntent, REQUEST_VERIFY); //Starts Verify activity
+        } else if (response.equals("reset")) {
+
+            //Asks user if they want to reset their password
+            AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+            builder.setTitle(getString(R.string.reset_password))
+                    .setMessage(R.string.reset_password_ques)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent resetPasswordIntent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
+                            resetPasswordIntent.putExtra(ResetPasswordActivity.EMAIL, _emailAddress);
+                            startActivityForResult(resetPasswordIntent, REQUEST_RESET);
+                        }
+                    })
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).create().show();
+
+        } else {
+            loginError.setText(response);
+            loginError.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private class DownloadBackgroundTask extends AsyncTask<Void, Void, Bitmap> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -349,22 +345,20 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
                     bm = DataParser.loadBitmap(context.getResources().getString(R.string.images_directory) + url);
 
                 imageCache.addBitmapToCache(key, bm);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 Log.e(TAG, "Retrieving image", e);
-            }
-            finally {
+            } finally {
                 imageCache.close();
             }
 
             return bm;
         }
 
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
 
-            if(bitmap != null) {
+            if (bitmap != null) {
                 background = bitmap;
                 imageView.setImageBitmap(bitmap);
             }
