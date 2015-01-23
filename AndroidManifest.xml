@@ -148,7 +148,7 @@
                 android:value="com.walkntrade.UserSettings" />
         </activity>
         <activity
-            android:name=".ContactPref"
+            android:name=".ContactPreferences"
             android:label="@string/title_activity_contact_pref" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -188,13 +188,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.SchoolPage" />
-        </activity>
-        <activity
-            android:name=".NotificationSettings"
-            android:label="@string/title_activity_notification_settings" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.walkntrade.ContactPref" />
         </activity>
         <activity
             android:name=".Privacy_Feedback"

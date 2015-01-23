@@ -14,7 +14,7 @@
        <item>Contact Preferences</item>
    </string-array>
 
-    <string name="contact_email">Contact me via email </string>
+    <string name="receive_email">Receive emails from users </string>
 
     <string name="avatar_upload">Upload Current Image</string>
     <string name="null_avatar_upload">Please select a new image</string>

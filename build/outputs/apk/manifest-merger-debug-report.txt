@@ -245,7 +245,7 @@ ADDED from AndroidManifest.xml:143:9
 		ADDED from AndroidManifest.xml:145:13
 	android:name
 		ADDED from AndroidManifest.xml:144:13
-activity#com.walkntrade.ContactPref
+activity#com.walkntrade.ContactPreferences
 ADDED from AndroidManifest.xml:150:9
 	android:label
 		ADDED from AndroidManifest.xml:152:13
@@ -281,35 +281,29 @@ ADDED from AndroidManifest.xml:185:9
 		ADDED from AndroidManifest.xml:187:13
 	android:name
 		ADDED from AndroidManifest.xml:186:13
-activity#com.walkntrade.NotificationSettings
+activity#com.walkntrade.Privacy_Feedback
 ADDED from AndroidManifest.xml:192:9
 	android:label
 		ADDED from AndroidManifest.xml:194:13
 	android:name
 		ADDED from AndroidManifest.xml:193:13
-activity#com.walkntrade.Privacy_Feedback
-ADDED from AndroidManifest.xml:199:9
-	android:label
-		ADDED from AndroidManifest.xml:201:13
-	android:name
-		ADDED from AndroidManifest.xml:200:13
 activity#com.walkntrade.EditPost
+ADDED from AndroidManifest.xml:196:9
+	android:label
+		ADDED from AndroidManifest.xml:198:13
+	android:name
+		ADDED from AndroidManifest.xml:197:13
+activity#com.walkntrade.SearchActivity
 ADDED from AndroidManifest.xml:203:9
 	android:label
 		ADDED from AndroidManifest.xml:205:13
 	android:name
 		ADDED from AndroidManifest.xml:204:13
-activity#com.walkntrade.SearchActivity
-ADDED from AndroidManifest.xml:210:9
-	android:label
-		ADDED from AndroidManifest.xml:212:13
-	android:name
-		ADDED from AndroidManifest.xml:211:13
 activity#com.walkntrade.MessageConversation
-ADDED from AndroidManifest.xml:214:9
+ADDED from AndroidManifest.xml:207:9
 	android:label
-		ADDED from AndroidManifest.xml:216:13
+		ADDED from AndroidManifest.xml:209:13
 	android:windowSoftInputMode
-		ADDED from AndroidManifest.xml:217:13
+		ADDED from AndroidManifest.xml:210:13
 	android:name
-		ADDED from AndroidManifest.xml:215:13
+		ADDED from AndroidManifest.xml:208:13

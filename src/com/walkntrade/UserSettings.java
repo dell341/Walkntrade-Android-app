@@ -77,7 +77,7 @@ public class UserSettings extends Activity implements AdapterView.OnItemClickLis
                 settingsIntent = new Intent(this, AccountSettings.class);
                 startActivity(settingsIntent); break;
             case 3: //Contact Preferences
-                settingsIntent = new Intent(this, ContactPref.class);
+                settingsIntent = new Intent(this, ContactPreferences.class);
                 startActivity(settingsIntent); break;
         }
 

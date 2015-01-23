@@ -2,7 +2,7 @@
 <resources>
 
     <string name="title_activity_notification_settings">Notification Settings</string>
-    <string name="notification_push">Receive push notifications</string>
+    <string name="notification_push">Push notifications</string>
     <string name="notification_settings">Push Notification settings</string>
     <string name="notification_vibrate">Vibrate</string>
     <string name="notification_light">Light</string>

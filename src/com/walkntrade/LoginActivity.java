@@ -239,7 +239,8 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
                 response = database.login(_emailAddress, _password);
                 DataParser.setSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_EMAIL, _emailAddress);
                 database.getUserName();
-                database.simpleGetIntent(DataParser.INTENT_GET_PHONENUM);
+                database.simpleGetIntent(DataParser.INTENT_GET_PHONENUM); //Get user's phone number when logging in
+                database.simpleGetIntent(DataParser.INTENT_GET_EMAILPREF); //Get user's contact preference when logging in
             } catch (Exception e) {
                 Log.e(TAG, "Logging in", e);
             }
