@@ -51,7 +51,10 @@ public class TaskFragment extends Fragment {
         setRetainInstance(true); //Retains this fragment, when configuration changes.
 
         taskId = getArguments().getInt(ARG_TASK_ID, 0);
+        runTask(taskId);
+    }
 
+    public void runTask(int taskId) {
         switch(taskId) {
             case TASK_GET_MESSAGE_THREADS:
                 GetMessagesTask messagesTask = new GetMessagesTask();

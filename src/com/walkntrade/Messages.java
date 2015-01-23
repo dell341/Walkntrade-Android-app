@@ -63,7 +63,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private ListView messageList;
     private MessageThreadAdapter threadAdapter;
 
-    private Fragment taskFragment;
+    private TaskFragment taskFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +87,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         /*Fragment implementation is used for getting thread, to allow continuous download during configuration
         * i.e. device rotation
         */
-        taskFragment = getFragmentManager().findFragmentByTag(TAG_TASK_FRAGMENT);
+        taskFragment = (TaskFragment) getFragmentManager().findFragmentByTag(TAG_TASK_FRAGMENT);
         if(taskFragment == null) //If this Fragment already exists during onCreate, do not download message threads
             downloadMessageThreads();
 
@@ -156,7 +156,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private BroadcastReceiver newMessagesReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            downloadMessageThreads();
+            taskFragment.runTask(TaskFragment.TASK_GET_MESSAGE_THREADS);
         }
     };
 
