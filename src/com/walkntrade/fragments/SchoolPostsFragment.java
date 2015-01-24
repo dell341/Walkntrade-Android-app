@@ -362,7 +362,6 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
             }
             refreshLayout.setEnabled(true);
             refreshLayout.setRefreshing(false);
-            Log.d(TAG, "Completed post refresh");
         }
     }
 

@@ -19,11 +19,11 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 	public static final String CATEGORY_MISC = "misc";
     public static final String CATEGORY_UNKNOWN = "Unknown";
 	
-	private String obsId, schoolId, identifier, title, details, user, imgURL, date, views;
+	private String obsId, schoolId, identifier, title, details, user, imgURL, date, views, tags;
 	private String price = "";
 	private Bitmap defaultImage = null;
 	
-	public Post(String obsId, String schoolId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views) {
+	public Post(String obsId, String schoolId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views, String tags) {
         this.obsId = obsId;
         this.schoolId = schoolId;
         this.identifier = identifier;
@@ -34,6 +34,7 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 		this.date = date;
 		this.price = price;
 		this.views = views;
+        this.tags = tags;
 	}
 
     public String getObsId() {
@@ -75,6 +76,10 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 	public String getViews() {
 		return views;
 	}
+
+    public String getTags() {
+        return tags;
+    }
 	
 	public void setBitmapImage(Bitmap bm) {
 		defaultImage = bm;
@@ -100,6 +105,7 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 		date = in.readString();
 		price = in.readString();
 		views = in.readString();
+        tags = in.readString();
 	}
 	
 	public int describeContents() {
@@ -118,6 +124,7 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 		out.writeString(date);
 		out.writeString(price);
 		out.writeString(views);
+        out.writeString(tags);
 	}
 	
 

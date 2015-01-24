@@ -970,17 +970,18 @@ public class DataParser {
             String date = payload.getString("date");
             String price = payload.getString("price");
             String views = payload.getString("views");
+            String tags = payload.getString("tags");
 
             Post post;
 
             if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
-                post = new BookPost(id, schoolId, identifier, title, author, details, isbn, user, null, date, price, views);
+                post = new BookPost(id, schoolId, identifier, title, author, details, isbn, user, null, date, price, views, tags);
             else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
-                post = new TechPost(id, schoolId, identifier, title, details, user, null, date, price, views);
+                post = new TechPost(id, schoolId, identifier, title, details, user, null, date, price, views, tags);
             else if (category.equalsIgnoreCase(context.getString(R.string.server_category_housing)))
-                post = new HousingPost(id, schoolId, identifier, title, details, user, null, date, price, views);
+                post = new HousingPost(id, schoolId, identifier, title, details, user, null, date, price, views, tags);
             else
-                post = new MiscPost(id, schoolId, identifier, title, details, user, null, date, price, views);
+                post = new MiscPost(id, schoolId, identifier, title, details, user, null, date, price, views, tags);
 
             result = new ObjectResult<Post>(requestStatus, post);
         } catch (JSONException e) {
@@ -1177,15 +1178,16 @@ public class DataParser {
                 String date = jsonPost.getString("date");
                 String price = jsonPost.getString("price");
                 String views = jsonPost.getString("views");
+                String tags = "";
 
                 if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
-                    posts.add(new BookPost(obsId, schoolId, identifier, title, author, details, isbn, user, imgURL, date, price, views));
+                    posts.add(new BookPost(obsId, schoolId, identifier, title, author, details, isbn, user, imgURL, date, price, views, tags));
                 else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
-                    posts.add(new TechPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views));
+                    posts.add(new TechPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views, tags));
                 else if (category.equalsIgnoreCase(context.getString(R.string.server_category_housing)))
-                    posts.add(new HousingPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views));
+                    posts.add(new HousingPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views, tags));
                 else
-                    posts.add(new MiscPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views));
+                    posts.add(new MiscPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views, tags));
             }
 
             result = new ObjectResult<ArrayList<Post>>(requestStatus, posts);

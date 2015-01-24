@@ -140,6 +140,8 @@ public class AddPost extends Activity implements OnClickListener {
 
             if(isUploading) {
                 progressDialog.setMessage(progressMessage);
+                progressDialog.setCancelable(true);
+                progressDialog.setCanceledOnTouchOutside(true);
                 progressDialog.show();
             }
 
@@ -651,6 +653,7 @@ public class AddPost extends Activity implements OnClickListener {
                 String identifier = intent.getStringExtra(ModifyPostService.EXTRA_RECEIVED_IDENTIFIER);
 
                 if(identifier == null || identifier.isEmpty()) {
+                    progressDialog.dismiss();
                     Toast.makeText(context, context.getString(R.string.add_post_failed), Toast.LENGTH_SHORT).show();
                     scrollView.fullScroll(View.FOCUS_UP);
                     isUploading = false;

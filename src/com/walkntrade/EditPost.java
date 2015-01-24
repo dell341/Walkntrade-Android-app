@@ -3,9 +3,11 @@ package com.walkntrade;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -36,6 +38,7 @@ import com.walkntrade.fragments.SchoolPostsFragment;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ImageTool;
+import com.walkntrade.io.ModifyPostService;
 import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
@@ -61,6 +64,8 @@ public class EditPost extends Activity implements View.OnClickListener {
     private static final String SAVED_CURRENT_INDEX = "saved_instance_current_index";
     private static final String SAVED_IMAGE_PATHS = "saved_instance_image_paths";
     private static final String SAVED_IMAGE_URIS = "saved_instance_image_uri";
+    private static final String SAVED_UPLOADING_STATE = "saved_instance_uploading_state";
+    private static final String SAVED_PROGRESS_MESSAGE = "saved_instance_progress_message";
     public static final String POST_OBJECT = "post_object";
     public static final String POST_ID = "post_obs_id";
     public static final String POST_IDENTIFIER = "post_identifier";
@@ -85,13 +90,16 @@ public class EditPost extends Activity implements View.OnClickListener {
     private ImageView image1, image2, image3, image4;
     private Button submit;
 
+    private String selectedCategory;
     private String schoolId; //School id might change for each post being edited
     public int originalImageCount = 0;
     private int imageIndex = -1; //Index of current image that is being edited
-    private String selectedCategory;
     private String currentPhotoPath;
     private Uri[] uriStreams = new Uri[4]; //Uri (addresses) for images located on device or cloud storage
     private String[] photoPaths = new String[4]; //File paths for pictures taken with camera, or located on device
+
+    private boolean isUploading = false;
+    private String progressMessage = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,6 +153,16 @@ public class EditPost extends Activity implements View.OnClickListener {
             currentPhotoPath = savedInstanceState.getString(SAVED_CURRENT_PATH);
             photoPaths = savedInstanceState.getStringArray(SAVED_IMAGE_PATHS);
             Parcelable[] parcelables = savedInstanceState.getParcelableArray(SAVED_IMAGE_URIS);
+            isUploading = savedInstanceState.getBoolean(SAVED_UPLOADING_STATE);
+            progressMessage = savedInstanceState.getString(SAVED_PROGRESS_MESSAGE);
+
+            if(isUploading) {
+                progressDialog.setMessage(progressMessage);
+                progressDialog.setCancelable(true);
+                progressDialog.setCanceledOnTouchOutside(true);
+                progressDialog.show();
+            }
+
             for (int i = 0; i < parcelables.length; i++) { //Each item has to be cast individually. It cannot be guaranteed that every Parcelable item is also a Uri item. [Prevents ClassCastException]
                 if (parcelables[i] != null)
                     uriStreams[i] = (Uri) parcelables[i];
@@ -246,6 +264,9 @@ public class EditPost extends Activity implements View.OnClickListener {
         tags.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                if(isUploading) //If a post is already being uploaded, do nothing.
+                    return false;
+
                 if(actionId == EditorInfo.IME_ACTION_DONE)
                     editPost();
 
@@ -256,6 +277,9 @@ public class EditPost extends Activity implements View.OnClickListener {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(isUploading) //If a post is already being uploaded, do nothing.
+                    return;
+
                 editPost();
             }
         });
@@ -266,8 +290,22 @@ public class EditPost extends Activity implements View.OnClickListener {
     private void editPost() {
         errorMessage.setVisibility(View.GONE);
 
-        if(canPostOther())
-            new EditPostTask().execute();
+        if(canPostOther()) {
+            Intent editPost = new Intent(EditPost.this, ModifyPostService.class);
+            editPost.setAction(ModifyPostService.ACTION_EDIT_POST);
+            editPost.putExtra(ModifyPostService.EXTRA_IDENTIFIER, identifier);
+            editPost.putExtra(ModifyPostService.EXTRA_SCHOOL_ID, schoolId);
+            editPost.putExtra(ModifyPostService.EXTRA_TITLE, title.getText().toString());
+            editPost.putExtra(ModifyPostService.EXTRA_DESCRIPTION, details.getText().toString());
+            editPost.putExtra(ModifyPostService.EXTRA_PRICE, price.getText().toString());
+            editPost.putExtra(ModifyPostService.EXTRA_TAGS, tags.getText().toString());
+
+            getApplicationContext().startService(editPost);
+            progressDialog.setMessage(context.getString(R.string.adding_post_changes));
+            progressMessage = context.getString(R.string.adding_post_changes);
+            progressDialog.show();
+            isUploading = true;
+        }
     }
 
     @Override
@@ -307,6 +345,26 @@ public class EditPost extends Activity implements View.OnClickListener {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter(ModifyPostService.ACTION_EDIT_POST);
+        intentFilter.addAction(ModifyPostService.ACTION_EDIT_IMAGES);
+        LocalBroadcastManager.getInstance(context).registerReceiver(editPostReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(editPostReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        progressDialog.dismiss();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
@@ -315,6 +373,8 @@ public class EditPost extends Activity implements View.OnClickListener {
         outState.putInt(SAVED_CURRENT_INDEX, imageIndex);
         outState.putStringArray(SAVED_IMAGE_PATHS, photoPaths);
         outState.putParcelableArray(SAVED_IMAGE_URIS, uriStreams);
+        outState.putBoolean(SAVED_UPLOADING_STATE, isUploading);
+        outState.putString(SAVED_PROGRESS_MESSAGE, progressMessage);
     }
 
     @Override
@@ -476,7 +536,6 @@ public class EditPost extends Activity implements View.OnClickListener {
                 break;
         }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -656,27 +715,49 @@ public class EditPost extends Activity implements View.OnClickListener {
 //        return canPost;
 //    }
 
-    /*Temporary solution for asynctask, progress dialog, and orientation compatibility. Next step is to migrate towards IntentServices.*/
-    private void lockScreenOrientation() {
-        switch (((WindowManager) getSystemService(WINDOW_SERVICE))
-                .getDefaultDisplay().getRotation()) {
-            case Surface.ROTATION_90:
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                break;
-            case Surface.ROTATION_180: //Reverse portrait
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
-                break;
-            case Surface.ROTATION_270: //Reverse landscape
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-                break;
-            default :
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
-    }
+    private BroadcastReceiver editPostReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
 
-    private void unlockScreenOrientation() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-    }
+            if(intent.getAction().equals(ModifyPostService.ACTION_EDIT_POST)) {
+                int requestStatus =  intent.getIntExtra(ModifyPostService.EXTRA_SERVER_RESPONSE, StatusCodeParser.CONNECT_FAILED);
+
+                if(requestStatus == StatusCodeParser.STATUS_OK) {
+                    //Add images
+                    Intent editImages = new Intent(EditPost.this, ModifyPostService.class);
+                    editImages.setAction(ModifyPostService.ACTION_EDIT_IMAGES);
+                    editImages.putExtra(ModifyPostService.EXTRA_IDENTIFIER, identifier);
+                    editImages.putExtra(ModifyPostService.EXTRA_ORG_IMAGE_COUNT, originalImageCount);
+                    editImages.putExtra(ModifyPostService.EXTRA_PHOTO_PATHS, photoPaths);
+                    editImages.putExtra(ModifyPostService.EXTRA_URI_STREAMS, uriStreams);
+                    getApplicationContext().startService(editImages);
+
+                    progressMessage = context.getString(R.string.adding_post_image_changes);
+                    progressDialog.setMessage(context.getString(R.string.adding_post_image_changes));
+                    progressDialog.setCancelable(true);
+                    progressDialog.setCanceledOnTouchOutside(true);
+                } else {
+                    Toast.makeText(context, context.getString(R.string.edit_post_failed), Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    isUploading = false;
+                }
+            } else if(intent.getAction().equals(ModifyPostService.ACTION_EDIT_IMAGES)) {
+                isUploading = false;
+                progressMessage = context.getString(R.string.done);
+
+                //If current school active is the post's school, update the results list
+                if(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT).equals(schoolId)) {
+                    Intent i = new Intent(SchoolPostsFragment.ACTION_UPDATE_POSTS);
+                    i.putExtra(AddPost.CATEGORY_NAME, selectedCategory);
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(i); //Update post list if this successfully post was added
+                }
+
+                progressDialog.setMessage(context.getString(R.string.done));
+                progressDialog.cancel();
+                finish();
+            }
+        }
+    };
 
     private class LaunchPostTask extends AsyncTask<String, Void, Integer> {
 
@@ -715,6 +796,7 @@ public class EditPost extends Activity implements View.OnClickListener {
                 getActionBar().setTitle(post.getTitle());
                 title.setText(post.getTitle());
                 details.setText(post.getDetails());
+                tags.setText(post.getTags());
 
                 if (!post.getPrice().equals("0"))
                     price.setText(post.getPrice());
@@ -809,142 +891,6 @@ public class EditPost extends Activity implements View.OnClickListener {
                     progress4.setVisibility(View.INVISIBLE);
                     break;
             }
-        }
-    }
-
-    private class EditPostTask extends AsyncTask<Void, Void, Integer> {
-
-        @Override
-        protected void onPreExecute() {
-            lockScreenOrientation();
-            progressDialog.setMessage(context.getString(R.string.saving_post_changes));
-            progressDialog.show();
-            submit.setEnabled(false);
-        }
-
-        @Override
-        protected Integer doInBackground(Void... voids) {
-            DataParser database = new DataParser(context);
-            int requestStatus = StatusCodeParser.CONNECT_FAILED;
-
-            try {
-                requestStatus = database.editPost(schoolId, identifier, title.getText().toString(),details.getText().toString(),price.getText().toString(),  tags.getText().toString());
-            } catch (IOException e) {
-                Log.e(TAG, "Editing Post", e);
-            }
-
-            return requestStatus;
-        }
-
-        @Override
-        protected void onPostExecute(Integer integer) {
-
-            if(integer == StatusCodeParser.STATUS_OK) {
-                new AddImagesTask().execute();
-                Intent intent = new Intent(SchoolPostsFragment.ACTION_UPDATE_POSTS);
-                intent.putExtra(AddPost.CATEGORY_NAME, selectedCategory);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent); //Update post list if this successfully post was added
-            }
-        }
-    }
-
-    //Asynchronous Task: Sends images after successfully adding a post
-    private class AddImagesTask extends AsyncTask<Void, String, String[]> {
-
-        private int currentPhotoIndex = 0;
-
-        @Override
-        protected void onPreExecute() {
-            progressDialog.setMessage(context.getString(R.string.saving_post_image_changes));
-            submit.setEnabled(false);
-        }
-
-        @Override
-        protected String[] doInBackground(Void... voids) {
-            DataParser database = new DataParser(context);
-            String[] responses = new String[4];
-
-            try {
-                //Add any images with photo paths. Pictures taken with the device's camera
-                for (int i = 0; i < photoPaths.length; i++) {
-                    if (photoPaths[i] != null && !photoPaths[i].isEmpty()) {
-                        switch (i) {
-                            case 0:
-                                responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoPaths[i], currentPhotoIndex++);
-                                break;
-                            case 1:
-                                if (originalImageCount > 0) {
-                                    responses[1] = database.uploadPostImage(identifier, photoPaths[i], 1);
-                                    currentPhotoIndex = 2;
-                                } else
-                                    responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoPaths[i], currentPhotoIndex++);
-                                break;
-                            case 2:
-                                if (originalImageCount > 1) {
-                                    responses[2] = database.uploadPostImage(identifier, photoPaths[i], 2);
-                                    currentPhotoIndex = 3;
-                                } else
-                                    responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoPaths[i], currentPhotoIndex++);
-                                break;
-                            case 3:
-                                if (originalImageCount > 2)
-                                    responses[3] = database.uploadPostImage(identifier, photoPaths[i], 3);
-                                else
-                                    responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoPaths[i], currentPhotoIndex++);
-                                break;
-                        }
-                    }
-                }
-                //Add any images from input streams. Existing images from device
-                for (int i = 0; i < uriStreams.length; i++) {
-                    if (uriStreams[i] != null) {
-                        InputStream photoStream = context.getContentResolver().openInputStream(uriStreams[i]);
-                        switch (i) {
-                            case 0:
-                                responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream, currentPhotoIndex++);
-                                break;
-                            case 1:
-                                if (originalImageCount > 0) {
-                                    responses[1] = database.uploadPostImage(identifier, photoStream, 1);
-                                    currentPhotoIndex = 2;
-                                } else
-                                    responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream, currentPhotoIndex++);
-                                break;
-                            case 2:
-                                if (originalImageCount > 1) {
-                                    responses[2] = database.uploadPostImage(identifier, photoStream, 2);
-                                    currentPhotoIndex = 3;
-                                } else
-                                    responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream, currentPhotoIndex++);
-                                break;
-                            case 3:
-                                if (originalImageCount > 2) {
-                                    responses[3] = database.uploadPostImage(identifier, photoStream, 3);
-                                } else
-                                    responses[currentPhotoIndex] = database.uploadPostImage(identifier, photoStream, currentPhotoIndex++);
-                                break;
-                        }
-                    }
-                }
-
-            } catch (IOException e) {
-                Log.e(TAG, "Uploading images", e);
-            }
-            return responses;
-        }
-
-        @Override
-        protected void onPostExecute(String[] responses) {
-            progressDialog.setMessage(context.getString(R.string.done));
-            progressDialog.cancel();
-
-            for (String response : responses)
-                if (response != null)
-                    Log.d(TAG, response);
-
-            submit.setEnabled(true);
-            unlockScreenOrientation();
-            finish();
         }
     }
 

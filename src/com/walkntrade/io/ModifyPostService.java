@@ -255,7 +255,7 @@ public class ModifyPostService extends IntentService {
             Log.e(TAG, "Uploading images", e);
         }
 
-        Intent intent = new Intent(ACTION_ADD_IMAGES);
+        Intent intent = new Intent(ACTION_EDIT_IMAGES);
         intent.putExtra(EXTRA_SERVER_RESPONSE, responses);
         intent.putExtra(EXTRA_IDENTIFIER, identifier);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
