@@ -31,6 +31,7 @@ import com.walkntrade.adapters.item.ViewPostItem;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.FormatDateTime;
+import com.walkntrade.io.ModifyPostService;
 import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
@@ -55,14 +56,16 @@ public class PostFragment extends Fragment {
 
     private static final String SAVED_POST_ITEMS = "saved_instance_post_items";
     private static final String SAVED_USER_IMAGE = "saved_instance_user_image";
+    private static final int REQUEST_EDIT_POST = 100;
 
     private ContactUserListener contactListener;
     private Context context;
     private String identifier;
     private Post thisPost;
     private ProgressBar progressImage, progressUserImage, progressProfile;
+    private View postLayout;
     private LinearLayout linearLayout;
-    private TextView title, details, user, date, price, profileUserName;
+    private TextView title, description, user, date, price, profileUserName;
     private ImageView image, image2, image3, image4, userImage;
     private Button contact;
     private ArrayList<ViewPostItem> profilePostItems;
@@ -83,15 +86,15 @@ public class PostFragment extends Fragment {
         context = getActivity().getApplicationContext();
 
         final ScrollView scrollView = (ScrollView) rootView.findViewById(R.id.scroll_view);
-        final View postLayout = rootView.findViewById(R.id.postLayout);
         final RelativeLayout userProfile = (RelativeLayout) rootView.findViewById(R.id.user_profile);
         RelativeLayout userLayout = (RelativeLayout) rootView.findViewById(R.id.user_layout);
         SnappingHorizontalScrollView horizontalScrollView = (SnappingHorizontalScrollView) rootView.findViewById(R.id.horizontalView);
+        postLayout = rootView.findViewById(R.id.postLayout);
         linearLayout = (LinearLayout) rootView.findViewById(R.id.linear_layout);
         profilePosts = (LinearLayout) rootView.findViewById(R.id.profile_posts);
         progressImage = (ProgressBar) rootView.findViewById(R.id.progressBar);
         title = (TextView) rootView.findViewById(R.id.postTitle);
-        details = (TextView) rootView.findViewById(R.id.postDescr);
+        description = (TextView) rootView.findViewById(R.id.postDescr);
         user = (TextView) rootView.findViewById(R.id.userName);
         date = (TextView) rootView.findViewById(R.id.postDate);
         price = (TextView) rootView.findViewById(R.id.postPrice);
@@ -140,7 +143,7 @@ public class PostFragment extends Fragment {
 
         identifier = thisPost.getIdentifier();
         title.setText(thisPost.getTitle());
-        details.setText(thisPost.getDetails());
+        description.setText(thisPost.getDetails());
         user.setText(thisPost.getUser());
         date.setText(FormatDateTime.formatDate(thisPost.getDate()));
         if (!thisPost.getPrice().equals(""))
@@ -243,7 +246,7 @@ public class PostFragment extends Fragment {
                         editPost.putExtra(EditPost.POST_OBJECT, thisPost);
                         editPost.putExtra(EditPost.POST_ID, obsId);
                         editPost.putExtra(EditPost.POST_IDENTIFIER, identifier);
-                        startActivity(editPost);
+                        startActivityForResult(editPost, REQUEST_EDIT_POST);
                     } else
                         contactListener.contactUser(thisPost.getUser(), thisPost.getTitle());
                 } else
@@ -306,6 +309,45 @@ public class PostFragment extends Fragment {
             }
         } else
             contact.setText(getString(R.string.contact_login));
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_EDIT_POST:
+                if (resultCode == Activity.RESULT_OK) {
+                    title.setText(data.getStringExtra(ModifyPostService.EXTRA_TITLE));
+                    description.setText(data.getStringExtra(ModifyPostService.EXTRA_DESCRIPTION));
+                    price.setText(data.getStringExtra(ModifyPostService.EXTRA_PRICE));
+
+                    String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
+                    DiskLruImageCache imageCache = new DiskLruImageCache(context, schoolID + DiskLruImageCache.DIRECTORY_POST_IMAGES);
+
+                    //Removes all possible images from disk cache
+                    imageCache.removeFromCache(identifier + "_thumb");
+                    for (int i = 0; i < 4; i++) {
+                        String key = identifier + "_" + i;
+                        imageCache.removeFromCache(key);
+                    }
+
+                    String imgUrl = generateImgURL(0);
+                    asyncTask1 = new SpecialImageRetrievalTask(image, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+
+
+                    imgUrl = generateImgURL(1);
+                    asyncTask2 = new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+
+
+                    imgUrl = generateImgURL(2);
+                    asyncTask3 = new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
+
+
+                    imgUrl = generateImgURL(3);
+                    asyncTask4 = new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
+
+                }
+                break;
+        }
     }
 
     private void processClick(int index) {
@@ -395,13 +437,17 @@ public class PostFragment extends Fragment {
         protected void onPostExecute(Bitmap bitmap) {
             switch (index) { //Do not search for these images again
                 case 0:
-                    imageOne = true; break;
+                    imageOne = true;
+                    break;
                 case 1:
-                    imageTwo = true; break;
+                    imageTwo = true;
+                    break;
                 case 2:
-                    imageThree = true; break;
+                    imageThree = true;
+                    break;
                 case 3:
-                    imageFour = true; break;
+                    imageFour = true;
+                    break;
             }
 
             if (bitmap != null) {
@@ -444,7 +490,6 @@ public class PostFragment extends Fragment {
                 serverResponse = result.getStatus();
                 userProfile = result.getObject();
 
-                Log.i(TAG, "UserProfile : "+serverResponse);
             } catch (Exception e) {
                 Log.e(TAG, "Downloading User Profile ", e);
             }

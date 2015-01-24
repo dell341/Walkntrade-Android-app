@@ -183,6 +183,26 @@ public class DiskLruImageCache {
         return bitmap;
     }
 
+    public void removeFromCache(String key) {
+        synchronized (mDiskCacheLock) {
+            while (mDiskCacheStarting) {
+                try {
+                    mDiskCacheLock.wait();
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "GetBitmapFromCache", e);
+                }
+            }
+
+            if(diskCache != null) {
+                try {
+                    diskCache.remove(key);
+                } catch (IOException e) {
+                    Log.e(TAG, "Removing Bitmap from cache");
+                }
+            }
+        }
+    }
+
     //Closes the current opened disk cache
     public void close() {
         synchronized (mDiskCacheLock) {

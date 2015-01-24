@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -22,9 +21,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Surface;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -46,7 +43,6 @@ import com.walkntrade.objects.Post;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
@@ -85,7 +81,7 @@ public class EditPost extends Activity implements View.OnClickListener {
     private ProgressBar progress1, progress2, progress3, progress4;
     private ProgressDialog progressDialog;
     private ScrollView scrollView;
-    private EditText title, details, price, tags;
+    private EditText title, description, price, tags;
     private TextView errorMessage;
     private ImageView image1, image2, image3, image4;
     private Button submit;
@@ -119,7 +115,7 @@ public class EditPost extends Activity implements View.OnClickListener {
         scrollView = (ScrollView) findViewById(R.id.scroll_view);
         errorMessage = (TextView) findViewById(R.id.error_message);
         title = (EditText) findViewById(R.id.postTitle);
-        details = (EditText) findViewById(R.id.postDescr);
+        description = (EditText) findViewById(R.id.postDescr);
         price = (EditText) findViewById(R.id.postPrice);
         tags = (EditText) findViewById(R.id.post_tags);
         submit = (Button) findViewById(R.id.button);
@@ -230,7 +226,7 @@ public class EditPost extends Activity implements View.OnClickListener {
                 schoolId = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
                 identifier = thisPost.getIdentifier();
                 title.setText(thisPost.getTitle());
-                details.setText(thisPost.getDetails());
+                description.setText(thisPost.getDetails());
 
                 if (!thisPost.getPrice().equals("0"))
                     price.setText(thisPost.getPrice());
@@ -296,7 +292,7 @@ public class EditPost extends Activity implements View.OnClickListener {
             editPost.putExtra(ModifyPostService.EXTRA_IDENTIFIER, identifier);
             editPost.putExtra(ModifyPostService.EXTRA_SCHOOL_ID, schoolId);
             editPost.putExtra(ModifyPostService.EXTRA_TITLE, title.getText().toString());
-            editPost.putExtra(ModifyPostService.EXTRA_DESCRIPTION, details.getText().toString());
+            editPost.putExtra(ModifyPostService.EXTRA_DESCRIPTION, description.getText().toString());
             editPost.putExtra(ModifyPostService.EXTRA_PRICE, price.getText().toString());
             editPost.putExtra(ModifyPostService.EXTRA_TAGS, tags.getText().toString());
 
@@ -666,12 +662,12 @@ public class EditPost extends Activity implements View.OnClickListener {
             title.setError(getString(R.string.error_long_title));
             canPost = false;
         }
-        if (details.length() < 5) {
-            details.setError(getString(R.string.error_short_description));
+        if (description.length() < 5) {
+            description.setError(getString(R.string.error_short_description));
             canPost = false;
         }
-        if (details.length() > 3000) {
-            details.setError(getString(R.string.error_long_description));
+        if (description.length() > 3000) {
+            description.setError(getString(R.string.error_long_description));
             canPost = false;
         }
         if (tags.length() < 5) {
@@ -752,6 +748,12 @@ public class EditPost extends Activity implements View.OnClickListener {
                     LocalBroadcastManager.getInstance(context).sendBroadcast(i); //Update post list if this successfully post was added
                 }
 
+                Intent i = new Intent();
+                i.putExtra(ModifyPostService.EXTRA_TITLE, title.getText().toString());
+                i.putExtra(ModifyPostService.EXTRA_DESCRIPTION, description.getText().toString());
+                i.putExtra(ModifyPostService.EXTRA_PRICE, price.getText().toString());
+                EditPost.this.setResult(RESULT_OK, i);
+
                 progressDialog.setMessage(context.getString(R.string.done));
                 progressDialog.cancel();
                 finish();
@@ -795,7 +797,7 @@ public class EditPost extends Activity implements View.OnClickListener {
             if(serverResponse == StatusCodeParser.STATUS_OK) {
                 getActionBar().setTitle(post.getTitle());
                 title.setText(post.getTitle());
-                details.setText(post.getDetails());
+                description.setText(post.getDetails());
                 tags.setText(post.getTags());
 
                 if (!post.getPrice().equals("0"))
