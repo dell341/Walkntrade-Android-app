@@ -13,10 +13,10 @@ import android.os.Parcelable;
 public abstract class Post implements Parcelable{ //Implements Parcelable for ability to send through intents and different activities
 	
 	//public static final String CATEGORY_ALL = "All";
-	public static final String CATEGORY_BOOK = "Books";
-	public static final String CATEGORY_TECH = "Tech";
-	public static final String CATEGORY_HOUSING = "Housing";
-	public static final String CATEGORY_MISC = "Miscellaneous";
+	public static final String CATEGORY_BOOK = "book";
+	public static final String CATEGORY_TECH = "tech";
+	public static final String CATEGORY_HOUSING = "housing";
+	public static final String CATEGORY_MISC = "misc";
     public static final String CATEGORY_UNKNOWN = "Unknown";
 	
 	private String obsId, schoolId, identifier, title, details, user, imgURL, date, views;

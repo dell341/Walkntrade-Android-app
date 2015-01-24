@@ -12,6 +12,8 @@
     <string name="post_submit">Submit Post</string>
     <string name="add_photo">Upload photo</string>
     <string name="add_post_images">Add images to your post (4 max):</string>
+    <string name="add_post_failed">Could not add post</string>
+    <string name="add_post_in_progress">Post already being added</string>
     <string name="adding_post_changes">Adding post&#8230;</string>
     <string name="adding_post_image_changes">Adding images&#8230;</string>
 

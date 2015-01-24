@@ -53,7 +53,9 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
     private String TAG = "SchoolPostsFragment";
     public static final String ARG_CATEGORY = "Fragment Category";
     public static final String INDEX = "index";
-    public static final String ACTION_UPDATE_POSTS = "com.walkntrade.fragments.SchoolPostsFragment.update_posts";
+    public static final String ACTION_UPDATE_POSTS = "com.walkntrade.fragments.action.UPDATE_POSTS";
+    public static final String ACTION_UPDATE_POST_IMAGE = "com.walkntrade.fragments.action.UPDATE_IMAGE";
+    public static final String EXTRA_POST_IDENTIFIER = "com.walkntrade.fragments.extra.IDENTIFIER";
     private String category;
 
     private static final String SAVED_ARRAYLIST = "saved_instance_array_list";
@@ -81,14 +83,12 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         setHasOptionsMenu(true); //Options in Actionbar (Search)
         setRetainInstance(true); //Prevents fragment from being destroyed during activity change. (Especially if AsyncTask is currently running)
 
-        Log.d(TAG, "Fragment - onCreate");
         context = getActivity().getApplicationContext();
         postsAdapter = new PostAdapter(this.getActivity(), schoolPosts);
     }
 
     @Override //This method may be called several times
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.i(TAG, "Fragment - onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_school_page, container, false);
 
         bigProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
@@ -238,7 +238,9 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
     @Override
     public void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(context).registerReceiver(updatePostsReceiver, new IntentFilter(ACTION_UPDATE_POSTS));
+        IntentFilter intentFilter = new IntentFilter(ACTION_UPDATE_POSTS);
+        intentFilter.addAction(ACTION_UPDATE_POST_IMAGE);
+        LocalBroadcastManager.getInstance(context).registerReceiver(updatePostsReceiver, intentFilter);
     }
 
     private BroadcastReceiver updatePostsReceiver = new BroadcastReceiver() {
@@ -246,13 +248,15 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         public void onReceive(Context context, Intent intent) {
             String intentCategoryName = intent.getStringExtra(AddPost.CATEGORY_NAME);
             if((intentCategoryName != null && category.equals(intentCategoryName)) || category.equals(context.getString(R.string.server_category_all))) {
-                //Equivalent of onRefresh()
-                refreshLayout.setEnabled(false);
-                offset = 0;
-                shouldClearContents = true;
+                if(intent.getAction().equals(ACTION_UPDATE_POSTS)) {
+                    //Equivalent of onRefresh()
+                    refreshLayout.setEnabled(false);
+                    offset = 0;
+                    shouldClearContents = true;
 
-                bigProgressBar.setVisibility(View.VISIBLE);
-                downloadMorePosts(bigProgressBar);
+                    bigProgressBar.setVisibility(View.VISIBLE);
+                    downloadMorePosts(bigProgressBar);
+                }
             }
         }
     };
@@ -358,6 +362,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
             }
             refreshLayout.setEnabled(true);
             refreshLayout.setRefreshing(false);
+            Log.d(TAG, "Completed post refresh");
         }
     }
 
@@ -374,7 +379,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         protected Bitmap doInBackground(String... imgURL) {
             Bitmap bm = null;
 
-            if(imgURL[0].equalsIgnoreCase(context.getString(R.string.default_image_url)))
+            if(imgURL[0].equalsIgnoreCase(context.getString(R.string.default_image_url)) || imgURL[0] == null)
                 return BitmapFactory.decodeResource(context.getResources(), R.drawable.post_image);
 
             String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);

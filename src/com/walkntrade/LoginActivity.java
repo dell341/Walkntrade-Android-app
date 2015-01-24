@@ -59,7 +59,6 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
     private TaskFragment taskFragment;
     private Bitmap background;
 
-    //TODO: Handle password or email changes with auto-login
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

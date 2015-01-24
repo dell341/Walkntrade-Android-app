@@ -3,13 +3,13 @@ package com.walkntrade;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
@@ -21,14 +21,11 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Surface;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,13 +33,12 @@ import android.widget.Toast;
 import com.walkntrade.fragments.SchoolPostsFragment;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.ImageTool;
-import com.walkntrade.views.SimpleProgressDialog;
+import com.walkntrade.io.ModifyPostService;
 import com.walkntrade.views.SnappingHorizontalScrollView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,6 +55,8 @@ public class AddPost extends Activity implements OnClickListener {
     private static final String SAVED_CURRENT_PATH = "saved_instance_current_path";
     private static final String SAVED_IMAGE_PATHS = "saved_instance_image_paths";
     private static final String SAVED_IMAGE_URIS = "saved_instance_image_uri";
+    private static final String SAVED_UPLOADING_STATE = "saved_instance_uploading_state";
+    private static final String SAVED_PROGRESS_MESSAGE = "saved_instance_progress_message";
     public static final String CATEGORY_NAME = "category_name";
     public static final int REQUEST_ADD_POST = 200;
     //public static final String CATEGORY_POSITION = "category_position";
@@ -77,12 +75,13 @@ public class AddPost extends Activity implements OnClickListener {
     private TextView postError;
     private EditText title, author, description, price, isbn, tags;
     private ImageView image1, image2, image3, image4;
-    private String _title, _author, _description, _isbn, _price, _tags;
+    private String sTitle, sAuthor, sDescription, sIsbn, sPrice, sTags;
     private Context context;
     private Button submit;
 
+    private boolean isUploading = false;
+    private String progressMessage = "";
     private String selectedCategory;
-    private int currentPhotoIndex = 0;
     private String currentPhotoPath;
     private Uri[] uriStreams = new Uri[4];
     private String[] photoPaths = new String[4];
@@ -104,11 +103,11 @@ public class AddPost extends Activity implements OnClickListener {
         postError = (TextView) findViewById(R.id.post_error);
         title = (EditText) findViewById(R.id.content_title);
         description = (EditText) findViewById(R.id.post_description);
+        author = (EditText) findViewById(R.id.post_author);
+        isbn = (EditText) findViewById(R.id.post_isbn);
         price = (EditText) findViewById(R.id.post_price);
         tags = (EditText) findViewById(R.id.post_tags);
         if (selectedCategory.equals(getString(R.string.server_category_book))) {
-            author = (EditText) findViewById(R.id.post_author);
-            isbn = (EditText) findViewById(R.id.post_isbn);
             author.setVisibility(View.VISIBLE);
             isbn.setVisibility(View.VISIBLE);
         }
@@ -136,6 +135,13 @@ public class AddPost extends Activity implements OnClickListener {
 
             currentPhotoPath = savedInstanceState.getString(SAVED_CURRENT_PATH);
             photoPaths = savedInstanceState.getStringArray(SAVED_IMAGE_PATHS);
+            isUploading = savedInstanceState.getBoolean(SAVED_UPLOADING_STATE);
+            progressMessage = savedInstanceState.getString(SAVED_PROGRESS_MESSAGE);
+
+            if(isUploading) {
+                progressDialog.setMessage(progressMessage);
+                progressDialog.show();
+            }
 
             //Each item has to be cast individually. It cannot be guaranteed that every Parcelable item is also a Uri item. [Prevents ClassCastException]
             Parcelable[] parcelables = savedInstanceState.getParcelableArray(SAVED_IMAGE_URIS);
@@ -203,31 +209,58 @@ public class AddPost extends Activity implements OnClickListener {
         submit.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(isUploading) //If a post is already being uploaded, do nothing.
+                    return;
+
                 if (!DataParser.isUserLoggedIn(context)) {
                     Toast toast = Toast.makeText(context, getString(R.string.no_login), Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0);
                     toast.show();
                     return;
                 }
+
+                Intent addPost = new Intent(AddPost.this, ModifyPostService.class);
                 postError.setVisibility(View.GONE);
-                _title = title.getText().toString();
-                _description = description.getText().toString();
-                _tags = tags.getText().toString();
-                _price = price.getText().toString();
+                sTitle = title.getText().toString();
+                sAuthor = author.getText().toString();
+                sDescription = description.getText().toString();
+                sIsbn = isbn.getText().toString();
+                sPrice = price.getText().toString();
+                sTags = tags.getText().toString();
 
                 //Submitting a post for a book
                 if (selectedCategory.equals(getString(R.string.server_category_book))) {
-                    _author = author.getText().toString();
-                    _isbn = isbn.getText().toString();
+                    if (canPostBook() && DataParser.isNetworkAvailable(context)) {
+                        addPost.setAction(ModifyPostService.ACTION_ADD_POST);
+                        addPost.putExtra(ModifyPostService.EXTRA_CATEGORY, selectedCategory);
+                        addPost.putExtra(ModifyPostService.EXTRA_TITLE, sTitle);
+                        addPost.putExtra(ModifyPostService.EXTRA_AUTHOR, sAuthor);
+                        addPost.putExtra(ModifyPostService.EXTRA_DESCRIPTION, sDescription);
+                        addPost.putExtra(ModifyPostService.EXTRA_ISBN, sIsbn);
+                        addPost.putExtra(ModifyPostService.EXTRA_PRICE, sPrice);
+                        addPost.putExtra(ModifyPostService.EXTRA_TAGS, sTags);
 
-                    if (canPostBook() && DataParser.isNetworkAvailable(context))
-                        new AddPostTask(context, selectedCategory, _title, _author, _description, _isbn, _price, _tags).execute();
+                        getApplicationContext().startService(addPost);
+                        progressDialog.setMessage(context.getString(R.string.adding_post_changes));
+                        progressMessage = context.getString(R.string.adding_post_changes);
+                        progressDialog.show();
+                        isUploading = true;
+                    }
                 }
-
                 //Submitting a post for other categories
                 else if (canPostOther() && DataParser.isNetworkAvailable(context)) {
-                    AddPostTask asyncTask = new AddPostTask(context, selectedCategory, _title, _author, _description, _isbn, _price, _tags);
-                    asyncTask.execute();
+                    addPost.setAction(ModifyPostService.ACTION_ADD_POST);
+                    addPost.putExtra(ModifyPostService.EXTRA_CATEGORY, selectedCategory);
+                    addPost.putExtra(ModifyPostService.EXTRA_TITLE, sTitle);
+                    addPost.putExtra(ModifyPostService.EXTRA_DESCRIPTION, sDescription);
+                    addPost.putExtra(ModifyPostService.EXTRA_PRICE, sPrice);
+                    addPost.putExtra(ModifyPostService.EXTRA_TAGS, sTags);
+
+                    getApplicationContext().startService(addPost);
+                    progressDialog.setMessage(context.getString(R.string.adding_post_changes));
+                    progressMessage = context.getString(R.string.adding_post_changes);
+                    progressDialog.show();
+                    isUploading = true;
                 }
             }
 
@@ -262,12 +295,34 @@ public class AddPost extends Activity implements OnClickListener {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter(ModifyPostService.ACTION_ADD_POST);
+        intentFilter.addAction(ModifyPostService.ACTION_ADD_IMAGES);
+        LocalBroadcastManager.getInstance(context).registerReceiver(addPostReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(addPostReceiver);
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
         outState.putString(SAVED_CURRENT_PATH, currentPhotoPath);
         outState.putStringArray(SAVED_IMAGE_PATHS, photoPaths);
         outState.putParcelableArray(SAVED_IMAGE_URIS, uriStreams);
+        outState.putBoolean(SAVED_UPLOADING_STATE, isUploading);
+        outState.putString(SAVED_PROGRESS_MESSAGE, progressMessage);
+    }
+
+    @Override
+    protected void onDestroy() {
+        progressDialog.dismiss();
+        super.onDestroy();
     }
 
     @Override
@@ -526,23 +581,23 @@ public class AddPost extends Activity implements OnClickListener {
     private boolean canPostOther() {
         boolean canPost = true;
 
-        if (_title.length() < 2) {
+        if (sTitle.length() < 2) {
             title.setError(getString(R.string.error_short_title));
             canPost = false;
         }
-        if (_title.length() > 150) {
+        if (sTitle.length() > 150) {
             title.setError(getString(R.string.error_long_title));
             canPost = false;
         }
-        if (_description.length() < 5) {
+        if (sDescription.length() < 5) {
             description.setError(getString(R.string.error_short_description));
             canPost = false;
         }
-        if (_description.length() > 3000) {
+        if (sDescription.length() > 3000) {
             description.setError(getString(R.string.error_long_description));
             canPost = false;
         }
-        if (_tags.length() < 5) {
+        if (sTags.length() < 5) {
             tags.setError(getString(R.string.error_short_tags));
             canPost = false;
         }
@@ -561,15 +616,15 @@ public class AddPost extends Activity implements OnClickListener {
         if (!canPostOther()) //Checks if all other fields are valid
             canPost = false;
 
-        if (_author.length() < 2) {
+        if (sAuthor.length() < 2) {
             author.setError(getString(R.string.error_short_author));
             canPost = false;
         }
-        if (_author.length() > 50) {
+        if (sAuthor.length() > 50) {
             author.setError(getString(R.string.error_long_author));
             canPost = false;
         }
-        if (_isbn.length() != 10 && _isbn.length() != 13 && !TextUtils.isEmpty(_isbn)) {
+        if (sIsbn.length() != 10 && sIsbn.length() != 13 && !TextUtils.isEmpty(sIsbn)) {
             isbn.setError(getString(R.string.error_isbn));
             canPost = false;
         }
@@ -588,155 +643,46 @@ public class AddPost extends Activity implements OnClickListener {
         startActivity(loginIntent); //Starts Login  activity
     }
 
-    /*Temporary solution for asynctask, progress dialog, and orientation compatibility. Next step is to migrate towards IntentServices.*/
-    private void lockScreenOrientation() {
-        switch (((WindowManager) getSystemService(WINDOW_SERVICE))
-                .getDefaultDisplay().getRotation()) {
-            case Surface.ROTATION_90:
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                break;
-            case Surface.ROTATION_180: //Reverse portrait
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
-                break;
-            case Surface.ROTATION_270: //Reverse landscape
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-                break;
-            default :
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
-    }
-
-    private void unlockScreenOrientation() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-    }
-
-    //Asynchronous Task; Add post, receives category returns response
-    public class AddPostTask extends AsyncTask<Void, Void, String> {
-
-        private Context context;
-        private String selectedCategory;
-        private String title, author, description, isbn, price, tags;
-        private DataParser database;
-
-        public AddPostTask(Context _context, String _selectedCategory, String _title, String _author, String _description, String _isbn, String _price, String _tags) {
-            context = _context;
-            selectedCategory = _selectedCategory;
-            title = _title;
-            author = _author;
-            description = _description;
-            isbn = _isbn;
-            price = _price;
-            tags = _tags;
-        }
-
+    private BroadcastReceiver addPostReceiver = new BroadcastReceiver() {
         @Override
-        protected void onPreExecute() {
-            lockScreenOrientation();
-            progressDialog.setMessage(context.getString(R.string.adding_post_changes));
-            progressDialog.show();
-            submit.setEnabled(false);
-        }
+        public void onReceive(Context context, Intent intent) {
 
-        @Override
-        protected String doInBackground(Void... voids) {
-            database = new DataParser(context);
-            float priceValue;
-            try {
-                priceValue = Float.parseFloat(price);
-            } catch (NumberFormatException e) {
-                priceValue = 0; //If price field is empty or invalid, set to zero
+            if(intent.getAction().equals(ModifyPostService.ACTION_ADD_POST)) { //Get result from adding a post
+                String identifier = intent.getStringExtra(ModifyPostService.EXTRA_RECEIVED_IDENTIFIER);
+
+                if(identifier == null || identifier.isEmpty()) {
+                    Toast.makeText(context, context.getString(R.string.add_post_failed), Toast.LENGTH_SHORT).show();
+                    scrollView.fullScroll(View.FOCUS_UP);
+                    isUploading = false;
+                }
+                else {
+                    //Add images
+                    Intent addImages = new Intent(AddPost.this, ModifyPostService.class);
+                    addImages.setAction(ModifyPostService.ACTION_ADD_IMAGES);
+                    addImages.putExtra(ModifyPostService.EXTRA_IDENTIFIER, identifier);
+                    addImages.putExtra(ModifyPostService.EXTRA_PHOTO_PATHS, photoPaths);
+                    addImages.putExtra(ModifyPostService.EXTRA_URI_STREAMS, uriStreams);
+                    getApplicationContext().startService(addImages);
+
+                    progressMessage = context.getString(R.string.adding_post_image_changes);
+                    progressDialog.setMessage(context.getString(R.string.adding_post_image_changes));
+                    progressDialog.setCancelable(true);
+                    progressDialog.setCanceledOnTouchOutside(true);
+                }
+            } else if(intent.getAction().equals(ModifyPostService.ACTION_ADD_IMAGES)) { //Get result from adding images
+                isUploading = false;
+                progressMessage = context.getString(R.string.done);
+
+                Intent i = new Intent(SchoolPostsFragment.ACTION_UPDATE_POSTS);
+                i.putExtra(CATEGORY_NAME, selectedCategory);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(i); //Update post list if this successfully post was added
+
+                progressDialog.setMessage(context.getString(R.string.done));
+                progressDialog.cancel();
+                finish();
             }
 
-            String identifier = "";
-            String schoolCode = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
-
-            try {
-                progressDialog.setProgress(10);
-                //Calls different method if book was selected
-                if (selectedCategory.equals(context.getString(R.string.server_category_book))) {
-                    int isbnValue;
-                    try {
-                        isbnValue = Integer.parseInt(isbn);
-                    } catch (NumberFormatException e) {
-                        isbnValue = 0; //If isbn field is empty or invalid, set to zero
-                    }
-                    identifier = database.addPostBook(selectedCategory, schoolCode, title, author, description, priceValue, tags, isbnValue);
-                } else
-                    identifier = database.addPostOther(selectedCategory, schoolCode, title, description, priceValue, tags);
-            } catch (IOException e) {
-                Log.e(TAG, "Adding post", e);
-            }
-
-            return identifier;
         }
-
-        @Override
-        protected void onPostExecute(String identifier) {
-            if(identifier == null || identifier.isEmpty()) {
-                Toast.makeText(context, "Could not submit post", Toast.LENGTH_SHORT).show();
-                scrollView.fullScroll(View.FOCUS_UP);
-            }
-            else {
-                new AddImagesTask().execute(identifier);
-                Intent intent = new Intent(SchoolPostsFragment.ACTION_UPDATE_POSTS);
-                intent.putExtra(CATEGORY_NAME, selectedCategory);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent); //Update post list if this successfully post was added
-            }
-        }
-    }
-
-    //Asynchronous Task: Sends images after successfully adding a post
-    public class AddImagesTask extends AsyncTask<String, String, String[]>{
-        private DataParser database;
-
-        @Override
-        protected void onPreExecute() {
-            progressDialog.setMessage(context.getString(R.string.adding_post_image_changes));
-            submit.setEnabled(false);
-        }
-
-        @Override
-        protected String[] doInBackground(String... identifier) {
-            database = new DataParser(context);
-            String[] responses = new String[4];
-
-            try {
-                //Add any images with photo paths. Pictures taken with the device's camera
-                for (String photoPath : photoPaths)
-                    if (photoPath != null && !photoPath.isEmpty()) {//Photopath is not null and it is not empty
-                        responses[currentPhotoIndex] = database.uploadPostImage(identifier[0], photoPath, currentPhotoIndex++);
-                    }
-
-                    //Add any images from input streams. Existing images from device
-                    for (Uri uriStream : uriStreams)
-                        if (uriStream != null) {
-                            try {
-                                InputStream photoStream = context.getContentResolver().openInputStream(uriStream);
-                                responses[currentPhotoIndex] = database.uploadPostImage(identifier[0], photoStream, currentPhotoIndex++);
-                            } catch (FileNotFoundException e) {
-                                Log.e(TAG, "File Not Found", e);
-                            }
-                        }
-
-            } catch (IOException e){
-                Log.e(TAG, "Uploading images", e);
-            }
-            return responses;
-        }
-
-        @Override
-        protected void onPostExecute(String[] responses) {
-            progressDialog.setMessage(context.getString(R.string.done));
-            progressDialog.cancel();
-
-            for(String response : responses)
-                if(response != null)
-                    Log.d(TAG, response);
-
-            submit.setEnabled(true);
-            unlockScreenOrientation();
-            finish();
-        }
-    }
+    };
 
 }
