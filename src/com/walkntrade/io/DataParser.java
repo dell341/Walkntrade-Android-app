@@ -282,6 +282,8 @@ public class DataParser {
     }
 
     public static void setSharedBooleanPreferences(Context _context, String preferenceName, String key, boolean value) {
+
+        Log.d(TAG, "Setting SharedBoolPreference: "+preferenceName+" - "+value);
         SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(key, value);
@@ -331,7 +333,10 @@ public class DataParser {
     //Returns user login status
     public static boolean isUserLoggedIn(Context _context) {
         SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
-        return settings.getBoolean(DataParser.KEY_CURRENTLY_LOGGED_IN, false);
+        boolean value = settings.getBoolean(DataParser.KEY_CURRENTLY_LOGGED_IN, false);
+        Log.d(TAG, "isUserLogged In: "+value);
+
+        return value;
     }
 
     //All category references exist on the server, so they can be updated and changed dynamically

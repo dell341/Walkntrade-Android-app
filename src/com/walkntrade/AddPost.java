@@ -456,8 +456,8 @@ public class AddPost extends Activity implements OnClickListener {
                 image2.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 break;
             case R.id.add_image_3:
-                uriStreams[3] = null;
-                photoPaths[3] = null;
+                uriStreams[2] = null;
+                photoPaths[2] = null;
                 image3.setImageResource(R.drawable.ic_action_new_picture);
                 image3.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 break;

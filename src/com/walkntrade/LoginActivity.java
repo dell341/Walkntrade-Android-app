@@ -267,6 +267,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
                     LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.ACTION_UPDATE_DRAWER));
                     finish();
                 } else { //If registration id is already found. Send it to the server to make sure it's still updated.
+                    Log.i(TAG, "Registration id is found, sending to server");
                     new AsyncTask<String, Void, String>() {
                         @Override
                         protected String doInBackground(String... regId) {

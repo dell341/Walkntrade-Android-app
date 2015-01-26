@@ -36,6 +36,7 @@ public class GcmRegistration {
     public String getRegistrationId() {
         final SharedPreferences prefs = context.getSharedPreferences(DataParser.PREFS_USER, Context.MODE_PRIVATE);
         String registrationId = prefs.getString(PROPERTY_REG_ID, "");
+        Log.v(TAG, "Registration id: "+registrationId);
         if(registrationId.isEmpty()) {
             Log.i(TAG, "GCM registration not found");
             return "";
@@ -44,6 +45,7 @@ public class GcmRegistration {
         //If app was updated, get new registration ID. Current is not guaranteed to be compatible
         int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
         int currentVersion = getAppVersion();
+        Log.v(TAG, "Registered version : "+registeredVersion+". Current version : "+currentVersion);
         if(registeredVersion != currentVersion) {
             Log.i(TAG, "App version changed");
             return "";

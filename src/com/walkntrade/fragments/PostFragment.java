@@ -159,6 +159,7 @@ public class PostFragment extends Fragment {
         imageThree = false;
         imageFour = false;
 
+        //Uses onGlobalLayoutListener to get the size of the image view after it's placed
         //First Image
         image.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -411,13 +412,9 @@ public class PostFragment extends Fragment {
                 bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from Cache
 
                 if (bm == null) { //If it doesn't exists, retrieve image from network
-                    int width;
-                    int height;
 
-                    do { //Keep measuring the width of the ImageView if it's zero
-                        width = image.getWidth();
-                        height = image.getHeight();
-                    } while (width == 0 || height == 0);
+                    int width = image.getWidth();
+                    int height = image.getHeight();
 
                     bm = DataParser.loadOptBitmap(imgURL[0], width, height);
                 }
