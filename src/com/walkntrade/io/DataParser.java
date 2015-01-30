@@ -669,12 +669,17 @@ public class DataParser {
             disconnectAll();
         }
 
-        if (intentValue.equals(INTENT_GET_PHONENUM))
-            setSharedStringPreference(context, PREFS_USER, KEY_USER_PHONE, serverResponse); //Stores phone number locally to device
-        else if (intentValue.equals(INTENT_GET_EMAILPREF))
-            setSharedStringPreference(context, PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, serverResponse); //Stores email contact preference
-        else
-            Log.e(TAG, "Intent unread: " + intentValue);
+        switch (intentValue) {
+            case INTENT_GET_PHONENUM:
+                setSharedStringPreference(context, PREFS_USER, KEY_USER_PHONE, serverResponse); //Stores phone number locally to device
+                break;
+            case INTENT_GET_EMAILPREF:
+                setSharedStringPreference(context, PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, serverResponse); //Stores email contact preference
+                break;
+            default:
+                Log.e(TAG, "Intent unread: " + intentValue);
+                break;
+        }
 
         return serverResponse;
     }

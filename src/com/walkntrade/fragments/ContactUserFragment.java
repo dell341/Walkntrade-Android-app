@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,13 +64,14 @@ public class ContactUserFragment extends Fragment {
         messageFeedback = (TextView) rootView.findViewById(R.id.message_error);
         TextView contactUser = (TextView) rootView.findViewById(R.id.contactUser);
         messageContents = (EditText) rootView.findViewById(R.id.edit_message_contents);
-        CheckBox checkBox = (CheckBox) rootView.findViewById(R.id.checkBox);
+        final CheckBox checkBox = (CheckBox) rootView.findViewById(R.id.checkBox);
         button = (Button) rootView.findViewById(R.id.button);
 
         String user = thisPost.getUser();
 
         //If user has no phone number on their account. Include a message without the phone number
-        if(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE) == null || DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE).equals("0"))
+        String phoneNumber = DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE);
+        if(phoneNumber == null || phoneNumber.isEmpty() || phoneNumber.equals("0") )
             message = getString(R.string.post_message_content_no_phone);
         else {
             message = String.format(getString(R.string.post_message_content_phone), DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE));
@@ -78,6 +81,20 @@ public class ContactUserFragment extends Fragment {
 
         contactUser.setText(getString(R.string.contacting_user)+" "+ user);
         messageContents.setText(message);
+        messageContents.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                checkBox.setEnabled(false); //If the user edits the default message, disable the phone number checkbox option
+            }
+        });
 
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
