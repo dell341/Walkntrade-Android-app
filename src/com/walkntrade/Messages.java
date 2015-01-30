@@ -283,6 +283,9 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             lastMessageDate.setText(FormatDateTime.formatDateTime(item.getLastDateTime()));
             if (item.hasImage())
                 userImage.setImageBitmap(item.getUserImage());
+            else
+                userImage.setImageResource(R.drawable.avatar);
+
             if (item.getNewMessages() > 0) {
                 postTitle.setTypeface(postTitle.getTypeface(), Typeface.BOLD);
                 lastMessage.setTypeface(lastMessage.getTypeface(), Typeface.BOLD);
