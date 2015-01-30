@@ -30,14 +30,16 @@ import java.util.ArrayList;
 public class TaskFragment extends Fragment {
 
     private static final String TAG = "TaskFragment";
-    public static final String ARG_THREAD_ID = "com.walkntrade.fragments.argument_thread_id";
-    public static final String ARG_TASK_ID = "com.walkntrade.fragments.async_task_id";
-    public static final String ARG_LOGIN_USER = "com.walkntrade.fragments.login_user";
-    public static final String ARG_LOGIN_PASSWORD = "com.walkntrade.fragments.login_password";
+    public static final String ARG_THREAD_ID = "com.walkntrade.fragments.arg.THREAD_ID";
+    public static final String ARG_LOGIN_USER = "com.walkntrade.fragments.arg.LOGIN_USER";
+    public static final String ARG_LOGIN_PASSWORD = "com.walkntrade.fragments.arg.LOGIN_PASSWORD";
+    public static final String ARG_MESSAGES_THREAD_IDS = "com.walkntrade.fragments.arg.MESSAGES_THREAD_IDS";
 
+    public static final String ARG_TASK_ID = "com.walkntrade.fragments.arg.ASYNC_TASK_ID";
     public static final int TASK_LOGIN = 100;
     public static final int TASK_GET_MESSAGE_THREADS = 200;
     public static final int TASK_GET_CHAT_THREAD = 300;
+    public static final int TASK_REMOVE_MESSAGE_THREADS = 400;
 
 
     private TaskCallbacks callbacks;
@@ -75,6 +77,10 @@ public class TaskFragment extends Fragment {
                 final String threadId = getArguments().getString(ARG_THREAD_ID);
                 ChatThreadTask chatThreadTask = new ChatThreadTask();
                 chatThreadTask.execute(threadId); break;
+            case TASK_REMOVE_MESSAGE_THREADS:
+                final ArrayList<String> messagesToDelete = getArguments().getStringArrayList(ARG_MESSAGES_THREAD_IDS);
+                DeleteThreadTask deleteThreadTask = new DeleteThreadTask(messagesToDelete);
+                deleteThreadTask.execute(); break;
         }
     }
 
@@ -184,6 +190,7 @@ public class TaskFragment extends Fragment {
     private class ChatThreadTask extends AsyncTask<String, Void, ObjectResult<ArrayList<ChatObject>>> {
         @Override
         protected void onPreExecute() {
+            Log.v(TAG, "Starting ChatThread Task");
             if (callbacks != null)
                 callbacks.onPreExecute(taskId);
         }
@@ -214,6 +221,62 @@ public class TaskFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ObjectResult<ArrayList<ChatObject>> result) {
+            Log.d(TAG, "Stopping ChatThreadTask");
+            if (callbacks != null)
+                callbacks.onPostExecute(taskId, result);
+        }
+    }
+
+    private class DeleteThreadTask extends AsyncTask<Void, Void, ObjectResult<String[]>> {
+
+        private ArrayList<String> messageToDelete;
+
+        public DeleteThreadTask(ArrayList<String> messagesToDelete) {
+            this.messageToDelete = messagesToDelete;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            if (callbacks != null)
+            callbacks.onPreExecute(taskId);
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            if (callbacks != null)
+                callbacks.onProgressUpdate(0);
+        }
+
+        @Override
+        protected ObjectResult<String[]> doInBackground(Void... voids) {
+            int numDeleted = 0;
+            String[] threadIds = new String[messageToDelete.size()];
+            DataParser database = new DataParser(getActivity().getApplicationContext());
+            ObjectResult<String[]> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, threadIds);
+
+            try {
+                for(String threadId : messageToDelete) {
+                    int serverResponse = database.deleteThread(threadId);
+
+                    if(serverResponse != StatusCodeParser.STATUS_OK) { //If an error occured, stop and return code
+                        result.setStatus(serverResponse);
+                        return result;
+                    }
+                    else {
+                        threadIds[numDeleted] = threadId;
+                        numDeleted++;
+                    }
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Deleting message(s)", e);
+            }
+
+            result.setStatus(StatusCodeParser.STATUS_OK);
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(ObjectResult<String[]> result) {
             if (callbacks != null)
                 callbacks.onPostExecute(taskId, result);
         }

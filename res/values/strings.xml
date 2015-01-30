@@ -78,6 +78,7 @@
     <!-- Auto-generated Strings **Remove All** -->
     <string name="invalid_message">Message cannot be blank</string>
     <string name="no_messages">You don\'t have any messages!</string>
+    <string name="removing_messages">Deleting conversation&#8230;</string>
     <string name="title_activity_show_message">Walkntrade Message</string>
     <string name="title_activity_search">Searching</string>
     <string name="title_activity_message_conversation">MessageConversation</string>

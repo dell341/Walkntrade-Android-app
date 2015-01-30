@@ -1,8 +1,7 @@
 package com.walkntrade;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -41,7 +40,7 @@ import com.walkntrade.objects.MessageThread;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 
 /*
  * Copyright (c) 2014. All Rights Reserved. Walkntrade
@@ -54,7 +53,9 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private static final String TAG_TASK_FRAGMENT = "Task_Fragment";
     private static final String SAVED_INSTANCE_MESSAGES = "saved_instance_messages";
     private static final String SAVED_INSTANCE_PROGRESS_STATE = "saved_instance_progress_state";
+    private static final String SAVED_PROGRESS_MESSAGE = "saved_instance_progress_message";
     private static final String SAVED_INSTANCE_ERROR_MESSAGE_STATE = "saved_instance_error_state";
+    private static final String SAVED_PROGRESS_DIALOG_STATE = "saved_instance_progress_state";
 
     private Context context;
     private ProgressBar progressBar;
@@ -63,6 +64,10 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private ListView messageList;
     private MessageThreadAdapter threadAdapter;
 
+    private ProgressDialog progressDialog;
+    private String progressMessage = "";
+    private boolean isDialogShowing = false;
+    private boolean isProgressShowing = false;
     private TaskFragment taskFragment;
 
     @Override
@@ -83,20 +88,33 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
-        refreshLayout.setEnabled(false);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setProgressNumberFormat(null);
+        progressDialog.setProgressPercentFormat(null);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
 
         /*Fragment implementation is used for getting thread, to allow continuous download during configuration changes
         * i.e. device rotation
         */
         taskFragment = (TaskFragment) getFragmentManager().findFragmentByTag(TAG_TASK_FRAGMENT);
-        if(taskFragment == null) //If this Fragment already exists during onCreate, do not download message threads
+        if (taskFragment == null) //If this fragment already exists during onCreate, do not download message threads
             downloadMessageThreads();
 
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             ArrayList<MessageThread> messages = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_MESSAGES);
-            progressBar.setVisibility(savedInstanceState.getInt(SAVED_INSTANCE_PROGRESS_STATE) == View.VISIBLE ? View.VISIBLE : View.INVISIBLE);
+            isDialogShowing = savedInstanceState.getBoolean(SAVED_PROGRESS_DIALOG_STATE);
+            isProgressShowing = savedInstanceState.getBoolean(SAVED_INSTANCE_PROGRESS_STATE);
+            Log.v(TAG, "isProgress? "+isProgressShowing);
+            progressBar.setVisibility( isProgressShowing ? View.VISIBLE : View.INVISIBLE);
+            progressDialog.setMessage(savedInstanceState.getString(SAVED_PROGRESS_MESSAGE));
 
-            if(messages != null) {
+            if (isDialogShowing)
+                progressDialog.show();
+
+            if (messages != null) {
                 threadAdapter = new MessageThreadAdapter(context, messages);
                 messageList.setAdapter(threadAdapter);
             }
@@ -144,9 +162,11 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if(threadAdapter != null)
+        if (threadAdapter != null)
             outState.putParcelableArrayList(SAVED_INSTANCE_MESSAGES, threadAdapter.getItems());
-        outState.putInt(SAVED_INSTANCE_PROGRESS_STATE, progressBar.getVisibility());
+        outState.putBoolean(SAVED_INSTANCE_PROGRESS_STATE, isProgressShowing);
+        outState.putString(SAVED_PROGRESS_MESSAGE, progressMessage);
+        outState.putBoolean(SAVED_PROGRESS_DIALOG_STATE, isDialogShowing);
     }
 
     @Override
@@ -217,7 +237,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.action_delete:
-                    new DeleteThreadTask().execute(messageIds);
+                    deleteMessageThreads();
                     mode.finish(); //Close the Contextual Action Bar
                     return true;
                 default:
@@ -229,6 +249,16 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         public void onDestroyActionMode(ActionMode mode) {
             count = 0;
             refreshLayout.setEnabled(true);
+        }
+
+        private void deleteMessageThreads() {
+            Bundle args = new Bundle();
+            args.putInt(TaskFragment.ARG_TASK_ID, TaskFragment.TASK_REMOVE_MESSAGE_THREADS);
+            args.putStringArrayList(TaskFragment.ARG_MESSAGES_THREAD_IDS, messageIds);
+            taskFragment = new TaskFragment();
+            taskFragment.setArguments(args);
+
+            getFragmentManager().beginTransaction().add(taskFragment, TAG_TASK_FRAGMENT).commit();
         }
     }
 
@@ -259,6 +289,15 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         public ArrayList<MessageThread> getItems() {
             return items;
+        }
+
+        public void removeItems(String[] threadIds) { //Remove items matching the specified Ids
+            for (String id : threadIds)
+                for (Iterator<MessageThread> iterator = items.iterator(); iterator.hasNext();) { //Uses iterator because, cannot modify and iterate over ArrayList concurrently
+                    MessageThread m = iterator.next();
+                    if (m.getThreadId().equals(id))
+                        iterator.remove();
+                }
         }
 
         @Override
@@ -300,11 +339,23 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
     @Override
     public void onPreExecute(int taskId) {
-        if(!refreshLayout.isRefreshing())
-            progressBar.setVisibility(View.VISIBLE);
 
+        switch (taskId) {
+            case TaskFragment.TASK_GET_MESSAGE_THREADS:
+                if (!refreshLayout.isRefreshing()) {
+                    progressBar.setVisibility(View.VISIBLE);
+                    isProgressShowing = true;
+                }
+                break;
+            case TaskFragment.TASK_REMOVE_MESSAGE_THREADS:
+                isDialogShowing = true;
+                progressMessage = getString(R.string.removing_messages);
+                progressDialog.setMessage(progressMessage);
+                progressDialog.show();
+                break;
+        }
         noResults.setVisibility(View.GONE);
-        refreshLayout.setEnabled(false); //Do not allow drag to refresh, while downloading data
+        refreshLayout.setEnabled(false); //Do not allow drag to refresh, while performing a network call
     }
 
     @Override
@@ -317,30 +368,53 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
     @Override
     public void onPostExecute(int taskId, Object result) {
-        progressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.INVISIBLE);
+        isProgressShowing = false;
 
-        ObjectResult<ArrayList<MessageThread>> objectResult = (ObjectResult<ArrayList<MessageThread>>)result;
-        int serverResponse = objectResult.getStatus();
+        int requestStatus;
 
-        if(serverResponse == StatusCodeParser.STATUS_OK) {
-            ArrayList<MessageThread> messageThreads = objectResult.getObject();
+        switch (taskId) {
+            case TaskFragment.TASK_GET_MESSAGE_THREADS:
+                ObjectResult<ArrayList<MessageThread>> objectResult = (ObjectResult<ArrayList<MessageThread>>) result;
+                requestStatus = objectResult.getStatus();
 
-            if(messageThreads.isEmpty()) {
-                noResults.setText(context.getString(R.string.no_messages));
-                noResults.setVisibility(View.VISIBLE);
-                messageList.setAdapter(null);
-            } else {
-                threadAdapter = new MessageThreadAdapter(context, messageThreads);
-                messageList.setAdapter(threadAdapter);
+                if (requestStatus == StatusCodeParser.STATUS_OK) {
+                    ArrayList<MessageThread> messageThreads = objectResult.getObject();
 
-                for (MessageThread m : messageThreads)
-                    new UserAvatarRetrievalTask(m).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m.getUserImageUrl());
-            }
+                    if (messageThreads.isEmpty()) {
+                        noResults.setText(context.getString(R.string.no_messages));
+                        noResults.setVisibility(View.VISIBLE);
+                        messageList.setAdapter(null);
+                    } else {
+                        threadAdapter = new MessageThreadAdapter(context, messageThreads);
+                        messageList.setAdapter(threadAdapter);
 
-        } else {
-            messageList.setAdapter(null);
-            noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
-            noResults.setVisibility(View.VISIBLE);
+                        for (MessageThread m : messageThreads)
+                            new UserAvatarRetrievalTask(m).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m.getUserImageUrl());
+                    }
+
+                } else {
+                    messageList.setAdapter(null);
+                    noResults.setText(StatusCodeParser.getStatusString(context, requestStatus));
+                    noResults.setVisibility(View.VISIBLE);
+                }
+                break;
+            case TaskFragment.TASK_REMOVE_MESSAGE_THREADS:
+                ObjectResult<String[]> objectResult1 = (ObjectResult<String[]>) result;
+                requestStatus = objectResult1.getStatus();
+                isDialogShowing = false;
+
+                threadAdapter.removeItems(objectResult1.getObject());
+                threadAdapter.notifyDataSetChanged();
+
+                if (requestStatus == StatusCodeParser.STATUS_OK)
+                    progressDialog.dismiss();
+                else {
+                    progressDialog.setMessage(StatusCodeParser.getStatusString(context, requestStatus));
+                    progressDialog.setCancelable(true);
+                    progressDialog.setCanceledOnTouchOutside(true);
+                }
+                break;
         }
 
         refreshLayout.setRefreshing(false);
@@ -396,35 +470,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                 messageThread.setBitmap(bitmap);
                 threadAdapter.notifyDataSetChanged();
             }
-        }
-    }
-
-    private class DeleteThreadTask extends AsyncTask<ArrayList<String>, Void, Integer> {
-        @Override
-        protected void onPreExecute() {
-            refreshLayout.setRefreshing(true);
-            refreshLayout.setEnabled(false);
-        }
-
-        @Override
-        protected final Integer doInBackground(ArrayList<String>... messagesToDelete) {
-            DataParser database = new DataParser(context);
-            int serverResponse = StatusCodeParser.CONNECT_FAILED;
-
-            try {
-                for (String s : messagesToDelete[0])
-                    serverResponse = database.deleteThread(s);
-            } catch (IOException e) {
-                Log.e(TAG, "Deleting message(s)", e);
-            }
-
-            return serverResponse;
-        }
-
-        @Override
-        protected void onPostExecute(Integer serverResponse) {
-            Log.v(TAG, "Delete complete");
-            downloadMessageThreads();
         }
     }
 }

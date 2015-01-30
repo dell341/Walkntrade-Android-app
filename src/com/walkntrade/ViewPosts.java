@@ -2,6 +2,7 @@ package com.walkntrade;
 
 import android.animation.Animator;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -42,7 +43,7 @@ import java.util.Locale;
  * https://walkntrade.com
  */
 
-public class ViewPosts extends Activity implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class ViewPosts extends Activity implements AdapterView.OnItemClickListener {
 
     private static final String TAG = "ViewPost";
     private static final String SAVED_LIST = "saved_list_of_items";
@@ -52,10 +53,11 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
     private Context context;
     private ProgressBar progressBar;
     private TextView noResults;
-    private SwipeRefreshLayout refreshLayout;
     private ListView listView;
     private ViewPostAdapter adapter;
     private MultiChoiceListener multiChoiceListener;
+
+    private String progressMessage = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +67,8 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
         context = getApplicationContext();
         listView = (ListView) findViewById(R.id.postsList);
         noResults = (TextView) findViewById(R.id.noPosts);
-        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         progressBar = (ProgressBar) findViewById(R.id.progressBarViewPosts);
 
-        refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
-        refreshLayout.setOnRefreshListener(this);
-        refreshLayout.setEnabled(false);
         multiChoiceListener = new MultiChoiceListener();
 
         if(savedInstanceState != null) {
@@ -133,10 +131,6 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
                     new UserPostsTask().execute();
                 break;
         }
-    }
-
-    @Override
-    public void onRefresh() {
     }
 
     @Override
@@ -441,6 +435,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
 
     private class RemovePostTask extends AsyncTask<Void, Void, Integer> {
 
+        private ProgressDialog progressDialog;
         private ArrayList<ViewPostItem> itemsToDelete;
         private ArrayList<View> viewsToAnimate;
 
@@ -448,11 +443,21 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
             super();
             this.itemsToDelete = itemsToDelete;
             this.viewsToAnimate = viewsToAnimate;
+
+            progressDialog = new ProgressDialog(ViewPosts.this);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setProgressNumberFormat(null);
+            progressDialog.setProgressPercentFormat(null);
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
         }
 
         @Override
         protected void onPreExecute() {
-            refreshLayout.setRefreshing(true);
+            progressMessage = getString(R.string.removing_post);
+            progressDialog.setMessage(progressMessage);
+            //progressDialog.show();
+
         }
 
         @Override
@@ -476,7 +481,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
             for (int i = 0; i < itemsToDelete.size(); i++) {
                 removeView(viewsToAnimate.get(i), itemsToDelete.get(i));
             }
-            refreshLayout.setRefreshing(false);
+            progressDialog.dismiss();
         }
     }
 }

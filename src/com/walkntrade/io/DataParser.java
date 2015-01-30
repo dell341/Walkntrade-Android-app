@@ -741,6 +741,7 @@ public class DataParser {
             JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
 
             serverResponse = jsonObject.getInt(STATUS);
+            Log.d(TAG, jsonObject.getString(MESSAGE));
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
         } finally {
