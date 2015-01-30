@@ -83,6 +83,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
+        refreshLayout.setEnabled(false);
 
         /*Fragment implementation is used for getting thread, to allow continuous download during configuration changes
         * i.e. device rotation
@@ -108,6 +109,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     }
 
     private void downloadMessageThreads() {
+        Log.i(TAG, "Downloading message threads");
         Bundle args = new Bundle();
         args.putInt(TaskFragment.ARG_TASK_ID, TaskFragment.TASK_GET_MESSAGE_THREADS);
         taskFragment = new TaskFragment();
@@ -162,7 +164,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
     @Override
     public void onRefresh() {
-        refreshLayout.setRefreshing(true);
         downloadMessageThreads();
     }
 
@@ -187,6 +188,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             mode.getMenuInflater().inflate(R.menu.context_menu_post, menu);
+            refreshLayout.setEnabled(false);
             return true;
         }
 
@@ -226,6 +228,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             count = 0;
+            refreshLayout.setEnabled(true);
         }
     }
 
@@ -298,6 +301,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             progressBar.setVisibility(View.VISIBLE);
 
         noResults.setVisibility(View.GONE);
+        refreshLayout.setEnabled(false); //Do not allow drag to refresh, while downloading data
     }
 
     @Override
@@ -311,7 +315,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     @Override
     public void onPostExecute(int taskId, Object result) {
         progressBar.setVisibility(View.GONE);
-        refreshLayout.setRefreshing(false);
 
         ObjectResult<ArrayList<MessageThread>> objectResult = (ObjectResult<ArrayList<MessageThread>>)result;
         int serverResponse = objectResult.getStatus();
@@ -322,6 +325,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             if(messageThreads.isEmpty()) {
                 noResults.setText(context.getString(R.string.no_messages));
                 noResults.setVisibility(View.VISIBLE);
+                messageList.setAdapter(null);
             } else {
                 threadAdapter = new MessageThreadAdapter(context, messageThreads);
                 messageList.setAdapter(threadAdapter);
@@ -335,6 +339,9 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
             noResults.setVisibility(View.VISIBLE);
         }
+
+        refreshLayout.setRefreshing(false);
+        refreshLayout.setEnabled(true);
     }
 
     private class UserAvatarRetrievalTask extends AsyncTask<String, Void, Bitmap> {
@@ -393,10 +400,11 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         @Override
         protected void onPreExecute() {
             refreshLayout.setRefreshing(true);
+            refreshLayout.setEnabled(false);
         }
 
         @Override
-        protected Integer doInBackground(ArrayList<String>... messagesToDelete) {
+        protected final Integer doInBackground(ArrayList<String>... messagesToDelete) {
             DataParser database = new DataParser(context);
             int serverResponse = StatusCodeParser.CONNECT_FAILED;
 
@@ -412,6 +420,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         @Override
         protected void onPostExecute(Integer serverResponse) {
+            Log.v(TAG, "Delete complete");
             downloadMessageThreads();
         }
     }

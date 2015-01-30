@@ -173,6 +173,8 @@ public class GcmIntentService extends IntentService {
         boolean vibrate = DataParser.getSharedBooleanPreferenceTrueByDefault(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_VIBRATE);
         boolean showLight = DataParser.getSharedBooleanPreferenceTrueByDefault(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_LIGHT);
 
+        Log.i(TAG, "Vibrate : "+vibrate);
+        Log.i(TAG, "showLight : "+showLight);
         String sound = DataParser.getSoundPref(getApplicationContext());
         if (sound != null) {
             hasSound = true;
