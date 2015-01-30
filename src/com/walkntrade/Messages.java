@@ -55,7 +55,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private static final String SAVED_INSTANCE_PROGRESS_STATE = "saved_instance_progress_state";
     private static final String SAVED_PROGRESS_MESSAGE = "saved_instance_progress_message";
     private static final String SAVED_INSTANCE_ERROR_MESSAGE_STATE = "saved_instance_error_state";
-    private static final String SAVED_PROGRESS_DIALOG_STATE = "saved_instance_progress_state";
+    private static final String SAVED_PROGRESS_DIALOG_STATE = "saved_instance_progress_dialog_state";
 
     private Context context;
     private ProgressBar progressBar;
@@ -106,8 +106,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         if (savedInstanceState != null) {
             ArrayList<MessageThread> messages = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_MESSAGES);
             isDialogShowing = savedInstanceState.getBoolean(SAVED_PROGRESS_DIALOG_STATE);
-            isProgressShowing = savedInstanceState.getBoolean(SAVED_INSTANCE_PROGRESS_STATE);
-            Log.v(TAG, "isProgress? "+isProgressShowing);
+            isProgressShowing = savedInstanceState.getBoolean(SAVED_INSTANCE_PROGRESS_STATE, true);
             progressBar.setVisibility( isProgressShowing ? View.VISIBLE : View.INVISIBLE);
             progressDialog.setMessage(savedInstanceState.getString(SAVED_PROGRESS_MESSAGE));
 
