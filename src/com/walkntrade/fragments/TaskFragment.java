@@ -43,6 +43,7 @@ public class TaskFragment extends Fragment {
 
 
     private TaskCallbacks callbacks;
+    private AsyncTask asyncTask;
     private int taskId;
 
     //Callback interface that allows the Activity to access AsyncTask updates
@@ -65,22 +66,22 @@ public class TaskFragment extends Fragment {
     public void runTask(int taskId) {
         switch(taskId) {
             case TASK_LOGIN:
-                LoginTask loginTask = new LoginTask();
+                asyncTask = new LoginTask();
                 final String loginUser = getArguments().getString(ARG_LOGIN_USER);
                 final String loginPassword = getArguments().getString(ARG_LOGIN_PASSWORD);
-                loginTask.execute(loginUser, loginPassword);
+                ((LoginTask)asyncTask).execute(loginUser, loginPassword);
                 break;
             case TASK_GET_MESSAGE_THREADS:
-                GetMessagesTask messagesTask = new GetMessagesTask();
-                messagesTask.execute(); break;
+                asyncTask = new GetMessagesTask();
+                ((GetMessagesTask)asyncTask).execute(); break;
             case TASK_GET_CHAT_THREAD:
                 final String threadId = getArguments().getString(ARG_THREAD_ID);
-                ChatThreadTask chatThreadTask = new ChatThreadTask();
-                chatThreadTask.execute(threadId); break;
+                asyncTask = new ChatThreadTask();
+                ((ChatThreadTask)asyncTask).execute(threadId); break;
             case TASK_REMOVE_MESSAGE_THREADS:
                 final ArrayList<String> messagesToDelete = getArguments().getStringArrayList(ARG_MESSAGES_THREAD_IDS);
-                DeleteThreadTask deleteThreadTask = new DeleteThreadTask(messagesToDelete);
-                deleteThreadTask.execute(); break;
+                asyncTask = new DeleteThreadTask(messagesToDelete);
+                ((DeleteThreadTask)asyncTask).execute(); break;
         }
     }
 
@@ -96,6 +97,7 @@ public class TaskFragment extends Fragment {
 
     @Override
     public void onDetach() {
+        asyncTask.cancel(true);
         super.onDetach();
         callbacks = null;
     }
@@ -123,6 +125,9 @@ public class TaskFragment extends Fragment {
 
         @Override
         protected String doInBackground(String... userCredentials) {
+            if(isCancelled())
+                return null;
+
             DataParser database = new DataParser(getActivity().getApplicationContext());
             String _emailAddress = userCredentials[0];
             String _password = userCredentials[1];
@@ -169,6 +174,9 @@ public class TaskFragment extends Fragment {
 
         @Override
         protected ObjectResult<ArrayList<MessageThread>> doInBackground(Void... voids) {
+            if(isCancelled())
+                return null;
+
             DataParser database = new DataParser(getActivity().getApplicationContext());
 
             try {
@@ -190,7 +198,6 @@ public class TaskFragment extends Fragment {
     private class ChatThreadTask extends AsyncTask<String, Void, ObjectResult<ArrayList<ChatObject>>> {
         @Override
         protected void onPreExecute() {
-            Log.v(TAG, "Starting ChatThread Task");
             if (callbacks != null)
                 callbacks.onPreExecute(taskId);
         }
@@ -209,6 +216,9 @@ public class TaskFragment extends Fragment {
 
         @Override
         protected ObjectResult<ArrayList<ChatObject>> doInBackground(String... threadId) {
+            if(isCancelled())
+                return null;
+
             DataParser database = new DataParser(getActivity().getApplicationContext());
 
             try {
@@ -221,7 +231,6 @@ public class TaskFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ObjectResult<ArrayList<ChatObject>> result) {
-            Log.d(TAG, "Stopping ChatThreadTask");
             if (callbacks != null)
                 callbacks.onPostExecute(taskId, result);
         }
@@ -249,6 +258,9 @@ public class TaskFragment extends Fragment {
 
         @Override
         protected ObjectResult<String[]> doInBackground(Void... voids) {
+            if(isCancelled())
+                return null;
+
             int numDeleted = 0;
             String[] threadIds = new String[messageToDelete.size()];
             DataParser database = new DataParser(getActivity().getApplicationContext());
