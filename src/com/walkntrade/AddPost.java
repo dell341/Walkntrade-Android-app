@@ -622,6 +622,12 @@ public class AddPost extends Activity implements OnClickListener {
             author.setError(getString(R.string.error_short_author));
             canPost = false;
         }
+
+        if(sAuthor.isEmpty()) {
+            author.setError(getString(R.string.error_need_author));
+            canPost = false;
+        }
+
         if (sAuthor.length() > 50) {
             author.setError(getString(R.string.error_long_author));
             canPost = false;

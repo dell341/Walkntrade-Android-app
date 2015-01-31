@@ -57,6 +57,7 @@
     <string name="post_error">Error submitting post</string>
     <string name="error_short_title">Title too short</string>
     <string name="error_long_title">Title too long</string>
+    <string name="error_need_author">Please provide an author\'s name</string>
     <string name="error_short_author">Author name too short</string>
     <string name="error_long_author">Author name too long</string>
     <string name="error_short_description">Description too short</string>
