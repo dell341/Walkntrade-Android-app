@@ -274,6 +274,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         this.downloadMore = downloadMore;
 
         if (schoolPosts.isEmpty()) {
+            noResults.setText(getString(R.string.no_results));
             noResults.setVisibility(View.VISIBLE);
             swipeToRefresh.setVisibility(View.VISIBLE);
         } else {
@@ -296,7 +297,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         public SchoolPostsTask(ProgressBar progress) {
             super();
             this.progress = progress;
-            newPosts = new ArrayList<Post>();
+            newPosts = new ArrayList<>();
             database = new DataParser(context);
         }
 
@@ -355,6 +356,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
 
                 //Show different refresh options based on number of already-visible posts.
                 if (postsAdapter.isEmpty()) {
+                    noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
                     noResults.setVisibility(View.VISIBLE);
                     swipeToRefresh.setVisibility(View.VISIBLE);
                 } else

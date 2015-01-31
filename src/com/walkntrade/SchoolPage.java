@@ -28,7 +28,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import com.walkntrade.adapters.TabsPagerAdapter;
@@ -59,14 +58,12 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
     private DrawerLayout mDrawerLayout;
     private ListView navigationDrawerList;
-    private TextView textView;
     private ActionBarDrawerToggle mDrawerToggle;
 
     private ActionBar actionBar;
     private Context context;
 
     private boolean hasAvatar;
-    private boolean lastConnectedValue = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +76,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         navigationDrawerList = (ListView) findViewById(R.id.navigation_drawer_list);
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         PagerTabStrip pagerTab = (PagerTabStrip) findViewById(R.id.pager_tab);
-        textView = (TextView) findViewById(R.id.text_view);
         TabsPagerAdapter tabsAdapter = new TabsPagerAdapter(getFragmentManager(), this);
         hasAvatar = false;
 
@@ -131,16 +127,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         pagerTab.setTextColor(getResources().getColor(android.R.color.white));
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         navigationDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-
-        textView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() { //Set position of text view whenever layout is updated. (Only really need to run one time)
-                if (lastConnectedValue)
-                    textView.setY(0 - textView.getHeight());
-                else
-                    textView.setY(0);
-            }
-        });
     }
 
     private class DrawerItemClickListener implements OnItemClickListener {
@@ -281,17 +267,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
     @Override //Creates an animated TextView when there is no connection, or for any other error.
     public void hasConnection(boolean isConnected, String message) {
-        textView.setText(message);
 
-        if (isConnected == lastConnectedValue) //If connection status has not changed, do not perform another animation
-            return;
-
-        if (!isConnected)
-            textView.animate().setDuration(500).translationY(0);
-        else
-            textView.setY(0);
-
-        lastConnectedValue = isConnected;
     }
 
     private BroadcastReceiver schoolPageUpdateReceiver = new BroadcastReceiver() {
