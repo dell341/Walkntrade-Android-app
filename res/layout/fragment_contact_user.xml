@@ -16,8 +16,7 @@
             android:id="@+id/message_error"
             style="@style/TextViewRed"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="visible" />
+            android:layout_height="wrap_content"/>
 
         <com.walkntrade.views.LightTextView
             android:id="@+id/contactUser"

@@ -2,6 +2,7 @@ package com.walkntrade.fragments;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,6 +40,7 @@ import java.io.IOException;
 public class ContactUserFragment extends Fragment {
 
     private static final String TAG = "ContactUser";
+    private static final String SAVED_INSTANCE_MESSAGE_DIALOG = "saved_instance_state_message_dialog";
 
     private Context context;
     private Post thisPost;
@@ -47,11 +49,13 @@ public class ContactUserFragment extends Fragment {
     private EditText messageContents;
     private Button button;
 
+    private ProgressDialog progressDialog;
+    private boolean messageDialogShowing = false;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setRetainInstance(true);
         context = getActivity().getApplicationContext();
         LocalBroadcastManager.getInstance(context).registerReceiver(messageStatusReceiver, new IntentFilter(SendMessageService.ACTION_CREATE_MESSAGE_THREAD));
     }
@@ -68,18 +72,38 @@ public class ContactUserFragment extends Fragment {
         button = (Button) rootView.findViewById(R.id.button);
 
         String user = thisPost.getUser();
+        final String messageNoPhone = getString(R.string.post_message_content_no_phone);
+        final String messageWPhone = String.format(getString(R.string.post_message_content_phone), DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE));
 
         //If user has no phone number on their account. Include a message without the phone number
-        String phoneNumber = DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE);
-        if(phoneNumber == null || phoneNumber.isEmpty() || phoneNumber.equals("0") )
-            message = getString(R.string.post_message_content_no_phone);
+        final String phoneNumber = DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE);
+
+        if(phoneNumber == null || phoneNumber.isEmpty() || phoneNumber.equals("0")) {
+            message = messageNoPhone;
+            checkBox.setEnabled(false);
+        }
         else {
-            message = String.format(getString(R.string.post_message_content_phone), DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_PHONE));
+            message = messageWPhone;
             checkBox.setEnabled(true);
             checkBox.setChecked(true);
         }
-
         contactUser.setText(getString(R.string.contacting_user)+" "+ user);
+
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage(getString(R.string.sending_message));
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setProgressNumberFormat(null);
+        progressDialog.setProgressPercentFormat(null);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+
+        if(savedInstanceState != null) {
+            messageDialogShowing = savedInstanceState.getBoolean(SAVED_INSTANCE_MESSAGE_DIALOG);
+
+            if(messageDialogShowing)
+                progressDialog.show();
+        }
+
         messageContents.setText(message);
         messageContents.addTextChangedListener(new TextWatcher() {
             @Override
@@ -92,7 +116,16 @@ public class ContactUserFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                checkBox.setEnabled(false); //If the user edits the default message, disable the phone number checkbox option
+                if(s.toString().equals(messageNoPhone) && phoneNumber != null && !phoneNumber.isEmpty() && !phoneNumber.equals("0")) {
+                    checkBox.setEnabled(true);
+                    checkBox.setChecked(false);
+                }
+                else if(s.toString().equals(messageWPhone)) {
+                    checkBox.setEnabled(true);
+                    checkBox.setChecked(true);
+                }
+                else
+                    checkBox.setEnabled(false); //If the user edits the default message, disable the phone number checkbox option
             }
         });
 
@@ -113,12 +146,11 @@ public class ContactUserFragment extends Fragment {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    messageFeedback.setVisibility(View.INVISIBLE);
+                    messageFeedback.setText("");
 
                     if(!DataParser.isUserLoggedIn(context)) {
                         messageFeedback.setTextColor(getResources().getColor(R.color.red));
                         messageFeedback.setText(context.getString(R.string.no_login));
-                        messageFeedback.setVisibility(View.VISIBLE);
                         return;
                     }
 
@@ -132,6 +164,8 @@ public class ContactUserFragment extends Fragment {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     button.setEnabled(false);
+                                    progressDialog.show();
+                                    messageDialogShowing = true;
 
                                     Intent createMessage = new Intent(getActivity(), SendMessageService.class);
                                     createMessage.setAction(SendMessageService.ACTION_CREATE_MESSAGE_THREAD);
@@ -153,8 +187,15 @@ public class ContactUserFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(SAVED_INSTANCE_MESSAGE_DIALOG, messageDialogShowing);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
+        progressDialog.dismiss();
         LocalBroadcastManager.getInstance(context).unregisterReceiver(messageStatusReceiver);
     }
 
@@ -162,6 +203,9 @@ public class ContactUserFragment extends Fragment {
     private BroadcastReceiver messageStatusReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            progressDialog.dismiss();
+            messageDialogShowing = false;
+
             if(intent.getAction().equals(SendMessageService.ACTION_CREATE_MESSAGE_THREAD)) {
                 int serverResponse = intent.getIntExtra(SendMessageService.EXTRA_SERVER_RESPONSE, StatusCodeParser.CONNECT_FAILED);
 

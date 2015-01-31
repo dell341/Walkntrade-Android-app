@@ -93,7 +93,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setProgressNumberFormat(null);
         progressDialog.setProgressPercentFormat(null);
-        progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
 
         /*Fragment implementation is used for getting thread, to allow continuous download during configuration changes
@@ -109,6 +108,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             isProgressShowing = savedInstanceState.getBoolean(SAVED_INSTANCE_PROGRESS_STATE, true);
             progressBar.setVisibility( isProgressShowing ? View.VISIBLE : View.INVISIBLE);
             progressDialog.setMessage(savedInstanceState.getString(SAVED_PROGRESS_MESSAGE));
+            progressMessage = savedInstanceState.getString(SAVED_PROGRESS_MESSAGE);
 
             if (isDialogShowing)
                 progressDialog.show();
@@ -171,6 +171,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        progressDialog.dismiss();
         LocalBroadcastManager.getInstance(context).unregisterReceiver(newMessagesReceiver);
     }
 
@@ -330,6 +331,12 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                 lastMessage.setTextColor(getResources().getColor(R.color.black));
                 lastMessageDate.setTypeface(lastMessageDate.getTypeface(), Typeface.BOLD);
                 lastMessageDate.setTextColor(getResources().getColor(R.color.black));
+            } else {
+                postTitle.setTypeface(Typeface.DEFAULT);
+                lastMessage.setTypeface(Typeface.DEFAULT);
+                lastMessage.setTextColor(getResources().getColor(R.color.dark_gray_text));
+                lastMessageDate.setTypeface(Typeface.DEFAULT);
+                lastMessageDate.setTextColor(getResources().getColor(R.color.dark_gray_text));
             }
 
             return messageView;
@@ -399,6 +406,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                 }
                 break;
             case TaskFragment.TASK_REMOVE_MESSAGE_THREADS:
+                Log.d(TAG, "Remove message threads completed");
                 ObjectResult<String[]> objectResult1 = (ObjectResult<String[]>) result;
                 requestStatus = objectResult1.getStatus();
                 isDialogShowing = false;
