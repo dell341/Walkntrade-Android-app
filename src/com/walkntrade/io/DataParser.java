@@ -115,9 +115,6 @@ public class DataParser {
     private HttpPost httpPost; //Contains message to be sent to client
     private final String USER_AGENT = System.getProperty("http.agent"); //Unique User-Agent of current device
 
-    //Initialized here to enable usage within Handler classes
-    private ArrayList<MessageThread> messages;
-
     private String userLoginCookie, sessionSeedCookie, sessionUidCookie, sPrefCookie;
     private Context context;
 
@@ -234,7 +231,7 @@ public class DataParser {
     //Used for JSONObjects that just return a String
     private ObjectResult<String> getIntentResult(String query) throws IOException {
 
-        ObjectResult<String> result = new ObjectResult<String>(StatusCodeParser.CONNECT_FAILED, null);
+        ObjectResult<String> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
         try {
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inputStream = processRequest(entity);
@@ -405,7 +402,7 @@ public class DataParser {
         establishConnection();
 
         String query = "intent=addUser&username=" + username + "&email=" + email + "&password=" + password + "&phone" + phoneNum;
-        ObjectResult<String> result = new ObjectResult<String>(StatusCodeParser.CONNECT_FAILED, null);
+        ObjectResult<String> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         try {
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
@@ -415,7 +412,7 @@ public class DataParser {
             int status = jsonObject.getInt(STATUS);
             String message = jsonObject.getString(MESSAGE);
 
-            result = new ObjectResult<String>(status, message);
+            result = new ObjectResult<>(status, message);
 
         } catch (JSONException e) {
           Log.e(TAG, "Parsing JSON", e);
@@ -541,7 +538,7 @@ public class DataParser {
     }
 
     public ObjectResult<Integer> getNewMessages() throws IOException {
-        ObjectResult<Integer> result = new ObjectResult<Integer>(StatusCodeParser.CONNECT_FAILED, null);
+        ObjectResult<Integer> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         if(!isUserLoggedIn(context)) //If user is not logged in, do attempt to poll new messages.
             return result;
@@ -556,7 +553,7 @@ public class DataParser {
             int requestStatus = jsonObject.getInt(STATUS);
 
             int messages = jsonObject.getInt(MESSAGE);
-            result = new ObjectResult<Integer>(requestStatus, messages);
+            result = new ObjectResult<>(requestStatus, messages);
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
         } finally {
@@ -743,7 +740,9 @@ public class DataParser {
         try {
             HttpEntity entity = new StringEntity(query);
             InputStream inputStream = processRequest(entity);
-            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+            String returns = readInputAsString(inputStream);
+            Log.i(TAG, returns);
+            JSONObject jsonObject = new JSONObject(returns);
 
             serverResponse = jsonObject.getInt(STATUS);
             Log.d(TAG, jsonObject.getString(MESSAGE));
@@ -824,7 +823,7 @@ public class DataParser {
 
     public ObjectResult<ArrayList<MessageThread>> getMessageThreads(int offset, int amount) throws IOException {
         establishConnection();
-        ObjectResult<ArrayList<MessageThread>> result = new ObjectResult<ArrayList<MessageThread>>(StatusCodeParser.CONNECT_FAILED, null);
+        ObjectResult<ArrayList<MessageThread>> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         String query = "intent=getMessageThreadsCurrentUser&offset="+offset+"&amount="+amount;
 
@@ -835,7 +834,7 @@ public class DataParser {
             int requestStatus = jsonObject.getInt(STATUS);
             JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
 
-            ArrayList<MessageThread> messageThreads = new ArrayList<MessageThread>();
+            ArrayList<MessageThread> messageThreads = new ArrayList<>();
             for(int i=0; i<payload.length(); i++) {
                 JSONObject messageThread = payload.getJSONObject(i);
 
@@ -854,7 +853,7 @@ public class DataParser {
                 messageThreads.add(new MessageThread(threadId, postIdentifier, postTitle, lastMessage, lastUserName, lastUserId, lastDateTime, userId, userName, userImageUrl, newMessages));
             }
 
-            result = new ObjectResult<ArrayList<MessageThread>>(requestStatus, messageThreads);
+            result = new ObjectResult<>(requestStatus, messageThreads);
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
         } finally {
@@ -866,7 +865,7 @@ public class DataParser {
 
     public ObjectResult<ArrayList<ChatObject>> retrieveThread(String threadId) throws IOException{
         establishConnection();
-        ObjectResult<ArrayList<ChatObject>> result = new ObjectResult<ArrayList<ChatObject>>(StatusCodeParser.CONNECT_FAILED, null);
+        ObjectResult<ArrayList<ChatObject>> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         String query = "intent=retrieveThread&thread_id="+threadId;
 
@@ -878,7 +877,7 @@ public class DataParser {
             int requestStatus = jsonObject.getInt(STATUS);
             JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
 
-            ArrayList<ChatObject> messages = new ArrayList<ChatObject>();
+            ArrayList<ChatObject> messages = new ArrayList<>();
 
             for(int i=0; i<payload.length(); i++) {
                 JSONObject message = payload.getJSONObject(i);
@@ -897,7 +896,7 @@ public class DataParser {
                 messages.add(new ChatObject(sentFromMe, senderName, messageContent, dateTime, messageSeen, userImageUrl));
             }
 
-            result = new ObjectResult<ArrayList<ChatObject>>(requestStatus, messages);
+            result = new ObjectResult<>(requestStatus, messages);
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
         } finally {
@@ -910,7 +909,7 @@ public class DataParser {
     //Get user profile. Search using either username or user id
     public ObjectResult<UserProfileObject> getUserProfile(String name, String uid) throws Exception{
         establishConnection();
-        ObjectResult<UserProfileObject> result = new ObjectResult<UserProfileObject>(StatusCodeParser.CONNECT_FAILED, null);
+        ObjectResult<UserProfileObject> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         try {
             String query;
@@ -928,7 +927,7 @@ public class DataParser {
             JSONObject payload = jsonObject.getJSONObject(PAYLOAD);
             int serverResponse = jsonObject.getInt(STATUS);
 
-            ArrayList<ReferencedPost> postList = new ArrayList<ReferencedPost>();
+            ArrayList<ReferencedPost> postList = new ArrayList<>();
             String userName = payload.getString("username");
             String userImgUrl = payload.getString("avatarUrl");
             JSONArray userPosts = payload.getJSONArray("posts");
@@ -946,7 +945,7 @@ public class DataParser {
                 postList.add(new ReferencedPost(schoolName, schoolAbbv, link, category, title, date, "0", 0, false));
             }
 
-            result = new ObjectResult<UserProfileObject>(serverResponse, new UserProfileObject(userName, userImgUrl, postList));
+            result = new ObjectResult<>(serverResponse, new UserProfileObject(userName, userImgUrl, postList));
 
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
@@ -959,7 +958,7 @@ public class DataParser {
 
     public ObjectResult<Post> getPostByIdentifier(String id) throws IOException {
         establishConnection();
-        ObjectResult<Post> result = new ObjectResult<Post>(StatusCodeParser.CONNECT_FAILED, null);
+        ObjectResult<Post> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         try {
             String query = "intent=getPostByIdentifier&" + id + "==";
@@ -994,7 +993,7 @@ public class DataParser {
             else
                 post = new MiscPost(id, schoolId, identifier, title, details, user, null, date, price, views, tags);
 
-            result = new ObjectResult<Post>(requestStatus, post);
+            result = new ObjectResult<>(requestStatus, post);
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
         } finally { //If anything happens above, at least disconnect the HttpClient
@@ -1006,7 +1005,7 @@ public class DataParser {
 
     public ObjectResult<ArrayList<ReferencedPost>> getUserPosts() throws IOException {
         establishConnection();
-        ObjectResult<ArrayList<ReferencedPost>> result = new ObjectResult<ArrayList<ReferencedPost>>(StatusCodeParser.CONNECT_FAILED, null);
+        ObjectResult<ArrayList<ReferencedPost>> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         try {
             String query = "intent=getPostsCurrentUser";
@@ -1016,7 +1015,7 @@ public class DataParser {
             JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
             JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
             int requestStatus = jsonObject.getInt(STATUS);
-            ArrayList<ReferencedPost> referencedPosts = new ArrayList<ReferencedPost>();
+            ArrayList<ReferencedPost> referencedPosts = new ArrayList<>();
 
             for (int i = 0; i < payload.length(); i++) {
                 JSONObject jsonSchool = payload.getJSONObject(i);
@@ -1040,7 +1039,7 @@ public class DataParser {
                 }
             }
 
-            result = new ObjectResult<ArrayList<ReferencedPost>>(requestStatus, referencedPosts);
+            result = new ObjectResult<>(requestStatus, referencedPosts);
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
         } finally {
@@ -1127,7 +1126,7 @@ public class DataParser {
     // Searches for school, and places schools into given ArrayList. Returns request status code
     public ObjectResult<ArrayList<SchoolObject>> getSchools(String search) throws IOException {
         establishConnection();
-        ObjectResult<ArrayList<SchoolObject>> result = new ObjectResult<ArrayList<SchoolObject>>(StatusCodeParser.CONNECT_FAILED, null);
+        ObjectResult<ArrayList<SchoolObject>> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         //    Log.d(TAG, "Downloading school name: "+search);
         try {
@@ -1138,13 +1137,13 @@ public class DataParser {
             JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
             JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
 
-            ArrayList<SchoolObject> schoolObjects = new ArrayList<SchoolObject>();
+            ArrayList<SchoolObject> schoolObjects = new ArrayList<>();
             int requestStatus = jsonObject.getInt(STATUS);
 
             for (int i = 0; i < payload.length(); i++)
                 schoolObjects.add((new SchoolObject(payload.getJSONObject(i).getString("name"), payload.getJSONObject(i).getString("textId"))));
 
-            result = new ObjectResult<ArrayList<SchoolObject>>(requestStatus, schoolObjects);
+            result = new ObjectResult<>(requestStatus, schoolObjects);
 
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
@@ -1159,7 +1158,7 @@ public class DataParser {
     // Searches for posts, and places posts into given ArrayList. Returns request status code
     public ObjectResult<ArrayList<Post>> getSchoolPosts(String schoolID, String searchQuery, String cat, int offset, int amount) throws IOException {
         establishConnection();
-        ObjectResult<ArrayList<Post>> result = new ObjectResult<ArrayList<Post>>(StatusCodeParser.CONNECT_FAILED, null);
+        ObjectResult<ArrayList<Post>> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
         try {
             String query = "intent=getPosts&query=" + searchQuery + "&school=" + schoolID + "&cat=" + cat + "&offset=" + offset + "&sort=0" + "&amount=" + amount;
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
@@ -1168,7 +1167,7 @@ public class DataParser {
             JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
             JSONArray payload = jsonObject.getJSONArray(PAYLOAD);
 
-            ArrayList<Post> posts = new ArrayList<Post>();
+            ArrayList<Post> posts = new ArrayList<>();
             int requestStatus = jsonObject.getInt(STATUS);
 
             //Retrieve all post attributes from JSONObject
@@ -1201,7 +1200,7 @@ public class DataParser {
                     posts.add(new MiscPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views, tags));
             }
 
-            result = new ObjectResult<ArrayList<Post>>(requestStatus, posts);
+            result = new ObjectResult<>(requestStatus, posts);
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
 
