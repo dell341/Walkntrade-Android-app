@@ -69,6 +69,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private boolean isDialogShowing = false;
     private boolean isProgressShowing = false;
     private TaskFragment taskFragment;
+    private static int amountToDelete = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +127,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     }
 
     private void downloadMessageThreads() {
-        Log.i(TAG, "Downloading message threads");
         Bundle args = new Bundle();
         args.putInt(TaskFragment.ARG_TASK_ID, TaskFragment.TASK_GET_MESSAGE_THREADS);
         taskFragment = new TaskFragment();
@@ -258,6 +258,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             taskFragment = new TaskFragment();
             taskFragment.setArguments(args);
 
+            amountToDelete = messageIds.size();
             getFragmentManager().beginTransaction().add(taskFragment, TAG_TASK_FRAGMENT).commit();
         }
     }
@@ -355,7 +356,10 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                 break;
             case TaskFragment.TASK_REMOVE_MESSAGE_THREADS:
                 isDialogShowing = true;
-                progressMessage = getString(R.string.removing_messages);
+                if(amountToDelete > 1)
+                    progressMessage = getString(R.string.removing_messages_multiple);
+                else
+                    progressMessage = getString(R.string.removing_messages);
                 progressDialog.setMessage(progressMessage);
                 progressDialog.show();
                 break;
@@ -406,7 +410,6 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                 }
                 break;
             case TaskFragment.TASK_REMOVE_MESSAGE_THREADS:
-                Log.d(TAG, "Remove message threads completed");
                 ObjectResult<String[]> objectResult1 = (ObjectResult<String[]>) result;
                 requestStatus = objectResult1.getStatus();
                 isDialogShowing = false;

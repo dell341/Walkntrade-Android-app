@@ -97,9 +97,14 @@ public class TaskFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        asyncTask.cancel(true);
         super.onDetach();
         callbacks = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        asyncTask.cancel(true);
+        super.onDestroy();
     }
 
     //Asynchronous Task logs in user & retrieves username and password
@@ -289,6 +294,7 @@ public class TaskFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ObjectResult<String[]> result) {
+            messageToDelete.clear();
             if (callbacks != null)
                 callbacks.onPostExecute(taskId, result);
         }
