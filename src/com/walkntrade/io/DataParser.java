@@ -731,28 +731,54 @@ public class DataParser {
     }
 
     //Create a new message conversation with a user. Regarding a specific post
-    public int createMessageThread(String postIdentifier, String message) throws IOException{
+//    public int createMessageThread(String postIdentifier, String message) throws IOException{
+//        establishConnection();
+//
+//        int serverResponse = StatusCodeParser.CONNECT_FAILED;
+//        String query = "intent=createMessageThread&post_id="+postIdentifier+"&message="+message;
+//
+//        try {
+//            HttpEntity entity = new StringEntity(query);
+//            InputStream inputStream = processRequest(entity);
+//            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+//
+//            serverResponse = jsonObject.getInt(STATUS);
+//            Log.d(TAG, jsonObject.getString(MESSAGE));
+//        } catch (JSONException e) {
+//            Log.e(TAG, "Parsing JSON", e);
+//        } finally {
+//            disconnectAll();
+//        }
+//
+//        return serverResponse;
+//    }
+
+    //Create a new message conversation with a user. Regarding a specific post
+    public ObjectResult<String []> createMessageThread(String postIdentifier, String message) throws IOException{
         establishConnection();
 
-        int serverResponse = StatusCodeParser.CONNECT_FAILED;
+        ObjectResult<String []> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
         String query = "intent=createMessageThread&post_id="+postIdentifier+"&message="+message;
 
         try {
             HttpEntity entity = new StringEntity(query);
             InputStream inputStream = processRequest(entity);
-            String returns = readInputAsString(inputStream);
-            Log.i(TAG, returns);
-            JSONObject jsonObject = new JSONObject(returns);
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
 
-            serverResponse = jsonObject.getInt(STATUS);
-            Log.d(TAG, jsonObject.getString(MESSAGE));
+            int serverResponse = jsonObject.getInt(STATUS);
+//            String threadId = jsonObject.getString("thread_id");
+//            String datetime = jsonObject.getString("datetime");
+//
+//            String [] returnedData = {threadId, datetime};
+            String [] returnedData = {"e403994fa4e7b3a98389", ""};
+            result = new ObjectResult<>(serverResponse, returnedData);
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
         } finally {
             disconnectAll();
         }
 
-        return serverResponse;
+        return result;
     }
 
     //Mark thread as read

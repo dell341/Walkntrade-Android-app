@@ -367,6 +367,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
     private void signOut() {
         if (DataParser.isNetworkAvailable(this)) {
+            Log.i(TAG, "signOut() - setting login to false");
             DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_USER, DataParser.KEY_CURRENTLY_LOGGED_IN, false);
 
             new LogoutTask(this).execute(); //Starts asynchronous sign out

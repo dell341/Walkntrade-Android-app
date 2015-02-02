@@ -206,6 +206,7 @@ public class ZoomableImageView extends ImageView {
         lastAnimDx = 0;
         lastAnimDy = 0;
 
+
         post(new Runnable() {
             @Override
             public void run() {

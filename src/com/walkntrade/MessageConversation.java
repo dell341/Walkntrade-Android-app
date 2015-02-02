@@ -53,6 +53,7 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
     private static final String SAVED_INSTANCE_CONVERSATION = "saved_instance_state_conversation";
     private static final String SAVED_INSTANCE_PROGRESS_STATE = "saved_instance_progress_state";
     private static final String SAVED_INSTANCE_ERROR_MESSAGE_STATE = "saved_instance_error_state";
+    public static final String FROM_CONTACT_FRAGMENT = "extra_incoming_from_contact_user";
     public static final String LIST_CONVERSATION = "extra_arraylist_conversation";
     public static final String THREAD_ID = "id_of_current_message_thread";
     public static final String POST_TITLE = "title_of_current_post";
@@ -76,6 +77,8 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
 
         threadId = getIntent().getStringExtra(THREAD_ID);
         getActionBar().setTitle(getIntent().getStringExtra(POST_TITLE));
+        if(!getIntent().getBooleanExtra(FROM_CONTACT_FRAGMENT, false))
+            getActionBar().setDisplayHomeAsUpEnabled(true);
 
         context = getApplicationContext();
         GcmIntentService.resetNotfCounter(context); //Clears out all message notifications in Status Bar
@@ -158,7 +161,6 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
             }
         });
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
         IntentFilter filter = new IntentFilter();
         filter.addAction(GcmIntentService.ACTION_NOTIFICATION_BLOCKED);
         filter.addAction(SendMessageService.ACTION_APPEND_MESSAGE_THREAD);

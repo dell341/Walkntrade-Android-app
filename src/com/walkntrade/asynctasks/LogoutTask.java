@@ -28,6 +28,7 @@ public class LogoutTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPreExecute() {
+        Log.i(TAG, "Logout - setting login to false");
         DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_USER, DataParser.KEY_CURRENTLY_LOGGED_IN, false);
     }
 

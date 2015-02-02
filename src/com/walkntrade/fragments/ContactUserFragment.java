@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -23,12 +24,15 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.walkntrade.MessageConversation;
 import com.walkntrade.R;
 import com.walkntrade.SchoolPage;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.SendMessageService;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
+
+import org.apache.http.MessageConstraintException;
 
 import java.io.IOException;
 
@@ -39,8 +43,10 @@ import java.io.IOException;
 
 public class ContactUserFragment extends Fragment {
 
-    private static final String TAG = "ContactUser";
+    private static final String TAG = "ContactUserFragment";
     private static final String SAVED_INSTANCE_MESSAGE_DIALOG = "saved_instance_state_message_dialog";
+    private static final String SAVED_INSTANCE_MESSAGE_FEEDBACK = "saved_instance_state_message_feedback";
+    private static final String SAVED_INSTANCE_TEXT_COLOR = "saved_instance_state_text_color";
 
     private Context context;
     private Post thisPost;
@@ -51,11 +57,14 @@ public class ContactUserFragment extends Fragment {
 
     private ProgressDialog progressDialog;
     private boolean messageDialogShowing = false;
+    private String messageFeedbackString = "";
+    private int textColor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.d(TAG, "onCreate");
         context = getActivity().getApplicationContext();
         LocalBroadcastManager.getInstance(context).registerReceiver(messageStatusReceiver, new IntentFilter(SendMessageService.ACTION_CREATE_MESSAGE_THREAD));
     }
@@ -65,6 +74,7 @@ public class ContactUserFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_contact_user, container, false);
         thisPost = getArguments().getParcelable(SchoolPage.SELECTED_POST);
 
+        Log.d(TAG, "onCreateView");
         messageFeedback = (TextView) rootView.findViewById(R.id.message_error);
         TextView contactUser = (TextView) rootView.findViewById(R.id.contactUser);
         messageContents = (EditText) rootView.findViewById(R.id.edit_message_contents);
@@ -94,12 +104,15 @@ public class ContactUserFragment extends Fragment {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setProgressNumberFormat(null);
         progressDialog.setProgressPercentFormat(null);
-        progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
 
         if(savedInstanceState != null) {
             messageDialogShowing = savedInstanceState.getBoolean(SAVED_INSTANCE_MESSAGE_DIALOG);
+            messageFeedbackString = savedInstanceState.getString(SAVED_INSTANCE_MESSAGE_FEEDBACK);
+            textColor = savedInstanceState.getInt(SAVED_INSTANCE_TEXT_COLOR, getResources().getColor(R.color.black));
 
+            messageFeedback.setText(messageFeedbackString);
+            messageFeedback.setTextColor(textColor);
             if(messageDialogShowing)
                 progressDialog.show();
         }
@@ -190,13 +203,22 @@ public class ContactUserFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(SAVED_INSTANCE_MESSAGE_DIALOG, messageDialogShowing);
+        outState.putString(SAVED_INSTANCE_MESSAGE_FEEDBACK, messageFeedbackString);
+        outState.putInt(SAVED_INSTANCE_TEXT_COLOR, textColor);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.i(TAG, "onDetach");
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         progressDialog.dismiss();
         LocalBroadcastManager.getInstance(context).unregisterReceiver(messageStatusReceiver);
+        super.onDestroy();
+        Log.i(TAG, "onDestroy");
     }
 
     //Listens for result from SendMessageService, handles result here
@@ -212,13 +234,28 @@ public class ContactUserFragment extends Fragment {
                 if(serverResponse == StatusCodeParser.STATUS_OK){
                     messageFeedback.setTextColor(getResources().getColor(R.color.holo_blue));
                     messageFeedback.setText(context.getString(R.string.message_success));
+
+                    String [] returnedData = intent.getStringArrayExtra(SendMessageService.EXTRA_RETURNED_DATA);
+                    String threadId = returnedData[0];
+                    final Intent showMessage = new Intent(context, MessageConversation.class);
+                    showMessage.putExtra(MessageConversation.POST_TITLE, thisPost.getTitle());
+                    showMessage.putExtra(MessageConversation.THREAD_ID, threadId);
+                    showMessage.putExtra(MessageConversation.FROM_CONTACT_FRAGMENT, true);
+                    getActivity().startActivity(showMessage);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            getActivity().getFragmentManager().popBackStack();
+                        }
+                    }, 500);
                 }
                 else {
                     messageFeedback.setTextColor(getResources().getColor(R.color.red));
                     messageFeedback.setText(StatusCodeParser.getStatusString(context, serverResponse));
                 }
 
-                messageFeedback.setVisibility(View.VISIBLE);
+                messageFeedbackString = messageFeedback.getText().toString();
+                textColor = messageFeedback.getCurrentTextColor();
                 button.setEnabled(true);
             }
         }

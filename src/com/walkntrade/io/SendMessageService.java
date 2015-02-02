@@ -25,6 +25,7 @@ public class SendMessageService extends IntentService {
     public static final String ACTION_APPEND_MESSAGE_THREAD = "com.walkntrade.io.append_message";
 
     public static final String EXTRA_SERVER_RESPONSE = "com.walkntrade.io.server_response";
+    public static final String EXTRA_RETURNED_DATA = "com.walkntrade.io.returned_data";
     public static final String EXTRA_POST_OBSID = "com.walkntrade.io.post_obsid";
     public static final String EXTRA_THREAD_ID = "com.walkntrade.io.thread_id";
     public static final String EXTRA_CONVERSATION_ITEM_INDEX = "com.walkntrade.io.conversation_index";
@@ -56,15 +57,16 @@ public class SendMessageService extends IntentService {
 
     private void createMessageThread(String obsId, String messageContents) {
         DataParser database = new DataParser(getApplicationContext());
-        Integer serverResponse = StatusCodeParser.CONNECT_FAILED;
+        ObjectResult<String []> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         try {
-            serverResponse = database.createMessageThread(obsId, messageContents);
+            result = database.createMessageThread(obsId, messageContents);
         } catch (IOException e) {
             Log.e(TAG, "Messaging user", e);
         } finally {
             Intent intent = new Intent(ACTION_CREATE_MESSAGE_THREAD);
-            intent.putExtra(EXTRA_SERVER_RESPONSE, serverResponse);
+            intent.putExtra(EXTRA_SERVER_RESPONSE, result.getStatus());
+            intent.putExtra(EXTRA_RETURNED_DATA, result.getObject());
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
     }

@@ -253,6 +253,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
         if (response.equals(DataParser.LOGIN_SUCCESS)) {
             new PollMessagesTask(context).execute(); //Get any of the user's unread messages on log in
+            Log.i(TAG, "Login - setting logged in to true");
             DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_USER, DataParser.KEY_CURRENTLY_LOGGED_IN, true);
 
             //Checks if device has the Google Play Services APK
