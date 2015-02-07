@@ -13,6 +13,11 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop"/>
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/white_gradient"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -64,7 +69,7 @@
             android:textSize="25sp"
             android:typeface="sans"
             android:background="@android:drawable/editbox_background_normal"
-            android:hint="@string/eSchoolName"/>
+            android:hint="@string/findSchool"/>
 
         <ListView
             android:id="@+id/schoolList"
