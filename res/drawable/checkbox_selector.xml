@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2015. All Rights Reserved. Walkntrade
+  ~ https://walkntrade.com
+  -->
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:drawable="@drawable/btn_check_on_holo_light" />
+    <item android:state_checked="false" android:drawable="@drawable/btn_check_off_holo_light" />
+</selector>

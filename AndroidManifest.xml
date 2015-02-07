@@ -50,8 +50,14 @@
             android:name=".gcm.GcmIntentService"
             android:exported="false" >
         </service>
+
         <service
             android:name=".io.SendMessageService"
+            android:exported="false" >
+        </service>
+
+        <service
+            android:name=".io.ModifyPostService"
             android:exported="false" >
         </service>
 
@@ -208,11 +214,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walkntrade.Messages" />
         </activity>
-
-        <service
-            android:name=".io.ModifyPostService"
-            android:exported="false" >
-        </service>
     </application>
 
 </manifest>
