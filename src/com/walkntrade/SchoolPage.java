@@ -208,6 +208,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
         SharedPreferences preference = this.getSharedPreferences(DataParser.PREFS_AUTHORIZATION, Context.MODE_PRIVATE);
         boolean isAuthorized = preference.getBoolean(DataParser.KEY_AUTHORIZED, true);
+        Log.i(TAG, "isAuthorized ? "+isAuthorized);
 
         if (!isAuthorized) { //If user is not authorized clear all info and sign out
             SharedPreferences.Editor editor = preference.edit();
@@ -463,8 +464,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     }
 
     private class UserNameTask extends AsyncTask<Void, Void, String> {
-
-        private final String TAG = "ASYNCTASK:UserNameTask";
         private Context context;
         private ListView drawerList;
 

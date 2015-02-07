@@ -593,6 +593,7 @@ public class DataParser {
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inputStream = processRequest(entity);
             serverResponse = readInputAsString(inputStream); //Reads message response from server
+            Log.d(TAG, "AddAndroidDeviceId : "+serverResponse);
         } finally {
             disconnectAll();
         }
@@ -731,29 +732,6 @@ public class DataParser {
     }
 
     //Create a new message conversation with a user. Regarding a specific post
-//    public int createMessageThread(String postIdentifier, String message) throws IOException{
-//        establishConnection();
-//
-//        int serverResponse = StatusCodeParser.CONNECT_FAILED;
-//        String query = "intent=createMessageThread&post_id="+postIdentifier+"&message="+message;
-//
-//        try {
-//            HttpEntity entity = new StringEntity(query);
-//            InputStream inputStream = processRequest(entity);
-//            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
-//
-//            serverResponse = jsonObject.getInt(STATUS);
-//            Log.d(TAG, jsonObject.getString(MESSAGE));
-//        } catch (JSONException e) {
-//            Log.e(TAG, "Parsing JSON", e);
-//        } finally {
-//            disconnectAll();
-//        }
-//
-//        return serverResponse;
-//    }
-
-    //Create a new message conversation with a user. Regarding a specific post
     public ObjectResult<String []> createMessageThread(String postIdentifier, String message) throws IOException{
         establishConnection();
 
@@ -763,14 +741,16 @@ public class DataParser {
         try {
             HttpEntity entity = new StringEntity(query);
             InputStream inputStream = processRequest(entity);
-            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+            String string = readInputAsString(inputStream);
+            Log.i(TAG, string);
+            JSONObject jsonObject = new JSONObject(string);
 
             int serverResponse = jsonObject.getInt(STATUS);
-//            String threadId = jsonObject.getString("thread_id");
-//            String datetime = jsonObject.getString("datetime");
-//
-//            String [] returnedData = {threadId, datetime};
-            String [] returnedData = {"e403994fa4e7b3a98389", ""};
+            JSONObject payload = jsonObject.getJSONObject(PAYLOAD);
+            String threadId = payload.getString("thread_id");
+            String datetime = payload.getString("datetime");
+
+            String [] returnedData = {threadId, datetime};
             result = new ObjectResult<>(serverResponse, returnedData);
         } catch (JSONException e) {
             Log.e(TAG, "Parsing JSON", e);
