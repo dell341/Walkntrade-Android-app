@@ -61,6 +61,7 @@ import java.util.Locale;
 //Handles almost all necessary network communications
 public class DataParser {
     private static final String url = "https://walkntrade.com/";
+    private static final String legacyApiUrl = "https://walkntrade.com/api/";
     private static final String apiUrl = "https://walkntrade.com/api2/";
     private static final String TAG = "DataParser";
     private static final String STATUS = "status"; //name:"value" pair for JSON request status
@@ -123,7 +124,7 @@ public class DataParser {
     }
 
     //First call whenever connecting across the user's network
-    private void establishConnection() {
+    private void establishConnection(String urlToUse) {
         cookieStore = new BasicCookieStore();
         httpContext = new BasicHttpContext();
         httpContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore); //Attach CookieStore to the HttpContext
@@ -131,7 +132,7 @@ public class DataParser {
         getCookies(); //Retrieve currently stored cookies
 
         httpClient = AndroidHttpClient.newInstance(USER_AGENT);
-        httpPost = new HttpPost(apiUrl);
+        httpPost = new HttpPost(urlToUse);
         httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
         httpPost.setHeader("Cookie", sessionSeedCookie + ";" + sessionUidCookie + ";" + userLoginCookie + ";" + sPrefCookie);
 
@@ -338,7 +339,7 @@ public class DataParser {
 
     //All category references exist on the server, so they can be updated and changed dynamically
     public int getCategories() throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
 
         String query = "intent=getCategories";
         int requestStatus = StatusCodeParser.CONNECT_FAILED;
@@ -377,7 +378,7 @@ public class DataParser {
 
     //Requirement check for registration
     public int isUserNameFree(String username) throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
 
         String query = "intent=checkUsername&username=" + username;
         int requestStatus = StatusCodeParser.CONNECT_FAILED;
@@ -399,7 +400,7 @@ public class DataParser {
 
     //Attempts to register User account into server
     public ObjectResult<String> registerUser(String username, String email, String password, String phoneNum) throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
 
         String query = "intent=addUser&username=" + username + "&email=" + email + "&password=" + password + "&phone" + phoneNum;
         ObjectResult<String> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
@@ -425,7 +426,7 @@ public class DataParser {
 
     //Resets user's password
     public int resetPassword(String email) throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
         int requestStatus = StatusCodeParser.CONNECT_FAILED;
 
         String query = "intent=resetPassword&email=" + email;
@@ -446,7 +447,7 @@ public class DataParser {
 
     //Verifies user based on key provided
     public String verifyUser(String key) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         String query = "intent=verifyKey&key=" + key;
         String serverResponse = null;
@@ -463,7 +464,7 @@ public class DataParser {
 
     //Login User into Walkntrade
     public String login(String email, String password) throws IOException {
-        establishConnection(); //Instantiate all streams and opens the connection
+        establishConnection(legacyApiUrl); //Instantiate all streams and opens the connection
         String query = "intent=login&password=" + password + "&email=" + email + "&rememberMe=true";
         String serverResponse = null;
 
@@ -480,7 +481,7 @@ public class DataParser {
 
     //Logs user out of Walkntrade
     public void logout() throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         String query = "intent=logout&GCMClear=true";
 
@@ -494,7 +495,7 @@ public class DataParser {
     }
 
     public ObjectResult<String> getUserName() throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
 
         String query = "intent=getUserName";
         ObjectResult<String> result = getIntentResult(query);
@@ -505,7 +506,7 @@ public class DataParser {
     }
 
     public ObjectResult<String> getAvatarUrl() throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
 
         String query = "intent=getAvatar";
         ObjectResult<String> result = getIntentResult(query);
@@ -516,7 +517,7 @@ public class DataParser {
     }
 
     public ObjectResult<String> getUserPhoneNumber() throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
 
         String query = "getPhoneNum";
         ObjectResult<String> result = getIntentResult(query);
@@ -527,7 +528,7 @@ public class DataParser {
     }
 
     public ObjectResult<String> getEmailPreference() throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
 
         String query = "getEmailPref";
         ObjectResult<String> result = getIntentResult(query);
@@ -543,7 +544,7 @@ public class DataParser {
         if(!isUserLoggedIn(context)) //If user is not logged in, do attempt to poll new messages.
             return result;
 
-        establishConnection();
+        establishConnection(apiUrl);
         String query = "intent=hasNewMessages";
 
         try {
@@ -566,7 +567,7 @@ public class DataParser {
     }
 
     public String setEmailPreference(String preference) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         String query = "intent=setEmailPref&pref=" + preference;
         setSharedStringPreference(context, PREFS_NOTIFICATIONS, KEY_NOTIFY_EMAIL, preference); //Stores email contact preference
@@ -584,7 +585,7 @@ public class DataParser {
 
     //Sends the registration id, which will be used to receive push notifications, to the server
     public String setRegistrationId(String deviceToken) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         String query = "intent=addAndroidDeviceId&deviceId=" + deviceToken;
         String serverResponse = null;
@@ -602,7 +603,7 @@ public class DataParser {
     }
 
     public String changeEmail(String password, String email) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         String query = "intent=controlPanel&oldPw=" + password + "&email=" + email;
         String serverResponse = null;
@@ -618,7 +619,7 @@ public class DataParser {
     }
 
     public String changePhoneNumber(String password, String phoneNumber) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         String query = "intent=controlPanel&oldPw=" + password + "&phone=" + phoneNumber;
         String serverResponse = null;
@@ -634,7 +635,7 @@ public class DataParser {
     }
 
     public String changePassword(String password, String newPassword) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         String query = "intent=controlPanel&oldPw=" + password + "&newPw=" + newPassword;
         String serverResponse = null;
@@ -654,7 +655,7 @@ public class DataParser {
 
     //Used for repetitious intents like get username, phone number, email preference etc.
     public String simpleGetIntent(String intentValue) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         String query = "intent=" + intentValue;
         String serverResponse = null;
@@ -683,7 +684,7 @@ public class DataParser {
     }
 
     public String uploadUserAvatar(String imagePath) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         httpPost.removeHeaders("Content-Type"); //Handled by MultipartEntityBuilder, cause conflictions
 
@@ -708,7 +709,7 @@ public class DataParser {
     }
 
     public String uploadUserAvatar(InputStream inStream) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         httpPost.removeHeaders("Content-Type"); //Handled by MultipartEntityBuilder, cause conflictions
 
@@ -733,7 +734,7 @@ public class DataParser {
 
     //Create a new message conversation with a user. Regarding a specific post
     public ObjectResult<String []> createMessageThread(String postIdentifier, String message) throws IOException{
-        establishConnection();
+        establishConnection(apiUrl);
 
         ObjectResult<String []> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
         String query = "intent=createMessageThread&post_id="+postIdentifier+"&message="+message;
@@ -763,7 +764,7 @@ public class DataParser {
 
     //Mark thread as read
     public int markThreadAsRead(String threadId) throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
 
         int serverResponse = StatusCodeParser.CONNECT_FAILED;
         String query = "intent=markThreadAsRead&thread_id="+threadId;
@@ -785,7 +786,7 @@ public class DataParser {
 
     //Reply to add-on to an existing conversation
     public int appendMessage(String threadId, String message) throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
 
         int serverResponse = StatusCodeParser.CONNECT_FAILED;
         String query = "intent=appendMessage&thread_id="+threadId+"&message="+message;
@@ -807,7 +808,7 @@ public class DataParser {
 
     //Delete thread
     public int deleteThread(String threadId) throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
 
         int serverResponse = StatusCodeParser.CONNECT_FAILED;
         String query = "intent=deleteThread&thread_id="+threadId;
@@ -828,7 +829,7 @@ public class DataParser {
     }
 
     public ObjectResult<ArrayList<MessageThread>> getMessageThreads(int offset, int amount) throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
         ObjectResult<ArrayList<MessageThread>> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         String query = "intent=getMessageThreadsCurrentUser&offset="+offset+"&amount="+amount;
@@ -870,7 +871,7 @@ public class DataParser {
     }
 
     public ObjectResult<ArrayList<ChatObject>> retrieveThread(String threadId) throws IOException{
-        establishConnection();
+        establishConnection(apiUrl);
         ObjectResult<ArrayList<ChatObject>> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         String query = "intent=retrieveThread&thread_id="+threadId;
@@ -914,7 +915,7 @@ public class DataParser {
 
     //Get user profile. Search using either username or user id
     public ObjectResult<UserProfileObject> getUserProfile(String name, String uid) throws Exception{
-        establishConnection();
+        establishConnection(apiUrl);
         ObjectResult<UserProfileObject> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         try {
@@ -963,7 +964,7 @@ public class DataParser {
     }
 
     public ObjectResult<Post> getPostByIdentifier(String id) throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
         ObjectResult<Post> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         try {
@@ -1010,7 +1011,7 @@ public class DataParser {
     }
 
     public ObjectResult<ArrayList<ReferencedPost>> getUserPosts() throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
         ObjectResult<ArrayList<ReferencedPost>> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         try {
@@ -1056,7 +1057,7 @@ public class DataParser {
     }
 
     public int editPost(String schoolId, String identifier, String title, String description, String price, String tags) throws IOException{
-        establishConnection();
+        establishConnection(apiUrl);
         int requestStatus = StatusCodeParser.CONNECT_FAILED;
 
         try {
@@ -1077,7 +1078,7 @@ public class DataParser {
     }
 
     public String renewPost(String obsId) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         String query = "intent=renewPost&" + obsId + "==";
         String serverResponse = null;
@@ -1094,7 +1095,7 @@ public class DataParser {
     }
 
     public String removePost(String obsId) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
         String serverResponse = null;
 
         try {
@@ -1110,7 +1111,7 @@ public class DataParser {
 
     //Send feedback to feedback@walkntrade.com
     public int sendFeedback(String email, String message) throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
         int requestStatus = StatusCodeParser.STATUS_OK;
 
         try {
@@ -1131,7 +1132,7 @@ public class DataParser {
 
     // Searches for school, and places schools into given ArrayList. Returns request status code
     public ObjectResult<ArrayList<SchoolObject>> getSchools(String search) throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
         ObjectResult<ArrayList<SchoolObject>> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
 
         //    Log.d(TAG, "Downloading school name: "+search);
@@ -1163,7 +1164,7 @@ public class DataParser {
     //TODO: Get isbn and author for books
     // Searches for posts, and places posts into given ArrayList. Returns request status code
     public ObjectResult<ArrayList<Post>> getSchoolPosts(String schoolID, String searchQuery, String cat, int offset, int amount) throws IOException {
-        establishConnection();
+        establishConnection(apiUrl);
         ObjectResult<ArrayList<Post>> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
         try {
             String query = "intent=getPosts&query=" + searchQuery + "&school=" + schoolID + "&cat=" + cat + "&offset=" + offset + "&sort=0" + "&amount=" + amount;
@@ -1219,7 +1220,7 @@ public class DataParser {
     //Add Post to Walkntrade
     public String addPostBook(String category, String school, String title, String author, String description,
                               float price, String tags, int isbn) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         String query = "intent=addPost&cat=" + category + "&school=" + school + "&title=" + title +
                 "&author=" + author + "&details=" + description + "&price=" + price + "&tags=" + tags + "&isbn=" + isbn;
@@ -1237,7 +1238,7 @@ public class DataParser {
 
     public String addPostOther(String category, String school, String title, String description,
                                float price, String tags) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
         String query = "intent=addPost&cat=" + category + "&school=" + school + "&title=" + title + "&details=" + description + "&price=" + price + "&tags=" + tags;
         String serverResponse = null;
 
@@ -1253,7 +1254,7 @@ public class DataParser {
 
     //Adds image to post corresponding to the appropriate identifier
     public String uploadPostImage(String identifier, String imagePath, int index) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         httpPost.removeHeaders("Content-Type"); //Handled by MultipartEntityBuilder, cause conflictions
 
@@ -1281,7 +1282,7 @@ public class DataParser {
 
     //Adds image to post corresponding to the appropriate identifier
     public String uploadPostImage(String identifier, InputStream inStream, int index) throws IOException {
-        establishConnection();
+        establishConnection(legacyApiUrl);
 
         httpPost.removeHeaders("Content-Type"); //Handled by MultipartEntityBuilder, cause conflictions
 

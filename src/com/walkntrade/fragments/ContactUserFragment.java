@@ -245,7 +245,11 @@ public class ContactUserFragment extends Fragment {
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            getActivity().getFragmentManager().popBackStack();
+                            try {
+                                getActivity().getFragmentManager().popBackStack();
+                            } catch (IllegalStateException e) {
+                                Log.e(TAG, "Popping contact user fragment");
+                            }
                         }
                     }, 500);
                 }
