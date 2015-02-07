@@ -31,9 +31,8 @@
             android:background="@drawable/chat_bubble_me_selector"
             android:clickable="true"
             android:padding="8dp"
+            android:textSize="@dimen/chat_text_size"
             android:textColor="@color/black" />
-
-
     </LinearLayout>
 
     <ImageView

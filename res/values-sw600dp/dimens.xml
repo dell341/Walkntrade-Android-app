@@ -42,4 +42,8 @@
     <!-- EditPost-->
     <dimen name="edit_post_image_width">260dp</dimen>
     <dimen name="edit_post_image_height">220dp</dimen>
+
+    <dimen name="messages_text_title_size">20sp</dimen>
+    <dimen name="messages_text_content_size">16sp</dimen>
+    <dimen name="chat_text_size">16sp</dimen>
 </resources>

@@ -18,6 +18,7 @@
         android:padding="8dp"
         android:textColor="@color/black"
         android:background="@drawable/chat_bubble_other_selector"
+        android:textSize="@dimen/chat_text_size"
         android:clickable="true"/>
 
     <ImageView

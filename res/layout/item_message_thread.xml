@@ -27,7 +27,7 @@
         android:layout_toRightOf="@id/user_image"
         android:layout_toEndOf="@id/user_image"
         android:textColor="@color/black"
-        android:textSize="18sp"
+        android:textSize="@dimen/messages_text_title_size"
         android:text="Post Title"/>
 
     <TextView
@@ -40,6 +40,7 @@
         android:maxLines="1"
         android:ellipsize="end"
         android:textColor="@color/dark_gray_text"
+        android:textSize="@dimen/messages_text_content_size"
         android:text="Last message that was sent from user."/>
 
     <TextView
