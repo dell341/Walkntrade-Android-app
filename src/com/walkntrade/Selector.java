@@ -45,7 +45,6 @@ import java.util.ArrayList;
 public class Selector extends Activity implements OnItemClickListener {
 
     private String TAG = "Selector"; //Used for Log messages
-    private static final String SAVED_BACKGROUND = "background_image";
 
     private TextView noResults;
     private ListView schoolList;
@@ -70,18 +69,6 @@ public class Selector extends Activity implements OnItemClickListener {
         schoolList = (ListView) findViewById(R.id.schoolList);
         editText = (EditText) findViewById(R.id.schoolSearch);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
-        if (savedInstanceState != null) {
-            Bitmap bm = savedInstanceState.getParcelable(SAVED_BACKGROUND);
-
-            if (bm == null)
-                new DownloadBackgroundTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            else {
-                background = bm;
-                imageView.setImageBitmap(bm);
-            }
-        } else
-            new DownloadBackgroundTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         schoolObjects = new ArrayList<SchoolObject>();
         asyncTask = new SchoolNameTask();
@@ -136,17 +123,6 @@ public class Selector extends Activity implements OnItemClickListener {
         });
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        try {
-            outState.putParcelable(SAVED_BACKGROUND, background);
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Orientation change before image downloaded");
-        }
-    }
-
     //Gets the item selected from the ListView
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         SchoolObject school = (SchoolObject) parent.getItemAtPosition(position);
@@ -168,51 +144,6 @@ public class Selector extends Activity implements OnItemClickListener {
             asyncTask = new SchoolNameTask();
             asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, query);
         }
-//        new SchoolNameTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, query);
-    }
-
-    private class DownloadBackgroundTask extends AsyncTask<Void, Void, Bitmap> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Bitmap doInBackground(Void... voids) {
-            Bitmap bm;
-            String key = "background_0";
-            String url = context.getResources().getString(R.string.background_image_1);
-        //    Log.i(TAG, "Downloading background");
-
-            DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
-            bm = imageCache.getBitmapFromDiskCache(key);
-
-            try {
-                if (bm == null)
-                    bm = DataParser.loadBitmap(context.getResources().getString(R.string.images_directory) + url);
-
-                imageCache.addBitmapToCache(key, bm);
-            } catch (IOException e) {
-                Log.e(TAG, "Retrieving image", e);
-            } finally {
-                imageCache.close();
-            }
-
-            return bm;
-        }
-
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            super.onPostExecute(bitmap);
-
-        //    Log.i(TAG, "Downloading background complete");
-            if (bitmap != null) {
-                background = bitmap;
-                imageView.setImageBitmap(bitmap);
-            }
-
-        }
     }
 
     //Asynchronous Task, looks for names of schools based on query
@@ -220,7 +151,6 @@ public class Selector extends Activity implements OnItemClickListener {
 
         @Override
         protected void onPreExecute() {
-        //    Log.d(TAG, "PRE-EXECUTE: Downloading school name: ");
             progressBar.setVisibility(View.VISIBLE);
         }
 
