@@ -12,9 +12,12 @@
 
     <color name="walkntrade_green">#78BE19</color>
 
-    <color name="transparent_white_0">#e0fffbf4</color>
-    <color name="transparent_white_1">#8CFFFFFF</color>
-    <color name="transparent_white_2">#b4ffffff</color>
+    <color name="transparent">#00ffffff</color>
+    <color name="transparent_op90">#5affffff</color>
+    <color name="transparent_op140">#8CFFFFFF</color>
+    <color name="transparent_op180">#b4ffffff</color>
+    <color name="transparent_op215">#d7ffffff</color>
+    <color name="transparent_op224">#e0fffbf4</color>
     <color name="white">#ffffff</color>
 
     <color name="light_gray">#ffdbdbdb</color>

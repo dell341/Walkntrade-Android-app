@@ -30,7 +30,7 @@
     </style>
 
     <style name="WidgetTheme" parent="android:Theme.Holo">
-        <item name="android:textColorHint">@color/transparent_white_0</item>
+        <item name="android:textColorHint">@color/transparent_op224</item>
         <item name="android:popupMenuStyle">@android:style/Widget.Holo.Light.ListPopupWindow</item>
     </style>
 

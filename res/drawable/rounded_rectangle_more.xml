@@ -5,8 +5,8 @@
     <!--White shape-->
     <item android:bottom="2px">
         <shape android:shape="rectangle">
-            <corners android:radius="5dp" />
-            <solid android:color="@android:color/white" />
+            <corners android:radius="3dp" />
+            <solid android:color="@color/transparent_op215" />
         </shape>
     </item>
 
