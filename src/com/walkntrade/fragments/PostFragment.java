@@ -110,7 +110,7 @@ public class PostFragment extends Fragment {
 
         if (savedInstanceState != null) {
             profilePostItems = savedInstanceState.getParcelableArrayList(SAVED_POST_ITEMS);
-            String avatarUrl = savedInstanceState.getString(SAVED_USER_IMAGE);
+            avatarUrl = savedInstanceState.getString(SAVED_USER_IMAGE);
 
             new UserAvatarRetrievalTask().execute();
 
@@ -540,6 +540,7 @@ public class PostFragment extends Fragment {
 
             try {
                 if (avatarUrl == null || avatarUrl.isEmpty()) {
+                    Log.i(TAG, "Avatar Url was null");
                     ObjectResult<String> result = database.getAvatarUrl(thisPost.getUser());
 
                     if (result.getStatus() != StatusCodeParser.STATUS_OK)

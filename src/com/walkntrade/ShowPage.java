@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -75,7 +76,7 @@ public class ShowPage extends Activity implements PostFragment.ContactUserListen
 //            else
                 inboxItem.setIcon(R.drawable.ic_chat_white);
         }
-        else if(!DataParser.isUserLoggedIn(context)) {
+        else {
             //User logged out, disable sign out option
             signOutItem.setVisible(false);
             //Remove inbox item

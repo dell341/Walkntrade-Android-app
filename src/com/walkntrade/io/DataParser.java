@@ -509,6 +509,7 @@ public class DataParser {
         establishConnection(apiUrl);
 
         String query = "intent=getAvatar&user_name="+userName;
+
         ObjectResult<String> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
         try {
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity

@@ -79,19 +79,9 @@ public class Walkntrade_Main extends Activity {
                     @Override
                     protected String doInBackground(String... regId) {
                         String serverResponse = null;
-
                         try {
                             DataParser database = new DataParser(context);
                             serverResponse = database.setRegistrationId(regId[0]);
-
-                            if(serverResponse.equals("Not authorized")) {
-                                SharedPreferences settings = context.getSharedPreferences(DataParser.PREFS_AUTHORIZATION, Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = settings.edit();
-
-                                editor.putBoolean(DataParser.KEY_AUTHORIZED, false);
-                                editor.apply();
-                                new LogoutTask(context).execute();
-                            }
 
                         } catch(IOException e) {
                             Log.e(TAG, "Sending id to server", e);

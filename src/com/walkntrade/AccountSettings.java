@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -61,9 +62,6 @@ public class AccountSettings extends Activity {
         });
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
-
-        if(!DataParser.isUserLoggedIn(this))
-            finish(); //If user not logged in, close this activity
     }
 
     @Override
@@ -76,13 +74,5 @@ public class AccountSettings extends Activity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if(!DataParser.isUserLoggedIn(this))
-            finish(); //If user not logged in, close this activity
     }
 }

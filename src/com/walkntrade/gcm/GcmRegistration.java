@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.walkntrade.asynctasks.LogoutTask;
 import com.walkntrade.io.DataParser;
 
 import java.io.IOException;
@@ -36,7 +37,6 @@ public class GcmRegistration {
     public String getRegistrationId() {
         final SharedPreferences prefs = context.getSharedPreferences(DataParser.PREFS_USER, Context.MODE_PRIVATE);
         String registrationId = prefs.getString(PROPERTY_REG_ID, "");
-        Log.v(TAG, "Registration id: "+registrationId);
         if(registrationId.isEmpty()) {
             Log.i(TAG, "GCM registration not found");
             return "";
@@ -45,7 +45,6 @@ public class GcmRegistration {
         //If app was updated, get new registration ID. Current is not guaranteed to be compatible
         int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
         int currentVersion = getAppVersion();
-        Log.v(TAG, "Registered version : "+registeredVersion+". Current version : "+currentVersion);
         if(registeredVersion != currentVersion) {
             Log.i(TAG, "App version changed");
             return "";
@@ -76,7 +75,8 @@ public class GcmRegistration {
                     msg = "Device registered, registration ID="+regId;
 
                     DataParser database = new DataParser(context);
-                    Log.i(TAG, "Registered id to server?: " + database.setRegistrationId(regId));
+                    String serverResponse = database.setRegistrationId(regId);
+                    Log.i(TAG, "Registered id to server?: " + serverResponse);
 
                     storeRegistrationId();
                 } catch(IOException e) {

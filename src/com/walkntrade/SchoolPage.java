@@ -193,7 +193,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             //Add inbox item
             inboxItem.setEnabled(true);
             inboxItem.setVisible(true);
-        } else if (!DataParser.isUserLoggedIn(context)) {
+        } else {
             //User logged out, disable sign out option
             signOutItem.setVisible(false);
             //Remove inbox item
@@ -205,18 +205,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             boolean drawerOpen = (mDrawerLayout.isDrawerOpen(navigationDrawerList));
             loginItem.setVisible(!drawerOpen);
         }
-
-        SharedPreferences preference = this.getSharedPreferences(DataParser.PREFS_AUTHORIZATION, Context.MODE_PRIVATE);
-        boolean isAuthorized = preference.getBoolean(DataParser.KEY_AUTHORIZED, true);
-        Log.i(TAG, "isAuthorized ? "+isAuthorized);
-
-        if (!isAuthorized) { //If user is not authorized clear all info and sign out
-            SharedPreferences.Editor editor = preference.edit();
-            editor.putBoolean(DataParser.KEY_AUTHORIZED, true);
-            editor.apply();
-            signOut();
-        }
-
         return true;
     }
 
@@ -281,8 +269,8 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
     //Update contents in Navigation Drawer. User logged in/ User not logged in
     private void updateDrawer() {
-
-        if (DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
+        boolean isUserLoggedIn = DataParser.isUserLoggedIn(context);
+        if (DataParser.isNetworkAvailable(this) && isUserLoggedIn) {
             new UserNameTask(this, navigationDrawerList).execute();
             if (!hasAvatar)
                 new AvatarRetrievalTask(this, navigationDrawerList).execute();
@@ -291,7 +279,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         //Create titles and options for the NavigationDrawer
         ArrayList<DrawerItem> items = new ArrayList<DrawerItem>();
 
-        if (DataParser.isUserLoggedIn(context)) {
+        if (isUserLoggedIn) {
             //User is signed in
             items.add(new DrawerItem(0, R.drawable.ic_action_person, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), true)); //User Item
             //Add all of the add post for the different categories
@@ -315,7 +303,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
                 items.add(new DrawerItem(100 + i, iconResource, categoryName));
             }
-            Log.i(TAG, "Updating view messages");
             items.add(new DrawerItem(200, R.drawable.ic_message, getString(R.string.drawer_messages), DataParser.getSharedIntPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_MESSAGES))); //Messages
             items.add(new DrawerItem(300, R.drawable.ic_account, getString(R.string.drawer_account))); //Account
             items.add(new DrawerItem(400, R.drawable.ic_location, getString(R.string.drawer_change_school))); //Select School
@@ -368,7 +355,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
     private void signOut() {
         if (DataParser.isNetworkAvailable(this)) {
-            Log.i(TAG, "signOut() - setting login to false");
             DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_USER, DataParser.KEY_CURRENTLY_LOGGED_IN, false);
 
             new LogoutTask(this).execute(); //Starts asynchronous sign out

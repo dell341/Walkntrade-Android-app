@@ -87,8 +87,5 @@ public class UserSettings extends Activity implements AdapterView.OnItemClickLis
     @Override
     protected void onResume() {
         super.onResume();
-
-        if(!DataParser.isUserLoggedIn(this))
-            finish(); //If user not logged in, close this activity
     }
 }
