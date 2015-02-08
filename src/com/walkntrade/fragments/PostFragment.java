@@ -112,12 +112,11 @@ public class PostFragment extends Fragment {
             profilePostItems = savedInstanceState.getParcelableArrayList(SAVED_POST_ITEMS);
             String avatarUrl = savedInstanceState.getString(SAVED_USER_IMAGE);
 
-            if (profilePostItems == null || avatarUrl == null || avatarUrl.isEmpty())
-                new UserProfileRetrievalTask().execute(thisPost.getUser());
+            new UserAvatarRetrievalTask().execute();
+
+            if (profilePostItems == null)
+                new UserProfileRetrievalTask().execute();
             else {
-                new UserAvatarRetrievalTask().execute(avatarUrl);
-
-
                 for (ViewPostItem item : profilePostItems) {
                     if (item.isHeader()) {
                         View school = LayoutInflater.from(context).inflate(R.layout.item_post_school, profilePosts, false);
@@ -131,8 +130,10 @@ public class PostFragment extends Fragment {
                     }
                 }
             }
-        } else
-            new UserProfileRetrievalTask().execute(thisPost.getUser());
+        } else {
+            new UserProfileRetrievalTask().execute();
+            new UserAvatarRetrievalTask().execute();
+        }
 
         ArrayList<View> images = new ArrayList<View>(4);
         images.add(image);
@@ -469,7 +470,7 @@ public class PostFragment extends Fragment {
         }
     }
 
-    private class UserProfileRetrievalTask extends AsyncTask<String, Void, Integer> {
+    private class UserProfileRetrievalTask extends AsyncTask<Void, Void, Integer> {
         private UserProfileObject userProfile;
 
         @Override
@@ -478,12 +479,12 @@ public class PostFragment extends Fragment {
         }
 
         @Override
-        protected Integer doInBackground(String... strings) {
+        protected Integer doInBackground(Void... voids) {
             int serverResponse = StatusCodeParser.CONNECT_FAILED;
             DataParser database = new DataParser(context);
 
             try {
-                ObjectResult<UserProfileObject> result = database.getUserProfile(strings[0], null);
+                ObjectResult<UserProfileObject> result = database.getUserProfile(thisPost.getUser(), null);
                 serverResponse = result.getStatus();
                 userProfile = result.getObject();
 
@@ -500,8 +501,6 @@ public class PostFragment extends Fragment {
             profilePosts.removeAllViews();
 
             if (serverResponse == StatusCodeParser.STATUS_OK) {
-                avatarUrl = userProfile.getUserImageUrl();
-                new UserAvatarRetrievalTask().execute(avatarUrl);
                 profileUserName.setText(userProfile.getUserName() + "'s posts");
 
                 ArrayList<ReferencedPost> userPosts = userProfile.getUserPosts();
@@ -526,7 +525,7 @@ public class PostFragment extends Fragment {
         }
     }
 
-    private class UserAvatarRetrievalTask extends AsyncTask<String, Void, Bitmap> {
+    private class UserAvatarRetrievalTask extends AsyncTask<Void, Void, Bitmap> {
 
         @Override
         protected void onPreExecute() {
@@ -534,14 +533,22 @@ public class PostFragment extends Fragment {
         }
 
         @Override
-        protected Bitmap doInBackground(String... url) {
+        protected Bitmap doInBackground(Void... voids) {
             Bitmap bm = null;
+            DataParser database = new DataParser(context);
             DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
 
             try {
-                String avatarURL = url[0];
+                if (avatarUrl == null || avatarUrl.isEmpty()) {
+                    ObjectResult<String> result = database.getAvatarUrl(thisPost.getUser());
 
-                String[] splitURL = avatarURL.split("_");
+                    if (result.getStatus() != StatusCodeParser.STATUS_OK)
+                        return null;
+
+                    avatarUrl = result.getObject();
+                }
+
+                String[] splitURL = avatarUrl.split("_");
                 String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
                 splitURL = key.split("\\.");
                 key = splitURL[0];
@@ -549,7 +556,7 @@ public class PostFragment extends Fragment {
                 bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 
                 if (bm == null) //If it doesn't exists, retrieve image from network
-                    bm = DataParser.loadBitmap(avatarURL);
+                    bm = DataParser.loadBitmap(avatarUrl);
 
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {

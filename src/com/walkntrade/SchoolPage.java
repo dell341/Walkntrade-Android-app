@@ -518,7 +518,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             try {
                 String avatarURL;
 
-                ObjectResult<String> result = database.getAvatarUrl();
+                ObjectResult<String> result = database.getAvatarUrl(null);
                 avatarURL = result.getObject();
 
                 if (avatarURL == null)

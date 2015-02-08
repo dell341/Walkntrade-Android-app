@@ -505,11 +505,25 @@ public class DataParser {
         return result;
     }
 
-    public ObjectResult<String> getAvatarUrl() throws IOException {
+    public ObjectResult<String> getAvatarUrl(String userName) throws IOException {
         establishConnection(apiUrl);
 
-        String query = "intent=getAvatar";
-        ObjectResult<String> result = getIntentResult(query);
+        String query = "intent=getAvatar&user_name="+userName;
+        ObjectResult<String> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
+        try {
+            HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
+            InputStream inputStream = processRequest(entity);
+            String string = readInputAsString(inputStream);
+            Log.i(TAG, string);
+            JSONObject jsonObject = new JSONObject(string);
+
+            result.setStatus(jsonObject.getInt(STATUS));
+            result.setObject(jsonObject.getString(MESSAGE));
+        } catch (JSONException e) {
+            Log.e(TAG, "Parsing JSON", e);
+        } finally {
+            disconnectAll();
+        }
 
         //Stores user's avatar url
         setSharedStringPreference(context, PREFS_USER, KEY_USER_AVATAR_URL, result.getObject());
@@ -1146,6 +1160,7 @@ public class DataParser {
 
             ArrayList<SchoolObject> schoolObjects = new ArrayList<>();
             int requestStatus = jsonObject.getInt(STATUS);
+            Log.d(TAG, "Request Status: "+requestStatus);
 
             for (int i = 0; i < payload.length(); i++)
                 schoolObjects.add((new SchoolObject(payload.getJSONObject(i).getString("name"), payload.getJSONObject(i).getString("textId"))));

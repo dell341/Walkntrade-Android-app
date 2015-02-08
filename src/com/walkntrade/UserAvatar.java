@@ -283,7 +283,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             try {
                 String avatarURL;
 
-                ObjectResult<String> result = database.getAvatarUrl();
+                ObjectResult<String> result = database.getAvatarUrl(null);
                 avatarURL = result.getObject();
 
                 if (avatarURL == null)
