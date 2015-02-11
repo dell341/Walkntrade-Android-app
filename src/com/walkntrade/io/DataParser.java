@@ -281,7 +281,7 @@ public class DataParser {
 
     public static void setSharedBooleanPreferences(Context _context, String preferenceName, String key, boolean value) {
 
-        Log.d(TAG, "Setting SharedBoolPreference: "+preferenceName+" - "+value);
+        Log.d(TAG, "Setting SharedBoolPreference: "+key+" - "+value);
         SharedPreferences settings = _context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(key, value);
@@ -331,10 +331,7 @@ public class DataParser {
     //Returns user login status
     public static boolean isUserLoggedIn(Context _context) {
         SharedPreferences settings = _context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
-        boolean value = settings.getBoolean(DataParser.KEY_CURRENTLY_LOGGED_IN, false);
-        Log.d(TAG, "isUserLogged In: "+value);
-
-        return value;
+        return settings.getBoolean(DataParser.KEY_CURRENTLY_LOGGED_IN, false);
     }
 
     //All category references exist on the server, so they can be updated and changed dynamically
@@ -515,7 +512,6 @@ public class DataParser {
             HttpEntity entity = new StringEntity(query); //wraps the query into a String entity
             InputStream inputStream = processRequest(entity);
             String string = readInputAsString(inputStream);
-            Log.i(TAG, string);
             JSONObject jsonObject = new JSONObject(string);
 
             result.setStatus(jsonObject.getInt(STATUS));
@@ -566,9 +562,8 @@ public class DataParser {
             HttpEntity entity = new StringEntity(query);
             InputStream inputStream = processRequest(entity);
             JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
-            Log.d(TAG, jsonObject.toString());
-            int requestStatus = jsonObject.getInt(STATUS);
 
+            int requestStatus = jsonObject.getInt(STATUS);
             int messages = jsonObject.getInt(MESSAGE);
             result = new ObjectResult<>(requestStatus, messages);
         } catch (JSONException e) {
@@ -761,9 +756,7 @@ public class DataParser {
         try {
             HttpEntity entity = new StringEntity(query);
             InputStream inputStream = processRequest(entity);
-            String string = readInputAsString(inputStream);
-            Log.i(TAG, string);
-            JSONObject jsonObject = new JSONObject(string);
+            JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
 
             int serverResponse = jsonObject.getInt(STATUS);
             JSONObject payload = jsonObject.getJSONObject(PAYLOAD);
@@ -1165,7 +1158,6 @@ public class DataParser {
 
             ArrayList<SchoolObject> schoolObjects = new ArrayList<>();
             int requestStatus = jsonObject.getInt(STATUS);
-            Log.d(TAG, "Request Status: "+requestStatus);
 
             for (int i = 0; i < payload.length(); i++)
                 schoolObjects.add((new SchoolObject(payload.getJSONObject(i).getString("name"), payload.getJSONObject(i).getString("textId"))));

@@ -66,7 +66,8 @@ public class SendMessageService extends IntentService {
         } finally {
             Intent intent = new Intent(ACTION_CREATE_MESSAGE_THREAD);
             intent.putExtra(EXTRA_SERVER_RESPONSE, result.getStatus());
-            intent.putExtra(EXTRA_RETURNED_DATA, result.getObject());
+            if(result.getStatus() == StatusCodeParser.STATUS_OK)
+                intent.putExtra(EXTRA_RETURNED_DATA, result.getObject());
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
     }
