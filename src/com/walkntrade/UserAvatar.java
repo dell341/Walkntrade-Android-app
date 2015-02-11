@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,7 +49,6 @@ public class UserAvatar extends Activity implements View.OnClickListener {
     private static final String SAVED_IMAGE_PATH = "saved_image_path";
     private static final String SAVED_IMAGE_URI = "saved_image_uri";
     private static final String SAVED_STATE = "saved_image_awaiting_save";
-    private static final String SAVED_IMAGE = "saved_image_instance";
     private static final int CAPTURE_IMAGE = 100;
     private static final int GALLERY_IMAGE = 200;
 
@@ -67,6 +67,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_avatar);
+        Log.v(TAG, "onCreateView");
 
         context = getApplicationContext();
         progress = (ProgressBar) findViewById(R.id.progressBar);
@@ -79,6 +80,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         Button button = (Button) findViewById(R.id.uploadButton);
 
         if(savedInstanceState != null) {
+            Log.i(TAG, "SavedInstanceState not null");
             int width = (int) getResources().getDimension(R.dimen.image_size_height);
             int height = (int) getResources().getDimension(R.dimen.image_size_height);
 
@@ -96,12 +98,12 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                     Log.e(TAG, "File Not Found", e);
                 }
             }
-            else //Current avatar image
+            else {//Current avatar image
+                Log.d(TAG, "Current photo path or uri stream is null. photo path : "+currentPhotoPath+". uri stream : "+uriStream+". ImageAwaitingSave : "+imageAwaitingSave);
                 new GetAvatarTask().execute();
-
-
+            }
         } else {
-
+            Log.i(TAG, "SavedInstanceState is null");
             DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
             imageCache.clearCache();
             imageCache.close();
@@ -150,13 +152,6 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         outState.putString(SAVED_IMAGE_PATH, currentPhotoPath);
         outState.putParcelable(SAVED_IMAGE_URI, uriStream);
         outState.putBoolean(SAVED_STATE, imageAwaitingSave);
-
-        try {
-            if(!imageAwaitingSave)
-                outState.putParcelable(SAVED_IMAGE, ((BitmapDrawable) avatar.getDrawable()).getBitmap());
-        } catch (NullPointerException e){
-            Log.e(TAG, "Orientation Change before image downloaded");
-        }
     }
 
     @Override
@@ -203,6 +198,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i(TAG, "onActivityResult");
         int width = (int) getResources().getDimension(R.dimen.image_size_height);
         int height = (int) getResources().getDimension(R.dimen.image_size_height);
 
@@ -273,6 +269,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
         @Override
         protected Bitmap doInBackground(Void... voids) {
+            Log.d(TAG, "Getting user avatar");
             //Taken directly from AvatarRetrievalTask
             DataParser database = new DataParser(context);
             Bitmap bm = null;
@@ -312,10 +309,12 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         protected void onPostExecute(Bitmap bitmap) {
             progress.setVisibility(View.GONE);
 
-            if (bitmap != null)
-                avatar.setImageBitmap(bitmap);
-            else
-                noImage.setVisibility(View.VISIBLE);
+            if(currentPhotoPath == null && uriStream == null) { //If device was rotated before new image could be picked, do nothing
+                if (bitmap != null)
+                    avatar.setImageBitmap(bitmap);
+                else
+                    noImage.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -368,6 +367,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 scrollView.fullScroll(ScrollView.FOCUS_UP);
             }
             else {
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.ACTION_UPDATE_DRAWER));
                 imageContainerLayout.setBackgroundColor(getResources().getColor(R.color.green_secondary));
                 imageContainer.setImageResource(R.drawable.ic_action_accept);
             }
