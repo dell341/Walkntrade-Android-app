@@ -12,6 +12,8 @@
 
     <!-- Width of Navigation Drawer -->
     <dimen name="navigation_drawer_width">240dp</dimen>
+    <dimen name="user_drawer_height">60dp</dimen>
+    <dimen name="user_drawer_image_width">56dp</dimen>
 
     <!-- School selector-->
     <dimen name="edit_text_margin_top">75dp</dimen>

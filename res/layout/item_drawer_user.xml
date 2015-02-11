@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="56dp">
+    android:layout_height="@dimen/user_drawer_height">
 
     <ImageView
         android:id="@+id/background"
@@ -13,23 +13,24 @@
     <!-- User Image -->
     <ImageView
         android:id="@+id/drawer_user"
-        android:layout_width="56dp"
+        android:layout_width="@dimen/user_drawer_image_width"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_margin="4dp"
         android:contentDescription="@string/drawer_icon"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_action_person" />
+        android:src="@drawable/ic_action_person"
+        android:background="@color/black"/>
 
     <!-- User Name -->
     <com.walkntrade.views.LightTextView
         android:id="@+id/drawer_user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerInParent="true"
-        android:layout_margin="12dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="12dp"
+        android:layout_marginStart="12dp"
         android:layout_toEndOf="@id/drawer_user"
         android:layout_toRightOf="@id/drawer_user"
         android:background="#8CFFFFFF"
@@ -53,6 +54,6 @@
         android:layout_toRightOf="@id/drawer_user"
         android:background="@drawable/grid_selector_post"
         android:text="@string/sign_in"
-        android:textSize="16sp" />
+        android:textSize="16sp"/>
 
 </RelativeLayout>

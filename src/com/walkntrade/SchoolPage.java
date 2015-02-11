@@ -269,7 +269,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
     //Update contents in Navigation Drawer. User logged in/ User not logged in
     private void updateDrawer() {
-
+        Log.i(TAG, "Updating navigation drawer");
         if (DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
             new UserNameTask(this, navigationDrawerList).execute();
             if (!hasAvatar)
@@ -506,7 +506,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
                 ObjectResult<String> result = database.getAvatarUrl(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME));
                 avatarURL = result.getObject();
-                Log.i(TAG, "Avatar Retrieval : "+avatarURL);
 
                 if (avatarURL == null)
                     return null;
