@@ -504,8 +504,9 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             try {
                 String avatarURL;
 
-                ObjectResult<String> result = database.getAvatarUrl(null);
+                ObjectResult<String> result = database.getAvatarUrl(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME));
                 avatarURL = result.getObject();
+                Log.i(TAG, "Avatar Retrieval : "+avatarURL);
 
                 if (avatarURL == null)
                     return null;
