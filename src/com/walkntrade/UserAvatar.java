@@ -225,15 +225,12 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 } catch (FileNotFoundException e) {
                     Log.e(TAG, "File not found", e);
                 }
-
             }
             else {
                 addPicToGallery();
                 inputStream = null;
                 avatar.setImageBitmap(ImageTool.getImageFromDevice(currentPhotoPath, width, height));
             }
-
-
         }
     }
 
@@ -361,8 +358,12 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             progress.setVisibility(View.INVISIBLE);
 
             if(!response.equals("0")) {
+                if(response.substring(0,44).equals("<br /><b>Warning</b>:  imagecreatefromjpeg()"))
+                    error.setText("Only .jpg images are currently supported");
+                else
+                    error.setText(response);
+
                 imageContainerLayout.setBackgroundColor(getResources().getColor(R.color.lighter_red));
-                error.setText(getResources().getString(R.string.error_occured));
                 error.setVisibility(View.VISIBLE);
                 scrollView.fullScroll(ScrollView.FOCUS_UP);
             }
@@ -370,8 +371,6 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 imageContainerLayout.setBackgroundColor(getResources().getColor(R.color.green_secondary));
                 imageContainer.setImageResource(R.drawable.ic_action_accept);
             }
-
-            Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
         }
     }
 
