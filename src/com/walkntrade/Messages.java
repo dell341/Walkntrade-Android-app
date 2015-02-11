@@ -424,6 +424,13 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                     progressDialog.setCancelable(true);
                     progressDialog.setCanceledOnTouchOutside(true);
                 }
+
+                if(threadAdapter.isEmpty()) {
+                    noResults.setText(context.getString(R.string.no_messages));
+                    noResults.setVisibility(View.VISIBLE);
+                    messageList.setAdapter(null);
+                }
+
                 break;
         }
 
