@@ -133,7 +133,7 @@ public class GcmIntentService extends IntentService {
             String[] splitURL = imageUrl.split("_");
             String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
             splitURL = key.split("\\.");
-            key = splitURL[0];
+            key = splitURL[0]+"_notification_image"; //Notification image cached should be smaller than the regular image cached
 
             Bitmap userBitmap = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 

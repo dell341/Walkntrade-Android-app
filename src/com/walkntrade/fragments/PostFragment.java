@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -540,7 +541,6 @@ public class PostFragment extends Fragment {
 
             try {
                 if (avatarUrl == null || avatarUrl.isEmpty()) {
-                    Log.i(TAG, "Avatar Url was null");
                     ObjectResult<String> result = database.getAvatarUrl(thisPost.getUser());
 
                     if (result.getStatus() != StatusCodeParser.STATUS_OK)
@@ -556,8 +556,12 @@ public class PostFragment extends Fragment {
 
                 bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 
+                //Make dimensions of images similar to that of notification images. May be changed later.
+                int largeIconWidth = Resources.getSystem().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+                int largeIconHeight = Resources.getSystem().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+
                 if (bm == null) //If it doesn't exists, retrieve image from network
-                    bm = DataParser.loadBitmap(avatarUrl);
+                    bm = DataParser.loadOptBitmap(avatarUrl, largeIconWidth, largeIconHeight);
 
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {
