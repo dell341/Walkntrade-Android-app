@@ -33,5 +33,6 @@
 
     <string name="save_change_failed">Could not save changes</string>
     <string name="error_empty_password">Could not save changes - please enter password</string>
+    <string name="settings_saved">Your settings have been saved.</string>
 
 </resources>

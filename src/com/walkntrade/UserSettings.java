@@ -21,6 +21,8 @@ import com.walkntrade.io.DataParser;
 public class UserSettings extends Activity implements AdapterView.OnItemClickListener{
 
     private static final String TAG = "UserSettings";
+    private static final int REQUEST_ACCOUNT_CHANGE = 9000;
+    public static final int RESULT_FINISH_ACTIVITY = 200;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,17 +77,20 @@ public class UserSettings extends Activity implements AdapterView.OnItemClickLis
                 startActivity(settingsIntent); break;
             case 2: //Account Settings
                 settingsIntent = new Intent(this, AccountSettings.class);
-                startActivity(settingsIntent); break;
+                startActivityForResult(settingsIntent, REQUEST_ACCOUNT_CHANGE); break;
             case 3: //Contact Preferences
                 settingsIntent = new Intent(this, ContactPreferences.class);
                 startActivity(settingsIntent); break;
         }
 
-
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ACCOUNT_CHANGE :
+                if(resultCode == RESULT_FINISH_ACTIVITY)
+                    finish();
+        }
     }
 }

@@ -2,11 +2,13 @@ package com.walkntrade;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -36,6 +38,7 @@ public class AccountSettingsChange extends Activity implements SwipeRefreshLayou
     public static final int SETTING_PHONE = 1;
     public static final int SETTING_PASSWORD = 2;
 
+    private Context context;
     private SwipeRefreshLayout refreshLayout;
     private TextView errorMessage;
     private EditText newSetting, newSettingConfirm;
@@ -45,6 +48,8 @@ public class AccountSettingsChange extends Activity implements SwipeRefreshLayou
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_change);
+
+        context = getApplicationContext();
 
         setting = getIntent().getIntExtra(CHANGE_SETTING, 0);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
@@ -192,11 +197,15 @@ public class AccountSettingsChange extends Activity implements SwipeRefreshLayou
 
             try {
                 switch (setting) {
-                    case SETTING_EMAIL: serverResponse = database.changeEmail(oldPassword[0], newSetting.getText().toString()); break;
+                    case SETTING_EMAIL: serverResponse = database.changeEmail(oldPassword[0], newSetting.getText().toString());
+                        database.simpleGetIntent(DataParser.INTENT_GET_EMAILPREF); break;
                     case SETTING_PASSWORD: serverResponse = database.changePassword(oldPassword[0], newSetting.getText().toString()); break;
-                    case SETTING_PHONE: serverResponse = database.changePhoneNumber(oldPassword[0], newSetting.getText().toString()); break;
+                    case SETTING_PHONE: serverResponse = database.changePhoneNumber(oldPassword[0], newSetting.getText().toString());
+                        database.simpleGetIntent(DataParser.INTENT_GET_PHONENUM); break;
                     default: return "null";
                 }
+
+                Log.i(TAG, "Setting "+setting+" : "+serverResponse);
             } catch (IOException e) {
                 Log.e(TAG, "Changing setting", e);
             }
@@ -207,8 +216,11 @@ public class AccountSettingsChange extends Activity implements SwipeRefreshLayou
         @Override
         protected void onPostExecute(String serverResponse) {
             refreshLayout.setRefreshing(false);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.ACTION_UPDATE_DRAWER));
 
-            Toast toast = Toast.makeText(AccountSettingsChange.this, serverResponse, Toast.LENGTH_SHORT);
+            if(serverResponse.equals("Your settings have been saved. You will be logged out now in order for your changes to take effect. If you changed your email, you will need to verify it before you may log in."))
+                setResult(AccountSettings.RESULT_FINISH_ACTIVITY);
+            Toast toast = Toast.makeText(AccountSettingsChange.this, getString(R.string.settings_saved), Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0);
             toast.show();
 

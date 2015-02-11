@@ -269,8 +269,8 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
     //Update contents in Navigation Drawer. User logged in/ User not logged in
     private void updateDrawer() {
-        boolean isUserLoggedIn = DataParser.isUserLoggedIn(context);
-        if (DataParser.isNetworkAvailable(this) && isUserLoggedIn) {
+
+        if (DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
             new UserNameTask(this, navigationDrawerList).execute();
             if (!hasAvatar)
                 new AvatarRetrievalTask(this, navigationDrawerList).execute();
@@ -279,7 +279,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         //Create titles and options for the NavigationDrawer
         ArrayList<DrawerItem> items = new ArrayList<DrawerItem>();
 
-        if (isUserLoggedIn) {
+        if (DataParser.isUserLoggedIn(context)) {
             //User is signed in
             items.add(new DrawerItem(0, R.drawable.ic_action_person, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), true)); //User Item
             //Add all of the add post for the different categories

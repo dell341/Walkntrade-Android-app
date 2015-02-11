@@ -21,6 +21,11 @@ import java.util.ArrayList;
  */
 
 public class AccountSettings extends Activity {
+
+    private static final String TAG = "AccountSettings";
+    private static final int REQUEST_ACCOUNT_CHANGE = 9000;
+    public static final int RESULT_FINISH_ACTIVITY = 200;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,14 +54,14 @@ public class AccountSettings extends Activity {
                 switch(position){
                     case 0:
                         intent.putExtra(AccountSettingsChange.CHANGE_SETTING, AccountSettingsChange.SETTING_EMAIL);
-                        startActivity(intent);
+                        startActivityForResult(intent, REQUEST_ACCOUNT_CHANGE);
                         break;
                     case 1:
                         intent.putExtra(AccountSettingsChange.CHANGE_SETTING, AccountSettingsChange.SETTING_PHONE);
-                        startActivity(intent);break;
+                        startActivityForResult(intent, REQUEST_ACCOUNT_CHANGE);break;
                     case 2:
                         intent.putExtra(AccountSettingsChange.CHANGE_SETTING, AccountSettingsChange.SETTING_PASSWORD);
-                        startActivity(intent);break;
+                        startActivityForResult(intent, REQUEST_ACCOUNT_CHANGE);break;
                 }
             }
         });
@@ -73,6 +78,17 @@ public class AccountSettings extends Activity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ACCOUNT_CHANGE :
+                if(resultCode == RESULT_FINISH_ACTIVITY) {
+                    setResult(UserSettings.RESULT_FINISH_ACTIVITY);
+                    finish();
+                }
         }
     }
 }

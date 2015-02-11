@@ -566,6 +566,7 @@ public class DataParser {
             HttpEntity entity = new StringEntity(query);
             InputStream inputStream = processRequest(entity);
             JSONObject jsonObject = new JSONObject(readInputAsString(inputStream));
+            Log.d(TAG, jsonObject.toString());
             int requestStatus = jsonObject.getInt(STATUS);
 
             int messages = jsonObject.getInt(MESSAGE);
@@ -576,8 +577,9 @@ public class DataParser {
             disconnectAll();
         }
 
-        //Stores amount of unread messages here
-        setSharedIntPreferences(context, PREFS_USER, KEY_USER_MESSAGES, result.getObject());
+        if(result.getStatus() == StatusCodeParser.STATUS_OK)
+            setSharedIntPreferences(context, PREFS_USER, KEY_USER_MESSAGES, result.getObject()); //Stores amount of unread messages here
+
         return result;
     }
 
@@ -628,6 +630,8 @@ public class DataParser {
             InputStream inputStream = processRequest(entity);
             serverResponse = readInputAsString(inputStream); //Reads message response from server
         } finally {
+            clearUserInfo();
+            clearCookies();
             disconnectAll();
         }
         return serverResponse;
