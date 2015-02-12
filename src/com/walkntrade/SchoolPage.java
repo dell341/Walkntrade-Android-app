@@ -63,8 +63,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     private ActionBar actionBar;
     private Context context;
 
-    private boolean hasAvatar;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,19 +75,15 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         PagerTabStrip pagerTab = (PagerTabStrip) findViewById(R.id.pager_tab);
         TabsPagerAdapter tabsAdapter = new TabsPagerAdapter(getFragmentManager(), this);
-        hasAvatar = false;
 
         actionBar.setDisplayHomeAsUpEnabled(true);
-
-        if (savedInstanceState != null)
-            hasAvatar = true;
 
         LocalBroadcastManager.getInstance(context).registerReceiver(schoolPageUpdateReceiver, new IntentFilter(ACTION_UPDATE_DRAWER));
         new PollMessagesTask(context).execute();
         updateDrawer();
 
         //Retrieve saved avatar image
-        if (savedInstanceState != null && DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
+        if (savedInstanceState != null && DataParser.isNetworkAvailable(context) && DataParser.isUserLoggedIn(context)) {
             Bitmap bm = savedInstanceState.getParcelable(SAVED_AVATAR_IMAGE);
 
             if (bm == null)
@@ -270,11 +264,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     //Update contents in Navigation Drawer. User logged in/ User not logged in
     private void updateDrawer() {
         Log.i(TAG, "Updating navigation drawer");
-        if (DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
-            new UserNameTask(this, navigationDrawerList).execute();
-            if (!hasAvatar)
-                new AvatarRetrievalTask(this, navigationDrawerList).execute();
-        }
+
 
         //Create titles and options for the NavigationDrawer
         ArrayList<DrawerItem> items = new ArrayList<DrawerItem>();
@@ -313,6 +303,50 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         }
 
         navigationDrawerList.setAdapter(new DrawerAdapter(this, items));
+        if (DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
+            getUserName();
+            getCachedImage();
+        }
+    }
+
+    private void getUserName() {
+        String userName = DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME); //Gets username, which should already be on device
+
+        DrawerAdapter adapter = (DrawerAdapter) navigationDrawerList.getAdapter();
+        DrawerItem item = adapter.getItem(0); //Get user header item
+        item.setTitle(userName);
+        adapter.notifyDataSetChanged();
+    }
+
+    private void getCachedImage() {
+        DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
+        String avatarURL = DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL);
+
+        if(avatarURL == null) {
+            if(DataParser.isNetworkAvailable(context))
+                new AvatarRetrievalTask(context, navigationDrawerList).execute();
+            return;
+        }
+
+        String splitURL[] = avatarURL.split("_");
+        String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+        splitURL = key.split("\\.");
+        key = splitURL[0];
+
+        Bitmap bm = imageCache.getBitmapFromDiskCache(key);
+        imageCache.close();
+
+        if(bm == null) {
+            if(DataParser.isNetworkAvailable(context))
+                new AvatarRetrievalTask(context, navigationDrawerList).execute();
+        }
+        else {
+            DrawerAdapter adapter = (DrawerAdapter) navigationDrawerList.getAdapter();
+            DrawerItem item = adapter.getItem(0); //Get user header item
+
+            item.setAvatar(bm);
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private void selectItem(int position, long id) {
@@ -354,7 +388,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     }
 
     private void signOut() {
-        if (DataParser.isNetworkAvailable(this)) {
+        if (DataParser.isNetworkAvailable(context)) {
             DataParser.setSharedBooleanPreferences(context, DataParser.PREFS_USER, DataParser.KEY_CURRENTLY_LOGGED_IN, false);
 
             new LogoutTask(this).execute(); //Starts asynchronous sign out
@@ -453,42 +487,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         }
     }
 
-    private class UserNameTask extends AsyncTask<Void, Void, String> {
-        private Context context;
-        private ListView drawerList;
-
-        public UserNameTask(Context _context, ListView _drawerList){
-            context = _context;
-            drawerList = _drawerList;
-        }
-        @Override
-        protected String doInBackground(Void... voids) {
-            String userName = DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME); //Gets username if already stored on device
-
-            if (userName == null) //If username is not already stored locally
-            {
-                DataParser database = new DataParser(context);
-                try {
-                    ObjectResult<String> result = database.getUserName();
-                    userName = result.getObject();
-                } catch (IOException e) {
-                    Log.e(TAG, "Get username", e);
-                }
-            }
-
-            return userName;
-        }
-
-        @Override
-        protected void onPostExecute(String userName) {
-            DrawerAdapter adapter = (DrawerAdapter) drawerList.getAdapter();
-            DrawerItem item = adapter.getItem(0); //Get user header item
-            item.setTitle(userName);
-            adapter.notifyDataSetChanged();
-        }
-    }
-
-
     //Asynchronous Task, received user avatar image
     private class AvatarRetrievalTask extends AsyncTask<Void, Void, Bitmap> {
         private Context context;
@@ -508,7 +506,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             try {
                 String avatarURL;
 
-                ObjectResult<String> result = database.getAvatarUrl(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME));
+                ObjectResult<String> result = database.getAvatarUrl(null, true);
                 avatarURL = result.getObject();
 
                 if (avatarURL == null)

@@ -11,8 +11,8 @@ import android.os.Parcelable;
 //Posts with an unknown or special category
 public class WildcardPost extends Post {
 
-    public WildcardPost(String obsId, String schoolId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views, String tags) {
-        super(obsId, schoolId, identifier, title, details, user, imgURL,date, price, views, tags);
+    public WildcardPost(String obsId, String schoolId, String identifier, String title, String details, String user, String userId, String imgURL, String date, String price, String views, String tags) {
+        super(obsId, schoolId, identifier, title, details, user, userId, imgURL,date, price, views, tags);
     }
 
     @Override

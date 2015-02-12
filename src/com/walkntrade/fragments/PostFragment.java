@@ -113,7 +113,7 @@ public class PostFragment extends Fragment {
             profilePostItems = savedInstanceState.getParcelableArrayList(SAVED_POST_ITEMS);
             avatarUrl = savedInstanceState.getString(SAVED_USER_IMAGE);
 
-            new UserAvatarRetrievalTask().execute();
+            getCachedUserImage();
             if (profilePostItems == null)
                 new UserProfileRetrievalTask().execute();
             else {
@@ -132,7 +132,7 @@ public class PostFragment extends Fragment {
             }
         } else {
             new UserProfileRetrievalTask().execute();
-            new UserAvatarRetrievalTask().execute();
+            getCachedUserImage();
         }
 
         ArrayList<View> images = new ArrayList<View>(4);
@@ -167,12 +167,11 @@ public class PostFragment extends Fragment {
             public void onGlobalLayout() {
                 //Only perform an image retrieval if the image is no longer there, a search hasn't been performed yet, and a search isn't currently running
                 if (image.getDrawable() == null && (asyncTask1 == null || asyncTask1.getStatus() != AsyncTask.Status.RUNNING) && !imageOne) {
-
                     //Adjust the first image (just in case there are no other images added)
                     image.getLayoutParams().width = (int) (postLayout.getMeasuredWidth() * .98);
 
                     String imgUrl = generateImgURL(0);
-                    asyncTask1 = new SpecialImageRetrievalTask(image, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+                    getCachedPostImage(0, imgUrl, image);
                 }
             }
         });
@@ -183,7 +182,7 @@ public class PostFragment extends Fragment {
             public void onGlobalLayout() {
                 if (image2.getDrawable() == null && (asyncTask2 == null || asyncTask2.getStatus() != AsyncTask.Status.RUNNING) && !imageTwo) {
                     String imgUrl = generateImgURL(1);
-                    asyncTask2 = new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
+                    getCachedPostImage(1, imgUrl, image2);
                 }
             }
         });
@@ -194,7 +193,7 @@ public class PostFragment extends Fragment {
             public void onGlobalLayout() {
                 if (image3.getDrawable() == null && (asyncTask3 == null || asyncTask3.getStatus() != AsyncTask.Status.RUNNING) && !imageThree) {
                     String imgUrl = generateImgURL(2);
-                    asyncTask3 = new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
+                    getCachedPostImage(2, imgUrl, image3);
                 }
             }
         });
@@ -205,7 +204,7 @@ public class PostFragment extends Fragment {
             public void onGlobalLayout() {
                 if (image4.getDrawable() == null && (asyncTask4 == null || asyncTask4.getStatus() != AsyncTask.Status.RUNNING) && !imageFour) {
                     String imgUrl = generateImgURL(3);
-                    asyncTask4 = new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
+                    getCachedPostImage(3, imgUrl, image4);
                 }
             }
         });
@@ -335,14 +334,11 @@ public class PostFragment extends Fragment {
                     String imgUrl = generateImgURL(0);
                     asyncTask1 = new SpecialImageRetrievalTask(image, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
 
-
                     imgUrl = generateImgURL(1);
                     asyncTask2 = new SpecialImageRetrievalTask(image2, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imgUrl);
 
-
                     imgUrl = generateImgURL(2);
                     asyncTask3 = new SpecialImageRetrievalTask(image3, 2).execute(imgUrl);
-
 
                     imgUrl = generateImgURL(3);
                     asyncTask4 = new SpecialImageRetrievalTask(image4, 3).execute(imgUrl);
@@ -365,6 +361,65 @@ public class PostFragment extends Fragment {
         }
     }
 
+    private void getCachedPostImage(int index, String imageUrl, ImageView imageView) {
+        String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
+        String key = identifier + "_" + index;
+
+        DiskLruImageCache imageCache = new DiskLruImageCache(context, schoolID + DiskLruImageCache.DIRECTORY_POST_IMAGES);
+        Bitmap bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from Cache
+
+        if (bm == null)
+            switch (index) {
+                case 0:
+                    asyncTask1 = new SpecialImageRetrievalTask(imageView, 0).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imageUrl);
+                    break;
+                case 1:
+                    asyncTask2 = new SpecialImageRetrievalTask(imageView, 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imageUrl);
+                    break;
+                case 2:
+                    asyncTask3 = new SpecialImageRetrievalTask(imageView, 2).execute(imageUrl);
+                    break;
+                case 3:
+                    asyncTask4 = new SpecialImageRetrievalTask(imageView, 3).execute(imageUrl);
+                    break;
+            }
+        else {
+            imageView.setImageBitmap(bm);
+            imageView.setVisibility(View.VISIBLE);
+            imageCount++;
+
+            if (imageCount > 1) { //If there are more than 1 images, Adjust the image widths
+                FrameLayout.LayoutParams linearLayoutParams = (FrameLayout.LayoutParams) linearLayout.getLayoutParams();
+                linearLayoutParams.gravity = Gravity.NO_GRAVITY;
+                linearLayout.setLayoutParams(linearLayoutParams);
+
+//                if (index == 0)
+//                    imageView.getLayoutParams().width = (int) getResources().getDimension(R.dimen.post_image_width);
+            }
+        }
+
+    }
+
+    private void getCachedUserImage() {
+        DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
+
+        String avatarURL = "/user_images/uid_" + thisPost.getUserId() + ".jpg";
+
+        String splitURL[] = avatarURL.split("_");
+        String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+        splitURL = key.split("\\.");
+        key = splitURL[0];
+
+        Bitmap bm = imageCache.getBitmapFromDiskCache(key);
+        imageCache.close();
+
+        if (bm == null) {
+            if (DataParser.isNetworkAvailable(context))
+                new UserAvatarRetrievalTask().execute();
+        } else
+            userImage.setImageBitmap(bm); //Try to retrieve image from cache
+    }
+
     private String generateImgURL(int index) {
         String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
         String imgUrl = "post_images/" + schoolID + "/";
@@ -385,7 +440,6 @@ public class PostFragment extends Fragment {
     private class SpecialImageRetrievalTask extends AsyncTask<String, Void, Bitmap> {
         private ImageView imgView;
         private int index;
-        private DiskLruImageCache imageCache;
 
         public SpecialImageRetrievalTask(ImageView _imgView, int _index) {
             imgView = _imgView;
@@ -405,21 +459,15 @@ public class PostFragment extends Fragment {
             if (isCancelled())
                 return null;
 
+            String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
+            DiskLruImageCache imageCache = new DiskLruImageCache(context, schoolID + DiskLruImageCache.DIRECTORY_POST_IMAGES);
             try {
-                String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
                 String key = identifier + "_" + index;
 
-                imageCache = new DiskLruImageCache(context, schoolID + DiskLruImageCache.DIRECTORY_POST_IMAGES);
-                bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from Cache
+                int width = image.getWidth();
+                int height = image.getHeight();
 
-                if (bm == null) { //If it doesn't exists, retrieve image from network
-
-                    int width = image.getWidth();
-                    int height = image.getHeight();
-
-                    bm = DataParser.loadOptBitmap(imgURL[0], width, height);
-                }
-
+                bm = DataParser.loadOptBitmap(imgURL[0], width, height);
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {
                 Log.e(TAG, "Image does not exist");
@@ -540,8 +588,7 @@ public class PostFragment extends Fragment {
 
             try {
                 if (avatarUrl == null || avatarUrl.isEmpty()) {
-                    ObjectResult<String> result = database.getAvatarUrl(thisPost.getUser());
-
+                    ObjectResult<String> result = database.getAvatarUrl(thisPost.getUser(), false);
                     if (result.getStatus() != StatusCodeParser.STATUS_OK)
                         return null;
 
@@ -553,14 +600,11 @@ public class PostFragment extends Fragment {
                 splitURL = key.split("\\.");
                 key = splitURL[0];
 
-                bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
-
                 //Make dimensions of images similar to that of notification images. May be changed later.
                 int largeIconWidth = Resources.getSystem().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
                 int largeIconHeight = Resources.getSystem().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
 
-                if (bm == null) //If it doesn't exists, retrieve image from network
-                    bm = DataParser.loadOptBitmap(avatarUrl, largeIconWidth, largeIconHeight);
+                bm = DataParser.loadOptBitmap(avatarUrl, largeIconWidth, largeIconHeight);
 
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {

@@ -28,6 +28,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.walkntrade.adapters.item.ConversationItem;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.fragments.TaskFragment;
 import com.walkntrade.gcm.GcmIntentService;
@@ -107,7 +108,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             ArrayList<MessageThread> messages = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_MESSAGES);
             isDialogShowing = savedInstanceState.getBoolean(SAVED_PROGRESS_DIALOG_STATE);
             isProgressShowing = savedInstanceState.getBoolean(SAVED_INSTANCE_PROGRESS_STATE, true);
-            progressBar.setVisibility( isProgressShowing ? View.VISIBLE : View.INVISIBLE);
+            progressBar.setVisibility(isProgressShowing ? View.VISIBLE : View.INVISIBLE);
             progressDialog.setMessage(savedInstanceState.getString(SAVED_PROGRESS_MESSAGE));
             progressMessage = savedInstanceState.getString(SAVED_PROGRESS_MESSAGE);
 
@@ -263,6 +264,23 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         }
     }
 
+    private void getCachedUserImage(MessageThread m) {
+        String[] splitURL = m.getUserImageUrl().split("_");
+        String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+        splitURL = key.split("\\.");
+        key = splitURL[0];
+
+        DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
+        Bitmap bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
+
+        if (bm == null) {//If it doesn't exists, retrieve image from network
+            new UserAvatarRetrievalTask(m).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m.getUserImageUrl());
+        } else {
+            m.setBitmap(bm);
+            threadAdapter.notifyDataSetChanged();
+        }
+    }
+
     private class MessageThreadAdapter extends BaseAdapter {
 
         private Context context;
@@ -294,7 +312,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         public void removeItems(String[] threadIds) { //Remove items matching the specified Ids
             for (String id : threadIds)
-                for (Iterator<MessageThread> iterator = items.iterator(); iterator.hasNext();) { //Uses iterator because, cannot modify and iterate over ArrayList concurrently
+                for (Iterator<MessageThread> iterator = items.iterator(); iterator.hasNext(); ) { //Uses iterator because, cannot modify and iterate over ArrayList concurrently
                     MessageThread m = iterator.next();
                     if (m.getThreadId().equals(id))
                         iterator.remove();
@@ -356,7 +374,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                 break;
             case TaskFragment.TASK_REMOVE_MESSAGE_THREADS:
                 isDialogShowing = true;
-                if(amountToDelete > 1)
+                if (amountToDelete > 1)
                     progressMessage = getString(R.string.removing_messages_multiple);
                 else
                     progressMessage = getString(R.string.removing_messages);
@@ -400,7 +418,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                         messageList.setAdapter(threadAdapter);
 
                         for (MessageThread m : messageThreads)
-                            new UserAvatarRetrievalTask(m).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m.getUserImageUrl());
+                            getCachedUserImage(m);
                     }
 
                 } else {
@@ -425,7 +443,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                     progressDialog.setCanceledOnTouchOutside(true);
                 }
 
-                if(threadAdapter.isEmpty()) {
+                if (threadAdapter.isEmpty()) {
                     noResults.setText(context.getString(R.string.no_messages));
                     noResults.setVisibility(View.VISIBLE);
                     messageList.setAdapter(null);
@@ -462,10 +480,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                 splitURL = key.split("\\.");
                 key = splitURL[0];
 
-                bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
-
-                if (bm == null) //If it doesn't exists, retrieve image from network
-                    bm = DataParser.loadBitmap(avatarURL[0]);
+                bm = DataParser.loadBitmap(avatarURL[0]);
 
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {

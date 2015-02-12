@@ -19,17 +19,18 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 	public static final String CATEGORY_MISC = "misc";
     public static final String CATEGORY_UNKNOWN = "Unknown";
 	
-	private String obsId, schoolId, identifier, title, details, user, imgURL, date, views, tags;
+	private String obsId, schoolId, identifier, title, details, user, userId, imgURL, date, views, tags;
 	private String price = "";
 	private Bitmap defaultImage = null;
 	
-	public Post(String obsId, String schoolId, String identifier, String title, String details, String user, String imgURL, String date, String price, String views, String tags) {
+	public Post(String obsId, String schoolId, String identifier, String title, String details, String user, String userId, String imgURL, String date, String price, String views, String tags) {
         this.obsId = obsId;
         this.schoolId = schoolId;
         this.identifier = identifier;
 		this.title = title;
 		this.details = details;
 		this.user = user;
+        this.userId = userId;
 		this.imgURL = imgURL;
 		this.date = date;
 		this.price = price;
@@ -60,6 +61,10 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 	public String getUser() {
 		return user;
 	}
+
+    public String getUserId() {
+        return userId;
+    }
 	
 	public String getImgUrl() {
 		return imgURL;
@@ -101,6 +106,7 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 		title = in.readString();
 		details = in.readString();
 		user = in.readString();
+        userId = in.readString();
 		imgURL = in.readString();
 		date = in.readString();
 		price = in.readString();
@@ -120,6 +126,7 @@ public abstract class Post implements Parcelable{ //Implements Parcelable for ab
 		out.writeString(title);
 		out.writeString(details);
 		out.writeString(user);
+        out.writeString(userId);
 		out.writeString(imgURL);
 		out.writeString(date);
 		out.writeString(price);

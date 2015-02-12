@@ -12,8 +12,8 @@ public class BookPost extends Post {
 
     private String author, isbn;
 	
-	public BookPost(String obsId, String schoolId, String identifier, String title, String author, String details, String isbn, String user, String imgURL, String date, String price, String views, String tags) {
-		super(obsId, schoolId, identifier, title, details, user, imgURL,date, price, views, tags);
+	public BookPost(String obsId, String schoolId, String identifier, String title, String author, String details, String isbn, String user, String userId, String imgURL, String date, String price, String views, String tags) {
+		super(obsId, schoolId, identifier, title, details, user, userId, imgURL,date, price, views, tags);
         this.author = author;
         this.isbn = isbn;
 	}

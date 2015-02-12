@@ -67,7 +67,6 @@ public class UserAvatar extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_avatar);
-        Log.v(TAG, "onCreateView");
 
         context = getApplicationContext();
         progress = (ProgressBar) findViewById(R.id.progressBar);
@@ -79,8 +78,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         avatar = (ImageView) findViewById(R.id.avatar);
         Button button = (Button) findViewById(R.id.uploadButton);
 
-        if(savedInstanceState != null) {
-            Log.i(TAG, "SavedInstanceState not null");
+        if (savedInstanceState != null) {
             int width = (int) getResources().getDimension(R.dimen.image_size_height);
             int height = (int) getResources().getDimension(R.dimen.image_size_height);
 
@@ -88,7 +86,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             uriStream = savedInstanceState.getParcelable(SAVED_IMAGE_URI);
             imageAwaitingSave = savedInstanceState.getBoolean(SAVED_STATE);
 
-            if(currentPhotoPath != null) //Image from camera capture
+            if (currentPhotoPath != null) //Image from camera capture
                 avatar.setImageBitmap(ImageTool.getImageFromDevice(currentPhotoPath, width, height));
             else if (uriStream != null) { //Image from existing upload
                 try {
@@ -97,22 +95,13 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 } catch (FileNotFoundException e) {
                     Log.e(TAG, "File Not Found", e);
                 }
+            } else { //Current avatar image
+                getCachedImage();
             }
-            else {//Current avatar image
-                Log.d(TAG, "Current photo path or uri stream is null. photo path : "+currentPhotoPath+". uri stream : "+uriStream+". ImageAwaitingSave : "+imageAwaitingSave);
-                new GetAvatarTask().execute();
-            }
-        } else {
-            Log.i(TAG, "SavedInstanceState is null");
-            DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
-            imageCache.clearCache();
-            imageCache.close();
+        } else
+            getCachedImage();
 
-            if(DataParser.isNetworkAvailable(this))
-                new GetAvatarTask().execute();
-        }
-
-        if(imageAwaitingSave)
+        if (imageAwaitingSave)
             imageContainerLayout.setBackgroundColor(getResources().getColor(R.color.yellow));
 
         avatar.setOnClickListener(this);
@@ -121,16 +110,43 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             public void onClick(View view) {
                 error.setVisibility(View.GONE);
 
-                if(currentPhotoPath == null && inputStream == null) {
+                if (currentPhotoPath == null && inputStream == null) {
                     error.setText(getString(R.string.null_avatar_upload));
                     error.setVisibility(View.VISIBLE);
-                }
-                else
+                } else
                     new UploadAvatarTask().execute();
             }
         });
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void getCachedImage() {
+        DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
+
+        String avatarURL;
+        avatarURL = DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL);
+
+        if(avatarURL == null || avatarURL.isEmpty()) {
+            if(DataParser.isNetworkAvailable(context))
+                new GetAvatarTask().execute();
+            return;
+        }
+
+        String splitURL[] =  avatarURL.split("_");
+        String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+        splitURL = key.split("\\.");
+        key = splitURL[0];
+
+        Bitmap bm = imageCache.getBitmapFromDiskCache(key);
+        imageCache.close();
+
+        if(bm == null) {
+            if(DataParser.isNetworkAvailable(context))
+                new GetAvatarTask().execute();
+        }
+        else
+            avatar.setImageBitmap(bm); //Try to retrieve image from cache
     }
 
     @Override
@@ -177,8 +193,8 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                                 }
 
                                 if (image != null) {
-                                        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(image)); //Set image file name and location
-                                        startActivityForResult(cameraIntent, CAPTURE_IMAGE);
+                                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(image)); //Set image file name and location
+                                    startActivityForResult(cameraIntent, CAPTURE_IMAGE);
                                 }
                                 dialogInterface.dismiss();
                                 break;
@@ -210,7 +226,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             if (requestCode == GALLERY_IMAGE) {
                 Uri returnUri = data.getData();
 
-                if(returnUri == null)
+                if (returnUri == null)
                     return;
 
                 try {
@@ -221,8 +237,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 } catch (FileNotFoundException e) {
                     Log.e(TAG, "File not found", e);
                 }
-            }
-            else {
+            } else {
                 addPicToGallery();
                 inputStream = null;
                 avatar.setImageBitmap(ImageTool.getImageFromDevice(currentPhotoPath, width, height));
@@ -269,7 +284,6 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
         @Override
         protected Bitmap doInBackground(Void... voids) {
-            Log.d(TAG, "Getting user avatar");
             //Taken directly from AvatarRetrievalTask
             DataParser database = new DataParser(context);
             Bitmap bm = null;
@@ -277,7 +291,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             try {
                 String avatarURL;
 
-                ObjectResult<String> result = database.getAvatarUrl(DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME));
+                ObjectResult<String> result = database.getAvatarUrl(null, true);
                 avatarURL = result.getObject();
 
                 if (avatarURL == null)
@@ -288,11 +302,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 splitURL = key.split("\\.");
                 key = splitURL[0];
 
-                bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
-
-                if (bm == null) //If it doesn't exists, retrieve image from network
-                    bm = DataParser.loadBitmap(avatarURL);
-
+                bm = DataParser.loadBitmap(avatarURL);
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {
                 Log.e(TAG, "Retrieving user avatar", e);
@@ -309,7 +319,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         protected void onPostExecute(Bitmap bitmap) {
             progress.setVisibility(View.GONE);
 
-            if(currentPhotoPath == null && uriStream == null) { //If device was rotated before new image could be picked, do nothing
+            if (currentPhotoPath == null && uriStream == null) { //If device was rotated before new image could be picked, do nothing
                 if (bitmap != null)
                     avatar.setImageBitmap(bitmap);
                 else
@@ -335,16 +345,15 @@ public class UserAvatar extends Activity implements View.OnClickListener {
 
             try {
 
-                if(currentPhotoPath != null)
+                if (currentPhotoPath != null)
                     response = database.uploadUserAvatar(currentPhotoPath);
                 else
                     response = database.uploadUserAvatar(inputStream);
 
                 imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 Log.e(TAG, "Uploading user avatar", e);
-            }
-             finally {
+            } finally {
                 imageCache.clearCache(); //Clears avatar user image from cache. So new one will be uploaded.
                 imageCache.close();
             }
@@ -356,8 +365,8 @@ public class UserAvatar extends Activity implements View.OnClickListener {
         protected void onPostExecute(String response) {
             progress.setVisibility(View.INVISIBLE);
 
-            if(!response.equals("0")) {
-                if(response.substring(0,44).equals("<br /><b>Warning</b>:  imagecreatefromjpeg()"))
+            if (!response.equals("0")) {
+                if (response.substring(0, 44).equals("<br /><b>Warning</b>:  imagecreatefromjpeg()"))
                     error.setText("Only .jpg images are currently supported");
                 else
                     error.setText(response);
@@ -365,8 +374,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
                 imageContainerLayout.setBackgroundColor(getResources().getColor(R.color.lighter_red));
                 error.setVisibility(View.VISIBLE);
                 scrollView.fullScroll(ScrollView.FOCUS_UP);
-            }
-            else {
+            } else {
                 LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SchoolPage.ACTION_UPDATE_DRAWER));
                 imageContainerLayout.setBackgroundColor(getResources().getColor(R.color.green_secondary));
                 imageContainer.setImageResource(R.drawable.ic_action_accept);

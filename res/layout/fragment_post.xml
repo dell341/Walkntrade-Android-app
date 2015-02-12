@@ -72,7 +72,8 @@
                         style="?android:attr/progressBarStyleInverse"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerInParent="true" />
+                        android:layout_centerInParent="true"
+                        android:visibility="gone"/>
                 </RelativeLayout>
 
                 <ImageView
@@ -219,7 +220,8 @@
                     android:id="@+id/progressBar2"
                     style="?android:attr/progressBarStyleSmall"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
             </RelativeLayout>
 
 
@@ -240,7 +242,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/user_image_layout"
                 android:layout_centerHorizontal="true"
-                android:visibility="invisible" />
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/profile_posts"

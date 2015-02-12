@@ -252,6 +252,23 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
         outState.putInt(SAVED_INSTANCE_ERROR_MESSAGE_STATE, errorMessage.getVisibility());
     }
 
+    private void getCachedUserImage(ConversationItem item) {
+        String[] splitURL = item.getImageUrl().split("_");
+        String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+        splitURL = key.split("\\.");
+        key = splitURL[0];
+
+        DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
+        Bitmap bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
+
+        if (bm == null) {//If it doesn't exists, retrieve image from network
+            new UserAvatarRetrievalTask(item).execute();
+        } else {
+            item.setAvatar(bm);
+            conversationAdapter.notifyDataSetChanged();
+        }
+    }
+
     @Override
     public void onPreExecute(int taskId) {
 
@@ -283,15 +300,15 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
                 if (serverResponse == StatusCodeParser.STATUS_OK) {
                     ArrayList<ChatObject> chatObjects = objectResult.getObject();
                     ArrayList<ConversationItem> conversationItems = new ArrayList<ConversationItem>();
+                    conversationAdapter = new MessageConversationAdapter(context, conversationItems);
 
                     for (ChatObject c : chatObjects) {
                         ConversationItem item = new ConversationItem(c.getSenderName(), c.getContents(), c.getDateTime(), c.getUserImageUrl(), c.isSentFromMe(), false);
                         conversationItems.add(item);
 
-                        new UserAvatarRetrievalTask(item).execute();
+                        getCachedUserImage(item);
                     }
 
-                    conversationAdapter = new MessageConversationAdapter(context, conversationItems);
                     chatList.setAdapter(conversationAdapter);
                     chatList.setSelection(conversationAdapter.getCount() - 1);
                     send.setEnabled(true);
@@ -343,11 +360,7 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
                 splitURL = key.split("\\.");
                 key = splitURL[0];
 
-                bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
-
-                if (bm == null)//If it doesn't exists, retrieve image from network
-                    bm = DataParser.loadBitmap(conversationItem.getImageUrl());
-
+                bm = DataParser.loadBitmap(conversationItem.getImageUrl());
                 imageCache.addBitmapToCache(key, bm); //Finally cache bitmap. Will override cache if already exists or write new cache
             } catch (IOException e) {
                 Log.e(TAG, "Retrieving user avatar", e);

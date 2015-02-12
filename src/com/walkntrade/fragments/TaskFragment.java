@@ -142,6 +142,7 @@ public class TaskFragment extends Fragment {
                 response = database.login(_emailAddress, _password);
                 DataParser.setSharedStringPreference(getActivity().getApplicationContext(), DataParser.PREFS_USER, DataParser.KEY_USER_EMAIL, _emailAddress);
                 database.getUserName();
+                database.getAvatarUrl(null, true);
                 database.simpleGetIntent(DataParser.INTENT_GET_PHONENUM); //Get user's phone number when logging in
                 database.simpleGetIntent(DataParser.INTENT_GET_EMAILPREF); //Get user's contact preference when logging in
             } catch (Exception e) {

@@ -502,10 +502,12 @@ public class DataParser {
         return result;
     }
 
-    public ObjectResult<String> getAvatarUrl(String userName) throws IOException {
+    public ObjectResult<String> getAvatarUrl(String userName, boolean currentUser) throws IOException {
         establishConnection(apiUrl);
 
         String query = "intent=getAvatar&user_name="+userName;
+        if(currentUser)
+            query = "intent=getAvatar";
 
         ObjectResult<String> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
         try {
@@ -522,8 +524,9 @@ public class DataParser {
             disconnectAll();
         }
 
-        //Stores user's avatar url
-        setSharedStringPreference(context, PREFS_USER, KEY_USER_AVATAR_URL, result.getObject());
+        if(currentUser) //Stores user's avatar url
+            setSharedStringPreference(context, PREFS_USER, KEY_USER_AVATAR_URL, result.getObject());
+
         return result;
     }
 
@@ -1004,13 +1007,13 @@ public class DataParser {
             Post post;
 
             if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
-                post = new BookPost(id, schoolId, identifier, title, author, details, isbn, user, null, date, price, views, tags);
+                post = new BookPost(id, schoolId, identifier, title, author, details, isbn, user, null, null, date, price, views, tags);
             else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
-                post = new TechPost(id, schoolId, identifier, title, details, user, null, date, price, views, tags);
+                post = new TechPost(id, schoolId, identifier, title, details, user, null, null, date, price, views, tags);
             else if (category.equalsIgnoreCase(context.getString(R.string.server_category_housing)))
-                post = new HousingPost(id, schoolId, identifier, title, details, user, null, date, price, views, tags);
+                post = new HousingPost(id, schoolId, identifier, title, details, user, null, null, date, price, views, tags);
             else
-                post = new MiscPost(id, schoolId, identifier, title, details, user, null, date, price, views, tags);
+                post = new MiscPost(id, schoolId, identifier, title, details, user, null, null, date, price, views, tags);
 
             result = new ObjectResult<>(requestStatus, post);
         } catch (JSONException e) {
@@ -1203,6 +1206,7 @@ public class DataParser {
                 String details = StringEscapeUtils.unescapeHtml4(jsonPost.getString("details"));
                 String isbn = "";
                 String user = jsonPost.getString("username");
+                String userid = jsonPost.getString("userid");
                 String imgURL = jsonPost.getString("image");
                 String date = jsonPost.getString("date");
                 String price = jsonPost.getString("price");
@@ -1210,13 +1214,13 @@ public class DataParser {
                 String tags = "";
 
                 if (category.equalsIgnoreCase(context.getString(R.string.server_category_book)))
-                    posts.add(new BookPost(obsId, schoolId, identifier, title, author, details, isbn, user, imgURL, date, price, views, tags));
+                    posts.add(new BookPost(obsId, schoolId, identifier, title, author, details, isbn, user, userid, imgURL, date, price, views, tags));
                 else if (category.equalsIgnoreCase(context.getString(R.string.server_category_tech)))
-                    posts.add(new TechPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views, tags));
+                    posts.add(new TechPost(obsId, schoolId, identifier, title, details, user, userid, imgURL, date, price, views, tags));
                 else if (category.equalsIgnoreCase(context.getString(R.string.server_category_housing)))
-                    posts.add(new HousingPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views, tags));
+                    posts.add(new HousingPost(obsId, schoolId, identifier, title, details, user, userid, imgURL, date, price, views, tags));
                 else
-                    posts.add(new MiscPost(obsId, schoolId, identifier, title, details, user, imgURL, date, price, views, tags));
+                    posts.add(new MiscPost(obsId, schoolId, identifier, title, details, user, userid, imgURL, date, price, views, tags));
             }
 
             result = new ObjectResult<>(requestStatus, posts);
