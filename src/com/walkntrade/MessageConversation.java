@@ -253,19 +253,25 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
     }
 
     private void getCachedUserImage(ConversationItem item) {
-        String[] splitURL = item.getImageUrl().split("_");
-        String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
-        splitURL = key.split("\\.");
-        key = splitURL[0];
+        try {
+            String[] splitURL = item.getImageUrl().split("_");
+            String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+            splitURL = key.split("\\.");
+            key = splitURL[0];
 
-        DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
-        Bitmap bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
+            DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
+            Bitmap bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 
-        if (bm == null) {//If it doesn't exists, retrieve image from network
-            new UserAvatarRetrievalTask(item).execute();
-        } else {
-            item.setAvatar(bm);
-            conversationAdapter.notifyDataSetChanged();
+            if (bm == null) {//If it doesn't exists, retrieve image from network
+                new UserAvatarRetrievalTask(item).execute();
+            } else {
+                item.setAvatar(bm);
+                conversationAdapter.notifyDataSetChanged();
+            }
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            Log.e(TAG, "Image does not exist", e);
+            //If user has not uploaded an image, leave Bitmap as null
         }
     }
 

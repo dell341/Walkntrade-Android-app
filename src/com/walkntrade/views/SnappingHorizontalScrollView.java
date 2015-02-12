@@ -19,7 +19,7 @@ import java.util.List;
 
 public class SnappingHorizontalScrollView extends HorizontalScrollView implements View.OnTouchListener {
 
-    private static final String TAG = "SnappingHorizontalScrollView";
+    private static final String TAG = "SnappingHorizScrollView";
     private static final int MINIMUM_SWIPE_DISTANCE = 5;
     private static final int MINIMUM_REQUIRED_VELOCITY = 300;
 

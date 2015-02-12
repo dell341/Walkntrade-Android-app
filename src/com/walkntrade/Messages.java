@@ -265,19 +265,25 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     }
 
     private void getCachedUserImage(MessageThread m) {
-        String[] splitURL = m.getUserImageUrl().split("_");
-        String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
-        splitURL = key.split("\\.");
-        key = splitURL[0];
+        try {
+            String[] splitURL = m.getUserImageUrl().split("_");
+            String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+            splitURL = key.split("\\.");
+            key = splitURL[0];
 
-        DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
-        Bitmap bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
+            DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
+            Bitmap bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
 
-        if (bm == null) {//If it doesn't exists, retrieve image from network
-            new UserAvatarRetrievalTask(m).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m.getUserImageUrl());
-        } else {
-            m.setBitmap(bm);
-            threadAdapter.notifyDataSetChanged();
+            if (bm == null) {//If it doesn't exists, retrieve image from network
+                new UserAvatarRetrievalTask(m).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m.getUserImageUrl());
+            } else {
+                m.setBitmap(bm);
+                threadAdapter.notifyDataSetChanged();
+            }
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            Log.e(TAG, "Image does not exist", e);
+            //If user has not uploaded an image, leave Bitmap as null
         }
     }
 

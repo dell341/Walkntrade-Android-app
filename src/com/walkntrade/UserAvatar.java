@@ -133,20 +133,24 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             return;
         }
 
-        String splitURL[] =  avatarURL.split("_");
-        String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
-        splitURL = key.split("\\.");
-        key = splitURL[0];
+        try {
+            String splitURL[] = avatarURL.split("_");
+            String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+            splitURL = key.split("\\.");
+            key = splitURL[0];
 
-        Bitmap bm = imageCache.getBitmapFromDiskCache(key);
-        imageCache.close();
+            Bitmap bm = imageCache.getBitmapFromDiskCache(key);
+            imageCache.close();
 
-        if(bm == null) {
-            if(DataParser.isNetworkAvailable(context))
-                new GetAvatarTask().execute();
+            if (bm == null) {
+                if (DataParser.isNetworkAvailable(context))
+                    new GetAvatarTask().execute();
+            } else
+                avatar.setImageBitmap(bm); //Try to retrieve image from cache
+        } catch (ArrayIndexOutOfBoundsException e) {
+            Log.e(TAG, "Image does not exist", e);
+            //If user has not uploaded an image, leave Bitmap as null
         }
-        else
-            avatar.setImageBitmap(bm); //Try to retrieve image from cache
     }
 
     @Override

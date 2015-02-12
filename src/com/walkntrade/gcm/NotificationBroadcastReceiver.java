@@ -14,7 +14,7 @@ import android.util.Log;
 //Could be a more efficient way to do this, but it works.
 public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
-    private static final String TAG = "NotificationBroadcastReceiver";
+    private static final String TAG = "NotfBroadcastReceiver";
 
     public NotificationBroadcastReceiver() {
     }
