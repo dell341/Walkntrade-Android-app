@@ -33,7 +33,8 @@
         android:layout_alignTop="@id/message_contents"
         android:adjustViewBounds="true"
         android:scaleType="centerInside"
-        android:src="@drawable/avatar" />
+        android:src="@drawable/ic_action_person"
+        android:background="@drawable/circle"/>
 
     <TextView
         android:id="@+id/user"

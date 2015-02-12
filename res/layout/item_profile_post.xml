@@ -10,8 +10,7 @@
     android:paddingTop="8dp"
     android:paddingBottom="8dp"
     android:paddingLeft="3dp"
-    android:paddingRight="3dp"
-    android:background="@drawable/list_selector_2">
+    android:paddingRight="3dp">
 
     <com.walkntrade.views.LightTextView
         android:id="@+id/content_title"

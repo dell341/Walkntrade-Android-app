@@ -120,7 +120,7 @@ public class PostFragment extends Fragment {
             else {
                 for (ViewPostItem item : profilePostItems) {
                     if (item.isHeader()) {
-                        View school = LayoutInflater.from(context).inflate(R.layout.item_post_school, profilePosts, false);
+                        View school = LayoutInflater.from(context).inflate(R.layout.item_profile_school, profilePosts, false);
                         ((TextView) school.findViewById(R.id.content_title)).setText(item.getContents());
                         profilePosts.addView(school);
                     } else {
@@ -505,14 +505,14 @@ public class PostFragment extends Fragment {
                 profileUserName.setText(userProfile.getUserName() + "'s posts");
 
                 ArrayList<ReferencedPost> userPosts = userProfile.getUserPosts();
-                profilePostItems = new ArrayList<ViewPostItem>();
+                profilePostItems = new ArrayList<>();
                 String currentSchool = "";
 
                 for (ReferencedPost p : userPosts) {
                     if (!p.getSchool().equalsIgnoreCase(currentSchool)) { //If this post is a new school, create a new header
                         currentSchool = p.getSchool();
                         profilePostItems.add(new ViewPostItem(p.getSchool(), p.getSchoolAbbv()));
-                        View school = LayoutInflater.from(context).inflate(R.layout.item_post_school, profilePosts, false);
+                        View school = LayoutInflater.from(context).inflate(R.layout.item_profile_school, profilePosts, false);
                         ((TextView) school.findViewById(R.id.content_title)).setText(p.getSchool());
                         profilePosts.addView(school);
                     }
