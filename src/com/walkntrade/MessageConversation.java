@@ -230,22 +230,13 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
     };
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_message_conversation, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             //Used to support Android 15 and below
             case android.R.id.home: //If the up button was selected, go back to parent activity
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
-            case R.id.action_feedback:
-                startActivity(new Intent(this, Privacy_Feedback.class));
-                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

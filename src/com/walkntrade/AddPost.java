@@ -291,6 +291,9 @@ public class AddPost extends Activity implements OnClickListener {
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
                 NavUtils.navigateUpTo(this, upIntent);
                 return true;
+            case R.id.action_feedback:
+                startActivity(new Intent(this, Feedback.class));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
