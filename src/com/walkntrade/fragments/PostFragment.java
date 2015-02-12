@@ -114,7 +114,6 @@ public class PostFragment extends Fragment {
             avatarUrl = savedInstanceState.getString(SAVED_USER_IMAGE);
 
             new UserAvatarRetrievalTask().execute();
-
             if (profilePostItems == null)
                 new UserProfileRetrievalTask().execute();
             else {

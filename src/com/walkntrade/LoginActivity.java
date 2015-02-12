@@ -56,7 +56,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
     private Context context;
 
     private TaskFragment taskFragment;
-    private Bitmap background;
+    private boolean isProgressShowing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,11 +73,15 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         Button registerButton = (Button) findViewById(R.id.register);
         context = getApplicationContext();
 
-
         taskFragment = (TaskFragment) getFragmentManager().findFragmentByTag(TAG_TASK_FRAGMENT);
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
         refreshLayout.setEnabled(false);
+
+        if(savedInstanceState != null) {
+            isProgressShowing = savedInstanceState.getBoolean(SAVED_INSTANCE_PROGRESS_STATE, true);
+            refreshLayout.setRefreshing(isProgressShowing);
+        }
 
         resetPassword.setOnClickListener(new OnClickListener() {
             @Override
@@ -167,6 +171,12 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(SAVED_INSTANCE_PROGRESS_STATE, isProgressShowing);
+    }
+
+    @Override
     public void onRefresh() {
     }
 
@@ -205,6 +215,7 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
     @Override
     public void onPreExecute(int taskId) {
         refreshLayout.setRefreshing(true);
+        isProgressShowing = true;
     }
 
     @Override
@@ -219,10 +230,11 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
     @Override
     public void onPostExecute(int taskId, Object result) {
-        String response = result.toString();
-
         refreshLayout.setRefreshing(false);
+        isProgressShowing = false;
         loginError.setVisibility(View.GONE);
+
+        String response = result.toString();
 
         if (response.equals(DataParser.LOGIN_SUCCESS)) {
             new PollMessagesTask(context).execute(); //Get any of the user's unread messages on log in
