@@ -266,7 +266,9 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
     private void getCachedUserImage(MessageThread m) {
         try {
-            String[] splitURL = m.getUserImageUrl().split("_");
+            String userImageUrl = m.getUserImageUrl();
+            Log.i(TAG, userImageUrl);
+            String[] splitURL = userImageUrl.split("_");
             String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
             splitURL = key.split("\\.");
             key = splitURL[0];

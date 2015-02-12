@@ -319,7 +319,6 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     }
 
     private void getCachedImage() {
-        DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
         String avatarURL = DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL);
 
         if(avatarURL == null) {
@@ -328,24 +327,29 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             return;
         }
 
-        String splitURL[] = avatarURL.split("_");
-        String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
-        splitURL = key.split("\\.");
-        key = splitURL[0];
+        try {
+            String splitURL[] = avatarURL.split("_");
+            String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
+            splitURL = key.split("\\.");
+            key = splitURL[0];
 
-        Bitmap bm = imageCache.getBitmapFromDiskCache(key);
-        imageCache.close();
+            DiskLruImageCache imageCache = new DiskLruImageCache(context, DiskLruImageCache.DIRECTORY_OTHER_IMAGES);
+            Bitmap bm = imageCache.getBitmapFromDiskCache(key);
+            imageCache.close();
 
-        if(bm == null) {
-            if(DataParser.isNetworkAvailable(context))
-                new AvatarRetrievalTask(context, navigationDrawerList).execute();
-        }
-        else {
-            DrawerAdapter adapter = (DrawerAdapter) navigationDrawerList.getAdapter();
-            DrawerItem item = adapter.getItem(0); //Get user header item
+            if (bm == null) {
+                if (DataParser.isNetworkAvailable(context))
+                    new AvatarRetrievalTask(context, navigationDrawerList).execute();
+            } else {
+                DrawerAdapter adapter = (DrawerAdapter) navigationDrawerList.getAdapter();
+                DrawerItem item = adapter.getItem(0); //Get user header item
 
-            item.setAvatar(bm);
-            adapter.notifyDataSetChanged();
+                item.setAvatar(bm);
+                adapter.notifyDataSetChanged();
+            }
+        }catch (ArrayIndexOutOfBoundsException e) {
+            Log.e(TAG, "Image does not exist", e);
+            //If user has not uploaded an image, leave Bitmap as null
         }
     }
 
