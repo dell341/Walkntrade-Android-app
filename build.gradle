@@ -16,9 +16,10 @@ dependencies {
 }
 
 android {
+    signingConfigs {
+    }
     compileSdkVersion 21
     buildToolsVersion '21.1.2'
-
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 21
@@ -26,13 +27,11 @@ android {
         versionName "1.5.5.0"
         applicationId 'com.walkntrade'
     }
-
     buildTypes {
         release {
 
         }
     }
-
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/LICENSE'

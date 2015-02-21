@@ -10,7 +10,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.walkntrade.asynctasks.LogoutTask;
@@ -41,6 +43,7 @@ public class Walkntrade_Main extends Activity {
 
         context = getApplicationContext();
         Button retry = (Button)findViewById(R.id.retryButton);
+        GoogleAnalytics.getInstance(context).setAppOptOut(BuildConfig.DEBUG);
 
         //Check & update categories from the server
         new AsyncTask<Void, Void, Integer>() {
