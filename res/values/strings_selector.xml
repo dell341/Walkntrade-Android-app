@@ -3,6 +3,7 @@
     <!-- Selector Page Strings -->
     <string name="title_activity_selector">Walkntrade</string>
     <string name="findSchool">Find your school</string>
+    <string name="school_not_found">School not found</string>
     <string name="search">Search</string>
     
         <!-- NavigationDrawer (Side Menu) strings -->

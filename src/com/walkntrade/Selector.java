@@ -48,7 +48,6 @@ public class Selector extends Activity implements OnItemClickListener {
 
     private TextView noResults;
     private ListView schoolList;
-    private ImageView imageView;
     private EditText editText;
     private ProgressBar progressBar;
     private Context context;
@@ -56,7 +55,6 @@ public class Selector extends Activity implements OnItemClickListener {
 
     private ArrayList<SchoolObject> schoolObjects;
     private ArrayAdapter<SchoolObject> mAdapter;
-    private Bitmap background;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,13 +62,12 @@ public class Selector extends Activity implements OnItemClickListener {
         setContentView(R.layout.activity_selector);
         context = getApplicationContext();
 
-        imageView = (ImageView) findViewById(R.id.background);
         noResults = (TextView) findViewById(R.id.noResults);
         schoolList = (ListView) findViewById(R.id.schoolList);
         editText = (EditText) findViewById(R.id.schoolSearch);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        schoolObjects = new ArrayList<SchoolObject>();
+        schoolObjects = new ArrayList<>();
         asyncTask = new SchoolNameTask();
         schoolList.setOnItemClickListener(this);
         mAdapter = new ArrayAdapter<SchoolObject>(context, R.layout.list_item) {
@@ -163,7 +160,7 @@ public class Selector extends Activity implements OnItemClickListener {
             Tracker t = ((Analytics)getApplication()).getTracker(Analytics.TrackerName.APP_TRACKER);
             t.send(new HitBuilders.EventBuilder("User Input", "School Search").setLabel(schoolQuery).build());
             try {
-                schoolObjects = new ArrayList<SchoolObject>();
+                schoolObjects = new ArrayList<>();
                 ObjectResult<ArrayList<SchoolObject>> result = database.getSchools(schoolQuery);
                 serverResponse = result.getStatus();
                 schoolObjects = result.getObject();
@@ -183,13 +180,17 @@ public class Selector extends Activity implements OnItemClickListener {
 
             if(serverResponse == StatusCodeParser.STATUS_OK) {
                 if (schoolObjects.size() <= 0) {
-                    noResults.setText(context.getString(R.string.no_results));
+                    noResults.setText(context.getString(R.string.school_not_found));
                     noResults.setVisibility(View.VISIBLE);
                 }
                 else {
                     noResults.setVisibility(View.GONE);
                     mAdapter.addAll(schoolObjects);
                 }
+            }
+            else if(serverResponse == StatusCodeParser.STATUS_NOT_FOUND) {
+                noResults.setText(context.getString(R.string.school_not_found));
+                noResults.setVisibility(View.VISIBLE);
             }
             else {
                 noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));

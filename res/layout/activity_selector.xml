@@ -52,7 +52,7 @@
             android:background="#8CFFFFFF"
             android:gravity="center"
             android:text="@string/no_results"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:visibility="gone" />
 
         <EditText
