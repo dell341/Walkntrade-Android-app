@@ -51,7 +51,7 @@ import java.util.Iterator;
 public class Messages extends Activity implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, TaskFragment.TaskCallbacks {
 
     private static final String TAG = "Messages";
-    private static final String TAG_TASK_FRAGMENT = "Task_Fragment";
+    private static final String TAG_TASK_FRAGMENT = "com.walkntrade.Messages.Task_Fragment";
     private static final String SAVED_INSTANCE_MESSAGES = "saved_instance_messages";
     private static final String SAVED_INSTANCE_PROGRESS_STATE = "saved_instance_progress_state";
     private static final String SAVED_PROGRESS_MESSAGE = "saved_instance_progress_message";

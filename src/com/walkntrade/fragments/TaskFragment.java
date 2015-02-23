@@ -17,6 +17,7 @@ import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.ChatObject;
 import com.walkntrade.objects.MessageThread;
+import com.walkntrade.objects.Post;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,17 +31,25 @@ import java.util.ArrayList;
 public class TaskFragment extends Fragment {
 
     private static final String TAG = "TaskFragment";
-    public static final String ARG_THREAD_ID = "com.walkntrade.fragments.arg.THREAD_ID";
-    public static final String ARG_LOGIN_USER = "com.walkntrade.fragments.arg.LOGIN_USER";
-    public static final String ARG_LOGIN_PASSWORD = "com.walkntrade.fragments.arg.LOGIN_PASSWORD";
-    public static final String ARG_MESSAGES_THREAD_IDS = "com.walkntrade.fragments.arg.MESSAGES_THREAD_IDS";
 
     public static final String ARG_TASK_ID = "com.walkntrade.fragments.arg.ASYNC_TASK_ID";
-    public static final int TASK_LOGIN = 100;
-    public static final int TASK_GET_MESSAGE_THREADS = 200;
-    public static final int TASK_GET_CHAT_THREAD = 300;
-    public static final int TASK_REMOVE_MESSAGE_THREADS = 400;
 
+    public static final int TASK_LOGIN = 100;
+    public static final String ARG_LOGIN_USER = "com.walkntrade.fragments.arg.LOGIN_USER";
+    public static final String ARG_LOGIN_PASSWORD = "com.walkntrade.fragments.arg.LOGIN_PASSWORD";
+
+    public static final int TASK_GET_MESSAGE_THREADS = 200;
+
+    public static final int TASK_GET_CHAT_THREAD = 300;
+    public static final String ARG_THREAD_ID = "com.walkntrade.fragments.arg.THREAD_ID";
+
+    public static final int TASK_REMOVE_MESSAGE_THREADS = 400;
+    public static final String ARG_MESSAGES_THREAD_IDS = "com.walkntrade.fragments.arg.MESSAGES_THREAD_IDS";
+
+    public static final int TASK_POST_SEARCH = 500;
+    public static final String ARG_SEARCH_QUERY = "com.walkntrade.fragments.args.SEARCH_QUERY";
+    public static final String ARG_CATEGORY = "com.walkntrade.fragments.args.CATEGORY";
+    public static final String ARG_OFFSET = "com.walkntade.fragments.args.OFFSET";
 
     private TaskCallbacks callbacks;
     private AsyncTask asyncTask;
@@ -82,6 +91,14 @@ public class TaskFragment extends Fragment {
                 final ArrayList<String> messagesToDelete = getArguments().getStringArrayList(ARG_MESSAGES_THREAD_IDS);
                 asyncTask = new DeleteThreadTask(messagesToDelete);
                 ((DeleteThreadTask)asyncTask).execute(); break;
+            case TASK_POST_SEARCH:
+                final String searchQuery = getArguments().getString(ARG_SEARCH_QUERY);
+                final String category = getArguments().getString(ARG_CATEGORY);
+                final int offset = getArguments().getInt(ARG_OFFSET);
+                asyncTask = new PostSearchTask(searchQuery, category, offset);
+
+                ((PostSearchTask)asyncTask).execute();
+                break;
         }
     }
 
@@ -191,7 +208,7 @@ public class TaskFragment extends Fragment {
                 Log.e(TAG, "Get MessageThreads", e);
             }
 
-            return new ObjectResult<ArrayList<MessageThread>>(StatusCodeParser.CONNECT_FAILED, null);
+            return new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
         }
 
         @Override
@@ -296,6 +313,61 @@ public class TaskFragment extends Fragment {
         @Override
         protected void onPostExecute(ObjectResult<String[]> result) {
             messageToDelete.clear();
+            if (callbacks != null)
+                callbacks.onPostExecute(taskId, result);
+        }
+    }
+
+    private class PostSearchTask extends AsyncTask<Void, Void, ObjectResult<ArrayList<Post>>> {
+        private String searchQuery, category;
+        private int offset;
+
+        public PostSearchTask(String searchQuery, String category, int offset) {
+            super();
+            this.searchQuery = searchQuery;
+            this.category = category;
+            this.offset = offset;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            if (callbacks != null)
+                callbacks.onPreExecute(taskId);
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            if (callbacks != null)
+                callbacks.onProgressUpdate(0);
+        }
+
+        @Override
+        protected void onCancelled() {
+            if (callbacks != null)
+                callbacks.onCancelled();
+        }
+
+        @Override
+        protected ObjectResult<ArrayList<Post>> doInBackground(Void... voids) {
+            if(isCancelled())
+                return null;
+
+            DataParser database = new DataParser(getActivity().getApplicationContext());
+            ObjectResult<ArrayList<Post>> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null);
+
+            try {
+                String schoolID = DataParser.getSharedStringPreference(getActivity().getApplicationContext(), DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
+                result = database.getSchoolPosts(schoolID, searchQuery, category, offset, 15);
+            } catch (Exception e) {
+                Log.e(TAG, "Retrieving school post(s)", e);
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(ObjectResult<ArrayList<Post>> result) {
+            super.onPostExecute(result);
             if (callbacks != null)
                 callbacks.onPostExecute(taskId, result);
         }

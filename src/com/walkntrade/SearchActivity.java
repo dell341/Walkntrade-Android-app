@@ -22,6 +22,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.walkntrade.adapters.PostAdapter;
+import com.walkntrade.fragments.TaskFragment;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ObjectResult;
@@ -36,9 +37,10 @@ import java.util.ArrayList;
  * https://walkntrade.com
  */
 
-public class SearchActivity extends Activity implements AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
+public class SearchActivity extends Activity implements AdapterView.OnItemClickListener, AbsListView.OnScrollListener, TaskFragment.TaskCallbacks {
 
     private static final String TAG = "SearchActivity";
+    private static final String TAG_TASK_FRAGMENT = "com.walkntrade.SearchActivity.Task_Fragment";
     private static final String SAVED_ARRAYLIST = "saved_instance_arraylist";
     private static final String SAVED_CATEGORY = "saved_instance_category";
     private static final String SAVED_QUERY = "saved_instance_query";
@@ -58,6 +60,8 @@ public class SearchActivity extends Activity implements AdapterView.OnItemClickL
     private int offset, index;
     private boolean downloadMore = true;
 
+    private TaskFragment taskFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +77,8 @@ public class SearchActivity extends Activity implements AdapterView.OnItemClickL
         gridView = (GridView) findViewById(R.id.gridView);
         final Spinner spinner = (Spinner) findViewById(R.id.spinner);
         editText = (EditText) findViewById(R.id.edit_text);
+
+        taskFragment = (TaskFragment) getFragmentManager().findFragmentByTag(TAG_TASK_FRAGMENT);
 
         if(savedInstanceState != null) {
             schoolPosts = savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST);
@@ -130,7 +136,7 @@ public class SearchActivity extends Activity implements AdapterView.OnItemClickL
 
         gridView.setAdapter(null);
         offset = 0;
-        schoolPosts = new ArrayList<Post>();
+        schoolPosts = new ArrayList<>();
         postsAdapter = new PostAdapter(context, schoolPosts);
         gridView.setAdapter(postsAdapter);
         gridView.setOnItemClickListener(this);
@@ -189,68 +195,67 @@ public class SearchActivity extends Activity implements AdapterView.OnItemClickL
     //Download more posts from the server
     private void downloadMorePosts() {
         noResults.setVisibility(View.GONE);
-        new SchoolPostsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
+        Bundle args = new Bundle();
+        args.putInt(TaskFragment.ARG_TASK_ID, TaskFragment.TASK_POST_SEARCH);
+        args.putString(TaskFragment.ARG_SEARCH_QUERY, searchQuery);
+        args.putString(TaskFragment.ARG_CATEGORY, category);
+        args.putInt(TaskFragment.ARG_OFFSET, offset);
+
+        taskFragment = new TaskFragment();
+        taskFragment.setArguments(args);
+
+        getFragmentManager().beginTransaction().add(taskFragment, TAG_TASK_FRAGMENT).commit();
     }
 
-    private class SchoolPostsTask extends AsyncTask<String, Void, Integer> {
+    @Override
+    public void onPreExecute(int taskId) {
+        progressBar.setVisibility(View.VISIBLE);
+    }
 
-        private ArrayList<Post> posts;
+    @Override
+    public void onProgressUpdate(int percent) {
 
-        public SchoolPostsTask() {
-            posts = new ArrayList<Post>();
-        }
+    }
 
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
-        }
+    @Override
+    public void onCancelled() {
 
-        @Override
-        protected Integer doInBackground(String... schoolName) {
-            DataParser database = new DataParser(context);
-            int serverResponse = StatusCodeParser.CONNECT_FAILED;
+    }
 
-            try {
-                String schoolID = DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT);
-                ObjectResult<ArrayList<Post>> result = database.getSchoolPosts(schoolID, searchQuery, category, offset, 15);
-                serverResponse = result.getStatus();
-                posts = result.getObject();
-            } catch (Exception e) {
-                Log.e(TAG, "Retrieving school post(s)", e);
-            }
+    @Override
+    public void onPostExecute(int taskId, Object result) {
+        progressBar.setVisibility(View.GONE);
 
-            return serverResponse;
-        }
+        offset += 15;
+        ObjectResult<ArrayList<Post>> objectResult = (ObjectResult<ArrayList<Post>>) result;
 
-        @Override
-        protected void onPostExecute(Integer serverResponse) {
-            progressBar.setVisibility(View.GONE);
+        int serverResponse = objectResult.getStatus();
 
-            offset += 15;
-            if(serverResponse == StatusCodeParser.STATUS_OK) {
-                if (posts.isEmpty()) { //If server returned empty list, don't try to download anymore
-                    downloadMore = false;
-                    noResults.setText(context.getString(R.string.no_results));
-                    noResults.setVisibility(View.VISIBLE);
+        if(serverResponse == StatusCodeParser.STATUS_OK) {
+            ArrayList<Post> posts = ((ObjectResult<ArrayList<Post>>) result).getObject();
 
-                } else {
-                    noResults.setVisibility(View.GONE);
-                    postsAdapter.incrementCount(posts);
-                    for (Post i : posts)
-                        schoolPosts.add(i);
-
-                    postsAdapter.notifyDataSetChanged();
-
-                    for (Post post : posts)
-                        new ThumbnailTask(post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
-                }
-            }
-            else {
-                postsAdapter.clearContents();
-                postsAdapter.notifyDataSetChanged();
-                noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
+            if (posts.isEmpty()) { //If server returned empty list, don't try to download anymore
+                downloadMore = false;
+                noResults.setText(context.getString(R.string.no_results));
                 noResults.setVisibility(View.VISIBLE);
+
+            } else {
+                noResults.setVisibility(View.GONE);
+                postsAdapter.incrementCount(posts);
+                for (Post i : posts)
+                    schoolPosts.add(i);
+
+                postsAdapter.notifyDataSetChanged();
+
+                for (Post post : posts)
+                    new ThumbnailTask(post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
             }
+        }
+        else {
+            postsAdapter.clearContents();
+            postsAdapter.notifyDataSetChanged();
+            noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
+            noResults.setVisibility(View.VISIBLE);
         }
     }
 

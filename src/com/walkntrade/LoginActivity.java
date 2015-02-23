@@ -50,7 +50,6 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
     private SwipeRefreshLayout refreshLayout;
     private TextView loginError, resetPassword;
-    private ImageView imageView;
     private EditText emailAddress, password;
     private String _emailAddress, _password;
     private Context context;
@@ -64,7 +63,6 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
         setContentView(R.layout.activity_login);
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
-        imageView = (ImageView) findViewById(R.id.background);
         loginError = (TextView) findViewById(R.id.loginErrorMessage);
         resetPassword = (TextView) findViewById(R.id.forgot_password);
         emailAddress = (EditText) findViewById(R.id.email);
@@ -167,7 +165,6 @@ public class LoginActivity extends Activity implements SwipeRefreshLayout.OnRefr
                 }
                 break;
         }
-
     }
 
     @Override
