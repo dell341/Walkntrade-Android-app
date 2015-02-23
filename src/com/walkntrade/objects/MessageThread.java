@@ -3,7 +3,6 @@ package com.walkntrade.objects;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 /*
  * Copyright (c) 2014. All Rights Reserved. Walkntrade

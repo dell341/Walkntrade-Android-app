@@ -11,8 +11,6 @@ import android.os.Parcelable;
 
 import com.walkntrade.io.FormatDateTime;
 
-import java.text.ParseException;
-
 public class ConversationItem implements Parcelable{
     private String senderName, contents, dateTime, imageUrl, errorMessage;
     private boolean sentFromMe, sentFromThisDevice, isDelivered, hasAvatar, messageFailed;

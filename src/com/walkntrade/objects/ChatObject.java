@@ -5,8 +5,6 @@ package com.walkntrade.objects;
  * https://walkntrade.com
  */
 
-import android.graphics.Bitmap;
-
 public class ChatObject {
 
     private static final String TAG = "ChatObject";

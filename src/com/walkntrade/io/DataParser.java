@@ -15,12 +15,12 @@ import android.widget.Toast;
 import com.walkntrade.R;
 import com.walkntrade.objects.BookPost;
 import com.walkntrade.objects.ChatObject;
+import com.walkntrade.objects.HousingPost;
 import com.walkntrade.objects.MessageThread;
 import com.walkntrade.objects.MiscPost;
 import com.walkntrade.objects.Post;
 import com.walkntrade.objects.ReferencedPost;
 import com.walkntrade.objects.SchoolObject;
-import com.walkntrade.objects.HousingPost;
 import com.walkntrade.objects.TechPost;
 import com.walkntrade.objects.UserProfileObject;
 

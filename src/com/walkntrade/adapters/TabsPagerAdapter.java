@@ -6,7 +6,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 
-import com.walkntrade.R;
 import com.walkntrade.fragments.SchoolPostsFragment;
 import com.walkntrade.io.DataParser;
 

@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -265,13 +264,12 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
     private void updateDrawer() {
         Log.i(TAG, "Updating navigation drawer");
 
-
         //Create titles and options for the NavigationDrawer
         ArrayList<DrawerItem> items = new ArrayList<DrawerItem>();
 
         if (DataParser.isUserLoggedIn(context)) {
             //User is signed in
-            items.add(new DrawerItem(0, R.drawable.ic_action_person, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), true)); //User Item
+            items.add(new DrawerItem(0, R.drawable.circle, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), true)); //User Item
             //Add all of the add post for the different categories
             for (int i = 0; i < DataParser.getSharedIntPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_AMOUNT); i++) {
                 String categoryName = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_NAME + i);
@@ -298,7 +296,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
             items.add(new DrawerItem(400, R.drawable.ic_location, getString(R.string.drawer_change_school))); //Select School
         } else {
             //User is signed out
-            items.add(new DrawerItem(0, R.drawable.ic_action_person, getString(R.string.user_name_no_login), true));
+            items.add(new DrawerItem(0, R.drawable.circle, getString(R.string.user_name_no_login), true));
             items.add(new DrawerItem(400, R.drawable.ic_location, getString(R.string.drawer_change_school))); //Select School
         }
 
@@ -439,11 +437,9 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
                 if (item.isDefaultAvatar()) {  //If the default avatar is being upload use resource
                     icon.setImageResource(item.getIconResource());
-                    icon.setBackgroundColor(getResources().getColor(R.color.black));
                 }
                 else { //Else if user icon is being uploaded, use bitmap
                     icon.setImageBitmap(item.getAvatar());
-                    icon.setBackgroundColor(0);
                 }
 
                 content.setText(item.getTitle());

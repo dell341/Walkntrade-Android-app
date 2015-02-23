@@ -21,11 +21,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.ObjectResult;
-import com.walkntrade.io.SendMessageService;
 import com.walkntrade.io.StatusCodeParser;
 
 import java.io.IOException;

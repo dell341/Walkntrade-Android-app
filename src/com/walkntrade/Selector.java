@@ -1,12 +1,9 @@
 package com.walkntrade;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,7 +16,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -29,7 +25,6 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.walkntrade.gcm.Analytics;
 import com.walkntrade.io.DataParser;
-import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.SchoolObject;

@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -31,10 +30,6 @@ import com.walkntrade.io.DataParser;
 import com.walkntrade.io.SendMessageService;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.Post;
-
-import org.apache.http.MessageConstraintException;
-
-import java.io.IOException;
 
 /*
  * Copyright (c) 2014, All Rights Reserved

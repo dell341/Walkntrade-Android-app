@@ -35,19 +35,17 @@
             android:textColor="@color/black" />
     </LinearLayout>
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_image"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:layout_alignTop="@id/linear_layout"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_marginLeft="3dp"
         android:layout_marginRight="3dp"
         android:layout_marginBottom="3dp"
-        android:src="@drawable/ic_action_person"
-        android:background="#666666"
-        android:scaleType="centerInside" />
+        android:layout_alignTop="@id/linear_layout"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/circle"/>
 
     <TextView
         android:id="@+id/user"

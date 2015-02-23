@@ -405,14 +405,15 @@ public class PostFragment extends Fragment {
             splitURL = key.split("\\.");
             key = splitURL[0];
 
-            Bitmap bm = imageCache.getBitmapFromDiskCache(key);
+            Bitmap bm = imageCache.getBitmapFromDiskCache(key); //Try to retrieve image from cache
             imageCache.close();
 
             if (bm == null) {
                 if (DataParser.isNetworkAvailable(context))
                     new UserAvatarRetrievalTask().execute();
-            } else
-                userImage.setImageBitmap(bm); //Try to retrieve image from cache
+            } else {
+                userImage.setImageBitmap(bm);
+            }
         }
         catch (ArrayIndexOutOfBoundsException e) {
             Log.e(TAG, "Image does not exist", e);
@@ -619,8 +620,10 @@ public class PostFragment extends Fragment {
         protected void onPostExecute(Bitmap bitmap) {
             progressUserImage.setVisibility(View.INVISIBLE);
 
-            if (bitmap != null)
+            if (bitmap != null) {
                 userImage.setImageBitmap(bitmap);
+                userImage.setBackgroundColor(context.getResources().getColor(R.color.transparent));
+            }
 
         }
     }

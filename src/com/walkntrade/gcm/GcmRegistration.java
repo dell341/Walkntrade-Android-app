@@ -8,7 +8,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.walkntrade.asynctasks.LogoutTask;
 import com.walkntrade.io.DataParser;
 
 import java.io.IOException;

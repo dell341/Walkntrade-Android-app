@@ -6,9 +6,9 @@ package com.walkntrade.fragments;
  */
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.util.Log;
 
 import com.walkntrade.R;

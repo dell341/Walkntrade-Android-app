@@ -5,9 +5,6 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.walkntrade.MessageConversation;
-import com.walkntrade.fragments.ContactUserFragment;
-
 import java.io.IOException;
 
 

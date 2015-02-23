@@ -10,14 +10,12 @@
     android:padding="5dp"
     android:background="@drawable/gray_on_activated">
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_image"
         android:layout_width="56dp"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:layout_margin="3dp"
-        android:scaleType="centerInside"
-        android:adjustViewBounds="true"
-        android:src="@drawable/avatar"/>
+        android:src="@drawable/circle"/>
 
     <TextView
         android:id="@+id/message_title"

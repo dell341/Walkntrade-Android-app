@@ -206,15 +206,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
-                <ImageView
+                <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/user_image"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:layout_marginEnd="5dp"
                     android:layout_marginRight="5dp"
-                    android:adjustViewBounds="true"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/avatar" />
+                    android:src="@drawable/circle"/>
 
                 <ProgressBar
                     android:id="@+id/progressBar2"

@@ -1,7 +1,6 @@
 package com.walkntrade.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import android.widget.TextView;
 import com.walkntrade.R;
 import com.walkntrade.adapters.item.ConversationItem;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,8 +104,9 @@ public class MessageConversationAdapter extends BaseAdapter {
         holder.user.setText(currentItem.getSenderName());
         holder.date.setText(currentItem.getDisplayableDateTime());
 
-        if (currentItem.hasAvatar())
+        if (currentItem.hasAvatar()) {
             holder.userImage.setImageBitmap(currentItem.getAvatar());
+        }
         if (currentItem.isSentFromThisDevice()) {//If this message was sent from this device. Show a progress bar until it is delivered.
             holder.progressBar.setVisibility((currentItem.isDelivered() ? View.GONE : View.VISIBLE));
             if (currentItem.hasMessageFailed()) {

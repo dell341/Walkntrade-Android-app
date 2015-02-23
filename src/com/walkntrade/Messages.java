@@ -28,7 +28,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.walkntrade.adapters.item.ConversationItem;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.fragments.TaskFragment;
 import com.walkntrade.gcm.GcmIntentService;
@@ -199,7 +198,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         message.clearNewMessages();
         threadAdapter.notifyDataSetChanged();
-        messageList.setAdapter(threadAdapter);
+        //messageList.setAdapter(threadAdapter);
     }
 
     private class MultiChoiceListener implements AbsListView.MultiChoiceModeListener {
@@ -347,10 +346,12 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             postTitle.setText(item.getPostTitle());
             lastMessage.setText(item.getLastUserName() + " : " + item.getLastMessage());
             lastMessageDate.setText(FormatDateTime.formatDateTime(item.getLastDateTime()));
-            if (item.hasImage())
+            if (item.hasImage()) {
                 userImage.setImageBitmap(item.getUserImage());
-            else
-                userImage.setImageResource(R.drawable.avatar);
+            }
+            else {
+                userImage.setImageResource(R.drawable.circle);
+            }
 
             if (item.getNewMessages() > 0) {
                 postTitle.setTypeface(postTitle.getTypeface(), Typeface.BOLD);
