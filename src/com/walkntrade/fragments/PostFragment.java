@@ -511,9 +511,6 @@ public class PostFragment extends Fragment {
                     FrameLayout.LayoutParams linearLayoutParams = (FrameLayout.LayoutParams) linearLayout.getLayoutParams();
                     linearLayoutParams.gravity = Gravity.NO_GRAVITY;
                     linearLayout.setLayoutParams(linearLayoutParams);
-
-                    if (index == 0)
-                        imgView.getLayoutParams().width = (int) getResources().getDimension(R.dimen.post_image_width);
                 }
             } else {
                 if (index == 0)  //If no images exist. Set the first image as default post image.
