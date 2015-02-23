@@ -167,9 +167,6 @@ public class PostFragment extends Fragment {
             public void onGlobalLayout() {
                 //Only perform an image retrieval if the image is no longer there, a search hasn't been performed yet, and a search isn't currently running
                 if (image.getDrawable() == null && (asyncTask1 == null || asyncTask1.getStatus() != AsyncTask.Status.RUNNING) && !imageOne) {
-                    //Adjust the first image (just in case there are no other images added)
-                    image.getLayoutParams().width = (int) (postLayout.getMeasuredWidth() * .98);
-
                     String imgUrl = generateImgURL(0);
                     getCachedPostImage(0, imgUrl, image);
                 }
@@ -388,13 +385,10 @@ public class PostFragment extends Fragment {
             imageView.setVisibility(View.VISIBLE);
             imageCount++;
 
-            if (imageCount > 1) { //If there are more than 1 images, Adjust the image widths
+            if (imageCount > 1) { //If there are more than 1 images, Adjust the gravity
                 FrameLayout.LayoutParams linearLayoutParams = (FrameLayout.LayoutParams) linearLayout.getLayoutParams();
                 linearLayoutParams.gravity = Gravity.NO_GRAVITY;
                 linearLayout.setLayoutParams(linearLayoutParams);
-
-//                if (index == 0)
-//                    imageView.getLayoutParams().width = (int) getResources().getDimension(R.dimen.post_image_width);
             }
         }
 

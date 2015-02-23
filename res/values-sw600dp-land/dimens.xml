@@ -3,7 +3,7 @@
     <!-- 7" tablets in horizontal mode-->
     <dimen name="image_size_height">266dp</dimen>
 
-    <dimen name="post_image_width">460dp</dimen>
+    <dimen name="post_image_width">400dp</dimen>
     <dimen name="post_image_height">300dp</dimen>
 
     <!-- AddPost-->
