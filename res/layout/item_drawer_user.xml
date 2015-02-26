@@ -7,8 +7,8 @@
         android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:background="@color/holo_blue"/>
+        android:scaleType="centerInside"
+        android:background="@drawable/avatar_background"/>
 
     <!-- User Image -->
     <de.hdodenhof.circleimageview.CircleImageView

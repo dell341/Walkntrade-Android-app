@@ -215,9 +215,9 @@ public class AddPost extends Activity implements OnClickListener {
                     return;
 
                 if (!DataParser.isUserLoggedIn(context)) {
-                    Toast toast = Toast.makeText(context, getString(R.string.no_login), Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0);
-                    toast.show();
+                    postError.setText(getString(R.string.no_login));
+                    postError.setVisibility(View.VISIBLE);
+                    scrollView.scrollTo(0,0);
                     return;
                 }
 

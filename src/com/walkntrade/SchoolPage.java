@@ -435,12 +435,8 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
                     login.setVisibility(View.GONE);
                 }
 
-                if (item.isDefaultAvatar()) {  //If the default avatar is being upload use resource
-                    icon.setImageResource(item.getIconResource());
-                }
-                else { //Else if user icon is being uploaded, use bitmap
+                if (!item.isDefaultAvatar())   //if user icon is being uploaded, use bitmap
                     icon.setImageBitmap(item.getAvatar());
-                }
 
                 content.setText(item.getTitle());
             }
