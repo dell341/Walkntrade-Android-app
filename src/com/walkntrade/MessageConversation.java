@@ -3,9 +3,12 @@ package com.walkntrade;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,6 +33,7 @@ import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.fragments.TaskFragment;
 import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.DatabaseHelper;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.SendMessageService;
@@ -52,6 +56,7 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
     private static final String SAVED_INSTANCE_CONVERSATION = "saved_instance_state_conversation";
     private static final String SAVED_INSTANCE_PROGRESS_STATE = "saved_instance_progress_state";
     private static final String SAVED_INSTANCE_ERROR_MESSAGE_STATE = "saved_instance_error_state";
+    private static final String SAVED_EXISTING_DATABASE = "saved_instance_database_state";
     public static final String FROM_CONTACT_FRAGMENT = "extra_incoming_from_contact_user";
     public static final String LIST_CONVERSATION = "extra_arraylist_conversation";
     public static final String THREAD_ID = "id_of_current_message_thread";
@@ -65,7 +70,8 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
     private TextView errorMessage;
     private EditText newMessage;
     private ImageView send;
-    boolean canSendMessage = false;
+    private boolean canSendMessage = false;
+    private boolean existingDatabase = false;
 
     private MessageConversationAdapter conversationAdapter;
 
@@ -107,14 +113,41 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
             ArrayList<ConversationItem> items = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_CONVERSATION);
             progressBar.setVisibility(savedInstanceState.getInt(SAVED_INSTANCE_PROGRESS_STATE) == View.VISIBLE ? View.VISIBLE : View.INVISIBLE);
             errorMessage.setVisibility(savedInstanceState.getInt(SAVED_INSTANCE_ERROR_MESSAGE_STATE) == View.VISIBLE ? View.VISIBLE : View.INVISIBLE);
+            existingDatabase = savedInstanceState.getBoolean(SAVED_EXISTING_DATABASE);
 
             if (items!= null) {
                 conversationAdapter = new MessageConversationAdapter(context, items);
                 chatList.setAdapter(conversationAdapter);
                 chatList.setSelection(conversationAdapter.getCount() - 1);
             }
-        } else
+        } else {
             new PollMessagesTask(context).execute();
+
+            //Loads any chat bubbles from the database before downloading from the server
+            DatabaseHelper databaseHelper = new DatabaseHelper(context);
+            SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+            String[] whereArgs = {threadId};
+            Cursor cursor = db.rawQuery("SELECT * FROM "+ DatabaseHelper.ConversationEntry.TABLE_NAME+" WHERE "+DatabaseHelper.ConversationEntry.COLUMN_THREAD_ID+"=?", whereArgs);
+
+            Log.i(TAG, "Cursor count : "+cursor.getCount());
+            ArrayList<ConversationItem> items = new ArrayList<>();
+            cursor.moveToFirst();
+            while(!cursor.isAfterLast()) {
+                existingDatabase = true;
+                ConversationItem item = toConversationItem(cursor);
+                getCachedUserImage(item, false);
+                items.add(item);
+                cursor.moveToNext();
+            }
+            conversationAdapter = new MessageConversationAdapter(context, items);
+            chatList.setAdapter(conversationAdapter);
+            chatList.setSelection(conversationAdapter.getCount() - 1);
+            send.setEnabled(true);
+
+            cursor.close();
+            db.close();
+        }
 
         newMessage.addTextChangedListener(new TextWatcher() {
             @Override
@@ -165,6 +198,15 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
         filter.addAction(SendMessageService.ACTION_APPEND_MESSAGE_THREAD);
         LocalBroadcastManager.getInstance(context).registerReceiver(messageConversationReceiver, filter);
         DataParser.setSharedStringPreference(context, DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD, threadId); //Set this conversation as active, to disable notifications
+    }
+
+    private ConversationItem toConversationItem(Cursor cursor) {
+        String senderName = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ConversationEntry.COLUMN_SENDER_NAME));
+        String contents = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ConversationEntry.COLUMN_CONTENTS));
+        String dateTime = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ConversationEntry.COLUMN_DATETIME));
+        String imageUrl = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ConversationEntry.COLUMN_SENDER_IMAGE));
+        boolean sentFromMe = (cursor.getInt(cursor.getColumnIndex(DatabaseHelper.ConversationEntry.COLUMN_SENT_FROM_ME)) == 1);
+        return new ConversationItem(senderName, contents, dateTime, imageUrl, sentFromMe, false);
     }
 
     @Override
@@ -218,8 +260,21 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
 
                 ConversationItem conversationItem = conversationAdapter.getItem(itemIndex);
 
-                if(serverResponse == StatusCodeParser.STATUS_OK)
+                if(serverResponse == StatusCodeParser.STATUS_OK) {
                     conversationItem.messageDelivered();
+                    DatabaseHelper databaseHelper = new DatabaseHelper(context);
+                    SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+                    ContentValues values = new ContentValues();
+                    values.put(DatabaseHelper.ConversationEntry.COLUMN_THREAD_ID, threadId);
+                    values.put(DatabaseHelper.ConversationEntry.COLUMN_SENT_FROM_ME, (conversationItem.isSentFromMe()? 1 : 0));
+                    values.put(DatabaseHelper.ConversationEntry.COLUMN_CONTENTS, conversationItem.getContents());
+                    values.put(DatabaseHelper.ConversationEntry.COLUMN_DATETIME, conversationItem.getDateTime());
+                    values.put(DatabaseHelper.ConversationEntry.COLUMN_SENDER_NAME, conversationItem.getSenderName());
+                    values.put(DatabaseHelper.ConversationEntry.COLUMN_SENDER_IMAGE, conversationItem.getImageUrl());
+                    db.insert(DatabaseHelper.ConversationEntry.TABLE_NAME, null, values);
+                    db.close();
+                }
                 else
                     conversationItem.messageFailedToDeliver(StatusCodeParser.getStatusString(context, serverResponse));
 
@@ -249,9 +304,10 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
             outState.putParcelableArrayList(SAVED_INSTANCE_CONVERSATION, conversationAdapter.getItems());
         outState.putInt(SAVED_INSTANCE_PROGRESS_STATE, progressBar.getVisibility());
         outState.putInt(SAVED_INSTANCE_ERROR_MESSAGE_STATE, errorMessage.getVisibility());
+        outState.putBoolean(SAVED_EXISTING_DATABASE, existingDatabase);
     }
 
-    private void getCachedUserImage(ConversationItem item) {
+    private void getCachedUserImage(ConversationItem item, boolean updateAdapter) {
         try {
             String[] splitURL = item.getImageUrl().split("_");
             String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
@@ -265,6 +321,7 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
                 new UserAvatarRetrievalTask(item).execute();
             } else {
                 item.setAvatar(bm);
+                if(updateAdapter)
                 conversationAdapter.notifyDataSetChanged();
             }
         }
@@ -279,6 +336,7 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
 
         switch (taskId) {
             case TaskFragment.TASK_GET_CHAT_THREAD:
+                if(!existingDatabase)
                 progressBar.setVisibility(View.VISIBLE);
                 send.setEnabled(false); break;
         }
@@ -305,17 +363,36 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
                 if (serverResponse == StatusCodeParser.STATUS_OK) {
                     ArrayList<ChatObject> chatObjects = objectResult.getObject();
                     ArrayList<ConversationItem> conversationItems = new ArrayList<ConversationItem>();
-                    conversationAdapter = new MessageConversationAdapter(context, conversationItems);
+
+                    DatabaseHelper databaseHelper = new DatabaseHelper(context);
+                    SQLiteDatabase db = databaseHelper.getWritableDatabase();
+                    String[] whereArgs = {threadId};
+                    db.delete(DatabaseHelper.ConversationEntry.TABLE_NAME, DatabaseHelper.ConversationEntry.COLUMN_THREAD_ID+"=?", whereArgs);
 
                     for (ChatObject c : chatObjects) {
                         ConversationItem item = new ConversationItem(c.getSenderName(), c.getContents(), c.getDateTime(), c.getUserImageUrl(), c.isSentFromMe(), false);
                         conversationItems.add(item);
 
-                        getCachedUserImage(item);
+                        getCachedUserImage(item, true);
+
+                        //Save chat objects into database for later use
+                        ContentValues values = new ContentValues();
+                        values.put(DatabaseHelper.ConversationEntry.COLUMN_THREAD_ID, threadId);
+                        values.put(DatabaseHelper.ConversationEntry.COLUMN_SENT_FROM_ME, (c.isSentFromMe()? 1 : 0));
+                        values.put(DatabaseHelper.ConversationEntry.COLUMN_CONTENTS, c.getContents());
+                        values.put(DatabaseHelper.ConversationEntry.COLUMN_DATETIME, c.getDateTime());
+                        values.put(DatabaseHelper.ConversationEntry.COLUMN_SENDER_NAME, c.getSenderName());
+                        values.put(DatabaseHelper.ConversationEntry.COLUMN_SENDER_IMAGE, c.getUserImageUrl());
+                        db.insert(DatabaseHelper.ConversationEntry.TABLE_NAME, null, values);
                     }
 
-                    chatList.setAdapter(conversationAdapter);
-                    chatList.setSelection(conversationAdapter.getCount() - 1);
+                    db.close();
+                    int previousSize = conversationAdapter.getCount();
+                    conversationAdapter.clearData();
+                    conversationAdapter.addAll(conversationItems);
+                    conversationAdapter.notifyDataSetChanged();
+                    if(previousSize != conversationAdapter.getCount())
+                        chatList.smoothScrollToPosition(conversationAdapter.getCount() - 1);
                     send.setEnabled(true);
                 } else {
                     errorMessage.setText(StatusCodeParser.getStatusString(context, serverResponse));

@@ -116,7 +116,7 @@ public class SnappingHorizontalScrollView extends HorizontalScrollView implement
                 }
 
             } catch (NullPointerException e) {
-                Log.e(TAG, "Must call addItems(List<View>)", e);
+                Log.e(TAG, "Must call addAll(List<View>)", e);
             } catch (Exception e) {
                 Log.e(TAG, "Flinging View", e);
             }

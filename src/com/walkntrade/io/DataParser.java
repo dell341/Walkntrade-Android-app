@@ -2,6 +2,7 @@ package com.walkntrade.io;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -200,6 +201,14 @@ public class DataParser {
     private void clearNotificationInfo() {
         SharedPreferences settings = context.getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
         settings.edit().clear().apply();
+    }
+
+    private void clearDatabase() {
+        DatabaseHelper databaseHelper = new DatabaseHelper(context);
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        db.delete(DatabaseHelper.ThreadsEntry.TABLE_NAME, null, null);
+        db.delete(DatabaseHelper.ConversationEntry.TABLE_NAME, null, null);
+        db.close();
     }
 
     //Sends out POST_OBJECT request and returns an InputStream
@@ -486,6 +495,7 @@ public class DataParser {
         processRequest(entity);
         clearCookies(); //Clears locally stored cookies
         clearUserInfo(); //Clears locally stored user information
+        clearDatabase();
         clearNotificationInfo();
 
         disconnectAll();

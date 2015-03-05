@@ -4,9 +4,11 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import com.walkntrade.R;
 import com.walkntrade.adapters.item.ConversationItem;
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.DatabaseHelper;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.objects.ChatObject;
 
@@ -81,6 +84,20 @@ public class GcmIntentService extends IntentService {
     private void sendNotification(String threadId, String user, String subject, String contents, String dateTime, String imageUrl) {
         //Update all messages list
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(ACTION_NOTIFICATION_NEW));
+
+        //Adds new row to the chat objects database
+        DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.ConversationEntry.COLUMN_THREAD_ID, threadId);
+        values.put(DatabaseHelper.ConversationEntry.COLUMN_SENT_FROM_ME, false);
+        values.put(DatabaseHelper.ConversationEntry.COLUMN_CONTENTS, contents);
+        values.put(DatabaseHelper.ConversationEntry.COLUMN_DATETIME, dateTime);
+        values.put(DatabaseHelper.ConversationEntry.COLUMN_SENDER_NAME, user);
+        values.put(DatabaseHelper.ConversationEntry.COLUMN_SENDER_IMAGE, imageUrl);
+        db.insert(DatabaseHelper.ConversationEntry.TABLE_NAME, null, values);
+        db.close();
 
         //Send the message to the active conversation the user viewing
         if(threadId.equals(DataParser.getSharedStringPreference(getApplicationContext(), DataParser.PREFS_NOTIFICATIONS, DataParser.KEY_NOTIFY_ACTIVE_THREAD))) {

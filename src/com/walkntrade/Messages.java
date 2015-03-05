@@ -3,9 +3,12 @@ package com.walkntrade;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -27,11 +30,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.walkntrade.asynctasks.PollMessagesTask;
 import com.walkntrade.fragments.TaskFragment;
 import com.walkntrade.gcm.GcmIntentService;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.DatabaseHelper;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.FormatDateTime;
 import com.walkntrade.io.ObjectResult;
@@ -56,6 +61,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private static final String SAVED_PROGRESS_MESSAGE = "saved_instance_progress_message";
     private static final String SAVED_INSTANCE_ERROR_MESSAGE_STATE = "saved_instance_error_state";
     private static final String SAVED_PROGRESS_DIALOG_STATE = "saved_instance_progress_dialog_state";
+    private static final String SAVED_EXISTING_DATABASE = "saved_instance_database_state";
 
     private Context context;
     private ProgressBar progressBar;
@@ -68,6 +74,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
     private String progressMessage = "";
     private boolean isDialogShowing = false;
     private boolean isProgressShowing = false;
+    private boolean existingDatabase = false;
     private TaskFragment taskFragment;
     private static int amountToDelete = 0;
 
@@ -104,22 +111,44 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             downloadMessageThreads();
 
         if (savedInstanceState != null) {
-            ArrayList<MessageThread> messages = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_MESSAGES);
+            ArrayList<MessageThread> messageThreads = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_MESSAGES);
             isDialogShowing = savedInstanceState.getBoolean(SAVED_PROGRESS_DIALOG_STATE);
             isProgressShowing = savedInstanceState.getBoolean(SAVED_INSTANCE_PROGRESS_STATE, true);
             progressBar.setVisibility(isProgressShowing ? View.VISIBLE : View.INVISIBLE);
             progressDialog.setMessage(savedInstanceState.getString(SAVED_PROGRESS_MESSAGE));
             progressMessage = savedInstanceState.getString(SAVED_PROGRESS_MESSAGE);
+            existingDatabase = savedInstanceState.getBoolean(SAVED_EXISTING_DATABASE);
 
             if (isDialogShowing)
                 progressDialog.show();
 
-            if (messages != null) {
-                threadAdapter = new MessageThreadAdapter(context, messages);
+            if (messageThreads != null) {
+                threadAdapter = new MessageThreadAdapter(context, messageThreads);
                 messageList.setAdapter(threadAdapter);
             }
         } else {
             new PollMessagesTask(context).execute();
+
+            //Load any messages from the database before downloading from the server
+            DatabaseHelper databaseHelper = new DatabaseHelper(context);
+            SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+            Cursor cursor = db.rawQuery("SELECT * FROM " + DatabaseHelper.ThreadsEntry.TABLE_NAME + " LIMIT 50", null);
+
+            ArrayList<MessageThread> messageThreads = new ArrayList<>(cursor.getCount());
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                existingDatabase = true;
+                MessageThread messageThread = toMessageThread(cursor);
+                getCachedUserImage(messageThread, false);
+                messageThreads.add(messageThread);
+                cursor.moveToNext();
+            }
+            threadAdapter = new MessageThreadAdapter(context, messageThreads);
+            messageList.setAdapter(threadAdapter);
+
+            cursor.close();
+            db.close();
         }
 
         LocalBroadcastManager.getInstance(context).registerReceiver(newMessagesReceiver, new IntentFilter(GcmIntentService.ACTION_NOTIFICATION_NEW));
@@ -133,6 +162,22 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         taskFragment.setArguments(args);
 
         getFragmentManager().beginTransaction().add(taskFragment, TAG_TASK_FRAGMENT).commit();
+    }
+
+    private MessageThread toMessageThread(Cursor cursor) {
+        String threadId = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ThreadsEntry.COLUMN_THREAD_ID));
+        String postIdentifier = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ThreadsEntry.COLUMN_POST_ID));
+        String postTitle = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ThreadsEntry.COLUMN_POST_TITLE));
+        String lastMessage = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ThreadsEntry.COLUMN_LAST_MESSAGE));
+        String lastUserName = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ThreadsEntry.COLUMN_LAST_USER_NAME));
+        int lastUserId = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.ThreadsEntry.COLUMN_LAST_USER_ID));
+        String lastDateTime = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ThreadsEntry.COLUMN_DATETIME));
+        int userId = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.ThreadsEntry.COLUMN_RECIPIENT_ID));
+        String userName = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ThreadsEntry.COLUMN_RECIPIENT_NAME));
+        String userImageUrl = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ThreadsEntry.COLUMN_RECIPIENT_IMAGE));
+        int newMessages = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.ThreadsEntry.COLUMN_NEW_MESSAGES));
+
+        return new MessageThread(threadId, postIdentifier, postTitle, lastMessage, lastUserName, lastUserId, lastDateTime, userId, userName, userImageUrl, newMessages);
     }
 
     @Override
@@ -166,6 +211,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         outState.putBoolean(SAVED_INSTANCE_PROGRESS_STATE, isProgressShowing);
         outState.putString(SAVED_PROGRESS_MESSAGE, progressMessage);
         outState.putBoolean(SAVED_PROGRESS_DIALOG_STATE, isDialogShowing);
+        outState.putBoolean(SAVED_EXISTING_DATABASE, existingDatabase);
     }
 
     @Override
@@ -197,8 +243,16 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         startActivity(showConversationIntent);
 
         message.clearNewMessages();
+        //Updates database for specified message thread
+        DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.ThreadsEntry.COLUMN_NEW_MESSAGES, 0);
+        String[] whereArgs = {message.getThreadId()};
+        db.update(DatabaseHelper.ThreadsEntry.TABLE_NAME, values, DatabaseHelper.ThreadsEntry.COLUMN_THREAD_ID+"=?",whereArgs);
+        db.close();
         threadAdapter.notifyDataSetChanged();
-        //messageList.setAdapter(threadAdapter);
     }
 
     private class MultiChoiceListener implements AbsListView.MultiChoiceModeListener {
@@ -263,10 +317,9 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         }
     }
 
-    private void getCachedUserImage(MessageThread m) {
+    private void getCachedUserImage(MessageThread m, boolean updateAdapter) {
         try {
             String userImageUrl = m.getUserImageUrl();
-            Log.i(TAG, userImageUrl);
             String[] splitURL = userImageUrl.split("_");
             String key = splitURL[2]; //The user id will be used as the key to cache their avatar image
             splitURL = key.split("\\.");
@@ -279,11 +332,11 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                 new UserAvatarRetrievalTask(m).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m.getUserImageUrl());
             } else {
                 m.setBitmap(bm);
-                threadAdapter.notifyDataSetChanged();
+                if (updateAdapter)
+                    threadAdapter.notifyDataSetChanged();
             }
-        }
-        catch (ArrayIndexOutOfBoundsException e) {
-            Log.e(TAG, "Image does not exist", e);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            Log.e(TAG, "Image does not exist");
             //If user has not uploaded an image, leave Bitmap as null
         }
     }
@@ -313,8 +366,16 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             return 0;
         }
 
+        public boolean addAll(ArrayList<MessageThread> items) {
+            return this.items.addAll(items);
+        }
+
         public ArrayList<MessageThread> getItems() {
             return items;
+        }
+
+        public void clearData() {
+            items.clear();
         }
 
         public void removeItems(String[] threadIds) { //Remove items matching the specified Ids
@@ -348,8 +409,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
             lastMessageDate.setText(FormatDateTime.formatDateTime(item.getLastDateTime()));
             if (item.hasImage()) {
                 userImage.setImageBitmap(item.getUserImage());
-            }
-            else {
+            } else {
                 userImage.setImageResource(R.drawable.circle);
             }
 
@@ -376,7 +436,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
 
         switch (taskId) {
             case TaskFragment.TASK_GET_MESSAGE_THREADS:
-                if (!refreshLayout.isRefreshing()) {
+                if (!refreshLayout.isRefreshing() && !existingDatabase) {
                     progressBar.setVisibility(View.VISIBLE);
                     isProgressShowing = true;
                 }
@@ -423,17 +483,43 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
                         noResults.setVisibility(View.VISIBLE);
                         messageList.setAdapter(null);
                     } else {
-                        threadAdapter = new MessageThreadAdapter(context, messageThreads);
-                        messageList.setAdapter(threadAdapter);
+                        threadAdapter.clearData();
+                        threadAdapter.addAll(messageThreads);
+                        threadAdapter.notifyDataSetChanged();
 
-                        for (MessageThread m : messageThreads)
-                            getCachedUserImage(m);
+                        DatabaseHelper databaseHelper = new DatabaseHelper(context);
+                        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+                        db.delete(DatabaseHelper.ThreadsEntry.TABLE_NAME, null, null);
+
+                        for (MessageThread m : messageThreads) {
+                            getCachedUserImage(m, true);
+                            ContentValues values = new ContentValues();
+                            values.put(DatabaseHelper.ThreadsEntry.COLUMN_THREAD_ID, m.getThreadId());
+                            values.put(DatabaseHelper.ThreadsEntry.COLUMN_POST_ID, m.getPostIdentifier());
+                            values.put(DatabaseHelper.ThreadsEntry.COLUMN_POST_TITLE, m.getPostTitle());
+                            values.put(DatabaseHelper.ThreadsEntry.COLUMN_LAST_MESSAGE, m.getLastMessage());
+                            values.put(DatabaseHelper.ThreadsEntry.COLUMN_LAST_USER_ID, m.getLastUserId());
+                            values.put(DatabaseHelper.ThreadsEntry.COLUMN_LAST_USER_NAME, m.getLastUserName());
+                            values.put(DatabaseHelper.ThreadsEntry.COLUMN_DATETIME, m.getLastDateTime());
+                            values.put(DatabaseHelper.ThreadsEntry.COLUMN_RECIPIENT_ID, m.getUserId());
+                            values.put(DatabaseHelper.ThreadsEntry.COLUMN_RECIPIENT_NAME, m.getUserName());
+                            values.put(DatabaseHelper.ThreadsEntry.COLUMN_RECIPIENT_IMAGE, m.getUserImageUrl());
+                            values.put(DatabaseHelper.ThreadsEntry.COLUMN_NEW_MESSAGES, m.getNewMessages());
+
+                            long newRowId = db.insert(DatabaseHelper.ThreadsEntry.TABLE_NAME, null, values);
+                            Log.d(TAG, "New table row : " + newRowId);
+                        }
+
+                        db.close();
                     }
 
                 } else {
-                    messageList.setAdapter(null);
-                    noResults.setText(StatusCodeParser.getStatusString(context, requestStatus));
-                    noResults.setVisibility(View.VISIBLE);
+                    if (!existingDatabase) {
+                        messageList.setAdapter(null);
+                        noResults.setText(StatusCodeParser.getStatusString(context, requestStatus));
+                        noResults.setVisibility(View.VISIBLE);
+                    } else
+                        Toast.makeText(context, StatusCodeParser.getStatusString(context, requestStatus), Toast.LENGTH_SHORT).show();
                 }
                 break;
             case TaskFragment.TASK_REMOVE_MESSAGE_THREADS:

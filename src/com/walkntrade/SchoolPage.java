@@ -214,7 +214,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
                     startActivity(new Intent(this, LoginActivity.class));
                 return true;
             case R.id.action_inbox:
-                if (DataParser.isUserLoggedIn(context) && DataParser.isNetworkAvailable(context)) {
+                if (DataParser.isUserLoggedIn(context)) {
                     Intent getMessageIntent = new Intent(this, Messages.class);
                     startActivity(getMessageIntent);
                 }

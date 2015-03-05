@@ -7,12 +7,14 @@ package com.walkntrade.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.walkntrade.R;
 import com.walkntrade.io.DataParser;
+import com.walkntrade.io.DatabaseHelper;
 import com.walkntrade.io.ObjectResult;
 import com.walkntrade.io.StatusCodeParser;
 import com.walkntrade.objects.ChatObject;
@@ -249,7 +251,7 @@ public class TaskFragment extends Fragment {
             } catch (IOException e) {
                 Log.e(TAG, "Getting Chat Thread", e);
             }
-            return new ObjectResult<ArrayList<ChatObject>>(StatusCodeParser.CONNECT_FAILED, null); //If an error occurred, return a connection failed object
+            return new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, null); //If an error occurred, return a connection failed object
         }
 
         @Override
@@ -288,18 +290,23 @@ public class TaskFragment extends Fragment {
             String[] threadIds = new String[messageToDelete.size()];
             DataParser database = new DataParser(getActivity().getApplicationContext());
             ObjectResult<String[]> result = new ObjectResult<>(StatusCodeParser.CONNECT_FAILED, threadIds);
+            DatabaseHelper databaseHelper = new DatabaseHelper(getActivity().getApplicationContext());
+            SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
             try {
                 for(String threadId : messageToDelete) {
                     int serverResponse = database.deleteThread(threadId);
 
-                    if(serverResponse != StatusCodeParser.STATUS_OK) { //If an error occured, stop and return code
+                    if(serverResponse != StatusCodeParser.STATUS_OK) { //If an error occurred, stop and return code
                         result.setStatus(serverResponse);
                         return result;
                     }
                     else {
                         threadIds[numDeleted] = threadId;
                         numDeleted++;
+                        String[] whereArgs = {threadId};
+                        db.delete(DatabaseHelper.ThreadsEntry.TABLE_NAME, DatabaseHelper.ThreadsEntry.COLUMN_THREAD_ID + "=?", whereArgs);
+                        db.delete(DatabaseHelper.ConversationEntry.TABLE_NAME, DatabaseHelper.ConversationEntry.COLUMN_THREAD_ID + "=?", whereArgs);
                     }
                 }
             } catch (IOException e) {
