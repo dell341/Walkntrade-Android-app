@@ -12,7 +12,7 @@ import android.provider.BaseColumns;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "Walkntrade.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static final String COMMA = " , ";
     private static final String TINY_TEXT_TYPE = "TINYTEXT";
@@ -50,7 +50,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_RECIPIENT_IMAGE+" "+TEXT_TYPE+COMMA+
                 COLUMN_NEW_MESSAGES+" "+INT_TYPE+")";
 
-        private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXIST "+TABLE_NAME;
+        private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS "+TABLE_NAME;
     }
 
     public static abstract class ConversationEntry implements BaseColumns {
@@ -64,14 +64,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public static final String INDEX_NAME = "ConversationIndex";
 
         private static final String SQL_CREATE_ENTRIES = "CREATE TABLE "+ ConversationEntry.TABLE_NAME+
-                "("+COLUMN_THREAD_ID+" "+TEXT_TYPE+" "+PRIMARYKEY+COMMA+
+                "("+COLUMN_THREAD_ID+" "+TEXT_TYPE+" "+NOTNULL+COMMA+
                 COLUMN_SENT_FROM_ME+" "+TINY_INT_TYPE+" "+NOTNULL+COMMA+
                 COLUMN_CONTENTS+" "+TEXT_TYPE+COMMA+
                 COLUMN_DATETIME+" "+TEXT_TYPE+COMMA+
                 COLUMN_SENDER_NAME+" "+TEXT_TYPE+COMMA+
                 COLUMN_SENDER_IMAGE+" "+TEXT_TYPE+")";
 
-        private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXIST "+TABLE_NAME;
+        private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS "+TABLE_NAME;
 
         private static final String SQL_INDEX_ENTRIES = "CREATE INDEX "+INDEX_NAME+" ON "+TABLE_NAME+" ("+COLUMN_THREAD_ID+")";
 
@@ -91,7 +91,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(ThreadsEntry.SQL_DELETE_ENTRIES);
-        db.execSQL(ThreadsEntry.SQL_DELETE_ENTRIES);
+        db.execSQL(ConversationEntry.SQL_DELETE_ENTRIES);
         onCreate(db);
     }
 }
