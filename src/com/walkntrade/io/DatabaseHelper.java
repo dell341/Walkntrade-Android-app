@@ -69,7 +69,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_CONTENTS+" "+TEXT_TYPE+COMMA+
                 COLUMN_DATETIME+" "+TEXT_TYPE+COMMA+
                 COLUMN_SENDER_NAME+" "+TEXT_TYPE+COMMA+
-                COLUMN_SENDER_IMAGE+" "+TEXT_TYPE+COMMA;
+                COLUMN_SENDER_IMAGE+" "+TEXT_TYPE+")";
 
         private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXIST "+TABLE_NAME;
 
@@ -90,6 +90,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL(ThreadsEntry.SQL_DELETE_ENTRIES);
         db.execSQL(ThreadsEntry.SQL_DELETE_ENTRIES);
         onCreate(db);
     }
