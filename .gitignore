@@ -2,6 +2,7 @@
 
 # Built application files
 *.ap_
+*.apk
 
 # Keystore files
 *.keystore
