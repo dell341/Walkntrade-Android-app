@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/user_drawer_height"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:background="@color/green_secondary">
+    android:layout_height="wrap_content"
+    android:background="@color/green_secondary"
+    android:minHeight="@dimen/user_drawer_height"
+    android:paddingBottom="8dp"
+    android:paddingLeft="@dimen/vertical_keyline_1"
+    android:paddingRight="@dimen/vertical_keyline_1">
 
     <!-- Default user image-->
     <ImageView
@@ -12,9 +14,8 @@
         android:layout_height="@dimen/user_drawer_image_height"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_account_circle_black_48dp"/>
+        android:src="@drawable/ic_account_circle_black_48dp" />
 
     <!-- User Image -->
     <de.hdodenhof.circleimageview.CircleImageView
@@ -23,8 +24,7 @@
         android:layout_height="@dimen/user_drawer_image_height"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:layout_margin="4dp"/>
+        android:layout_margin="4dp" />
 
 
     <!-- User Name -->
@@ -32,12 +32,10 @@
         android:id="@+id/drawer_user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="12dp"
-        android:layout_marginStart="12dp"
-        android:layout_toEndOf="@id/drawer_user"
-        android:layout_toRightOf="@id/drawer_user"
-        android:background="#8CFFFFFF"
+        android:layout_marginLeft="@dimen/vertical_keyline_2"
+        android:layout_marginStart="@dimen/vertical_keyline_2"
+        android:layout_marginTop="16dp"
+        android:background="@color/white_transparent_op215"
         android:ellipsize="end"
         android:maxLines="1"
         android:paddingBottom="5dp"
@@ -45,21 +43,36 @@
         android:paddingRight="10dp"
         android:paddingTop="5dp"
         android:textSize="16sp"
-        android:visibility="gone" />
+        android:visibility="invisible"/>
+
+    <!-- School Name -->
+    <com.walkntrade.views.LightTextView
+        android:id="@+id/drawer_school_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/drawer_user"
+        android:layout_alignLeft="@id/drawer_user"
+        android:layout_alignStart="@id/drawer_user"
+        android:layout_marginTop="4dp"
+        android:background="@color/white_transparent_op215"
+        android:maxLines="2"
+        android:paddingBottom="5dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="5dp"
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/drawer_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:layout_toEndOf="@id/drawer_user"
-        android:layout_toRightOf="@id/drawer_user"
         android:layout_alignTop="@id/drawer_user"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginLeft="@dimen/vertical_keyline_2"
+        android:layout_marginStart="@dimen/vertical_keyline_2"
         android:layout_marginTop="16dp"
+        android:gravity="center_horizontal"
         android:text="@string/sign_in"
-        android:textSize="18sp"
-        android:textColor="@color/text_white_clickable"/>
+        android:textColor="@color/text_white_clickable"
+        android:textSize="18sp" />
 
 </RelativeLayout>

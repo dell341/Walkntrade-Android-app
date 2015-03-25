@@ -5,6 +5,6 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/transparent_op140"
+    <item android:drawable="@color/white_transparent_op140"
         android:state_pressed="true"/>
 </selector>

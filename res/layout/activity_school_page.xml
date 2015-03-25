@@ -25,14 +25,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/toolbar">
-
-            <android.support.v4.view.PagerTabStrip
-                android:id="@+id/pager_tab"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:background="@color/green_secondary" />
-
         </android.support.v4.view.ViewPager>
 
     </RelativeLayout>

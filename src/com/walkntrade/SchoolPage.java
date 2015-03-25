@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -59,6 +60,7 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
     private DrawerLayout mDrawerLayout;
     private ListView navigationDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
+    private ViewPager viewPager;
 
     private ActionBar actionBar;
     private Context context;
@@ -72,8 +74,7 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
         context = getApplicationContext();
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationDrawerList = (ListView) findViewById(R.id.navigation_drawer_list);
-        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        PagerTabStrip pagerTab = (PagerTabStrip) findViewById(R.id.pager_tab);
+        viewPager = (ViewPager) findViewById(R.id.pager);
         TabsPagerAdapter tabsAdapter = new TabsPagerAdapter(getFragmentManager(), this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -115,11 +116,18 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
             }
         };
 
-        viewPager.setAdapter(tabsAdapter);
-        pagerTab.setTabIndicatorColor(getResources().getColor(R.color.green_dark));
-        pagerTab.setTextColor(getResources().getColor(android.R.color.white));
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+        navigationDrawerList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         navigationDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        viewPager.setAdapter(tabsAdapter);
+        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                //Highlight the appropriate selection in the navigation drawer, when view pager is scrolled
+                navigationDrawerList.setItemChecked(position + 1, true); //The +1 is to exclude the user header
+            }
+        });
+        navigationDrawerList.setItemChecked(1, true); //Select the first page, this activates the appropriate selection from the navigation drawer list
     }
 
     private class DrawerItemClickListener implements OnItemClickListener {
@@ -270,33 +278,14 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
         if (DataParser.isUserLoggedIn(context)) {
             //User is signed in
             items.add(new DrawerItem(0, R.drawable.circle, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), true)); //User Item
-            //Add all of the add post for the different categories
-            for (int i = 0; i < DataParser.getSharedIntPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_AMOUNT); i++) {
-                String categoryName = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_NAME + i);
-
-                int iconResource;
-
-                if (categoryName.equals(context.getString(R.string.category_name_all)))
-                    continue;
-                else if (categoryName.equals(context.getString(R.string.category_name_book)))
-                    iconResource = R.drawable.ic_book;
-                else if (categoryName.equals(context.getString(R.string.category_name_housing)))
-                    iconResource = R.drawable.ic_service;
-                else if (categoryName.equals(context.getString(R.string.category_name_tech)))
-                    iconResource = R.drawable.ic_tech;
-                else if (categoryName.equals(context.getString(R.string.category_name_misc)))
-                    iconResource = R.drawable.ic_misc;
-                else
-                    iconResource = R.drawable.ic_action_remove;
-
-                items.add(new DrawerItem(100 + i, iconResource, categoryName));
-            }
+            insertCategories(items);
             items.add(new DrawerItem(200, R.drawable.ic_message, getString(R.string.drawer_messages), DataParser.getSharedIntPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_MESSAGES))); //Messages
             items.add(new DrawerItem(300, R.drawable.ic_account, getString(R.string.drawer_account))); //Account
             items.add(new DrawerItem(400, R.drawable.ic_location, getString(R.string.drawer_change_school))); //Select School
         } else {
             //User is signed out
             items.add(new DrawerItem(0, R.drawable.circle, getString(R.string.user_name_no_login), true));
+            insertCategories(items);
             items.add(new DrawerItem(400, R.drawable.ic_location, getString(R.string.drawer_change_school))); //Select School
         }
 
@@ -304,6 +293,30 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
         if (DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
             getUserName();
             getCachedImage();
+        }
+    }
+
+    private void insertCategories(ArrayList<DrawerItem> items) {
+        //Add all of the add post for the different categories
+        for (int i = 0; i < DataParser.getSharedIntPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_AMOUNT); i++) {
+            String categoryName = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_NAME + i);
+
+            int iconResource;
+
+            if (categoryName.equals(context.getString(R.string.category_name_all)))
+                iconResource = R.drawable.ic_action_expand;
+            else if (categoryName.equals(context.getString(R.string.category_name_book)))
+                iconResource = R.drawable.ic_book;
+            else if (categoryName.equals(context.getString(R.string.category_name_housing)))
+                iconResource = R.drawable.ic_service;
+            else if (categoryName.equals(context.getString(R.string.category_name_tech)))
+                iconResource = R.drawable.ic_tech;
+            else if (categoryName.equals(context.getString(R.string.category_name_misc)))
+                iconResource = R.drawable.ic_misc;
+            else
+                iconResource = R.drawable.ic_action_remove;
+
+            items.add(new DrawerItem(100 + i, iconResource, categoryName));
         }
     }
 
@@ -364,10 +377,11 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
             case 104:
             case 105:
             case 106:
-                Intent addPostIntent = new Intent(this, AddPost.class);
-                String category = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_ID + (castedId - 100));
-                addPostIntent.putExtra(AddPost.CATEGORY_NAME, category);
-                startActivityForResult(addPostIntent, AddPost.REQUEST_ADD_POST);
+//                Intent addPostIntent = new Intent(this, AddPost.class);
+//                String category = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_ID + (castedId - 100));
+//                addPostIntent.putExtra(AddPost.CATEGORY_NAME, category);
+//                startActivityForResult(addPostIntent, AddPost.REQUEST_ADD_POST);
+                viewPager.setCurrentItem(castedId - 100);
                 break; //Add Post
             case 200:
                 Intent getMessageIntent = new Intent(this, Messages.class);
@@ -385,7 +399,7 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
         }
 
         //Highlight the selected item, update the title, close the drawer
-        navigationDrawerList.setItemChecked(position, true);
+        //navigationDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawer(navigationDrawerList);
     }
 
@@ -417,7 +431,9 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
 
                 ImageView icon = (ImageView) drawerItemView.findViewById(R.id.drawer_user);
                 TextView content = (TextView) drawerItemView.findViewById(R.id.drawer_user_name);
+                TextView schoolName = (TextView) drawerItemView.findViewById(R.id.drawer_school_name);
                 TextView login = (TextView) drawerItemView.findViewById(R.id.drawer_login);
+
 
                 if (!DataParser.isUserLoggedIn(context)) {
                     content.setVisibility(View.GONE);
@@ -439,11 +455,11 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
                     icon.setImageBitmap(item.getAvatar());
 
                 content.setText(item.getTitle());
+                schoolName.setText(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
             }
             //Else create a regular menu option
             else {
                 drawerItemView = inflater.inflate(R.layout.item_drawer_content, parent, false);
-
                 ImageView icon = (ImageView) drawerItemView.findViewById(R.id.drawer_icon);
                 TextView content = (TextView) drawerItemView.findViewById(R.id.drawer_content);
                 TextView counter = (TextView) drawerItemView.findViewById(R.id.counter);
@@ -462,6 +478,8 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
                 }
 
                 icon.setImageResource(item.getIconResource());
+                if(navigationDrawerList.isItemChecked(position))
+                    icon.setColorFilter(getResources().getColor(R.color.green_dark));
                 content.setText(item.getTitle());
             }
             return drawerItemView;
