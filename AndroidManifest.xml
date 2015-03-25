@@ -96,7 +96,8 @@
         </activity>
         <activity
             android:name=".SchoolPage"
-            android:label="@string/school_name" >
+            android:label="@string/school_name"
+            android:theme="@style/WalkntradeTheme.Compat.Toolbar">
         </activity>
         <activity
             android:name=".ShowPage"

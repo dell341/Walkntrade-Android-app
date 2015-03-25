@@ -50,7 +50,7 @@ import java.util.List;
  */
 
 
-public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment.ConnectionFailedListener {
+public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment.ConnectionFailedListener{
 
     private final String TAG = "SchoolPage";
     private static final String SAVED_AVATAR_IMAGE = "saved_instance_avatar";
@@ -279,9 +279,9 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
             //User is signed in
             items.add(new DrawerItem(0, R.drawable.circle, DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_NAME), true)); //User Item
             insertCategories(items);
-            items.add(new DrawerItem(200, R.drawable.ic_message, getString(R.string.drawer_messages), DataParser.getSharedIntPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_MESSAGES))); //Messages
-            items.add(new DrawerItem(300, R.drawable.ic_account, getString(R.string.drawer_account))); //Account
-            items.add(new DrawerItem(400, R.drawable.ic_location, getString(R.string.drawer_change_school))); //Select School
+            items.add(new DrawerItem(200, R.drawable.ic_question_answer_grey600_24dp, getString(R.string.drawer_messages), DataParser.getSharedIntPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_MESSAGES))); //Messages
+            items.add(new DrawerItem(300, R.drawable.ic_account_circle_grey600_24dp, getString(R.string.drawer_account))); //Account
+            items.add(new DrawerItem(400, R.drawable.ic_place_grey600_24dp, getString(R.string.drawer_change_school))); //Select School
         } else {
             //User is signed out
             items.add(new DrawerItem(0, R.drawable.circle, getString(R.string.user_name_no_login), true));
@@ -304,15 +304,15 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
             int iconResource;
 
             if (categoryName.equals(context.getString(R.string.category_name_all)))
-                iconResource = R.drawable.ic_action_expand;
+                iconResource = R.drawable.ic_lens_grey_24dp;
             else if (categoryName.equals(context.getString(R.string.category_name_book)))
-                iconResource = R.drawable.ic_book;
+                iconResource = R.drawable.ic_book_grey600_24dp;
             else if (categoryName.equals(context.getString(R.string.category_name_housing)))
-                iconResource = R.drawable.ic_service;
+                iconResource = R.drawable.ic_home_grey600_24dp;
             else if (categoryName.equals(context.getString(R.string.category_name_tech)))
-                iconResource = R.drawable.ic_tech;
+                iconResource = R.drawable.ic_smartphone_grey600_24dp;
             else if (categoryName.equals(context.getString(R.string.category_name_misc)))
-                iconResource = R.drawable.ic_misc;
+                iconResource = R.drawable.ic_extension_grey600_24dp;
             else
                 iconResource = R.drawable.ic_action_remove;
 

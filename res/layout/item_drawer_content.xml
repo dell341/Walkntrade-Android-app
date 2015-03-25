@@ -11,8 +11,8 @@
     <!-- Icon in Navigation Drawer -->
     <ImageView
         android:id="@+id/drawer_icon"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginRight="16dp"
@@ -21,8 +21,8 @@
 
     <ImageView
         android:id="@+id/drawer_icon_activated"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginRight="16dp"

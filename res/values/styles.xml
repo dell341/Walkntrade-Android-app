@@ -2,7 +2,14 @@
 <resources>
     <!-- All Application & Activity themes used throughout the app. Applied in AndroidManifest.xml-->
 
-    <style name="WalkntradeTheme.Compat" parent="Theme.AppCompat.Light" >
+    <style name="WalkntradeTheme.Compat" parent="Theme.AppCompat.Light.DarkActionBar" >
+        <item name="colorPrimary">@color/green_primary</item>
+        <item name="colorPrimaryDark">@color/green_dark</item>
+        <item name="colorAccent">@color/walkntrade_green</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="WalkntradeTheme.Compat.Toolbar" parent="Theme.AppCompat.Light" >
         <item name="colorPrimary">@color/green_primary</item>
         <item name="colorPrimaryDark">@color/green_dark</item>
         <item name="colorAccent">@color/walkntrade_green</item>
@@ -12,7 +19,7 @@
         <item name="popupTheme">@style/Theme.AppCompat.Light</item>
     </style>
 
-    <style name="WalkntradeTheme.Overlay" parent="WalkntradeTheme.Compat">
+    <style name="WalkntradeTheme.Overlay" parent="WalkntradeTheme.Compat.Toolbar">
         <item name="android:windowActionBarOverlay">true</item>
     </style>
     

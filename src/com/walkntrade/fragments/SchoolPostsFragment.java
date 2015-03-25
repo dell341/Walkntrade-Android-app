@@ -105,24 +105,9 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         bigProgressBar.setVisibility(View.GONE);
 
         Bundle args = getArguments();
-        //Recalls data from onSaveState. Prevents network calls for a simple orientation change
-//        if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
-//            Log.d(TAG, "savedInstanceState not null");
-//            if (savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST) != null) {
-//                Log.d(TAG, "savedInstanceState has ArrayList data");
-//                schoolPosts = savedInstanceState.getParcelableArrayList(SAVED_ARRAYLIST);
-//                category = savedInstanceState.getString(SAVED_CATEGORY);
-//                index = savedInstanceState.getInt(SAVED_INDEX);
-//                offset += schoolPosts.size();
-//
-//                postsAdapter = new PostAdapter(this.getActivity(), schoolPosts);
-////                for(Post p : schoolPosts)
-////                    new ThumbnailTask(p).execute();
-//            }
-//        else {
-            category = args.getString(ARG_CATEGORY);
-            index = args.getInt(INDEX);
-//        }
+        category = args.getString(ARG_CATEGORY);
+        index = args.getInt(INDEX);
+
 
         /*On initial create, ArrayList will be empty. But onCreateView may be called several times
         Only call this method if the ArrayList is empty, which should only be during the initial creation*/
@@ -177,6 +162,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
 
     @Override
     public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
         //If bottom of GridView is visible and Adapter has remaining posts not yet visible
         if (firstVisibleItem + visibleItemCount >= totalItemCount && postsAdapter.hasMorePosts() && !refreshLayout.isRefreshing()) {
             //If there more posts not yet downloaded and the GridView is not empty (to ensure it doesn't try to download several times)
