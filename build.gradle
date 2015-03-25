@@ -19,6 +19,7 @@ dependencies {
     compile 'com.android.support:support-v4:20.0.0'
     compile 'de.hdodenhof:circleimageview:1.2.1'
     compile 'com.jakewharton:disklrucache:2.0.2'
+    compile 'com.android.support:appcompat-v7:22.0.0'
 }
 
 android {

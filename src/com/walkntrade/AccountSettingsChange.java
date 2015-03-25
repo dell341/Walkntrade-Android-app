@@ -1,6 +1,5 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -30,7 +30,7 @@ import java.io.IOException;
  * https://walkntrade.com
  */
 
-public class AccountSettingsChange extends Activity implements SwipeRefreshLayout.OnRefreshListener {
+public class AccountSettingsChange extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "AccountSettingsChange";
     public static final String CHANGE_SETTING = "settings_to_change";
@@ -124,7 +124,7 @@ public class AccountSettingsChange extends Activity implements SwipeRefreshLayou
             }
         });
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

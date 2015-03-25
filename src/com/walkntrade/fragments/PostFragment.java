@@ -620,10 +620,8 @@ public class PostFragment extends Fragment {
         protected void onPostExecute(Bitmap bitmap) {
             progressUserImage.setVisibility(View.INVISIBLE);
 
-            if (bitmap != null) {
+            if (bitmap != null)
                 userImage.setImageBitmap(bitmap);
-                userImage.setBackgroundColor(context.getResources().getColor(R.color.transparent));
-            }
 
         }
     }

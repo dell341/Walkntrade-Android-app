@@ -13,7 +13,6 @@ import com.walkntrade.R;
 import com.walkntrade.adapters.item.ConversationItem;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /*
  * Copyright (c) 2015. All Rights Reserved. Walkntrade

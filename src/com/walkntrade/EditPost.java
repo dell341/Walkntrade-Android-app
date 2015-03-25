@@ -1,6 +1,5 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -16,6 +15,7 @@ import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -52,7 +52,7 @@ import java.util.Random;
  * https://walkntrade.com
  */
 
-public class EditPost extends Activity implements View.OnClickListener {
+public class EditPost extends ActionBarActivity implements View.OnClickListener {
 
     private static final String TAG = "EditPost";
     private static final String SAVED_CURRENT_PATH = "saved_instance_current_path";
@@ -280,7 +280,7 @@ public class EditPost extends Activity implements View.OnClickListener {
             }
         });
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void editPost() {
@@ -795,7 +795,7 @@ public class EditPost extends Activity implements View.OnClickListener {
             submit.setEnabled(true);
 
             if(serverResponse == StatusCodeParser.STATUS_OK) {
-                getActionBar().setTitle(post.getTitle());
+                getSupportActionBar().setTitle(post.getTitle());
                 title.setText(post.getTitle());
                 description.setText(post.getDetails());
                 tags.setText(post.getTags());

@@ -1,6 +1,5 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
@@ -9,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,7 +29,7 @@ import java.io.IOException;
  * https://walkntrade.com
  */
 
-public class ContactPreferences extends Activity implements CompoundButton.OnCheckedChangeListener{
+public class ContactPreferences extends ActionBarActivity implements CompoundButton.OnCheckedChangeListener{
 
     private static final String TAG = "ContactPreferences";
     private static final int RESOLUTION_REQUEST = 9000;
@@ -93,7 +93,7 @@ public class ContactPreferences extends Activity implements CompoundButton.OnChe
         if(DataParser.isNetworkAvailable(this))
             new GetContactTask().execute(); //Get contact preference from server
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void disableNotifications() {

@@ -1,7 +1,5 @@
 package com.walkntrade;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,11 +8,14 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -48,7 +49,7 @@ import java.util.List;
  */
 
 
-public class SchoolPage extends Activity implements SchoolPostsFragment.ConnectionFailedListener {
+public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment.ConnectionFailedListener {
 
     private final String TAG = "SchoolPage";
     private static final String SAVED_AVATAR_IMAGE = "saved_instance_avatar";
@@ -67,14 +68,17 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_school_page);
 
-        actionBar = getActionBar();
+
         context = getApplicationContext();
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationDrawerList = (ListView) findViewById(R.id.navigation_drawer_list);
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         PagerTabStrip pagerTab = (PagerTabStrip) findViewById(R.id.pager_tab);
         TabsPagerAdapter tabsAdapter = new TabsPagerAdapter(getFragmentManager(), this);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
+        setSupportActionBar(toolbar);
+        actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         LocalBroadcastManager.getInstance(context).registerReceiver(schoolPageUpdateReceiver, new IntentFilter(ACTION_UPDATE_DRAWER));
@@ -96,20 +100,16 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
         }
 
         //Set Title in Action Bar to the name of the school
-        actionBar.setTitle(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
+        actionBar.setTitle(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT_READABLE).toUpperCase());
 
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
 
             public void onDrawerOpened(View view) {//Navigation Drawer is completely open
-                actionBar.setTitle(getString(R.string.app_name));
-
                 invalidateOptionsMenu();
                 super.onDrawerOpened(view);
             }
 
             public void onDrawerClosed(View view) { //Navigation Drawer is completely closed
-                //Set Title in Action Bar to the name of the school
-                actionBar.setTitle(DataParser.getSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG));
                 invalidateOptionsMenu(); //Forces action bar to refresh
                 super.onDrawerClosed(view);
             }
@@ -417,7 +417,7 @@ public class SchoolPage extends Activity implements SchoolPostsFragment.Connecti
 
                 ImageView icon = (ImageView) drawerItemView.findViewById(R.id.drawer_user);
                 TextView content = (TextView) drawerItemView.findViewById(R.id.drawer_user_name);
-                Button login = (Button) drawerItemView.findViewById(R.id.drawer_login);
+                TextView login = (TextView) drawerItemView.findViewById(R.id.drawer_login);
 
                 if (!DataParser.isUserLoggedIn(context)) {
                     content.setVisibility(View.GONE);

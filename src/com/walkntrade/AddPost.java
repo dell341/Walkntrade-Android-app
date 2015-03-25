@@ -1,6 +1,5 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -16,9 +15,9 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -49,7 +48,7 @@ import java.util.Random;
  * https://walkntrade.com
  */
 
-public class AddPost extends Activity implements OnClickListener {
+public class AddPost extends ActionBarActivity implements OnClickListener {
 
     private static final String TAG = "AddPost";
     private static final String SAVED_CURRENT_PATH = "saved_instance_current_path";
@@ -94,7 +93,7 @@ public class AddPost extends Activity implements OnClickListener {
         context = getApplicationContext();
         setContentView(R.layout.activity_add_post);
 
-        getActionBar().setTitle("Adding "+selectedCategory+" post");
+        getSupportActionBar().setTitle("Adding "+selectedCategory+" post");
 
         if (!DataParser.isUserLoggedIn(context))
             startLoginActivity();
@@ -273,7 +272,7 @@ public class AddPost extends Activity implements OnClickListener {
         image3.setOnClickListener(this);
         image4.setOnClickListener(this);
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

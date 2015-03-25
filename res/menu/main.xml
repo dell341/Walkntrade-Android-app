@@ -1,18 +1,18 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:appcompat="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/action_login"
         android:orderInCategory="100"
-        android:icon="@drawable/ic_action_person"
         android:title="@string/sign_in"
-        android:showAsAction="ifRoom"/>
+        appcompat:showAsAction="never"/>
 
     <item
         android:id="@+id/action_inbox"
         android:orderInCategory="200"
         android:icon="@drawable/ic_chat_white"
         android:title="@string/messages"
-        android:showAsAction="ifRoom"/>
+        appcompat:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_feedback"

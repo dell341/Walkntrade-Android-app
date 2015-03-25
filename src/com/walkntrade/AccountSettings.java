@@ -1,9 +1,9 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
  * https://walkntrade.com
  */
 
-public class AccountSettings extends Activity {
+public class AccountSettings extends ActionBarActivity {
 
     private static final String TAG = "AccountSettings";
     private static final int REQUEST_ACCOUNT_CHANGE = 9000;
@@ -65,7 +65,7 @@ public class AccountSettings extends Activity {
             }
         });
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

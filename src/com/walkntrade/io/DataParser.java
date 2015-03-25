@@ -92,6 +92,7 @@ public class DataParser {
     public static final String KEY_USER_MESSAGES = "user_messages"; //User-Pref title
     public static final String KEY_CURRENTLY_LOGGED_IN = "userLoggedIn"; //User-Pref title
     public static final String KEY_SCHOOL_SHORT = "sPrefShort"; //School Preference title
+    public static final String KEY_SCHOOL_SHORT_READABLE = "sPrefShortRead"; //School Preference title
     public static final String KEY_SCHOOL_LONG = "sPrefLong"; //School Preference title
     public static final String KEY_NOTIFY_EMAIL = "notification_email"; //Notification preference
     public static final String KEY_NOTIFY_USER = "notification_status"; //Notification preference title (boolean)
@@ -304,6 +305,8 @@ public class DataParser {
 
         if (key.equals(KEY_SCHOOL_SHORT))
             return settings.getString(KEY_SCHOOL_SHORT, null).split("=")[1]; //sPref=[school] is split and the second index [school] is returned
+        else if (key.equals(KEY_SCHOOL_SHORT_READABLE))
+            return settings.getString(key, settings.getString(KEY_SCHOOL_SHORT, null).split("=")[1]); //Default to sql school id
 
         return settings.getString(key, null);
     }

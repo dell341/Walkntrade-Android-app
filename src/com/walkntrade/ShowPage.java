@@ -1,10 +1,10 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -19,7 +19,7 @@ import com.walkntrade.objects.Post;
  * https://walkntrade.com
  */
 
-public class ShowPage extends Activity implements PostFragment.ContactUserListener {
+public class ShowPage extends ActionBarActivity implements PostFragment.ContactUserListener {
 
     private String TAG = "ShowPage";
     private Context context;
@@ -31,7 +31,7 @@ public class ShowPage extends Activity implements PostFragment.ContactUserListen
         setContentView(R.layout.activity_show_page);
 
         context = getApplicationContext();
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         thisPost = getIntent().getParcelableExtra(SchoolPage.SELECTED_POST);
         Bundle args = new Bundle();

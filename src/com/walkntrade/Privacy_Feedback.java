@@ -1,9 +1,9 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,7 +15,7 @@ import android.widget.ListView;
  * https://walkntrade.com
  */
 
-public class Privacy_Feedback extends Activity implements AdapterView.OnItemClickListener{
+public class Privacy_Feedback extends ActionBarActivity implements AdapterView.OnItemClickListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +28,7 @@ public class Privacy_Feedback extends Activity implements AdapterView.OnItemClic
         listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items));
         listView.setOnItemClickListener(this);
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

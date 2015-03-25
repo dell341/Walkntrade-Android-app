@@ -121,9 +121,13 @@ public class Selector extends Activity implements OnItemClickListener {
 
         String schoolName = school.getFullName();
         String schoolId = school.getShortName();
+        String schoolIdReadable = schoolId.replaceAll("[0-9]","").replace('-','\0');
+        Log.i(TAG, "Before : "+schoolId+" After : "+schoolIdReadable);
 
         DataParser.setSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_LONG, schoolName);
-        DataParser.setSharedStringPreference(context,DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT, "sPref="+schoolId);
+        DataParser.setSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT, "sPref="+schoolId);
+        DataParser.setSharedStringPreference(context, DataParser.PREFS_SCHOOL, DataParser.KEY_SCHOOL_SHORT_READABLE, schoolIdReadable);
+
 
         Intent schoolPage = new Intent(context, SchoolPage.class);
         startActivity(schoolPage);

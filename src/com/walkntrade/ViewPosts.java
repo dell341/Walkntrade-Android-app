@@ -1,7 +1,6 @@
 package com.walkntrade;
 
 import android.animation.Animator;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +8,7 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -42,7 +42,7 @@ import java.util.Locale;
  * https://walkntrade.com
  */
 
-public class ViewPosts extends Activity implements AdapterView.OnItemClickListener {
+public class ViewPosts extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
     private static final String TAG = "ViewPost";
     private static final String SAVED_LIST = "saved_list_of_items";
@@ -87,7 +87,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
         listView.setMultiChoiceModeListener(multiChoiceListener);
         listView.setOnItemClickListener(this);
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -261,7 +261,7 @@ public class ViewPosts extends Activity implements AdapterView.OnItemClickListen
             if (convertView != null  && (item.isContent() && ((String) convertView.getTag()).equalsIgnoreCase(CONTENT))) {
                 postItemView = convertView;
             } else {
-                LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LayoutInflater inflater = getLayoutInflater();
 
                 if (item.isHeader()) {
                     postItemView = inflater.inflate(R.layout.item_post_school, parent, false);

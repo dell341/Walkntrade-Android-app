@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/user_drawer_height">
+    android:layout_height="@dimen/user_drawer_height"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:background="@color/green_secondary">
 
+    <!-- Default user image-->
     <ImageView
-        android:id="@+id/background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="@dimen/user_drawer_image_width"
+        android:layout_height="@dimen/user_drawer_image_height"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
         android:scaleType="centerInside"
-        android:background="@drawable/avatar_background"/>
+        android:src="@drawable/ic_account_circle_black_48dp"/>
 
     <!-- User Image -->
     <de.hdodenhof.circleimageview.CircleImageView
@@ -18,9 +24,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_margin="4dp"
-        android:contentDescription="@string/drawer_icon"
-        android:src="@drawable/circle"/>
+        android:layout_margin="4dp"/>
+
 
     <!-- User Name -->
     <com.walkntrade.views.LightTextView
@@ -42,19 +47,19 @@
         android:textSize="16sp"
         android:visibility="gone" />
 
-    <!-- User Login Button-->
-    <Button
+    <TextView
         android:id="@+id/drawer_login"
-        style="@android:style/Widget.Button"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxHeight="30dp"
-        android:layout_margin="10dp"
-        android:layout_centerVertical="true"
+        android:gravity="center_horizontal"
         android:layout_toEndOf="@id/drawer_user"
         android:layout_toRightOf="@id/drawer_user"
-        android:background="@drawable/grid_selector_post"
+        android:layout_alignTop="@id/drawer_user"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:text="@string/sign_in"
-        android:textSize="16sp"/>
+        android:textSize="18sp"
+        android:textColor="@color/text_white_clickable"/>
 
 </RelativeLayout>

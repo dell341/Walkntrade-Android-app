@@ -1,6 +1,5 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
@@ -16,6 +15,7 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -52,7 +52,7 @@ import java.util.Iterator;
  * https://walkntrade.com
  */
 
-public class Messages extends Activity implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, TaskFragment.TaskCallbacks {
+public class Messages extends ActionBarActivity implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, TaskFragment.TaskCallbacks {
 
     private static final String TAG = "Messages";
     private static final String TAG_TASK_FRAGMENT = "com.walkntrade.Messages.Task_Fragment";
@@ -152,7 +152,7 @@ public class Messages extends Activity implements AdapterView.OnItemClickListene
         }
 
         LocalBroadcastManager.getInstance(context).registerReceiver(newMessagesReceiver, new IntentFilter(GcmIntentService.ACTION_NOTIFICATION_NEW));
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void downloadMessageThreads() {

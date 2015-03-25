@@ -1,6 +1,5 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,6 +7,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -33,7 +33,7 @@ import java.io.IOException;
  * https://walkntrade.com
  */
 
-public class RegistrationActivity extends Activity {
+public class RegistrationActivity extends ActionBarActivity {
 
     private String TAG = "Registration";
     private ScrollView scrollView;
@@ -92,7 +92,7 @@ public class RegistrationActivity extends Activity {
             }
         });
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

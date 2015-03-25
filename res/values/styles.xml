@@ -2,36 +2,33 @@
 <resources>
     <!-- All Application & Activity themes used throughout the app. Applied in AndroidManifest.xml-->
 
-    <style name="WalkntradeTheme" parent="android:Theme.Holo.Light" >
-        <item name="android:icon">@drawable/walkntrade_icon</item>
-        <item name="android:windowBackground">@color/white</item>
-        <item name="android:imeOptions">flagNoFullscreen</item>
+    <style name="WalkntradeTheme.Compat" parent="Theme.AppCompat.Light" >
+        <item name="colorPrimary">@color/green_primary</item>
+        <item name="colorPrimaryDark">@color/green_dark</item>
+        <item name="colorAccent">@color/walkntrade_green</item>
         <item name="android:textColor">@color/black</item>
-        <item name="android:actionBarStyle">@style/CustomActionBar</item>
-        <item name="android:actionOverflowButtonStyle">@android:style/Widget.Holo.ActionButton.Overflow</item>
-        <item name="android:actionBarWidgetTheme">@style/WidgetTheme</item>
+        <item name="windowActionBar">false</item>
+        <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="popupTheme">@style/Theme.AppCompat.Light</item>
     </style>
 
-    <style name="WalkntradeTheme.Overlay" parent="WalkntradeTheme">
+    <style name="WalkntradeTheme.Overlay" parent="WalkntradeTheme.Compat">
         <item name="android:windowActionBarOverlay">true</item>
     </style>
     
-    <style name="WalkntradeTheme.NoActionBar" parent="android:Theme.Holo.Light.NoActionBar">
-        <item name="android:imeOptions">flagNoFullscreen</item>
+    <style name="WalkntradeTheme.NoActionBar" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/green_primary</item>
+        <item name="colorPrimaryDark">@color/green_dark</item>
+        <item name="colorAccent">@color/walkntrade_green</item>
     </style>
 
     <!-- Dialog Theme-->
-    <style name="DialogTheme" parent="@android:style/Theme.Holo.Light.Dialog">
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:imeOptions">flagNoFullscreen</item>
     </style>
 
     <!-- Theme used for the post image pop-up -->
     <style name="ImageDialogTheme" parent="android:Theme.Holo.NoActionBar">
-    </style>
-
-    <style name="WidgetTheme" parent="android:Theme.Holo">
-        <item name="android:textColorHint">@color/transparent_op224</item>
-        <item name="android:popupMenuStyle">@android:style/Widget.Holo.Light.ListPopupWindow</item>
     </style>
 
 </resources>

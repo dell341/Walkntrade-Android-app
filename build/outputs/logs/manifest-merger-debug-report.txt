@@ -68,11 +68,13 @@ ADDED from AndroidManifest.xml:25:5
 application
 ADDED from AndroidManifest.xml:28:5
 MERGED from com.google.android.gms:play-services:6.1.71:16:5
-MERGED from com.android.support:support-v4:20.0.0:17:5
+MERGED from com.android.support:support-v4:22.0.0:22:5
 MERGED from com.android.support:support-v13:20.0.0:17:5
-MERGED from com.android.support:support-v4:20.0.0:17:5
-MERGED from com.android.support:support-v4:20.0.0:17:5
+MERGED from com.android.support:support-v4:22.0.0:22:5
+MERGED from com.android.support:support-v4:22.0.0:22:5
 MERGED from de.hdodenhof:circleimageview:1.2.1:9:5
+MERGED from com.android.support:appcompat-v7:22.0.0:22:5
+MERGED from com.android.support:support-v4:22.0.0:22:5
 	android:label
 		ADDED from AndroidManifest.xml:32:9
 	android:allowBackup
@@ -236,87 +238,85 @@ ADDED from AndroidManifest.xml:132:9
 activity#com.walkntrade.UserSettings
 ADDED from AndroidManifest.xml:137:9
 	android:label
-		ADDED from AndroidManifest.xml:140:13
-	android:configChanges
 		ADDED from AndroidManifest.xml:139:13
 	android:name
 		ADDED from AndroidManifest.xml:138:13
 activity#com.walkntrade.ViewPosts
-ADDED from AndroidManifest.xml:145:9
+ADDED from AndroidManifest.xml:144:9
 	android:label
-		ADDED from AndroidManifest.xml:147:13
-	android:name
 		ADDED from AndroidManifest.xml:146:13
+	android:name
+		ADDED from AndroidManifest.xml:145:13
 activity#com.walkntrade.ContactPreferences
-ADDED from AndroidManifest.xml:152:9
+ADDED from AndroidManifest.xml:151:9
 	android:label
-		ADDED from AndroidManifest.xml:154:13
-	android:name
 		ADDED from AndroidManifest.xml:153:13
+	android:name
+		ADDED from AndroidManifest.xml:152:13
 activity#com.walkntrade.UserAvatar
-ADDED from AndroidManifest.xml:159:9
+ADDED from AndroidManifest.xml:158:9
 	android:label
-		ADDED from AndroidManifest.xml:161:13
-	android:name
 		ADDED from AndroidManifest.xml:160:13
+	android:name
+		ADDED from AndroidManifest.xml:159:13
 activity#com.walkntrade.AccountSettings
-ADDED from AndroidManifest.xml:166:9
+ADDED from AndroidManifest.xml:165:9
 	android:label
-		ADDED from AndroidManifest.xml:168:13
-	android:name
 		ADDED from AndroidManifest.xml:167:13
+	android:name
+		ADDED from AndroidManifest.xml:166:13
 activity#com.walkntrade.AccountSettingsChange
-ADDED from AndroidManifest.xml:173:9
+ADDED from AndroidManifest.xml:172:9
 	android:label
-		ADDED from AndroidManifest.xml:175:13
-	android:name
 		ADDED from AndroidManifest.xml:174:13
+	android:name
+		ADDED from AndroidManifest.xml:173:13
 activity#com.walkntrade.Feedback
-ADDED from AndroidManifest.xml:180:9
+ADDED from AndroidManifest.xml:179:9
 	android:label
-		ADDED from AndroidManifest.xml:182:13
-	android:name
 		ADDED from AndroidManifest.xml:181:13
+	android:name
+		ADDED from AndroidManifest.xml:180:13
 activity#com.walkntrade.Messages
-ADDED from AndroidManifest.xml:187:9
+ADDED from AndroidManifest.xml:186:9
 	android:label
-		ADDED from AndroidManifest.xml:189:13
-	android:name
 		ADDED from AndroidManifest.xml:188:13
+	android:name
+		ADDED from AndroidManifest.xml:187:13
 activity#com.walkntrade.Privacy_Feedback
-ADDED from AndroidManifest.xml:194:9
+ADDED from AndroidManifest.xml:193:9
 	android:label
-		ADDED from AndroidManifest.xml:196:13
-	android:name
 		ADDED from AndroidManifest.xml:195:13
+	android:name
+		ADDED from AndroidManifest.xml:194:13
 activity#com.walkntrade.EditPost
-ADDED from AndroidManifest.xml:198:9
+ADDED from AndroidManifest.xml:197:9
 	android:label
-		ADDED from AndroidManifest.xml:200:13
-	android:name
 		ADDED from AndroidManifest.xml:199:13
+	android:name
+		ADDED from AndroidManifest.xml:198:13
 activity#com.walkntrade.SearchActivity
-ADDED from AndroidManifest.xml:205:9
+ADDED from AndroidManifest.xml:204:9
 	android:label
-		ADDED from AndroidManifest.xml:207:13
-	android:name
 		ADDED from AndroidManifest.xml:206:13
-activity#com.walkntrade.MessageConversation
-ADDED from AndroidManifest.xml:209:9
-	android:label
-		ADDED from AndroidManifest.xml:211:13
-	android:windowSoftInputMode
-		ADDED from AndroidManifest.xml:212:13
 	android:name
+		ADDED from AndroidManifest.xml:205:13
+activity#com.walkntrade.MessageConversation
+ADDED from AndroidManifest.xml:208:9
+	android:label
 		ADDED from AndroidManifest.xml:210:13
+	android:name
+		ADDED from AndroidManifest.xml:209:13
 uses-sdk
 INJECTED from AndroidManifest.xml:0:0 reason: use-sdk injection requested
 MERGED from com.google.android.gms:play-services:6.1.71:15:5
-MERGED from com.android.support:support-v4:20.0.0:16:5
+MERGED from com.android.support:support-v4:22.0.0:20:5
 MERGED from com.android.support:support-v13:20.0.0:16:5
-MERGED from com.android.support:support-v4:20.0.0:16:5
-MERGED from com.android.support:support-v4:20.0.0:16:5
+MERGED from com.android.support:support-v4:22.0.0:20:5
+MERGED from com.android.support:support-v4:22.0.0:20:5
 MERGED from de.hdodenhof:circleimageview:1.2.1:5:5
+MERGED from com.android.support:appcompat-v7:22.0.0:20:5
+MERGED from com.android.support:support-v4:22.0.0:20:5
 	android:targetSdkVersion
 		INJECTED from AndroidManifest.xml:0:0
 		INJECTED from AndroidManifest.xml:0:0

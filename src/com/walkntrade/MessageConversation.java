@@ -1,6 +1,5 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
@@ -14,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -49,7 +49,7 @@ import java.util.ArrayList;
  * https://walkntrade.com
  */
 
-public class MessageConversation extends Activity implements TaskFragment.TaskCallbacks{
+public class MessageConversation extends ActionBarActivity implements TaskFragment.TaskCallbacks{
 
     private static final String TAG = "MessageConversation";
     private static final String TAG_TASK_FRAGMENT = "Task_Fragment";
@@ -81,9 +81,10 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
         setContentView(R.layout.activity_message_conversation);
 
         threadId = getIntent().getStringExtra(THREAD_ID);
-        getActionBar().setTitle(getIntent().getStringExtra(POST_TITLE));
+        getSupportActionBar().setTitle(getIntent().getStringExtra(POST_TITLE));
+
         if(!getIntent().getBooleanExtra(FROM_CONTACT_FRAGMENT, false))
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         context = getApplicationContext();
         GcmIntentService.resetNotfCounter(context); //Clears out all message notifications in Status Bar
@@ -130,7 +131,6 @@ public class MessageConversation extends Activity implements TaskFragment.TaskCa
             String[] whereArgs = {threadId};
             Cursor cursor = db.rawQuery("SELECT * FROM "+ DatabaseHelper.ConversationEntry.TABLE_NAME+" WHERE "+DatabaseHelper.ConversationEntry.COLUMN_THREAD_ID+"=?", whereArgs);
 
-            Log.i(TAG, "Cursor count : "+cursor.getCount());
             ArrayList<ConversationItem> items = new ArrayList<>();
             cursor.moveToFirst();
             while(!cursor.isAfterLast()) {

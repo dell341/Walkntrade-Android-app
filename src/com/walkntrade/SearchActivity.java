@@ -1,12 +1,12 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -37,7 +37,7 @@ import java.util.ArrayList;
  * https://walkntrade.com
  */
 
-public class SearchActivity extends Activity implements AdapterView.OnItemClickListener, AbsListView.OnScrollListener, TaskFragment.TaskCallbacks {
+public class SearchActivity extends ActionBarActivity implements AdapterView.OnItemClickListener, AbsListView.OnScrollListener, TaskFragment.TaskCallbacks {
 
     private static final String TAG = "SearchActivity";
     private static final String TAG_TASK_FRAGMENT = "com.walkntrade.SearchActivity.Task_Fragment";
@@ -90,7 +90,7 @@ public class SearchActivity extends Activity implements AdapterView.OnItemClickL
             postsAdapter = new PostAdapter(context, schoolPosts);
             gridView.setAdapter(postsAdapter);
             editText.setText(searchQuery);
-            getActionBar().setTitle(searchQuery);
+            getSupportActionBar().setTitle(searchQuery);
         }
         else
             init();

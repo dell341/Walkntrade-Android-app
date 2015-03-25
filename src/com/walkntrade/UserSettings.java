@@ -1,9 +1,9 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,7 +18,7 @@ import com.walkntrade.io.DataParser;
  * https://walkntrade.com
  */
 
-public class UserSettings extends Activity implements AdapterView.OnItemClickListener{
+public class UserSettings extends ActionBarActivity implements AdapterView.OnItemClickListener{
 
     private static final String TAG = "UserSettings";
     private static final int REQUEST_ACCOUNT_CHANGE = 9000;
@@ -35,7 +35,7 @@ public class UserSettings extends Activity implements AdapterView.OnItemClickLis
         settingsList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, userOptions));
         settingsList.setOnItemClickListener(this);
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if(!DataParser.isUserLoggedIn(this))
             finish(); //If user not logged in, close this activity

@@ -1,6 +1,5 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,6 +12,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,7 +41,7 @@ import java.util.Random;
  * https://walkntrade.com
  */
 
-public class UserAvatar extends Activity implements View.OnClickListener {
+public class UserAvatar extends ActionBarActivity implements View.OnClickListener {
 
     private static final String TAG = "UserAvatar";
     private static final String SAVED_IMAGE_PATH = "saved_image_path";
@@ -116,7 +116,7 @@ public class UserAvatar extends Activity implements View.OnClickListener {
             }
         });
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void getCachedImage() {

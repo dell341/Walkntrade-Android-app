@@ -1,11 +1,11 @@
 package com.walkntrade;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
@@ -26,7 +26,7 @@ import java.io.IOException;
  * https://walkntrade.com
  */
 
-public class Feedback extends Activity{
+public class Feedback extends ActionBarActivity {
 
     private static final String TAG = "FeedbackActivity";
 
@@ -61,7 +61,7 @@ public class Feedback extends Activity{
             }
         });
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

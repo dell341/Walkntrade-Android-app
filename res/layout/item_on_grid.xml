@@ -10,7 +10,6 @@
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
         android:textSize="@dimen/post_title"
-        android:textColor="@color/black"
 	    android:ellipsize="end"/>
 
     <View
@@ -43,7 +42,6 @@
         android:layout_toEndOf="@id/post_image"
         android:maxLines="4"
 	    android:ellipsize="end"
-        android:textColor="@color/black"
         android:textSize="@dimen/post_details"/>
 
     <com.walkntrade.views.LightTextView
@@ -54,7 +52,6 @@
         android:layout_toRightOf="@id/post_image"
         android:layout_toEndOf="@id/post_image"
         android:layout_below="@id/post_details"
-        android:textColor="@color/black"
         android:textSize="@dimen/post_price"
 	    android:gravity="center"/>
 
@@ -68,7 +65,6 @@
         android:gravity="center_vertical"
         android:singleLine="true"
         android:ellipsize="end"
-        android:textColor="@color/black"
         android:textSize="@dimen/post_user"/>
 
 </RelativeLayout>
