@@ -9,26 +9,17 @@
 	    android:id="@+id/content_title"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:textSize="@dimen/post_title"
 	    android:ellipsize="end"/>
-
-    <View
-        android:id="@+id/border"
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginTop="3dp"
-        android:layout_marginBottom="5dp"
-        android:layout_below="@id/content_title"
-        android:background="#c2c2c2"/>
 
     <ImageView
         android:id="@+id/post_image"
         android:layout_width="@dimen/image_width"
         android:layout_height="@dimen/image_height"
-        android:layout_below="@id/border"
+        android:layout_below="@id/content_title"
         android:layout_marginRight="5dp"
         android:layout_marginEnd="5dp"
-        android:adjustViewBounds="true"
         android:scaleType="centerCrop"
         android:contentDescription="@string/post_image"
         android:background="@color/gray"/>

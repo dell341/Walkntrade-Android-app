@@ -12,6 +12,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,6 +36,7 @@ import com.walkntrade.SchoolPage;
 import com.walkntrade.SearchActivity;
 import com.walkntrade.ShowPage;
 import com.walkntrade.adapters.PostAdapter;
+import com.walkntrade.adapters.PostRecycleAdapter;
 import com.walkntrade.io.DataParser;
 import com.walkntrade.io.DiskLruImageCache;
 import com.walkntrade.io.ObjectResult;
@@ -48,7 +51,7 @@ import java.util.ArrayList;
  * https://walkntrade.com
  */
 
-public class SchoolPostsFragment extends Fragment implements OnItemClickListener, AbsListView.OnScrollListener, SwipeRefreshLayout.OnRefreshListener {
+public class SchoolPostsFragment extends Fragment implements PostRecycleAdapter.PostClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     private String TAG = "SchoolPostsFragment";
     public static final String ARG_CATEGORY = "Fragment Category";
@@ -77,6 +80,8 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
     private boolean downloadMore = true;
     private boolean shouldClearContents = false; //Clear current list when manually refreshing
 
+    private PostRecycleAdapter recycleAdapter;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,7 +102,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         noResults = (TextView) rootView.findViewById(R.id.noResults);
         swipeToRefresh = (TextView) rootView.findViewById(R.id.text_swipe_refresh);
         swipeToRefreshBottom = (TextView) rootView.findViewById(R.id.text_swipe_refresh_error);
-        GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
+        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
 
         refreshLayout.setColorSchemeResources(R.color.green_progress_1, R.color.green_progress_2, R.color.green_progress_3, R.color.green_progress_1);
         refreshLayout.setOnRefreshListener(this);
@@ -116,11 +121,30 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
             downloadMorePosts(bigProgressBar);
         }
 
-        gridView.setAdapter(postsAdapter);
-        gridView.setOnItemClickListener(this);
-        gridView.setOnScrollListener(this);
-        gridView.setVisibility(View.VISIBLE);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL,false);
+        recycleAdapter = new PostRecycleAdapter(schoolPosts);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(recycleAdapter);
 
+        recycleAdapter.setPostClickListener(this);
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+                int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+                int visibleItemCount = layoutManager.getChildCount();
+                int totalItemCount = layoutManager.getItemCount();
+
+                //If user is nearing the bottom of list and refresh layout is not refreshing
+                if(firstVisibleItem + visibleItemCount >= totalItemCount && !refreshLayout.isRefreshing()) {
+                    //If there more posts not yet downloaded and the GridView is not empty (to ensure it doesn't try to download several times)
+                    if (downloadMore && visibleItemCount != 0)
+                        downloadMorePosts(progressBar);
+
+                    recycleAdapter.notifyDataSetChanged();
+                }
+            }
+        });
         return rootView;
     }
 
@@ -153,30 +177,11 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
                 return false;
             }
         });
-
     }
 
     @Override
-    public void onScrollStateChanged(AbsListView absListView, int scrollState) {
-    }
-
-    @Override
-    public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-        //If bottom of GridView is visible and Adapter has remaining posts not yet visible
-        if (firstVisibleItem + visibleItemCount >= totalItemCount && postsAdapter.hasMorePosts() && !refreshLayout.isRefreshing()) {
-            //If there more posts not yet downloaded and the GridView is not empty (to ensure it doesn't try to download several times)
-            if (downloadMore && visibleItemCount != 0)
-                downloadMorePosts(progressBar);
-
-            postsAdapter.loadMore();
-            postsAdapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Post selectedPost = (Post) parent.getItemAtPosition(position);
+    public void onItemClicked(int position) {
+        Post selectedPost = schoolPosts.get(position);
 
         Intent showPage = new Intent(getActivity(), ShowPage.class);
         showPage.putExtra(SchoolPage.SELECTED_POST, selectedPost);
@@ -193,15 +198,6 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
         bigProgressBar.setVisibility(View.VISIBLE);
         downloadMorePosts(bigProgressBar);
     }
-
-    /*Not needed now because Fragment uses setRetainInstance(true)*/
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        outState.putParcelableArrayList(SAVED_ARRAYLIST, schoolPosts);
-//        outState.putString(SAVED_CATEGORY, category);
-//        outState.putInt(SAVED_INDEX, index);
-//    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -325,15 +321,15 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
                     shouldDownLoadMore(false);
                 else { //Add new data from the serve to the ArrayList and update the adapter
                     if (shouldClearContents) { //When doing a manual refresh, contents are overwritten not appended
-                        postsAdapter.clearContents();
-                        postsAdapter.notifyDataSetChanged();
+                        //postsAdapter.clearContents();
+                        recycleAdapter.notifyDataSetChanged();
                         shouldClearContents = false;
                     }
-                    postsAdapter.incrementCount(newPosts);
+                    //postsAdapter.incrementCount(newPosts);
                     for (Post i : newPosts)
                         schoolPosts.add(i);
 
-                    postsAdapter.notifyDataSetChanged();
+                    recycleAdapter.notifyDataSetChanged();
                     for (Post post : newPosts)
                         new ThumbnailTask(post).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, post.getImgUrl());
                 }
@@ -341,7 +337,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
                 connectionListener.hasConnection(false, StatusCodeParser.getStatusString(context, serverResponse));
 
                 //Show different refresh options based on number of already-visible posts.
-                if (postsAdapter.isEmpty()) {
+                if (recycleAdapter.isEmpty()) {
                     noResults.setText(StatusCodeParser.getStatusString(context, serverResponse));
                     noResults.setVisibility(View.VISIBLE);
                     swipeToRefresh.setVisibility(View.VISIBLE);
@@ -396,7 +392,7 @@ public class SchoolPostsFragment extends Fragment implements OnItemClickListener
             if(bitmap != null)
                 post.setBitmapImage(bitmap);
 
-            postsAdapter.notifyDataSetChanged();
+            recycleAdapter.notifyDataSetChanged();
         }
     }
 

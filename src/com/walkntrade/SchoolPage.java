@@ -290,6 +290,7 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
         }
 
         navigationDrawerList.setAdapter(new DrawerAdapter(this, items));
+        navigationDrawerList.setItemChecked(viewPager.getCurrentItem() + 1, true); //The +1 is to exclude the user header
         if (DataParser.isNetworkAvailable(this) && DataParser.isUserLoggedIn(context)) {
             getUserName();
             getCachedImage();
