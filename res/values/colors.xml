@@ -20,6 +20,7 @@
     <color name="white_transparent_op215">#d7ffffff</color>
     <color name="white_transparent_op224">#e0fffbf4</color>
     <color name="white">#ffffff</color>
+    <color name="white_bright40">#ffd7d7d7</color>
 
     <color name="light_gray">#ffdbdbdb</color>
     <color name="gray">#ffcacaca</color>
@@ -28,10 +29,12 @@
     <color name="start_gray">#ffffffff</color>
     <color name="end_gray">#ffbbbbbb</color>
     <color name="black">#000000</color>
+    <color name="black_op120">#78000000</color>
     <color name="_gray">#666666</color>
 
     <color name="green_dark">#0a8f08</color>
     <color name="green_primary">#259b24</color>
+    <color name="green_primary_bright120">#ff208720</color>
     <color name="green_secondary">#72d572</color>
     <color name="green_tertiary">#f1f8e9</color>
     <color name="green_highlight">#ffd0f8c6</color>

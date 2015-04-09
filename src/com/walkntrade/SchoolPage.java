@@ -24,10 +24,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.walkntrade.adapters.TabsPagerAdapter;
 import com.walkntrade.adapters.item.DrawerItem;
 import com.walkntrade.asynctasks.LogoutTask;
@@ -47,7 +50,7 @@ import java.util.List;
  */
 
 
-public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment.ConnectionFailedListener{
+public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment.ConnectionFailedListener, View.OnClickListener {
 
     private final String TAG = "SchoolPage";
     private static final String SAVED_AVATAR_IMAGE = "saved_instance_avatar";
@@ -58,6 +61,8 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
     private ListView navigationDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private ViewPager viewPager;
+    private FloatingActionsMenu fab_addPost;
+    private FloatingActionButton fab_addBook, fab_addTech, fab_addHousing, fab_addMisc;
 
     private ActionBar actionBar;
     private Context context;
@@ -74,6 +79,18 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
         viewPager = (ViewPager) findViewById(R.id.pager);
         TabsPagerAdapter tabsAdapter = new TabsPagerAdapter(getFragmentManager(), this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final FrameLayout dimmer = (FrameLayout) findViewById(R.id.dimmer);
+        fab_addPost = (FloatingActionsMenu) findViewById(R.id.floating_actions_menu);
+        fab_addBook = (FloatingActionButton) findViewById(R.id.fab_books);
+        fab_addHousing = (FloatingActionButton) findViewById(R.id.fab_housing);
+        fab_addTech = (FloatingActionButton) findViewById(R.id.fab_tech);
+        fab_addMisc = (FloatingActionButton) findViewById(R.id.fab_misc);
+
+        dimmer.getForeground().setAlpha(0);
+        fab_addBook.setOnClickListener(this);
+        fab_addHousing.setOnClickListener(this);
+        fab_addTech.setOnClickListener(this);
+        fab_addMisc.setOnClickListener(this);
 
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
@@ -125,6 +142,21 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
             }
         });
         navigationDrawerList.setItemChecked(1, true); //Select the first page, this activates the appropriate selection from the navigation drawer list
+
+        fab_addPost.setOnFloatingActionsMenuUpdateListener(new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener() {
+
+            @Override
+            public void onMenuExpanded() {
+                dimmer.getForeground().setAlpha(120);
+
+            }
+
+            @Override
+            public void onMenuCollapsed() {
+                dimmer.getForeground().setAlpha(0);
+            }
+
+        });
     }
 
     private class DrawerItemClickListener implements OnItemClickListener {
@@ -252,15 +284,42 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
         LocalBroadcastManager.getInstance(context).unregisterReceiver(schoolPageUpdateReceiver);
     }
 
-    @Override //Creates an animated TextView when there is no connection, or for any other error.
+    @Override //Action when connection changed or failed
     public void hasConnection(boolean isConnected, String message) {
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fab_books:
+                startAddPost(1);
+                break;
+            case R.id.fab_housing:
+                startAddPost(2);
+                break;
+            case R.id.fab_tech:
+                startAddPost(3);
+                break;
+            case R.id.fab_misc:
+                startAddPost(4);
+                break;
+        }
+    }
+
+    private void startAddPost(int index) {
+        fab_addPost.collapse();
+
+        Intent addPostIntent = new Intent(this, AddPost.class);
+        String category = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_ID + index);
+        addPostIntent.putExtra(AddPost.CATEGORY_NAME, category);
+        startActivityForResult(addPostIntent, AddPost.REQUEST_ADD_POST);
     }
 
     private BroadcastReceiver schoolPageUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(ACTION_UPDATE_DRAWER))
+            if (intent.getAction().equals(ACTION_UPDATE_DRAWER))
                 updateDrawer();
         }
     };
@@ -330,8 +389,8 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
     private void getCachedImage() {
         String avatarURL = DataParser.getSharedStringPreference(context, DataParser.PREFS_USER, DataParser.KEY_USER_AVATAR_URL);
 
-        if(avatarURL == null) {
-            if(DataParser.isNetworkAvailable(context))
+        if (avatarURL == null) {
+            if (DataParser.isNetworkAvailable(context))
                 new AvatarRetrievalTask(context, navigationDrawerList).execute();
             return;
         }
@@ -356,7 +415,7 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
                 item.setAvatar(bm);
                 adapter.notifyDataSetChanged();
             }
-        }catch (ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             Log.e(TAG, "Image does not exist", e);
             //If user has not uploaded an image, leave Bitmap as null
         }
@@ -375,10 +434,6 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
             case 104:
             case 105:
             case 106:
-//                Intent addPostIntent = new Intent(this, AddPost.class);
-//                String category = DataParser.getSharedStringPreference(context, DataParser.PREFS_CATEGORIES, DataParser.KEY_CATEGORY_ID + (castedId - 100));
-//                addPostIntent.putExtra(AddPost.CATEGORY_NAME, category);
-//                startActivityForResult(addPostIntent, AddPost.REQUEST_ADD_POST);
                 viewPager.setCurrentItem(castedId - 100);
                 break; //Add Post
             case 200:
@@ -476,7 +531,7 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
                 }
 
                 icon.setImageResource(item.getIconResource());
-                if(navigationDrawerList.isItemChecked(position))
+                if (navigationDrawerList.isItemChecked(position))
                     icon.setColorFilter(getResources().getColor(R.color.green_dark));
                 content.setText(item.getTitle());
             }

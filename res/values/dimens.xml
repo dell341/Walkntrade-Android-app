@@ -1,6 +1,7 @@
 <resources>
 
     <dimen name="vertical_keyline_1">16dp</dimen>
+    <dimen name="vertical_keyline_1_compensate">0dp</dimen> <!-- Fix spacing for FAB on tablets-->
     <dimen name="vertical_keyline_2">72dp</dimen>
 
     <dimen name="floating_action_button_diameter">56dp</dimen>

@@ -6,6 +6,7 @@
     -->
 
     <dimen name="vertical_keyline_1">24dp</dimen>
+    <dimen name="vertical_keyline_1_compensate">8dp</dimen> <!-- Fix spacing for FAB on tablets-->
     <dimen name="vertical_keyline_2">80dp</dimen>
 
     <dimen name="image_size_height">300dp</dimen>

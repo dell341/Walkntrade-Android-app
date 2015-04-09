@@ -1,15 +1,2 @@
 <resources>
-    <declare-styleable name="EFloatingActionButton">
-        <attr name="exampleString" format="string" />
-        <attr name="exampleDimension" format="dimension" />
-        <attr name="exampleColor" format="color" />
-        <attr name="exampleDrawable" format="color|reference" />
-    </declare-styleable>
-
-    <declare-styleable name="FloatingActionButton">
-        <attr name="buttonColor" format="color|reference"/>
-        <attr name="buttonIcon" format="reference"/>
-        <attr name="iconColor" format="color|reference"/>
-        <attr name="miniButton" format="boolean"/>
-    </declare-styleable>
 </resources>
