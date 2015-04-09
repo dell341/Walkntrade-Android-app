@@ -3,6 +3,11 @@
     <dimen name="vertical_keyline_1">16dp</dimen>
     <dimen name="vertical_keyline_2">72dp</dimen>
 
+    <dimen name="floating_action_button_diameter">56dp</dimen>
+    <dimen name="floating_action_button_padding">16dp</dimen>
+    <dimen name="mini_floating_action_button_diameter">40dp</dimen>
+    <dimen name="mini_floating_action_button_padding">8dp</dimen>
+
     <dimen name="photo_width">60dp</dimen>
     <dimen name="image_size_height">220dp</dimen>
 

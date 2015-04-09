@@ -2,6 +2,7 @@
 <resources>
     <color name="red">#FF0000</color>
     <color name="lighter_red">#ffff313d</color>
+    <color name="hot_pink">#fffc226e</color>
 
     <color name="blue">#0000FF</color>
     <color name="hover_holo_blue">#ffaee7ff</color>

@@ -1,5 +1,6 @@
 package com.walkntrade.fragments;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
@@ -7,7 +8,10 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -23,6 +27,7 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.walkntrade.BuildConfig;
 import com.walkntrade.EditPost;
 import com.walkntrade.ImageDialog;
 import com.walkntrade.LoginActivity;
@@ -86,7 +91,14 @@ public class PostFragment extends Fragment {
         thisPost = getArguments().getParcelable(SchoolPage.SELECTED_POST);
         context = getActivity().getApplicationContext();
 
+        ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
+        actionBar.setHideOnContentScrollEnabled(true);
+
         final ScrollView scrollView = (ScrollView) rootView.findViewById(R.id.scroll_view);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            scrollView.setNestedScrollingEnabled(true);
+
         final RelativeLayout userProfile = (RelativeLayout) rootView.findViewById(R.id.user_profile);
         RelativeLayout userLayout = (RelativeLayout) rootView.findViewById(R.id.user_layout);
         SnappingHorizontalScrollView horizontalScrollView = (SnappingHorizontalScrollView) rootView.findViewById(R.id.horizontalView);

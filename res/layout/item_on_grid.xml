@@ -31,7 +31,7 @@
         android:layout_alignTop="@id/post_image"
         android:layout_toRightOf="@id/post_image"
         android:layout_toEndOf="@id/post_image"
-        android:maxLines="4"
+        android:maxLines="3"
 	    android:ellipsize="end"
         android:textSize="@dimen/post_details"/>
 

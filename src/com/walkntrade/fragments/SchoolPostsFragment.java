@@ -12,6 +12,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -121,6 +123,8 @@ public class SchoolPostsFragment extends Fragment implements PostRecycleAdapter.
             downloadMorePosts(bigProgressBar);
         }
 
+        final ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
+
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL,false);
         recycleAdapter = new PostRecycleAdapter(schoolPosts);
         recyclerView.setLayoutManager(layoutManager);
@@ -128,9 +132,9 @@ public class SchoolPostsFragment extends Fragment implements PostRecycleAdapter.
 
         recycleAdapter.setPostClickListener(this);
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-
                 int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
                 int visibleItemCount = layoutManager.getChildCount();
                 int totalItemCount = layoutManager.getItemCount();
