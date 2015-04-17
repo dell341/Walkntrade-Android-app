@@ -62,7 +62,7 @@
                 fab:fab_size="mini"
                 fab:fab_colorNormal="@color/white"
                 fab:fab_colorPressed="@color/white_bright40"
-                fab:fab_icon="@drawable/ic_home_grey600_24dp"/>
+                fab:fab_icon="@drawable/grey_home"/>
 
             <com.getbase.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_tech"
@@ -80,7 +80,7 @@
                 fab:fab_size="mini"
                 fab:fab_colorNormal="@color/white"
                 fab:fab_colorPressed="@color/white_bright40"
-                fab:fab_icon="@drawable/ic_extension_grey600_24dp"/>
+                fab:fab_icon="@drawable/grey_puzzle_piece"/>
 
         </com.getbase.floatingactionbutton.FloatingActionsMenu>
 

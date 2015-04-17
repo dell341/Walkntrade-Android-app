@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/de.hdodenhof.circleimageview"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/green_secondary"
-    android:minHeight="@dimen/user_drawer_height"
-    android:paddingBottom="8dp"
-    android:paddingLeft="@dimen/vertical_keyline_1"
-    android:paddingRight="@dimen/vertical_keyline_1">
+    android:layout_height="@dimen/user_drawer_min_height"
+    android:background="@color/green_secondary">
+
+    <ImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/background_3"/>
 
     <!-- Default user image-->
     <ImageView
@@ -25,6 +27,8 @@
         android:layout_height="@dimen/user_drawer_image_height"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:paddingLeft="@dimen/vertical_keyline_1"
+        android:paddingRight="@dimen/vertical_keyline_1"
         android:layout_margin="4dp" />
 
 
@@ -50,11 +54,12 @@
     <com.walkntrade.views.LightTextView
         android:id="@+id/drawer_school_name"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_below="@id/drawer_user"
         android:layout_alignLeft="@id/drawer_user"
         android:layout_alignStart="@id/drawer_user"
         android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
         android:background="@color/white_transparent_op215"
         android:maxLines="2"
         android:paddingBottom="5dp"

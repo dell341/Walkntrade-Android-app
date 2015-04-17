@@ -15,8 +15,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginRight="16dp"
-        android:layout_marginEnd="16dp"
         android:layout_centerVertical="true"/>
 
     <ImageView
@@ -25,8 +23,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginRight="16dp"
-        android:layout_marginEnd="16dp"
         android:layout_centerVertical="true"/>
     
     <!-- Available option -->
@@ -34,8 +30,8 @@
         android:id="@+id/drawer_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/drawer_icon"
-        android:layout_toEndOf="@id/drawer_icon"
+        android:layout_marginLeft="@dimen/vertical_keyline_2"
+        android:layout_marginStart="@dimen/vertical_keyline_2"
         android:layout_centerVertical="true"
         android:textColor="@color/text_activated_primary_color"
         android:textSize="16sp"/>

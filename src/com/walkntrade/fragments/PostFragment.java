@@ -1,6 +1,5 @@
 package com.walkntrade.fragments;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
@@ -27,7 +26,6 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.walkntrade.BuildConfig;
 import com.walkntrade.EditPost;
 import com.walkntrade.ImageDialog;
 import com.walkntrade.LoginActivity;
@@ -92,7 +90,6 @@ public class PostFragment extends Fragment {
         context = getActivity().getApplicationContext();
 
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
-        actionBar.setHideOnContentScrollEnabled(true);
 
         final ScrollView scrollView = (ScrollView) rootView.findViewById(R.id.scroll_view);
 

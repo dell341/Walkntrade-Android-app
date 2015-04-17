@@ -275,6 +275,11 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
             return;
         }
 
+        if(fab_addPost.isExpanded()) {
+            fab_addPost.collapse();
+            return;
+        }
+
         super.onBackPressed();
     }
 
@@ -361,17 +366,17 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
             int iconResource;
 
             if (categoryName.equals(context.getString(R.string.category_name_all)))
-                iconResource = R.drawable.ic_lens_grey_24dp;
+                iconResource = R.drawable.grey_circle_thin;
             else if (categoryName.equals(context.getString(R.string.category_name_book)))
                 iconResource = R.drawable.ic_book_grey600_24dp;
             else if (categoryName.equals(context.getString(R.string.category_name_housing)))
-                iconResource = R.drawable.ic_home_grey600_24dp;
+                iconResource = R.drawable.grey_home;
             else if (categoryName.equals(context.getString(R.string.category_name_tech)))
                 iconResource = R.drawable.ic_smartphone_grey600_24dp;
             else if (categoryName.equals(context.getString(R.string.category_name_misc)))
-                iconResource = R.drawable.ic_extension_grey600_24dp;
+                iconResource = R.drawable.grey_puzzle_piece;
             else
-                iconResource = R.drawable.ic_action_remove;
+                iconResource = R.drawable.grey_puzzle_piece;
 
             items.add(new DrawerItem(100 + i, iconResource, categoryName));
         }

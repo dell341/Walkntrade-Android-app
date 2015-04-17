@@ -21,7 +21,7 @@
 
     <!-- Width of Navigation Drawer -->
     <dimen name="navigation_drawer_width">240dp</dimen>
-    <dimen name="user_drawer_height">80dp</dimen>
+    <dimen name="user_drawer_min_height">130dp</dimen>
     <dimen name="user_drawer_image_width">56dp</dimen>
     <dimen name="user_drawer_image_height">56dp</dimen>
 
