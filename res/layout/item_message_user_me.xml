@@ -45,7 +45,7 @@
         android:layout_alignTop="@id/linear_layout"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:src="@drawable/circle"/>
+        android:src="@drawable/ic_account_circle_black_48dp"/>
 
     <TextView
         android:id="@+id/user"

@@ -409,8 +409,6 @@ public class Messages extends ActionBarActivity implements AdapterView.OnItemCli
             lastMessageDate.setText(FormatDateTime.formatDateTime(item.getLastDateTime()));
             if (item.hasImage()) {
                 userImage.setImageBitmap(item.getUserImage());
-            } else {
-                userImage.setImageResource(R.drawable.circle);
             }
 
             if (item.getNewMessages() > 0) {
