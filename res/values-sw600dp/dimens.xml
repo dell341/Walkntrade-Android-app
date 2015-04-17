@@ -12,7 +12,8 @@
     <dimen name="image_size_height">300dp</dimen>
 
     <!-- Width of Navigation Drawer -->
-    <dimen name="navigation_drawer_width">320dp</dimen>
+    <dimen name="navigation_drawer_width">500dp</dimen>
+    <dimen name="standard_actionbar_size">64dp</dimen>
     <dimen name="user_drawer_min_height">136dp</dimen>
     <dimen name="user_drawer_image_width">84dp</dimen>
     <dimen name="user_drawer_image_height">84dp</dimen>

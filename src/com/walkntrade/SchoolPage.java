@@ -359,7 +359,7 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
             //User is signed out
             items.add(new DrawerItem(0, R.drawable.circle, getString(R.string.user_name_no_login), true));
             insertCategories(items);
-            items.add(new DrawerItem(400, R.drawable.ic_location, getString(R.string.drawer_change_school))); //Select School
+            items.add(new DrawerItem(400, R.drawable.ic_place_grey600_24dp, getString(R.string.drawer_change_school))); //Select School
         }
 
         navigationDrawerList.setAdapter(new DrawerAdapter(this, items));
