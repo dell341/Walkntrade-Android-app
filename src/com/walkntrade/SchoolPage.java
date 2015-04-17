@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.astuetz.PagerSlidingTabStrip;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.walkntrade.adapters.TabsPagerAdapter;
@@ -50,7 +51,7 @@ import java.util.List;
  */
 
 
-public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment.ConnectionFailedListener, View.OnClickListener {
+public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment.ConnectionFailedListener, View.OnClickListener, ViewPager.OnPageChangeListener {
 
     private final String TAG = "SchoolPage";
     private static final String SAVED_AVATAR_IMAGE = "saved_instance_avatar";
@@ -77,6 +78,7 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationDrawerList = (ListView) findViewById(R.id.navigation_drawer_list);
         viewPager = (ViewPager) findViewById(R.id.pager);
+        PagerSlidingTabStrip pagerTab = (PagerSlidingTabStrip) findViewById(R.id.pager_tab);
         TabsPagerAdapter tabsAdapter = new TabsPagerAdapter(getFragmentManager(), this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         final FrameLayout dimmer = (FrameLayout) findViewById(R.id.dimmer);
@@ -134,13 +136,9 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
         navigationDrawerList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         navigationDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         viewPager.setAdapter(tabsAdapter);
-        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                //Highlight the appropriate selection in the navigation drawer, when view pager is scrolled
-                navigationDrawerList.setItemChecked(position + 1, true); //The +1 is to exclude the user header
-            }
-        });
+        viewPager.setOnPageChangeListener(this);
+        pagerTab.setViewPager(viewPager);
+        pagerTab.setOnPageChangeListener(this);
         navigationDrawerList.setItemChecked(1, true); //Select the first page, this activates the appropriate selection from the navigation drawer list
 
         fab_addPost.setOnFloatingActionsMenuUpdateListener(new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener() {
@@ -287,6 +285,20 @@ public class SchoolPage extends ActionBarActivity implements SchoolPostsFragment
     protected void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(context).unregisterReceiver(schoolPageUpdateReceiver);
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        //Highlight the appropriate selection in the navigation drawer, when view pager is scrolled
+        navigationDrawerList.setItemChecked(position + 1, true); //The +1 is to exclude the user header
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
     }
 
     @Override //Action when connection changed or failed

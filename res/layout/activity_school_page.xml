@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,11 +21,20 @@
             android:background="?attr/colorPrimary"
             app:elevation="2dp"/>
 
+       <com.astuetz.PagerSlidingTabStrip
+           android:id="@+id/pager_tab"
+           android:layout_width="match_parent"
+           android:layout_height="?attr/actionBarSize"
+           android:layout_below="@id/toolbar"
+           android:textColorPrimary="@color/white"
+           android:textColor="?attr/colorPrimaryDark"
+           android:background="?attr/colorPrimary"/>
+
         <android.support.v4.view.ViewPager
             android:id="@+id/pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/toolbar">
+            android:layout_below="@id/pager_tab">
         </android.support.v4.view.ViewPager>
 
         <FrameLayout
@@ -42,45 +51,45 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            fab:fab_addButtonColorNormal="?attr/colorPrimary"
-            fab:fab_addButtonColorPressed="@color/green_primary_bright120"
-            fab:fab_expandDirection="up">
+            custom:fab_addButtonColorNormal="?attr/colorPrimary"
+            custom:fab_addButtonColorPressed="@color/green_primary_bright120"
+            custom:fab_expandDirection="up">
 
             <com.getbase.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_books"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                fab:fab_size="mini"
-                fab:fab_colorNormal="@color/white"
-                fab:fab_colorPressed="@color/white_bright40"
-                fab:fab_icon="@drawable/ic_book_grey600_24dp"/>
+                custom:fab_size="mini"
+                custom:fab_colorNormal="@color/white"
+                custom:fab_colorPressed="@color/white_bright40"
+                custom:fab_icon="@drawable/ic_book_grey600_24dp"/>
 
             <com.getbase.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_housing"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                fab:fab_size="mini"
-                fab:fab_colorNormal="@color/white"
-                fab:fab_colorPressed="@color/white_bright40"
-                fab:fab_icon="@drawable/grey_home"/>
+                custom:fab_size="mini"
+                custom:fab_colorNormal="@color/white"
+                custom:fab_colorPressed="@color/white_bright40"
+                custom:fab_icon="@drawable/grey_home"/>
 
             <com.getbase.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_tech"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                fab:fab_size="mini"
-                fab:fab_colorNormal="@color/white"
-                fab:fab_colorPressed="@color/white_bright40"
-                fab:fab_icon="@drawable/ic_smartphone_grey600_24dp"/>
+                custom:fab_size="mini"
+                custom:fab_colorNormal="@color/white"
+                custom:fab_colorPressed="@color/white_bright40"
+                custom:fab_icon="@drawable/ic_smartphone_grey600_24dp"/>
 
             <com.getbase.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_misc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                fab:fab_size="mini"
-                fab:fab_colorNormal="@color/white"
-                fab:fab_colorPressed="@color/white_bright40"
-                fab:fab_icon="@drawable/grey_puzzle_piece"/>
+                custom:fab_size="mini"
+                custom:fab_colorNormal="@color/white"
+                custom:fab_colorPressed="@color/white_bright40"
+                custom:fab_icon="@drawable/grey_puzzle_piece"/>
 
         </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
