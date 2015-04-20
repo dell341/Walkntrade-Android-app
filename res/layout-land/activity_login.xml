@@ -2,8 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/green_tertiary"
-    tools:context=".LoginActivity">
+    android:background="@color/green_tertiary">
 
     <ImageView
         android:id="@+id/background"
