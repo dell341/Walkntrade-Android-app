@@ -61,9 +61,9 @@ import java.util.Locale;
 
 //Handles almost all necessary network communications
 public class DataParser {
-    private static final String url = "https://walkntrade.com/";
-    private static final String legacyApiUrl = "https://walkntrade.com/api/";
-    private static final String apiUrl = "https://walkntrade.com/api2/";
+    private static final String url = "http://walkntrade.com/";
+    private static final String legacyApiUrl = "http://walkntrade.com/api/";
+    private static final String apiUrl = "http://walkntrade.com/api2/";
     private static final String TAG = "DataParser";
     private static final String STATUS = "status"; //name:"value" pair for JSON request status
     private static final String MESSAGE = "message"; //name:"value" pair for JSON returned message
